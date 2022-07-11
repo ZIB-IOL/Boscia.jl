@@ -1,5 +1,5 @@
 using Statistics
-using BranchAndBound
+using BranchWolfe
 using FrankWolfe
 using Random
 using SCIP
@@ -36,12 +36,12 @@ for i in 1:p
 end
 MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p),x[p+1:2p]), 0.0), MOI.LessThan(k))
 lmo = FrankWolfe.MathOptLMO(o)
-global_bounds = BranchAndBound.IntegerBounds()
+global_bounds = BranchWolfe.IntegerBounds()
 for i = p+1:2p
     push!(global_bounds, (i, MOI.GreaterThan(0.0)))
     push!(global_bounds, (i, MOI.LessThan(1.0)))
 end
-time_lmo= BranchAndBound.TimeTrackingLMO(lmo)
+time_lmo= BranchWolfe.TimeTrackingLMO(lmo)
 
 # Define the root of the tree
 # we fix the direction so we can actually find a veriable to split on later!
@@ -59,10 +59,10 @@ end
 active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
 vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-m = BranchAndBound.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds) 
+m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds) 
 
 # TO DO: how to do this elegantly
-nodeEx = BranchAndBound.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage,BranchAndBound.IntegerBounds(), 1, -1, 1e-3)
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage,BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
 
 # create tree
 tree = Bonobo.initialize(; 
@@ -73,7 +73,7 @@ root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dic
 Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
-    local_bounds = BranchAndBound.IntegerBounds(),
+    local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
     sidx = -1,
     fw_dual_gap_limit= 1e-3)

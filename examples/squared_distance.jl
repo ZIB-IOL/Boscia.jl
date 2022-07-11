@@ -1,4 +1,4 @@
-using BranchAndBound
+using BranchWolfe
 using FrankWolfe
 using Random
 using Debugger
@@ -26,7 +26,7 @@ for xi in x
     MOI.add_constraint(o, xi, MOI.LessThan(1.0))
 end
 lmo = FrankWolfe.MathOptLMO(o)
-integer_variable_bounds = BranchAndBound.IntegerBounds()
+integer_variable_bounds = BranchWolfe.IntegerBounds()
 for i = 1:n
     push!(integer_variable_bounds, (i, MOI.GreaterThan(0.0)))
     push!(integer_variable_bounds, (i, MOI.LessThan(1.0)))
@@ -46,10 +46,10 @@ function grad!(storage, x)
 end
 active_set = FrankWolfe.ActiveSet([(1.0, v)])
 vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
-tlmo = BranchAndBound.TimeTrackingLMO(lmo)
-m = BranchAndBound.SimpleOptimizationProblem(f, grad!, n, collect(1:n), tlmo, integer_variable_bounds)
+tlmo = BranchWolfe.TimeTrackingLMO(lmo)
+m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), tlmo, integer_variable_bounds)
 
-nodeEx = BranchAndBound.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchAndBound.IntegerBounds(), 1, -1, 1e-3)
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
 println(nodeEx.std)
 # create tree
 tree = Bonobo.initialize(; 
@@ -60,7 +60,7 @@ tree = Bonobo.initialize(;
 Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
-    local_bounds = BranchAndBound.IntegerBounds(),
+    local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
     sidx = -1,
     fw_dual_gap_limit = 1e-3)

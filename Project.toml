@@ -1,6 +1,6 @@
-name = "BranchAndBound"
-uuid = "df125234-20bf-4c0f-9bfa-104d3353f312"
-authors = ["Mathieu Besançon"]
+name = "BranchWolfe"
+uuid = "9b6616f4-c136-421b-bb11-c4cb08135907"
+authors = ["ZIB AIS2T"]
 version = "0.1.0"
 
 [deps]
@@ -23,6 +23,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 MathOptInterface = "1"
+FrankWolfe = "0.2"
 julia = "1"
 
 [extras]

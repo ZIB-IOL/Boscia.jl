@@ -1,4 +1,4 @@
-module BranchAndBound
+module BranchWolfe
 
 using FrankWolfe
 using Debugger
