@@ -1,2 +1,3 @@
-# BranchWolfe.jl
-Branch-and-bound with Frank-Wolfe-based convex relaxations
+# BranchAndWolfe
+
+A package for Branch-and-Bound on top of Frank-Wolfe methods.

@@ -1,0 +1,33 @@
+name = "BranchAndBound"
+uuid = "df125234-20bf-4c0f-9bfa-104d3353f312"
+authors = ["Mathieu Besançon"]
+version = "0.1.0"
+
+[deps]
+Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+FrankWolfe = "f55ce6ea-fdc5-4628-88c5-0087fe54bd30"
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
+MathOptSetDistances = "3b969827-a86c-476c-9527-bb6f1a8fbad5"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+MathOptInterface = "1"
+julia = "1"
+
+[extras]
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["GLPK", "Test"]

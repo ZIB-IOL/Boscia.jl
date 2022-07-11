@@ -1,0 +1,88 @@
+using Statistics
+using Distributions
+using LinearAlgebra
+
+# min h(sqrt(y' * M * y)) - r' * y
+# s.t. a' * y <= b 
+#           y >= 0
+#           y_i in Z for i in I
+
+n0 = 10
+const r = 10 * rand(n0)
+const a = rand(n0)
+const Ω = 3 * rand(Float64)
+const b = sum(a)
+@show b
+A1 = randn(n0,n0)
+A1 = A1' * A1
+const M1 =  (A1 + A1')/2
+@assert isposdef(M1)
+
+
+@testset "Buchheim mean risk" begin
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o,n0)
+    I = collect(1:n0) #rand(1:n0, Int64(floor(n0/2)))
+    for i in 1:n0
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        if i in I
+            MOI.add_constraint(o, x[i], MOI.Integer())
+        end
+    end 
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(a,x), 0.0), MOI.LessThan(b))
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(a,x), 0.0), MOI.GreaterThan(minimum(a)))
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n0),x), 0.0), MOI.GreaterThan(1.0))
+    lmo = FrankWolfe.MathOptLMO(o)
+    global_bounds = BranchAndBound.IntegerBounds()
+    for i = 1:n0
+        push!(global_bounds, (i, MOI.GreaterThan(0.0)))
+    end
+    time_lmo= BranchAndBound.TimeTrackingLMO(lmo)
+
+    # Define the root of the tree
+    # we fix the direction so we can actually find a veriable to split on later!
+    direction = Vector{Float64}(undef,n0)
+    Random.rand!(direction)
+    v = compute_extreme_point(time_lmo, direction)
+    vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+
+    function h(x)
+        return Ω
+    end
+    function f(x)
+        return h(x) * (x' * M1 * x) - r' * x
+    end
+    function grad!(storage, x)
+        storage.= 2 * M1 * x - r
+        return storage
+    end
+    active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
+    m = BranchAndBound.SimpleOptimizationProblem(f, grad!, n0, I, time_lmo, global_bounds) 
+
+    # TO DO: how to do this elegantly
+    nodeEx = BranchAndBound.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchAndBound.IntegerBounds(), 1, -1, 1e-3)
+
+    # create tree
+    tree = Bonobo.initialize(; 
+    traverse_strategy = Bonobo.BFS(),
+    Node = typeof(nodeEx),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false)),
+    )
+    Bonobo.set_root!(tree, 
+    (active_set = active_set, 
+    discarded_vertices = vertex_storage,
+    local_bounds = BranchAndBound.IntegerBounds(),
+    level = 1, 
+    sidx = -1,
+    fw_dual_gap_limit= 1e-3)
+    )
+
+    # Profile.init()
+    # ProfileView.@profview Bonobo.optimize!(tree)
+    Bonobo.optimize!(tree; min_number_lower=50)
+    x = Bonobo.get_solution(tree)
+    @show x
+    @test sum(a'* x) <= b + eps()
+end
