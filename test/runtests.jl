@@ -10,14 +10,14 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 
-# IMPORTANT: add FrankWolfe#breaking-02 
-
-
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-#seed = 5    # 5 is there is crashes
-Random.seed!(seed)  # 2 infinity loop!!! 
+Random.seed!(seed)
+
+include("mean_risk.jl")
+include("poisson.jl")
+include("sparse_regression.jl")
 
 @testset "BnBTree data structure and node" begin
     # Building an optimization problem for the tree
