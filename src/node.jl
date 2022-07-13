@@ -351,9 +351,15 @@ end
 function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_dual_gap=0.7, callback=(args...; kwargs...)->(),)
     println("OWN OPTIMIZE FUNCTION USED")
     time_ref = Dates.now()
-    list_lb = [] 
-    list_ub = []
+    list_lb = Float64[] 
+    list_ub = Float64[]
     FW_iterations = []
+    iteration = 0
+    time = 0.0
+    list_time = Float64[]
+    list_num_nodes = Int64[]
+    list_lmo_calls = Int64[]
+    
     fw_callback = build_FW_callback(tree, min_number_lower, true, FW_iterations)
     callback = build_bnb_callback(tree)
     while !Bonobo.terminated(tree)
@@ -371,7 +377,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         # println(FW_iterations)
         if isnan(lb) && isnan(ub)
             Bonobo.close_node!(tree, node)
-            list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, node_infeasible=true)
+            list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, node_infeasible=true)
             continue
         end
 
@@ -379,7 +385,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent
             Bonobo.close_node!(tree, node)
-            list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, worse_than_incumbent=true)
+            list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, worse_than_incumbent=true)
             continue
         end
         updated = Bonobo.update_best_solution!(tree, node)
@@ -388,7 +394,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         Bonobo.close_node!(tree, node)
         #println("branch node")
         Bonobo.branch!(tree, node; percentage_dual_gap=percentage_dual_gap)
-        list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
+        list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
     end
      if get(tree.root.options, :verbose, -1)
         println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -400,7 +406,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         append!(list_ub, copy(tree.incumbent))
         append!(list_lb, copy(tree.lb))
     end
-    return list_lb, list_ub
+    return list_lb::Vector{Float64}, list_ub::Vector{Float64}, iteration::Int, time, list_time::Vector{Float64}, list_num_nodes::Vector{Int64}, list_lmo_calls::Vector{Int64}
 end
 
 function Bonobo.branch!(tree, node; percentage_dual_gap)
