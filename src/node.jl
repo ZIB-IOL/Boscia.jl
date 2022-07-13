@@ -391,7 +391,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
     end
      if get(tree.root.options, :verbose, -1)
-        println("-------------------------------------------------------------------------------------------------------------------------------------------------------------")
+        println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
         x = Bonobo.get_solution(tree)
         println("objective: ", tree.root.problem.f(x))
         println("number of nodes: $(tree.num_nodes)")
