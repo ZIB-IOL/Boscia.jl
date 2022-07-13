@@ -70,15 +70,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, F
 end
 
 """
-    Output of BranchAndBound
+    Output of BranchWolfe
 
-        iter :          current iteration of BranchAndBound
+        iter :          current iteration of BranchWolfe
         node id :       current node id
         lower bound :   tree.lb
         incumbent :     tree.incumbent
         gap :           tree.incumbent-tree.lb
         rel. gap :      dual_gap/tree.incumbent
-        time :          total time of BranchAndBound
+        time :          total time of BranchWolfe
         time/nodes :    average time per node
         FW time :       time spent in FW 
         LMO time :      time used by LMO
@@ -90,7 +90,7 @@ function build_bnb_callback(tree)
     list_ub = []
     list_lb = []
     iteration = 0
-    println("Starting BranchAndBound")
+    println("Starting BranchWolfe")
     verbose = get(tree.root.options, :verbose, -1)
     if verbose
         println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
