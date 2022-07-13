@@ -70,15 +70,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, F
 end
 
 """
-    Output of BranchWolfe
+    Output of BranchAndBound
 
-        iter :          current iteration of BranchWolfe
+        iter :          current iteration of BranchAndBound
         node id :       current node id
         lower bound :   tree.lb
         incumbent :     tree.incumbent
         gap :           tree.incumbent-tree.lb
         rel. gap :      dual_gap/tree.incumbent
-        time :          total time of BranchWolfe
+        time :          total time of BranchAndBound
         time/nodes :    average time per node
         FW time :       time spent in FW 
         LMO time :      time used by LMO
@@ -90,12 +90,12 @@ function build_bnb_callback(tree)
     list_ub = []
     list_lb = []
     iteration = 0
-    println("Starting BranchWolfe")
+    println("Starting BranchAndBound")
     verbose = get(tree.root.options, :verbose, -1)
     if verbose
-        println("-------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        @printf("| iter \t| node id | lower bound | incumbent | gap \t| rel. gap | total time   | time/nodes \t| FW time    | LMO time   | total LMO calls | FW iterations |\n")
-        println("-------------------------------------------------------------------------------------------------------------------------------------------------------------")
+        println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+        @printf("| iter \t| node id | lower bound | incumbent | gap \t| rel. gap | total time   | time/nodes \t| FW time    | LMO time   | total LMO calls | FW iterations | active set size | discarded set size |\n")
+        println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     end
     return function callback(tree, node; FW_time=NaN, LMO_time=NaN, FW_iterations=FW_iterations, worse_than_incumbent=false, node_infeasible=false)
         if node_infeasible==false
@@ -121,8 +121,12 @@ function build_bnb_callback(tree)
             else 
                 FW_iter = 0
             end
+
+            active_set_size = length(node.active_set)
+            discarded_set_size = length(node.discarded_vertices.storage)
+
             if verbose
-                @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter)
+                @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
             end
             FW_iter = []
             return list_lb, list_ub
