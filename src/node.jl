@@ -21,7 +21,6 @@ mutable struct FrankWolfeNode{AT<:FrankWolfe.ActiveSet, DVS<:FrankWolfe.DeletedV
     discarded_vertices::DVS
     local_bounds::IB
     level::Int
-    sidx::Int
     fw_dual_gap_limit::Float64
 end
 
@@ -45,11 +44,12 @@ Create the information of the new branching nodes
 based on their parent and the index of the branching variable
 """
 function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeNode, vidx::Int; percentage_dual_gap)
-    if vidx == node.sidx && is_binary_constraint(tree, vidx)
+    #@show node.id
+    #@show vidx
+    if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
     # update splitting index
-    node.sidx = vidx
     x = Bonobo.get_relaxed_values(tree, node)
     # split active set
    #temp_active_set = copy(node.active_set)
@@ -69,20 +69,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
    push!(varBoundsLeft.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
    push!(varBoundsRight.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-   # for testing 
-#    println("parent discarded set : ", node.discarded_vertices)
-#    println("children left, right: ", node.discarded_vertices, discarded_set_right)
-#     println("parent active set : ", temp_active_set)
-#    println("children left, right: ", active_set_left, active_set_right)
-   #@assert(length(temp_active_set) == length(active_set_left)+length(active_set_right))
-   #@show (length(node.discarded_vertices.storage), length(discarded_set_left.storage), length(discarded_set_right.storage)) 
-   #@assert(length(node.discarded_vertices.storage) == length(discarded_set_left.storage)+length(discarded_set_right.storage))
-
    # add dual gap
    fw_dual_gap_limit = percentage_dual_gap * node.fw_dual_gap_limit
    #update the LMO's
-   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
-   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
+   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit)
+   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit)
    return [node_info_left, node_info_right]
 end
 
@@ -281,6 +272,28 @@ function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::InfeasibleFrankWo
     return copy(FrankWolfe.get_active_set_iterate(tree.root.problem.active_set))
 end
 
+
+function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
+    bin_var, _ = is_binary_constraint(tree, vidx)
+    int_var, _ = is_integer_constraint(tree, vidx)
+    if int_var || bin_var
+        l_idx = MOI.ConstraintIndex{MOI.VariableIndex, MOI.GreaterThan{Float64}}(vidx)
+        u_idx = MOI.ConstraintIndex{MOI.VariableIndex, MOI.LessThan{Float64}}(vidx)
+        l_bound = MOI.is_valid(get_optimizer(tree), l_idx) ? MOI.get(get_optimizer(tree), MOI.ConstraintSet(), l_idx) : nothing
+        u_bound = MOI.is_valid(get_optimizer(tree), u_idx) ? MOI.get(get_optimizer(tree), MOI.ConstraintSet(), u_idx) : nothing
+        if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
+           @debug l_bound.lower, u_bound.upper
+            return false
+        else
+            return true
+        end
+    else #!bin_var && !int_var
+        @debug "No binary or integer constraint here."
+        return true
+   end
+end
+
+
 """
 Check if at a given index we have a binary and integer constraint respectivily.
 """
@@ -288,20 +301,20 @@ function is_binary_constraint(tree::Bonobo.BnBTree, idx::Int)
     consB_list = MOI.get(tree.root.problem.lmo.lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.ZeroOne}())
     for c_idx in consB_list
         if c_idx.value == idx
-            return true
+            return true, c_idx
         end
     end
-    return false
+    return false, -1
 end
 
 function is_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
     consB_list = MOI.get(tree.root.problem.lmo.lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
     for c_idx in consB_list
         if c_idx.value == idx
-            return true
+            return true, c_idx
         end
     end
-    return false
+    return false, -1
 end
 
 """
