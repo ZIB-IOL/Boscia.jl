@@ -1,6 +1,71 @@
 import FrankWolfe: fast_dot, compute_extreme_point, muladd_memory_mode, get_active_set_iterate
 
 """
+InfeasibleFrankWolfeNode functions
+
+    InfeasibleFrankWolfeNode <: AbstractFrankWolfeNode
+
+A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
+
+`std` stores the id, lower and upper bound of the node.
+`valid_active` vector of booleans indicating which vertices in the global active set are valid for the node.
+`lmo` is the minimization oracle capturing the feasible region.   
+"""
+mutable struct InfeasibleFrankWolfeNode{IB<:IntegerBounds} <: AbstractFrankWolfeNode
+    std::Bonobo.BnBNodeInfo
+    valid_active::Vector{Bool}
+    local_bounds::IB
+end
+
+"""
+InfeasibleFrankWolfeNode: Create the information of the new branching nodes 
+based on their parent and the index of the branching variable
+"""
+function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::InfeasibleFrankWolfeNode, vidx::Int)
+   # get solution
+   x = Bonobo.get_relaxed_values(tree, node)
+  
+   # add new bounds to the feasible region left and right
+   # copy bounds from parent
+   varBoundsLeft = copy(node.local_bounds)
+   varBoundsRight = copy(node.local_bounds)
+
+   if haskey(varBoundsLeft.upper_bounds, vidx)
+    delete!(varBoundsLeft.upper_bounds, vidx)
+   end
+   if haskey(varBoundsRight.lower_bounds, vidx)
+    delete!(varBoundsRight.lower_bounds, vidx)
+   end
+   push!(varBoundsLeft.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
+   push!(varBoundsRight.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
+
+   
+   #valid_active is set at evaluation time
+   node_info_left = (valid_active = Bool[], local_bounds = varBoundsLeft) 
+   node_info_right = (valid_active = Bool[],local_bounds = varBoundsRight)
+   
+   return [node_info_left, node_info_right]
+
+end
+
+
+"""
+Build up valid_active; is called whenever the global active_set changes
+"""
+function  populate_valid_active!(active_set::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNode, lmo::FrankWolfe.LinearMinimizationOracle)
+    empty!(node.valid_active)
+    for i in eachindex(active_set)
+        push!(node.valid_active, is_linear_feasible(lmo, active_set.atoms[i]))
+    end
+end
+
+function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::InfeasibleFrankWolfeNode)
+    return copy(FrankWolfe.get_active_set_iterate(tree.root.problem.active_set))
+end
+
+
+
+"""
 Blended pairwise CG coping with infeasible vertices in the active set.
 Infeasible vertices are those for which the passed `filter_function(v)` is false.
 They can be used only as away directions, not as forward ones. The LMO is always assumed to return feasible vertices.
