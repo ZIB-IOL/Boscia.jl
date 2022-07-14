@@ -14,14 +14,12 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         tree.root.current_node_id[] = node.id
         lb, ub, FW_time, LMO_time = Bonobo.evaluate_node!(tree, node, fw_callback) 
-        
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
             Bonobo.close_node!(tree, node)
             list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, node_infeasible=true)
             continue
         end
-
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent

@@ -11,6 +11,7 @@ const MOI = MathOptInterface
 import HiGHS
 
 # For bug hunting:
+#seed = 0xd0cc4c6d90c50bb9
 seed = rand(UInt64)
 @show seed
 Random.seed!(seed)

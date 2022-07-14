@@ -99,6 +99,7 @@ N = 5.0
             storage[1:p] .-= 1/n0 * y0[i] * xi
             storage[end] += 1/n0 * (exp(a) - y0[i])
         end
+        storage ./= norm(storage)
         return storage
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
@@ -204,6 +205,7 @@ end
             storage[1:p] .-= 1/n0 * y0[i] * xi
             storage[end] += 1/n0 * (exp(a) - y0[i])
         end
+        storage ./= norm(storage)
         return storage
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
@@ -215,7 +217,8 @@ end
 
     # create tree
     function perform_strong_branch(tree, node)
-        return node.level <= length(tree.root.problem.integer_variables)/3
+        @show node.level <= length(tree.root.problem.integer_variables)
+        return node.level <= length(tree.root.problem.integer_variables)
     end
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
@@ -237,7 +240,7 @@ end
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
-    # println("Solution: $(x[1:p])")
+    #@show x
     @test sum(x[p+1:2p]) <= k
     #println("Non zero entries:")
     #for i in 1:p
@@ -343,6 +346,7 @@ push!(groups,((k-1)*group_size+1):pg)
             storage[1:pg] .-= 1/n0g * y0g[i] * xi
             storage[end] += 1/n0g * (exp(a) - y0g[i])
         end
+        storage ./= norm(storage)
         return storage
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
@@ -452,6 +456,7 @@ end
             storage[1:pg] .-= 1/n0g * y0g[i] * xi
             storage[end] += 1/n0g * (exp(a) - y0g[i])
         end
+        storage ./= norm(storage)
         return storage
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
@@ -463,7 +468,8 @@ end
 
     # create tree
     function perform_strong_branch(tree, node)
-        return node.level <= length(tree.root.problem.integer_variables)/3
+        @show node.level <= length(tree.root.problem.integer_variables)
+        return node.level <= length(tree.root.problem.integer_variables)
     end
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
@@ -485,7 +491,7 @@ end
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
-    # println("Solution: $(x[1:p])")
+    #@show x
     @test sum(x[pg+1:2pg]) <= k
     #println("Non zero entries:")
     #for i in 1:pg
