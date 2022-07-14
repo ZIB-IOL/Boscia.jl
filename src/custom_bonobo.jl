@@ -22,7 +22,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         end
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
-        if node.lb >= tree.incumbent 
+        if node.lb >= tree.incumbent
             Bonobo.close_node!(tree, node)
             list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, worse_than_incumbent=true)
             continue
