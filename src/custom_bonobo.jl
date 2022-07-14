@@ -28,7 +28,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
             continue
         end
         updated = Bonobo.update_best_solution!(tree, node)
-        updated && Bonobo.bound!(tree, node.id) 
+        updated && Bonobo.bound!(tree, node.id)
 
         Bonobo.close_node!(tree, node)
         #println("branch node")
