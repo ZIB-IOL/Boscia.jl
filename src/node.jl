@@ -23,6 +23,7 @@ mutable struct FrankWolfeNode{AT<:FrankWolfe.ActiveSet, DVS<:FrankWolfe.DeletedV
     level::Int
     sidx::Int
     fw_dual_gap_limit::Float64
+    FW_time::Millisecond
 end
 
 """
@@ -44,7 +45,7 @@ end
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
 """
-function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeNode, vidx::Int; percentage_dual_gap)
+function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeNode, vidx::Int)
     if vidx == node.sidx && is_binary_constraint(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
@@ -79,7 +80,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
    #@assert(length(node.discarded_vertices.storage) == length(discarded_set_left.storage)+length(discarded_set_right.storage))
 
    # add dual gap
-   fw_dual_gap_limit = percentage_dual_gap * node.fw_dual_gap_limit
+   fw_dual_gap_limit = tree.root.percentage_dual_gap * node.fw_dual_gap_limit
    #update the LMO's
    node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
    node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
@@ -185,7 +186,7 @@ end
 """
 Computes the relaxation at that node
 """
-function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_callback)
+function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
    # @show node.id
     # build up node LMO
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, node.local_bounds, tree.root.problem.integer_variables)
@@ -193,11 +194,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.lmo)
     if status == MOI.INFEASIBLE
-        return NaN, NaN, NaN, NaN
+        return NaN, NaN
     end
     if status == MOI.DUAL_INFEASIBLE
         error("Feasible region unbounded! Please check your constraints!")
-        return NaN, NaN, NaN, NaN
+        return NaN, NaN
     end
 
     # set relative accurary for the IP solver
@@ -235,15 +236,14 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
-        callback=fw_callback,
+        #callback=tree.root.fw_callback,
         lazy=true,
         verbose=false,
     ) 
     # @show x,primal,dual_gap, active_set
 
     # println("after fw: ", node.discarded_vertices)
-    time_FW = Dates.now() - time_ref
-    time_LMO = sum(1000*tree.root.problem.lmo.optimizing_times[len+1:end])
+    node.FW_time = Dates.now() - time_ref
 
     # update active set of the node
     node.active_set = active_set
@@ -254,10 +254,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     if is_integer_feasible(tree,x)
         #@show lower_bound, primal
         node.ub = primal
-        return lower_bound, primal, time_FW, time_LMO
+        return lower_bound, primal
     end
 
-    return lower_bound, NaN, time_FW, time_LMO
+    return lower_bound, NaN
 end 
 
 """
@@ -348,73 +348,63 @@ function sort_active_set!(as::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNo
     return (node.bool_active, as)
 end
 
-function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_dual_gap=0.7, callback=(args...; kwargs...)->(),)
-    println("OWN OPTIMIZE FUNCTION USED")
-    time_ref = Dates.now()
-    list_lb = Float64[] 
-    list_ub = Float64[]
-    FW_iterations = []
-    iteration = 0
-    time = 0.0
-    list_time = Float64[]
-    list_num_nodes = Int64[]
-    list_lmo_calls = Int64[]
+# function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_dual_gap=0.7, callback=(args...; kwargs...)->(),)
+#     println("OWN OPTIMIZE FUNCTION USED")
+#     time_ref = Dates.now()
+#     list_lb = Float64[] 
+#     list_ub = Float64[]
+#     FW_iterations = []
+#     iteration = 0
+#     time = 0.0
+#     list_time = Float64[]
+#     list_num_nodes = Int64[]
+#     list_lmo_calls = Int64[]
     
-    fw_callback = build_FW_callback(tree, min_number_lower, true, FW_iterations)
-    callback = build_bnb_callback(tree)
-    while !Bonobo.terminated(tree)
-        node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
-        # println("current node: ", node.id)
-        # println("nodes : ", tree.num_nodes)
-        # if node.id == 25
-        #     return false
-        # end
-        # @show(tree.lb, tree.incumbent)
-        tree.root.current_node_id[] = node.id
-        lb, ub, FW_time, LMO_time = Bonobo.evaluate_node!(tree, node, fw_callback) 
+#     fw_callback = build_FW_callback(tree, min_number_lower, true, FW_iterations)
+#     callback = build_bnb_callback(tree)
+#     while !Bonobo.terminated(tree)
+#         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
+#         # println("current node: ", node.id)
+#         # println("nodes : ", tree.num_nodes)
+#         # if node.id == 25
+#         #     return false
+#         # end
+#         # @show(tree.lb, tree.incumbent)
+#         tree.root.current_node_id[] = node.id
+#         lb, ub, FW_time, LMO_time = Bonobo.evaluate_node!(tree, node, fw_callback) 
         
-        # if the problem was infeasible we simply close the node and continue
-        # println(FW_iterations)
-        if isnan(lb) && isnan(ub)
-            Bonobo.close_node!(tree, node)
-            list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, node_infeasible=true)
-            continue
-        end
+#         # if the problem was infeasible we simply close the node and continue
+#         # println(FW_iterations)
+#         if isnan(lb) && isnan(ub)
+#             Bonobo.close_node!(tree, node)
+#             list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, node_infeasible=true)
+#             continue
+#         end
 
-        Bonobo.set_node_bound!(tree.sense, node, lb, ub)
-        # if the evaluated lower bound is worse than the best incumbent -> close and continue
-        if node.lb >= tree.incumbent
-            Bonobo.close_node!(tree, node)
-            list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, worse_than_incumbent=true)
-            continue
-        end
-        updated = Bonobo.update_best_solution!(tree, node)
-        updated && Bonobo.bound!(tree, node.id)
+#         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
+#         # if the evaluated lower bound is worse than the best incumbent -> close and continue
+#         if node.lb >= tree.incumbent
+#             Bonobo.close_node!(tree, node)
+#             list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations, worse_than_incumbent=true)
+#             continue
+#         end
+#         updated = Bonobo.update_best_solution!(tree, node)
+#         updated && Bonobo.bound!(tree, node.id)
 
-        Bonobo.close_node!(tree, node)
-        #println("branch node")
-        Bonobo.branch!(tree, node; percentage_dual_gap=percentage_dual_gap)
-        list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
-    end
-     if get(tree.root.options, :verbose, -1)
-        println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        x = Bonobo.get_solution(tree)
-        println("objective: ", tree.root.problem.f(x))
-        println("number of nodes: $(tree.num_nodes)")
-        println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
-        println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
-        append!(list_ub, copy(tree.incumbent))
-        append!(list_lb, copy(tree.lb))
-    end
-    return list_lb::Vector{Float64}, list_ub::Vector{Float64}, iteration::Int, time, list_time::Vector{Float64}, list_num_nodes::Vector{Int64}, list_lmo_calls::Vector{Int64}
-end
-
-function Bonobo.branch!(tree, node; percentage_dual_gap)
-    variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node)
-    # no branching variable selected => return
-    variable_idx == -1 && return 
-    nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx; percentage_dual_gap=percentage_dual_gap)
-    for node_info in nodes_info
-        Bonobo.add_node!(tree, node, node_info)
-    end
-end
+#         Bonobo.close_node!(tree, node)
+#         #println("branch node")
+#         Bonobo.branch!(tree, node; percentage_dual_gap=percentage_dual_gap)
+#         list_lb, list_ub, iteration, time, list_time, list_num_nodes, list_lmo_calls = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
+#     end
+#      if get(tree.root.options, :verbose, -1)
+#         println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+#         x = Bonobo.get_solution(tree)
+#         println("objective: ", tree.root.problem.f(x))
+#         println("number of nodes: $(tree.num_nodes)")
+#         println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
+#         println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
+#         append!(list_ub, copy(tree.incumbent))
+#         append!(list_lb, copy(tree.lb))
+#     end
+#     return list_lb::Vector{Float64}, list_ub::Vector{Float64}, iteration::Int, time, list_time::Vector{Float64}, list_num_nodes::Vector{Int64}, list_lmo_calls::Vector{Int64}
+# end
