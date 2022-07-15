@@ -2,7 +2,6 @@ using BranchWolfe
 using Test
 using FrankWolfe
 using Random
-using Debugger
 using SCIP
 using Statistics
 import Bonobo
