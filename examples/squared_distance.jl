@@ -1,7 +1,6 @@
 using BranchWolfe
 using FrankWolfe
 using Random
-using Debugger
 using SCIP
 import Bonobo
 import GLPK

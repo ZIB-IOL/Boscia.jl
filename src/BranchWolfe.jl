@@ -1,7 +1,6 @@
 module BranchWolfe
 
 using FrankWolfe
-using Debugger
 using Random
 using GLPK
 using SCIP
