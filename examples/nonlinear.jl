@@ -1,7 +1,6 @@
 using SCIP
 using FrankWolfe
 using LinearAlgebra
-using GLPK
 import MathOptInterface
 using Random
 using BranchWolfe

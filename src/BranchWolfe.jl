@@ -2,7 +2,6 @@ module BranchWolfe
 
 using FrankWolfe
 using Random
-using GLPK
 using SCIP
 import MathOptInterface
 import Bonobo
