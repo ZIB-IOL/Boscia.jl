@@ -135,8 +135,6 @@ FW_iterations = []
 min_number_lower = 20
 fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, FW_iterations)
 
-# TODO
-@show tree.root.options
 tree.root.options[:callback] = fw_callback
 
 Bonobo.optimize!(tree; callback=bnb_callback) # min_number_lower, bnb_callback)

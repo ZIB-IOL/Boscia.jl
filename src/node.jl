@@ -70,20 +70,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
    push!(varBoundsLeft.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
    push!(varBoundsRight.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-   # for testing 
-#    println("parent discarded set : ", node.discarded_vertices)
-#    println("children left, right: ", node.discarded_vertices, discarded_set_right)
-#     println("parent active set : ", temp_active_set)
-#    println("children left, right: ", active_set_left, active_set_right)
-   #@assert(length(temp_active_set) == length(active_set_left)+length(active_set_right))
-   #@show (length(node.discarded_vertices.storage), length(discarded_set_left.storage), length(discarded_set_right.storage)) 
-   #@assert(length(node.discarded_vertices.storage) == length(discarded_set_left.storage)+length(discarded_set_right.storage))
-
    # add dual gap
-   fw_dual_gap_limit = tree.root.percentage_dual_gap * node.fw_dual_gap_limit
+   fw_dual_gap_limit = tree.root.options[:percentage_dual_gap] * node.fw_dual_gap_limit
    #update the LMO's
-   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
-   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit)
+   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit, FW_time = Millisecond(0))
+   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, sidx = vidx, fw_dual_gap_limit = fw_dual_gap_limit, FW_time = Millisecond(0))
    return [node_info_left, node_info_right]
 end
 
@@ -236,7 +227,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
-        #callback=tree.root.fw_callback,
+        callback=tree.root.options[:callback],
         lazy=true,
         verbose=false,
     ) 
