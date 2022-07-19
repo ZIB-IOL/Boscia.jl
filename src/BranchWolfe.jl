@@ -23,6 +23,7 @@ include("infeasible_pairwise.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
 include("utilities.jl")
+include("interface.jl")
 
 using Statistics
 using Random
