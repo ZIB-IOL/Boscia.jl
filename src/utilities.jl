@@ -157,6 +157,10 @@ function sort_active_set!(as::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNo
 end
 
 
+"""
+Checks if the branch and bound can be stopped.
+By default (in Bonobo) stops then the priority queue is empty. 
+"""
 function Bonobo.terminated(tree::Bonobo.BnBTree)
     dual_gap = get(tree.root.options, :dual_gap, -1),
     if tree.incumbent - tree.lb < dual_gap
