@@ -217,7 +217,6 @@ end
 
     # create tree
     function perform_strong_branch(tree, node)
-        @show node.level <= length(tree.root.problem.integer_variables)
         return node.level <= length(tree.root.problem.integer_variables)
     end
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
@@ -468,7 +467,6 @@ end
 
     # create tree
     function perform_strong_branch(tree, node)
-        @show node.level <= length(tree.root.problem.integer_variables)
         return node.level <= length(tree.root.problem.integer_variables)
     end
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
