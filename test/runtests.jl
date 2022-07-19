@@ -15,6 +15,8 @@ seed = rand(UInt64)
 @show seed
 Random.seed!(seed)
 
+include("interface_test.jl")
+
 @testset "BnBTree data structure and node" begin
     # Building an optimization problem for the tree
     n = 10
@@ -112,12 +114,6 @@ Random.seed!(seed)
     end
 end
 
-# diff needs to defined outside of test to avoid a "unsupported const declaration
-# on a local variable"-error
-#Random.seed!(1)
-const n = 20
-const diff = Random.rand(Bool,n)*0.6.+0.3
-
 @testset "Linear feasible" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -175,6 +171,12 @@ end
     @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n-5))) == false   
     @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n-5))) == false   
 end
+
+# diff needs to defined outside of test to avoid a "unsupported const declaration
+# on a local variable"-error
+#Random.seed!(1)
+n = 20
+const diff = Random.rand(Bool,n)*0.6.+0.3
 
 @testset "Norm over the hyperbox" begin
     o = SCIP.Optimizer()
