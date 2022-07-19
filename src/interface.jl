@@ -8,7 +8,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
     
-    integer_variables = BitSet()
+    integer_variables = Vector{Int}()
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
         push!(integer_variables, cidx.value)
     end

@@ -162,8 +162,8 @@ Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
 """
 function Bonobo.terminated(tree::Bonobo.BnBTree)
-    dual_gap = get(tree.root.options, :dual_gap, -1),
-    if tree.incumbent - tree.lb < dual_gap
+    dual_gap = get(tree.root.options, :dual_gap, -1)
+    if tree.incumbent - tree.lb < dual_gap || isempty(tree.nodes)
         return true
     end
     return false
