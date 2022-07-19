@@ -155,3 +155,12 @@ function sort_active_set!(as::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNo
 
     return (node.bool_active, as)
 end
+
+
+function Bonobo.terminated(tree::Bonobo.BnBTree)
+    dual_gap = get(tree.root.options, :dual_gap, -1),
+    if tree.incumbent - tree.lb < dual_gap
+        return true
+    end
+    return false
+end 
