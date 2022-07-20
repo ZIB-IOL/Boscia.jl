@@ -99,9 +99,6 @@ function build_bnb_callback(tree)
 
     if verbose
         print_callback(headers, format_string, print_header=true)
-        # println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        # @printf("| iter \t| node id | lower bound | incumbent | gap \t| rel. gap | total time   | time/nodes \t| FW time    | LMO time   | total LMO calls | FW iterations | active set size | discarded set size |\n")
-        # println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     end
     return function callback(tree, node; FW_time=NaN, LMO_time=NaN, FW_iterations=FW_iterations, worse_than_incumbent=false, node_infeasible=false)
         if node_infeasible==false
@@ -132,14 +129,13 @@ function build_bnb_callback(tree)
             discarded_set_size = length(node.discarded_vertices.storage)
             nodes_left= length(tree.nodes)
             
-            print_iter = 100 
+            print_iter = 100 # this should not be hard-coded but a parameter the user can pass as well
             
-            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || nodes_left == 1) # TODO: need to output the very last iteration also if we skip some inbetween
+            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || isempty(tree.nodes)) # TODO: need to output the very last iteration also if we skip some inbetween
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)
                 end
                 print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
-                # @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
             end
             FW_iter = []
             return list_lb, list_ub
@@ -160,7 +156,6 @@ function build_bnb_callback(tree)
         time = Dates.value(Dates.now()-time_ref)
         if verbose
             print_callback((iteration, node.id, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time, tree.num_nodes/time * 1000.0, 0, 0, 0, 0), format_string, print_header=false)
-            # @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|        %7i|   %6i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), 0, 0, 0, 0)
         end
         return list_lb, list_ub
     end
