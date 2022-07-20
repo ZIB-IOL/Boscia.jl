@@ -89,7 +89,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         time = float(Dates.value(Dates.now()-time_ref))
         append!(list_time_cb, time)
         FW_time = 0
-        FW_iter = 0
+        FW_iter = 0 #fix FW_iter
         # FW_time = Dates.value(FW_time)
         # FW_iter = FW_iterations[end]
         if !isempty(tree.root.problem.lmo.optimizing_times)
@@ -119,6 +119,13 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
         end
         FW_iter = []
+
+        # update current_node_id
+        if !Bonobo.terminated(tree)
+            tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+            @show tree.root.current_node_id[]
+        end
+        
         return 
     end
 end
@@ -132,10 +139,12 @@ list_lmo_calls_cb = []
 bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb)
 
 FW_iterations = []
-min_number_lower = 20
+min_number_lower = Inf
 fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, FW_iterations)
 
 tree.root.options[:callback] = fw_callback
+tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+@show tree.root.current_node_id[]
 
 Bonobo.optimize!(tree; callback=bnb_callback) # min_number_lower, bnb_callback)
-# list_lb, list_ub = Bonobo.optimize!(tree; min_number_lower=Inf, callback=callback)
+#list_lb, list_ub = Bonobo.optimize!(tree; min_number_lower=Inf, callback=callback)
