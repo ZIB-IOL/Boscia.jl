@@ -119,7 +119,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         # update current_node_id
         if !Bonobo.terminated(tree)
             tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
-            @show tree.root.current_node_id[]
         end
         
         return 
