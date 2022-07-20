@@ -150,4 +150,3 @@ println("objective: ", tree.root.problem.f(x))
 println("number of nodes: $(tree.num_nodes)")
 println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
 println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
-# lb>ub????

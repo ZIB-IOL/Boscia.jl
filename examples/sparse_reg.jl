@@ -15,7 +15,7 @@ using Printf
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
 Random.seed!(42)
-n0=40; p = 5*n0; k = ceil(n0/5);
+n0=15; p = 5*n0; k = ceil(n0/5);
 const lambda_0 = rand(Float64); const lambda_2 = 10.0*rand(Float64);
 const A = rand(Float64, n0, p)
 const y = rand(Float64, n0)
@@ -133,7 +133,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         # update current_node_id
         if !Bonobo.terminated(tree)
             tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
-            @show tree.root.current_node_id[]
         end
         
         return 
@@ -165,4 +164,3 @@ println("objective: ", tree.root.problem.f(x))
 println("number of nodes: $(tree.num_nodes)")
 println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
 println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
-# lb>ub????
