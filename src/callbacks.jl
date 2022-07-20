@@ -93,7 +93,7 @@ function build_bnb_callback(tree)
     println("Starting BranchWolfe")
     verbose = get(tree.root.options, :verbose, -1)
 
-    headers = ["Iteration", "Node id", "Left", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+    headers = ["Iteration", "Node id", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
     format_string = "%10i %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
 

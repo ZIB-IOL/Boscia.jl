@@ -28,7 +28,7 @@ end
 Ns = 5.0
 
 @testset "Interface - sparse regression" begin
-k = 10
+    k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     w = MOI.add_variables(o, p)
