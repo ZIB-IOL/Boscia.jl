@@ -10,7 +10,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
-n = 10
+n = 16
 const ri = 10 * rand(n)
 const ai = rand(n)
 const Ωi = 3 * rand(Float64)
