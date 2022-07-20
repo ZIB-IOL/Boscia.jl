@@ -1,9 +1,11 @@
-# Customized optimuze! and branch function
+# Customized optimize! and branch function
 # Eventually we would like to return to the original Bonobo one and delete this.
 # Changes in Bonobo are being made but are midterm changes.
 
+# TODO: improve output - this way it is a little misleading
+
 function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_dual_gap=0.7, callback=(args...; kwargs...)->(),)
-    println("OWN OPTIMIZE FUNCTION USED")
+    # println("OWN OPTIMIZE FUNCTION USED")
     time_ref = Dates.now()
     list_lb = [] 
     list_ub = []
@@ -36,7 +38,12 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         list_lb, list_ub = callback(tree, node; FW_time=FW_time, LMO_time=LMO_time, FW_iterations=FW_iterations,)
     end
      if get(tree.root.options, :verbose, -1)
-        println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+        print_callback = FrankWolfe.print_callback
+        headers = ["Iteration", "Node id", "Lower bound", "Incumbent", "Gap", "Rel. gap", "Total Time", "Time/nodes", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+        format_string = "%13s %13s %14e %14e %14e %14e %14e %14e %14e %14e %14i %14i %14i %14i\n"    
+        print_callback(headers, format_string, print_footer=true)
+        println()
+
         x = Bonobo.get_solution(tree)
         println("objective: ", tree.root.problem.f(x))
         println("number of nodes: $(tree.num_nodes)")
