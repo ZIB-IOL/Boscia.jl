@@ -39,8 +39,8 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
     end
      if get(tree.root.options, :verbose, -1)
         print_callback = FrankWolfe.print_callback
-        headers = ["Iteration", "Node id", "Lower bound", "Incumbent", "Gap", "Rel. gap", "Total Time", "Time/nodes", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
-        format_string = "%13s %13s %14e %14e %14e %14e %14e %14e %14e %14e %14i %14i %14i %14i\n"    
+        headers = ["Iteration", "Node id", "Left", "Bound", "Incumbent", "Gap", "Rel. gap", "Total Time", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+        format_string = "%10i %10i %10i %14e %14e %14e %14e %14e %14e %14e %14e %14i %10i %10i %10i\n"
         print_callback(headers, format_string, print_footer=true)
         println()
 
