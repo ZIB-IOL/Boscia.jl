@@ -142,7 +142,15 @@ fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, FW_ite
 
 tree.root.options[:callback] = fw_callback
 tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
-@show tree.root.current_node_id[]
 
+time_ref = Dates.now()
 Bonobo.optimize!(tree; callback=bnb_callback) # min_number_lower, bnb_callback)
 #list_lb, list_ub = Bonobo.optimize!(tree; min_number_lower=Inf, callback=callback)
+
+println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+x = Bonobo.get_solution(tree)
+println("objective: ", tree.root.problem.f(x))
+println("number of nodes: $(tree.num_nodes)")
+println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
+println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
+# lb>ub????

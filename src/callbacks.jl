@@ -6,6 +6,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, F
         vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
         (best_v, best_val) = find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
         if best_val < tree.incumbent
+            println("best_val < tree.incumbent")
             node = tree.nodes[tree.root.current_node_id[]]
             sol = Bonobo.DefaultSolution(best_val, best_v, node)
             if isempty(tree.solutions)
@@ -23,6 +24,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, F
 
         val = tree.root.problem.f(state.v)
         if val < tree.incumbent
+            println("val < tree.incumbent")
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
             sol = Bonobo.DefaultSolution(val, copy(state.v), node)
@@ -52,6 +54,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, F
                  # evaluate f(rounded)
                 val = tree.root.problem.f(x_rounded)
                 if val < tree.incumbent
+                    println("val rounded < tree.incumbent")
                     node = tree.nodes[tree.root.current_node_id[]]
                     sol = Bonobo.DefaultSolution(val, x_rounded, node)
                     if isempty(tree.solutions)
