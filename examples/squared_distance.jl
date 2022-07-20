@@ -9,7 +9,6 @@ import MathOptInterface
 const MOI = MathOptInterface
 using Dates
 using Printf
-using PyPlot
 
 Random.seed!(1)
 
@@ -52,7 +51,6 @@ tlmo = BranchWolfe.TimeTrackingLMO(lmo)
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), tlmo, integer_variable_bounds)
 
 nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
-println(nodeEx.std)
 
 tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
@@ -113,7 +111,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         active_set_size = length(node.active_set)
         discarded_set_size = length(node.discarded_vertices.storage)
 
-        if verbose
+        if verbose & !worse_than_incumbent & !node_infeasible
             @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
         end
         #FW_iter = []
