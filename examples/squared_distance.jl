@@ -88,10 +88,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         dual_gap = tree.incumbent-tree.lb
         time = float(Dates.value(Dates.now()-time_ref))
         append!(list_time_cb, time)
-        FW_time = 0
-        FW_iter = 0 #fix FW_iter
-        # FW_time = Dates.value(FW_time)
-        # FW_iter = FW_iterations[end]
+        FW_time = Dates.value(node.FW_time)
+        FW_iter = FW_iterations[end]
         if !isempty(tree.root.problem.lmo.optimizing_times)
             LMO_time = sum(1000*tree.root.problem.lmo.optimizing_times)
             empty!(tree.root.problem.lmo.optimizing_times)
@@ -106,11 +104,11 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             tree.lb = minimum(lower_bounds)
         end
 
-        # if !isempty(FW_iterations)
-        #     FW_iter = FW_iterations[end]
-        # else 
-        #     FW_iter = 0
-        # end
+        if !isempty(FW_iterations)
+            FW_iter = FW_iterations[end]
+        else 
+            FW_iter = 0
+        end
 
         active_set_size = length(node.active_set)
         discarded_set_size = length(node.discarded_vertices.storage)
@@ -118,7 +116,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         if verbose
             @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
         end
-        FW_iter = []
+        #FW_iter = []
 
         # update current_node_id
         if !Bonobo.terminated(tree)
