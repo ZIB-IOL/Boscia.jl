@@ -135,6 +135,9 @@ function build_bnb_callback(tree)
             print_iter = 100 
             
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || nodes_left == 1) # TODO: need to output the very last iteration also if we skip some inbetween
+                if (mod(iteration, print_iter*40) == 0)
+                    print_callback(headers, format_string, print_header=true)
+                end
                 print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
                 # @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
             end
