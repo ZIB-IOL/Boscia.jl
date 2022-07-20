@@ -16,7 +16,7 @@ seed = rand(UInt64)
 Random.seed!(seed)
 
 include("interface_test.jl")
-
+#=
 @testset "BnBTree data structure and node" begin
     # Building an optimization problem for the tree
     n = 10
@@ -550,4 +550,4 @@ end
     @time Bonobo.optimize!(tree; min_number_lower=20)
     x = Bonobo.get_solution(tree)
     @test isapprox(x, round.(diff1), atol = 1e-5, rtol= 1e-5)
-end
+end =#

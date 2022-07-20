@@ -25,12 +25,12 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test x == round.(diffi)
 end
 
-
+#=
 # min h(sqrt(y' * M * y)) - r' * y
 # s.t. a' * y <= b 
 #           y >= 0
@@ -167,4 +167,4 @@ k = 10
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     @show x
     @test sum(x[p+1:2p]) <= k
-end
+end =#
