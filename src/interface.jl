@@ -1,5 +1,5 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.FIRST(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, kwargs...)
+function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, kwargs...)
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
