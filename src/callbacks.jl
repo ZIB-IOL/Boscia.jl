@@ -93,7 +93,7 @@ function build_bnb_callback(tree)
     println("Starting BranchWolfe")
     verbose = get(tree.root.options, :verbose, -1)
 
-    headers = ["Iteration", "Node id", "Left", "Bound", "Incumbent", "Gap", "Rel. gap", "Total Time", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+    headers = ["Iteration", "Node id", "Left", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Total Time", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
     format_string = "%10i %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
 
@@ -138,7 +138,7 @@ function build_bnb_callback(tree)
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)
                 end
-                print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
                 # @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|            %5i|          %5i|            %5i|               %5i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size)
             end
             FW_iter = []
@@ -159,7 +159,7 @@ function build_bnb_callback(tree)
         dual_gap = tree.incumbent-tree.lb
         time = Dates.value(Dates.now()-time_ref)
         if verbose
-            print_callback((iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, tree.num_nodes/time * 1000.0, 0, 0, 0, 0), format_string, print_header=false)
+            print_callback((iteration, node.id, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time, tree.num_nodes/time * 1000.0, 0, 0, 0, 0), format_string, print_header=false)
             # @printf("|   %4i|     %4i| \t% 06.5f|    %.5f|    %.5f|     %.3f|     %6i ms|      %4i ms|   %6i ms|   %6i ms|        %7i|   %6i|\n", iteration, node.id, tree.lb, tree.incumbent, dual_gap, dual_gap/tree.incumbent, time, round(time/tree.num_nodes), 0, 0, 0, 0)
         end
         return list_lb, list_ub
