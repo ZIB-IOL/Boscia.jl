@@ -2,7 +2,6 @@ using BranchWolfe
 using Test
 using FrankWolfe
 using Random
-using Debugger
 using SCIP
 using Statistics
 import Bonobo
@@ -11,13 +10,12 @@ const MOI = MathOptInterface
 import HiGHS
 
 # For bug hunting:
+#seed = 0xd0cc4c6d90c50bb9
 seed = rand(UInt64)
 @show seed
 Random.seed!(seed)
 
-include("mean_risk.jl")
-include("poisson.jl")
-include("sparse_regression.jl")
+include("interface_test.jl")
 
 @testset "BnBTree data structure and node" begin
     # Building an optimization problem for the tree
@@ -57,7 +55,6 @@ include("sparse_regression.jl")
        # -0.17641293832949326, 1.0027785507641414]
     v = compute_extreme_point(time_lmo, direction)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
-    f(x) = FrankWolfe.norm(x)^2
     function f(x)
         return sum(0.5*(x-diff_b).^2)
     end
@@ -82,7 +79,6 @@ include("sparse_regression.jl")
         discarded_vertices = vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
  
@@ -117,12 +113,6 @@ include("sparse_regression.jl")
         @test tree.num_nodes == 3
     end
 end
-
-# diff needs to defined outside of test to avoid a "unsupported const declaration
-# on a local variable"-error
-#Random.seed!(1)
-const n = 20
-const diff = Random.rand(Bool,n)*0.6.+0.3
 
 @testset "Linear feasible" begin
     o = SCIP.Optimizer()
@@ -182,6 +172,12 @@ end
     @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n-5))) == false   
 end
 
+# diff needs to defined outside of test to avoid a "unsupported const declaration
+# on a local variable"-error
+#Random.seed!(1)
+n = 20
+const diff = Random.rand(Bool,n)*0.6.+0.3
+
 @testset "Norm over the hyperbox" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -217,7 +213,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -230,7 +226,6 @@ end
         discarded_vertices = vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
     # Profile.init()
@@ -276,7 +271,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     branching_strategy = BranchWolfe.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
@@ -292,7 +287,6 @@ end
         discarded_vertices = vertex_storage, 
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
     # Profile.init()
@@ -353,7 +347,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -366,7 +360,6 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
         discarded_vertices = vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit = 1e-3)
     )
     # Profile.init()
@@ -411,7 +404,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -424,7 +417,6 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
         discarded_vertices = vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1, 
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
     # Profile.init()
@@ -472,7 +464,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     branching_strategy = BranchWolfe.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
@@ -488,7 +480,6 @@ end
         discarded_vertices = vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
     @time Bonobo.optimize!(tree; min_number_lower=20)
@@ -534,7 +525,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     #branching_strategy = BranchWolfe.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
@@ -554,7 +545,6 @@ end
         discarded_vertices= vertex_storage,
         local_bounds = BranchWolfe.IntegerBounds(),
         level = 1,
-        sidx = -1,
         fw_dual_gap_limit= 1e-3)
     )
     @time Bonobo.optimize!(tree; min_number_lower=20)

@@ -111,7 +111,7 @@ end
 time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p+1, collect(p+1:2p), time_lmo, global_bounds) 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 tree = Bonobo.initialize(; 
@@ -124,7 +124,6 @@ Bonobo.set_root!(tree,
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    sidx = -1,
     fw_dual_gap_limit = 1e-3,
     FW_time = Millisecond(0))
 )
@@ -285,7 +284,7 @@ end
 time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p+1, collect(p+1:2p), time_lmo, global_bounds) 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 function perform_strong_branch(tree, node)
@@ -304,7 +303,6 @@ Bonobo.set_root!(tree,
 discarded_vertices = vertex_storage,
 local_bounds = BranchWolfe.IntegerBounds(),
 level = 1, 
-sidx = -1,
 fw_dual_gap_limit= 1e-3,
 FW_time = Millisecond(0))
 )
@@ -431,7 +429,7 @@ end
 time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2pg+1, collect(pg+1:2pg), time_lmo, global_bounds) 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 tree = Bonobo.initialize(; 
@@ -444,7 +442,6 @@ Bonobo.set_root!(tree,
 discarded_vertices = vertex_storage,
 local_bounds = BranchWolfe.IntegerBounds(),
 level = 1,
-sidx = -1,
 fw_dual_gap_limit= 1e-3,
 FW_time = Millisecond(0)))
 
@@ -543,7 +540,7 @@ end
 time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2pg+1, collect(pg+1:2pg), time_lmo, global_bounds) 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 function perform_strong_branch(tree, node)
@@ -562,7 +559,6 @@ Bonobo.set_root!(tree,
 discarded_vertices = vertex_storage,
 local_bounds = BranchWolfe.IntegerBounds(),
 level = 1, 
-sidx = -1,
 fw_dual_gap_limit= 1e-3,
 FW_time = Millisecond(0)))
 

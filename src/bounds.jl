@@ -20,9 +20,9 @@ IntegerBounds() = IntegerBounds(Dict{Int, MOI.GreaterThan{Float64}}(), Dict{Int,
 
 function Base.push!(ib::IntegerBounds, (idx, bound))
     if bound isa MOI.GreaterThan{Float64}
-        push!(ib.lower_bounds, (idx => bound))
+        ib.lower_bounds[idx] = bound
     elseif bound isa MOI.LessThan{Float64}
-        push!(ib.upper_bounds, (idx => bound))
+        ib.upper_bounds[idx] = bound
     end
     return ib
 end
@@ -35,6 +35,16 @@ function Base.isempty(ib::IntegerBounds)
 end
 
 Base.copy(ib::IntegerBounds) = IntegerBounds(copy(ib.lower_bounds), copy(ib.upper_bounds))
+
+# convenient call
+# ib[3, :lessthan] or ib[3, :greaterthan]
+function Base.getindex(ib::IntegerBounds, idx::Int, sense::Symbol)
+    if sense == :lessthan
+        ib.upper_bounds[idx]
+    else
+        ib.lower_bounds[idx]
+    end
+end
 
 #=function find_bound(ib::GlobalIntegerBounds, vidx)
     @inbounds for idx in eachindex(ib)

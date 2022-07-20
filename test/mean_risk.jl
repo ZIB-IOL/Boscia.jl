@@ -62,7 +62,7 @@ const M1 =  (A1 + A1')/2
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n0, I, time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -75,7 +75,6 @@ const M1 =  (A1 + A1')/2
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
-    sidx = -1,
     fw_dual_gap_limit= 1e-3)
     )
 
@@ -83,6 +82,6 @@ const M1 =  (A1 + A1')/2
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree; min_number_lower=50)
     x = Bonobo.get_solution(tree)
-    @show x
+    # @show x
     @test sum(a'* x) <= b + eps()
 end

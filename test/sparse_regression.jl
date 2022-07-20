@@ -66,7 +66,7 @@ const M = 2*var(A)
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -79,7 +79,6 @@ const M = 2*var(A)
     discarded_vertices= vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
-    sidx = -1,
     fw_dual_gap_limit= 1e-3)
     )
 
@@ -160,7 +159,7 @@ push!(groups,((k_int-1)*group_size+p+1):2p)
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds() , 1, -1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds() , 1, 1e-3)
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -173,7 +172,6 @@ push!(groups,((k_int-1)*group_size+p+1):2p)
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    sidx = -1,
     fw_dual_gap_limit= 1e-3)
     )
 

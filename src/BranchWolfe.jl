@@ -1,9 +1,7 @@
 module BranchWolfe
 
 using FrankWolfe
-using Debugger
 using Random
-using GLPK
 using SCIP
 import MathOptInterface
 import Bonobo
@@ -23,6 +21,8 @@ include("problem.jl")
 include("infeasible_pairwise.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
+include("utilities.jl")
+include("interface.jl")
 
 using Statistics
 using Random

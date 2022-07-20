@@ -63,7 +63,7 @@ vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds) 
 
 # TO DO: how to do this elegantly
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage,BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage,BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 tree = Bonobo.initialize(; 
@@ -76,7 +76,6 @@ Bonobo.set_root!(tree,
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    sidx = -1,
     fw_dual_gap_limit = 1e-3,
     FW_time = Millisecond(0))
 )

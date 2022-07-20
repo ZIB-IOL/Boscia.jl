@@ -1,10 +1,8 @@
 using BranchWolfe
 using FrankWolfe
 using Random
-using Debugger
 using SCIP
 import Bonobo
-import GLPK
 import MathOptInterface
 const MOI = MathOptInterface
 using Dates
@@ -50,7 +48,7 @@ vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 tlmo = BranchWolfe.TimeTrackingLMO(lmo)
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), tlmo, integer_variable_bounds)
 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
@@ -62,7 +60,6 @@ Bonobo.set_root!(tree,
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    sidx = -1,
     fw_dual_gap_limit = 1e-3,
     FW_time = Millisecond(0))
 )
@@ -120,8 +117,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         if !Bonobo.terminated(tree)
             tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
         end
-        
-        return 
     end
 end
 
@@ -142,7 +137,6 @@ tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_s
 
 time_ref = Dates.now()
 Bonobo.optimize!(tree; callback=bnb_callback) # min_number_lower, bnb_callback)
-#list_lb, list_ub = Bonobo.optimize!(tree; min_number_lower=Inf, callback=callback)
 
 println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 x = Bonobo.get_solution(tree)

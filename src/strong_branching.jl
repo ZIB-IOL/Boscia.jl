@@ -42,6 +42,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
             push!(boundsLeft.upper_bounds, (idx => MOI.LessThan(fxi)))
             build_LMO(relaxed_lmo, tree.root.problem.integer_variable_bounds, boundsLeft, Bonobo.get_branching_indices(tree.root))
             MOI.optimize!(relaxed_lmo.o)
+            #MOI.set(relaxed_lmo.o, MOI.Silent(), false)
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
@@ -51,7 +52,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
                 end
                 @assert !isempty(active_set)
                 FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
+                _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, verbose = false, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
                 left_relaxed = primal_relaxed - dual_gap_relaxed
             else
                 @debug "Left non-optimal status $(MOI.get(relaxed_lmo.o, MOI.TerminationStatus()))"
@@ -75,7 +76,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
                 end
                 @assert !isempty(active_set)
                 FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
+                _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, verbose=false, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
                 right_relaxed = primal_relaxed - dual_gap_relaxed
             else
                 @debug "Right non-optimal status $(MOI.get(relaxed_lmo.o, MOI.TerminationStatus()))"

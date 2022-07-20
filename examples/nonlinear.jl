@@ -1,7 +1,6 @@
 using SCIP
 using FrankWolfe
 using LinearAlgebra
-using GLPK
 import MathOptInterface
 using Random
 using BranchWolfe
@@ -69,7 +68,7 @@ const tlmo = BranchWolfe.TimeTrackingLMO(lmo)
 
 m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), tlmo, integer_variable_bounds) 
 
-nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3, Millisecond(0))
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
 # create tree
 tree = Bonobo.initialize(; 
@@ -82,7 +81,6 @@ Bonobo.set_root!(tree,
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    sidx = -1,
     fw_dual_gap_limit = 1e-3,
     FW_time = Millisecond(0))
 )
@@ -140,8 +138,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         if !Bonobo.terminated(tree)
             tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
         end
-        
-        return 
     end
 end
 
