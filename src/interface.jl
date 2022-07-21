@@ -1,5 +1,13 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.FIRST(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, kwargs...)
+function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, kwargs...)
+    if verbose
+        println("\nBranchWolfe Algorithm\n")
+        println("Parameter settings.")
+        println("\t Tree traversal strategy: ", traverse_strategy)
+        println("\t Branching strategy: ", branching_strategy)
+        println("\t Absolute dual gap tolerance: ", dual_gap)
+        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)\n")
+    end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
