@@ -117,7 +117,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     ) 
 
     time_FW = Dates.now() - time_ref
-    time_LMO = sum(1000*tree.root.problem.lmo.optimizing_times[len+1:end])
+    time_LMO = sum(1000*tree.root.problem.lmo.optimizing_times[len+1:end]) # TODO: no hardcoding of numbers. make parameter or constant
 
     # update active set of the node
     node.active_set = active_set
