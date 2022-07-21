@@ -152,7 +152,7 @@ end
             MOI.add_constraint(o, xi, MOI.LessThan(5.0))
         end
     end
-    lmo = FrankWolfe.MathOptLMO(o)    
+    lmo = FrankWolfe.MathOptLMO(o)
 
     global_bounds = BranchWolfe.IntegerBounds()
     @test isempty(global_bounds)

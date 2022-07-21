@@ -102,7 +102,7 @@ function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
             end
         end
     end
-    
+
    # satisfies all constraints
     return true
 end

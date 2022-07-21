@@ -1,8 +1,14 @@
 using LinearAlgebra
 using Distributions
-"""
-Testing of the interface function branch_wolfe
-"""
+import Random
+using SCIP
+import MathOptInterface
+const MOI = MathOptInterface
+import BranchWolfe
+import FrankWolfe
+
+# Testing of the interface function branch_wolfe
+
 n = 20
 diffi = Random.rand(Bool,n)*0.6.+0.3
 

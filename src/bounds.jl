@@ -78,7 +78,7 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
                      if c_idx.value == 5
                         @debug "Found key variable $(nodeBounds.lower_bounds[c_idx.value])"
                      end
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value]) #get(nodeBounds.lower_bounds, c_idx.value, -1))       
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value])
                 else
                 # keep
                     MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, globalBounds.lower_bounds[c_idx.value])
@@ -89,7 +89,7 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
             end
         end
     end
-    
+
     # Upper bounds
     for c_idx in consLT_list
         if c_idx.value in int_vars

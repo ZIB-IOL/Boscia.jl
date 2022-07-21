@@ -248,7 +248,7 @@ function infeasible_blended_pairwise(
 
         _, v_local, v_local_loc, v_val, a_val, a, a_loc, _,_ =
             active_set_argminmax_filter(active_set, gradient, node,lmo, filter_function)
-        
+
         local_gap = fast_dot(gradient, a) - fast_dot(gradient, v_local)
         # if not finite, there is no feasible vertex to move towards,
         # local_gap = -Inf to be sure to pick the FW vertex

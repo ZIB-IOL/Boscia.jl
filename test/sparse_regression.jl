@@ -108,12 +108,12 @@ push!(groups,((k_int-1)*group_size+p+1):2p)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o,2p)
-    for i in p+1:2p         
+    for i in p+1:2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
     end 
-    for i in 1:p    
+    for i in 1:p
         MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,M_g], [x[i], x[i+p]]), 0.0), MOI.GreaterThan(0.0))
         MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-M_g], [x[i], x[i+p]]), 0.0), MOI.LessThan(0.0))
         # Indicator: x[i+p] = 1 => -M_g <= x[i] <= M_g
