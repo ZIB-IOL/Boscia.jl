@@ -115,7 +115,7 @@ nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, 
 tree = Bonobo.initialize(; 
 traverse_strategy = Bonobo.BFS(),
 Node = typeof(nodeEx),
-root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true)),
+root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
 )
 Bonobo.set_root!(tree, 
 (active_set = active_set, 
@@ -214,7 +214,7 @@ MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
 tree = Bonobo.initialize(;
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => true)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => true, :dual_gap => 1e-6)),
     branch_strategy = branching_strategy, #() ->
 )
 Bonobo.set_root!(tree, 
@@ -341,7 +341,7 @@ nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, 
 tree = Bonobo.initialize(; 
 traverse_strategy = Bonobo.BFS(),
 Node = typeof(nodeEx),
-root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true)),
+root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
 )
 Bonobo.set_root!(tree, 
 (active_set = active_set, 
@@ -446,7 +446,7 @@ MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
 tree = Bonobo.initialize(;
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
     branch_strategy = branching_strategy, #() ->
 )
 Bonobo.set_root!(tree, 
