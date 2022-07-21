@@ -130,7 +130,7 @@ function build_bnb_callback(tree)
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)
                 end
-                print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback((iteration, node.id, nodes_left, tree.lb, tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree.lb) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
             end
             FW_iter = []
             return list_lb, list_ub
@@ -150,7 +150,7 @@ function build_bnb_callback(tree)
         dual_gap = tree.incumbent-tree.lb
         time = Dates.value(Dates.now()-time_ref)
         if verbose
-            print_callback((iteration, node.id, tree.lb, tree.incumbent, dual_gap, abs(dual_gap)/abs(tree.incumbent) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, 0, 0, 0, 0), format_string, print_header=false)
+            print_callback((iteration, node.id, tree.lb, tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree.lb) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, 0, 0, 0, 0), format_string, print_header=false)
         end
         return list_lb, list_ub
     end
