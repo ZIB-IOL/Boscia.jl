@@ -15,7 +15,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
-    
+
     integer_variables = Vector{Int}()
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
         push!(integer_variables, cidx.value)
@@ -44,7 +44,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
 
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
-    
+
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
@@ -61,7 +61,6 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     )
 
     Bonobo.optimize!(tree)
-    
     x = Bonobo.get_solution(tree)
     return x, time_lmo
 end
