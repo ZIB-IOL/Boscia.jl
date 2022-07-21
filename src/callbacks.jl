@@ -103,15 +103,13 @@ function build_bnb_callback(tree)
     return function callback(tree, node; FW_time=NaN, LMO_time=NaN, FW_iterations=FW_iterations, worse_than_incumbent=false, node_infeasible=false)
         if node_infeasible==false
             # update lower bound
-            push!(list_ub, copy(tree.incumbent))
-            push!(list_lb, copy(tree.lb))
-            iteration = iteration + 1
+            push!(list_ub, tree.incumbent)
+            push!(list_lb, tree.lb)
+            iteration += 1
 
             if !isempty(tree.nodes)
                 ids = [n[2].id for n in tree.nodes]
                 lower_bounds = [n[2].lb for n in tree.nodes]
-                if tree.lb>minimum(lower_bounds)
-                end
                 tree.lb = minimum(lower_bounds)
             end
 
