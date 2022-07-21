@@ -102,7 +102,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     # tree.root.problem.g(gradient, x)
     #@show gradient
 
-    # call away_frank_wolfe
+    # call blended_pairwise_conditional_gradient
     x,_,primal,dual_gap,_ , active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
         tree.root.problem.g,
