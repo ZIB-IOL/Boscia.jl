@@ -90,7 +90,7 @@ function build_bnb_callback(tree)
     list_ub = []
     list_lb = []
     iteration = 0
-    println("Starting BranchWolfe")
+    # println("Starting BranchWolfe")
     verbose = get(tree.root.options, :verbose, -1)
 
     headers = ["Iteration", "Node id", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   

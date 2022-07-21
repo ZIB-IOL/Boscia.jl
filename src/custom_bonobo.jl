@@ -2,10 +2,7 @@
 # Eventually we would like to return to the original Bonobo one and delete this.
 # Changes in Bonobo are being made but are midterm changes.
 
-# TODO: improve output - this way it is a little misleading
-
 function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_dual_gap=0.7, callback=(args...; kwargs...)->(),)
-    # println("OWN OPTIMIZE FUNCTION USED")
     time_ref = Dates.now()
     list_lb = [] 
     list_ub = []
@@ -45,10 +42,24 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         println()
 
         x = Bonobo.get_solution(tree)
-        println("objective: ", tree.root.problem.f(x))
-        println("number of nodes: $(tree.num_nodes)")
-        println("number of lmo calls: ", tree.root.problem.lmo.ncalls)
-        println("time in seconds: ", (Dates.value(Dates.now()-time_ref))/1000)
+        
+        println("Solution Statistics.")
+        primal_value = tree.root.problem.f(x)
+        status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
+        println("\t Solution Status: ", status_string)
+        println("\t Primal Objective: ", primal_value)
+        println("\t Dual Bound (absolute): ", tree.lb)
+        println("\t Dual Bound (relative in %): ", abs((primal_value - tree.lb) / primal_value) * 100.0)
+        println()
+        println("Search Statistics.")
+        println("\t Total number of nodes processed: ", tree.num_nodes)
+        println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
+        total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
+        println("\t Total time (s): ", total_time_in_sec)
+        println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
+        println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
+        println()
+
         append!(list_ub, copy(tree.incumbent))
         append!(list_lb, copy(tree.lb))
     end
