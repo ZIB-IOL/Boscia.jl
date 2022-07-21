@@ -72,7 +72,7 @@ const M = 2*var(A)
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -165,7 +165,7 @@ push!(groups,((k_int-1)*group_size+p+1):2p)
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 

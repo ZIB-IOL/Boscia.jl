@@ -141,4 +141,13 @@ function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     return copy(FrankWolfe.get_active_set_iterate(node.active_set))
 end
 
-
+function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
+    dual_gap = if signbit(tree.incumbent) != signbit(tree.lb)
+        Inf
+    elseif tree.incumbent == tree.lb
+        0.0
+    else
+        (tree.incumbent - tree.lb) / min(abs(tree.incumbent), abs(tree.lb))
+    end
+    return isempty(tree.node_queue) || dual_gap ≤ tree.root.options[:dual_gap]
+end
