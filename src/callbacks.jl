@@ -95,6 +95,7 @@ function build_bnb_callback(tree)
     headers = ["Iteration", "Node id", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
     format_string = "%10i %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
+    print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
         print_callback(headers, format_string, print_header=true)
@@ -102,8 +103,8 @@ function build_bnb_callback(tree)
     return function callback(tree, node; FW_time=NaN, LMO_time=NaN, FW_iterations=FW_iterations, worse_than_incumbent=false, node_infeasible=false)
         if node_infeasible==false
             # update lower bound
-            append!(list_ub, copy(tree.incumbent))
-            append!(list_lb, copy(tree.lb))
+            push!(list_ub, copy(tree.incumbent))
+            push!(list_lb, copy(tree.lb))
             iteration = iteration + 1
 
             if !isempty(tree.nodes)
@@ -127,9 +128,7 @@ function build_bnb_callback(tree)
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
             nodes_left= length(tree.nodes)
-            
-            print_iter = 100 # this should not be hard-coded but a parameter the user can pass as well
-            
+                        
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || isempty(tree.nodes)) # TODO: need to output the very last iteration also if we skip some inbetween
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)
