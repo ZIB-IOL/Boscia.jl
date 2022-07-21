@@ -13,8 +13,8 @@ const MOI = MathOptInterface
 # but you need to prove it
 # if alpha >0 you need to find the optimal one
 
-n = 50
-alpha = 0.01
+n = 100
+alpha = 0.00
 
 diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
