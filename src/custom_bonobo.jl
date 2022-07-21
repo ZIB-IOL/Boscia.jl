@@ -44,7 +44,16 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         x = Bonobo.get_solution(tree)
         println("Solution Statistics.")
         primal_value = tree.root.problem.f(x)
+
+        # TODO: here we need to calculate the actual state
+
         status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
+        if isempty(tree.nodes)
+            status_string = "Optimal (tree empty)"
+        else
+            status_string = "Optimal (tolerance reached)"
+        end
+
         println("\t Solution Status: ", status_string)
         println("\t Primal Objective: ", primal_value)
         println("\t Dual Bound (absolute): ", tree.lb)
@@ -54,8 +63,9 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
         total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
         println("\t Total time (s): ", total_time_in_sec)
-        println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
-        println("\t Nodes / sec: $(tree.num_nodes / total_time_in_sec)\n")
+        println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)        
+        println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
+        println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
 
         append!(list_ub, copy(tree.incumbent))
         append!(list_lb, copy(tree.lb))
