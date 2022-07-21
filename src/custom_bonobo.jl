@@ -57,7 +57,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         println("\t Solution Status: ", status_string)
         println("\t Primal Objective: ", primal_value)
         println("\t Dual Bound (absolute): ", tree.lb)
-        println("\t Dual Bound (relative in %): $(abs((primal_value - tree.lb) / primal_value) * 100.0)\n")
+        println("\t Dual Bound (relative in %): $(relative_gap(primal_value,tree.lb) * 100.0)\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)
         println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
