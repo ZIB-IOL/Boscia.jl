@@ -87,8 +87,8 @@ end
 """
 function build_bnb_callback(tree)
     time_ref = Dates.now()
-    list_ub = []
-    list_lb = []
+    list_ub = Float64[]
+    list_lb = Float64[]
     iteration = 0
     verbose = get(tree.root.options, :verbose, -1)
 
