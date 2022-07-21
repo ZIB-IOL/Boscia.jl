@@ -126,7 +126,6 @@ function build_bnb_callback(tree)
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
             nodes_left= length(tree.nodes)
-                        
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)

@@ -42,7 +42,6 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree; min_number_lower=20, percentage_
         println()
 
         x = Bonobo.get_solution(tree)
-        
         println("Solution Statistics.")
         primal_value = tree.root.problem.f(x)
         status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"

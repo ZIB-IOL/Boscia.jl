@@ -122,7 +122,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
-    
+
     # Found an upper bound?
     if is_integer_feasible(tree,x)
         #@show lower_bound, primal
