@@ -96,9 +96,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode, fw_ca
     len = length(tree.root.problem.lmo.optimizing_times)
 
     # DEBUG 
-    x = FrankWolfe.get_active_set_iterate(node.active_set)
-    gradient = randn(Float64, length(x))
-    tree.root.problem.g(gradient, x)
+    # Commented out old debug code
+    # x = FrankWolfe.get_active_set_iterate(node.active_set)
+    # gradient = randn(Float64, length(x))
+    # tree.root.problem.g(gradient, x)
     #@show gradient
 
     # call away_frank_wolfe
