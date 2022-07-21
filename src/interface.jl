@@ -7,7 +7,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", traverse_strategy)
         println("\t Branching strategy: ", branching_strategy)
-        println("\t Absolute dual Gap tolerance: ", dual_gap)
+        println("\t Absolute dual gap tolerance: ", dual_gap)
         println("\t Frank-Wolfe subproblem tolerance: ", fw_epsilon)
         println()
     end
