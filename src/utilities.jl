@@ -4,10 +4,12 @@
 Compute relative gap consistently everywhere
 """
 function relative_gap(primal,dual)
-    if sign(primal) != sign(dual)
-        gap = Inf
+    gap = if signbit(primal) != signbit(dual)
+        Inf
+    elseif primal == dual
+        0.0
     else
-        gap = (primal - dual) / min(abs(primal), abs(dual))
+        (primal - dual) / min(abs(primal), abs(dual))
     end
     return gap
 end

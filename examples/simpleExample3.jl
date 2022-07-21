@@ -10,7 +10,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
-n = 20
+n = 50
 diffi = Random.rand(Bool,n)*0.6.+0.3
 
 @testset "Interface - norm hyperbox" begin
