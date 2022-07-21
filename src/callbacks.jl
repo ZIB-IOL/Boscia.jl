@@ -119,7 +119,7 @@ function build_bnb_callback(tree)
 
             if !isempty(FW_iterations)
                 FW_iter = FW_iterations[end]
-            else 
+            else
                 FW_iter = 0
             end
 
