@@ -1,99 +1,16 @@
+using BranchWolfe
+using FrankWolfe
+using Test
+using Random
+using SCIP
+# using Statistics
 using LinearAlgebra
 using Distributions
-import Random
-using SCIP
 import MathOptInterface
 const MOI = MathOptInterface
-import BranchWolfe
-import FrankWolfe
-
-# Testing of the interface function branch_wolfe
-
-n = 20
-diffi = Random.rand(Bool,n)*0.6.+0.3
-
-@testset "Interface - norm hyperbox" begin
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o, n)
-    for xi in x
-        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, xi, MOI.LessThan(1.0))
-        MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
-    end
-    lmo = FrankWolfe.MathOptLMO(o)
-
-    function f(x)
-        return sum(0.5*(x.-diffi).^2)
-    end
-    function grad!(storage, x)
-        @. storage = x-diffi
-    end
-
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
-
-    @test x == round.(diffi)
-end
 
 
-# min h(sqrt(y' * M * y)) - r' * y
-# s.t. a' * y <= b 
-#           y >= 0
-#           y_i in Z for i in I
-
-n = 10
-const ri = 10 * rand(n)
-const ai = rand(n)
-const Ωi = 3 * rand(Float64)
-const bi = sum(ai)
-Ai = randn(n,n)
-Ai = Ai' * Ai
-const Mi =  (Ai + Ai')/2
-@assert isposdef(Mi)
-
-@testset "Interface - Buchheim" begin
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o,n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-    for i in 1:n
-        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-        if i in I
-            MOI.add_constraint(o, x[i], MOI.Integer())
-        end
-    end 
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.LessThan(bi))
-    #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.GreaterThan(minimum(ai)))
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),x), 0.0), MOI.GreaterThan(1.0))
-    lmo = FrankWolfe.MathOptLMO(o)
-
-    function h(x)
-        return Ωi
-    end
-    function f(x)
-        return h(x) * (x' * Mi * x) - ri' * x
-    end
-    function grad!(storage, x)
-        storage.= 2 * Mi * x - ri
-        return storage
-    end
-
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
-    @show x
-    @test sum(ai'* x) <= bi + eps()
-end
-
-
-# Sparse Poisson regression
-# min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
-# s.t. -N z_i <= w_i <= N z_i
-# b ∈ [-N, N]
-# ∑ z_i <= k 
-# z_i ∈ {0,1} for i = 1,..,p
-
-n=30
+n = 30
 p = n
 
 # underlying true weights
@@ -111,7 +28,7 @@ end
 Ns = 5.0
 
 @testset "Interface - sparse regression" begin
-k = 10
+    k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     w = MOI.add_variables(o, p)

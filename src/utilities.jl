@@ -1,6 +1,20 @@
 # Ultilities function 
 
 """
+Compute relative gap consistently everywhere
+"""
+function relative_gap(primal,dual)
+    gap = if signbit(primal) != signbit(dual)
+        Inf
+    elseif primal == dual
+        0.0
+    else
+        (primal - dual) / min(abs(primal), abs(dual))
+    end
+    return gap
+end
+    
+"""
 Check feasibility and boundedness
 """
 function check_feasibility(lmo::TimeTrackingLMO)

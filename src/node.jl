@@ -98,12 +98,13 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     len = length(tree.root.problem.lmo.optimizing_times)
 
     # DEBUG 
-    x = FrankWolfe.get_active_set_iterate(node.active_set)
-    gradient = randn(Float64, length(x))
-    tree.root.problem.g(gradient, x)
+    # Commented out old debug code
+    # x = FrankWolfe.get_active_set_iterate(node.active_set)
+    # gradient = randn(Float64, length(x))
+    # tree.root.problem.g(gradient, x)
     #@show gradient
 
-    # call away_frank_wolfe
+    # call blended_pairwise_conditional_gradient
     x,_,primal,dual_gap,_ , active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
         tree.root.problem.g,
@@ -124,7 +125,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
-    
+
     # Found an upper bound?
     if is_integer_feasible(tree,x)
         #@show lower_bound, primal
@@ -143,4 +144,7 @@ function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     return copy(FrankWolfe.get_active_set_iterate(node.active_set))
 end
 
-
+function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
+    dual_gap = relative_gap(tree.incumbent,tree.lb)
+    return isempty(tree.node_queue) || dual_gap ≤ tree.root.options[:dual_gap]
+end

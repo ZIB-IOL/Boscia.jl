@@ -110,7 +110,28 @@ function grad!(storage, θ)
     return storage
 end
 
+<<<<<<< HEAD
 x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+=======
+# create tree
+tree = Bonobo.initialize(; 
+traverse_strategy = Bonobo.BFS(),
+Node = typeof(nodeEx),
+root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
+)
+Bonobo.set_root!(tree, 
+(active_set = active_set, 
+discarded_vertices = vertex_storage,
+local_bounds = BranchWolfe.IntegerBounds(),
+level = 1,
+sidx = -1,
+fw_dual_gap_limit= 1e-3)
+)
+
+# Profile.init()
+# ProfileView.@profview Bonobo.optimize!(tree)
+Bonobo.optimize!(tree)
+>>>>>>> main
 
 # "Hybrid branching poisson sparse regression"
 k = 5
@@ -183,7 +204,36 @@ function grad!(storage, θ)
     return storage
 end
 
+<<<<<<< HEAD
 x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+=======
+# create tree
+function perform_strong_branch(tree, node)
+    return node.level <= length(tree.root.problem.integer_variables)/3
+end
+branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+tree = Bonobo.initialize(;
+    traverse_strategy = Bonobo.BFS(),
+    Node = typeof(nodeEx),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => true, :dual_gap => 1e-6)),
+    branch_strategy = branching_strategy, #() ->
+)
+Bonobo.set_root!(tree, 
+(active_set = active_set, 
+discarded_vertices = vertex_storage,
+local_bounds = BranchWolfe.IntegerBounds(),
+level = 1, 
+sidx = -1,
+fw_dual_gap_limit= 1e-3)
+)
+
+# Profile.init()
+# ProfileView.@profview Bonobo.optimize!(tree)
+Bonobo.optimize!(tree)
+x = Bonobo.get_solution(tree)
+# println("Solution: $(x[1:p])")
+>>>>>>> main
 
 
 n0g=20
@@ -246,7 +296,74 @@ for i in 1:k
     MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
 end
 lmo = FrankWolfe.MathOptLMO(o)
+<<<<<<< HEAD
 x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+=======
+global_bounds = BranchWolfe.IntegerBounds()
+for i in 1:pg
+    push!(global_bounds, (pg+i, MOI.GreaterThan(0.0)))
+    push!(global_bounds, (pg+i, MOI.LessThan(1.0)))
+    push!(global_bounds, (i, MOI.GreaterThan(-Ng)))
+    push!(global_bounds, (i, MOI.LessThan(Ng)))
+end
+push!(global_bounds, (2pg+1, MOI.GreaterThan(-Ng)))
+push!(global_bounds, (2pg+1, MOI.LessThan(Ng)))
+
+direction = Vector{Float64}(undef,2pg + 1)
+Random.rand!(direction)
+v = compute_extreme_point(lmo, direction)
+vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+α = 1.3
+function f(θ)
+    w = @view(θ[1:pg])
+    b = θ[end]
+    s = sum(1:n0g) do i
+        a = dot(w, X0g[:,i]) + b
+        1/n0g * (exp(a) - y0g[i] * a)
+    end
+    s + α * norm(w)^2
+end
+function grad!(storage, θ)
+    w = @view(θ[1:pg])
+    b = θ[end]
+    storage[1:pg] .= 2α .* w
+    storage[pg+1:2pg] .= 0
+    storage[end] = 0
+    for i in 1:n0g
+        xi = @view(X0g[:,i])
+        a = dot(w, xi) + b
+        storage[1:pg] .+= 1/n0g * xi * exp(a)
+        storage[1:pg] .-= 1/n0g * y0g[i] * xi
+        storage[end] += 1/n0g * (exp(a) - y0g[i])
+    end
+    return storage
+end
+time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
+active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
+m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2pg+1, collect(pg+1:2pg), time_lmo, global_bounds) 
+nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, -1, 1e-3)
+
+# create tree
+tree = Bonobo.initialize(; 
+traverse_strategy = Bonobo.BFS(),
+Node = typeof(nodeEx),
+root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
+)
+Bonobo.set_root!(tree, 
+(active_set = active_set, 
+discarded_vertices = vertex_storage,
+local_bounds = BranchWolfe.IntegerBounds(),
+level = 1,
+sidx = -1,
+fw_dual_gap_limit= 1e-3)
+)
+
+# Profile.init()
+# ProfileView.@profview Bonobo.optimize!(tree)
+Bonobo.optimize!(tree)
+x = Bonobo.get_solution(tree)
+# println("Solution: $(x[1:p])")
+>>>>>>> main
 
 
 # "Strong branching sparse group poisson"
@@ -323,5 +440,28 @@ function grad!(storage, θ)
     return storage
 end
 
+<<<<<<< HEAD
 x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+=======
+# create tree
+function perform_strong_branch(tree, node)
+    return node.level <= length(tree.root.problem.integer_variables)/3
+end
+branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+tree = Bonobo.initialize(;
+    traverse_strategy = Bonobo.BFS(),
+    Node = typeof(nodeEx),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => true, :dual_gap => 1e-6)),
+    branch_strategy = branching_strategy, #() ->
+)
+Bonobo.set_root!(tree, 
+(active_set = active_set, 
+discarded_vertices = vertex_storage,
+local_bounds = BranchWolfe.IntegerBounds(),
+level = 1, 
+sidx = -1,
+fw_dual_gap_limit= 1e-3)
+)
+>>>>>>> main
 
