@@ -16,7 +16,7 @@ seed = rand(UInt64)
 @show seed
 Random.seed!(seed)
 
-#include("interface_test.jl")
+include("interface_test.jl")
 
 @testset "BnBTree data structure and node" begin
     # Building an optimization problem for the tree
