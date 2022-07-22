@@ -44,9 +44,9 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
+        traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => true, :percentage_dual_gap => 0.7)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => dual_gap)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -54,14 +54,14 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
-    fw_dual_gap_limit= 1e-3,
+    fw_dual_gap_limit= fw_epsilon,
     FW_time = Millisecond(0)))
 
     function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb)
         time_ref = Dates.now()
         iteration = 0
         println("Starting BranchWolfe")
-        verbose = get(tree.root.options, :verbose, -1)
+        verbose = verbose
         if verbose
             println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
             @printf("| iter \t| node id | lower bound | incumbent | gap \t| rel. gap | total time   | time/nodes \t| FW time    | LMO time   | total LMO calls | FW iterations | active set size | discarded set size |\n")
@@ -129,7 +129,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
 
     time_ref = Dates.now()
-    Bonobo.optimize!(tree; callback=bnb_callback) # min_number_lower, bnb_callback)
+    Bonobo.optimize!(tree; callback=bnb_callback)
 
     
     x = Bonobo.get_solution(tree)
