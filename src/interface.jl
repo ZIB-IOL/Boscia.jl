@@ -48,7 +48,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => 0.7, :dual_gap => dual_gap)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => 0.7, :dual_gap => dual_gap, :print_iter => 1)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -89,12 +89,13 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
             print_callback(headers, format_string, print_header=true)
         end
         return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
-            if node_infeasible==false
+            if !node_infeasible & !worse_than_incumbent
                 # update lower bound
                 push!(list_ub_cb, copy(tree.incumbent)) 
                 push!(list_lb_cb, copy(tree.lb))
                 push!(list_num_nodes_cb, copy(tree.num_nodes))
                 iteration += 1
+                dual_gap = tree.incumbent-tree.lb
                 time = float(Dates.value(Dates.now()-time_ref))
                 push!(list_time_cb, time)
                 FW_time = Dates.value(node.FW_time)
@@ -111,7 +112,6 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
                 push!(list_lmo_calls_cb, copy(LMO_calls))
 
                 if !isempty(tree.nodes)
-                    ids = [n[2].id for n in tree.nodes]
                     lower_bounds = [n[2].lb for n in tree.nodes]
                     tree.lb = minimum(lower_bounds)
                 end
