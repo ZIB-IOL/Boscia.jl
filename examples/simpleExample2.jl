@@ -10,7 +10,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
-n = 30
+n = 20
 p = n
 
 # underlying true weights

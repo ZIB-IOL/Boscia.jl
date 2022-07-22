@@ -11,15 +11,31 @@ const MOI = MathOptInterface
 
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
-# https://arxiv.org/abs/2204.05266. 
+# https://arxiv.org/abs/2204.05266 after Lemma 2.2
+#
+# This example is a good example, basically
+#
+#            min_{x in [0,1]^n} ||x - (1/2, ..., 1/2) ||^2
+#
+# as all the gradient at each 0/1 point "look" the same, i.e., 
+# (+/- 1/2, ...., +/- 1/2) as gradients.
+#
+# Any 0/1 solution is optimal (if alpha = 0) in this case 
+# but you need to *prove* it. Hence, you are forced to clear out 
+# the full tree. For a given n the tree thus has 2^(n+1) - 1 nodes
+# which is exactly what we see when solving.
+#
+#
+# We can also set alpha > 0, which is essentially the same the same problem but the 
+# (1/2, ..., 1/2) point is slightly perturbed so that the problem has (usually)
+# a unique solution. See below for the exact realization
 
-m = 20 # larger dimension
-n = 9 # small dimension
-
+n = 9
 alpha = 0.00
+
 diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
-@testset "Low-dimensional function" begin
+@testset "Interface - norm hyperbox" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -31,23 +47,14 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    W = rand(m,n)
-
     function f(x)
-        return sum(0.5*((W*(x.-diffi))).^2)
+        return sum(0.5*(x.-diffi).^2)
     end
 
     function grad!(storage, x)
-        @. storage = (x - diffi)*W
+        @. storage = x-diffi
     end
 
-    x = rand(n)
-    print("test: ", f(x))
-
-    stoc = zeros(m)
-    grad!(stoc, x)
-    print("test 2: ", stoc)
-    
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     # build optimal solution
