@@ -48,7 +48,7 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter=1)
     @show x
     @test sum(ai'* x) <= bi + eps()
 end
