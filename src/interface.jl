@@ -48,7 +48,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => 0.7, :dual_gap => dual_gap, :print_iter => 1)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => 0.7, :dual_gap => dual_gap, :print_iter => 20)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
