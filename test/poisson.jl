@@ -113,7 +113,7 @@ N = 5.0
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :percentage_dual_gap => 0.7, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -121,7 +121,7 @@ N = 5.0
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
     fw_dual_gap_limit= 1e-3,
-    FW_time = Millisecond(0))
+    fw_time = Millisecond(0))
     )
 
     function build_FW_callback(tree)
@@ -234,7 +234,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :percentage_dual_gap => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -243,7 +243,7 @@ end
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
     fw_dual_gap_limit = 1e-3,
-    FW_time = Millisecond(0))
+    fw_time = Millisecond(0))
     )
 
     function build_FW_callback(tree)
@@ -380,7 +380,7 @@ push!(groups,((k-1)*group_size+1):pg)
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :percentage_dual_gap => 0.7, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -388,7 +388,7 @@ push!(groups,((k-1)*group_size+1):pg)
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
     fw_dual_gap_limit = 1e-3,
-    FW_time = Millisecond(0))
+    fw_time = Millisecond(0))
     )
 
     function build_FW_callback(tree)
@@ -505,7 +505,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :percentage_dual_gap => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -514,7 +514,7 @@ end
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
     fw_dual_gap_limit= 1e-3,
-    FW_time = Millisecond(0))
+    fw_time = Millisecond(0))
     )
 
     function build_FW_callback(tree)

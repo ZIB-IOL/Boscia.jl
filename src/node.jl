@@ -22,7 +22,7 @@ mutable struct FrankWolfeNode{AT<:FrankWolfe.ActiveSet, DVS<:FrankWolfe.DeletedV
     local_bounds::IB
     level::Int
     fw_dual_gap_limit::Float64
-    FW_time::Millisecond
+    fw_time::Millisecond
 end
 
 """
@@ -40,23 +40,23 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right = split_vertices_set!(node.discarded_vertices, tree, vidx, x)
     # add new bounds to the feasible region left and right
     # copy bounds from parent
-    varBoundsLeft = copy(node.local_bounds)
-    varBoundsRight = copy(node.local_bounds)
+    varbounds_left = copy(node.local_bounds)
+    varbounds_right = copy(node.local_bounds)
 
-   if haskey(varBoundsLeft.upper_bounds, vidx)
-    delete!(varBoundsLeft.upper_bounds, vidx)
+   if haskey(varbounds_left.upper_bounds, vidx)
+       delete!(varbounds_left.upper_bounds, vidx)
    end
-   if haskey(varBoundsRight.lower_bounds, vidx)
-    delete!(varBoundsRight.lower_bounds, vidx)
+   if haskey(varbounds_right.lower_bounds, vidx)
+       delete!(varbounds_right.lower_bounds, vidx)
    end
-   push!(varBoundsLeft.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
-   push!(varBoundsRight.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
+   push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
+   push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-   # add dual gap
-   fw_dual_gap_limit = tree.root.options[:percentage_dual_gap] * node.fw_dual_gap_limit
-   #update the LMO's
-   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varBoundsLeft, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit, FW_time = Millisecond(0))
-   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varBoundsRight, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit, FW_time = Millisecond(0))
+   # compute new dual gap
+   fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
+   # update the LMO
+   node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varbounds_left, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit, fw_time = Millisecond(0))
+   node_info_right = (active_set = active_set_right, discarded_vertices = discarded_set_right, local_bounds = varbounds_right, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit, fw_time = Millisecond(0))
    return [node_info_left, node_info_right]
 end
 
@@ -64,7 +64,6 @@ end
 Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
-   # @show node.id
     # build up node LMO
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, node.local_bounds, tree.root.problem.integer_variables)
 
@@ -94,8 +93,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # time tracking FW 
     time_ref = Dates.now()
-    # time tracking LMO
-    len = length(tree.root.problem.lmo.optimizing_times)
 
     # DEBUG 
     # Commented out old debug code
@@ -119,8 +116,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         verbose=false,
     ) 
 
-    # println("after fw: ", node.discarded_vertices)
-    node.FW_time = Dates.now() - time_ref
+    node.fw_time = Dates.now() - time_ref
 
     # update active set of the node
     node.active_set = active_set
@@ -128,7 +124,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # Found an upper bound?
     if is_integer_feasible(tree,x)
-        #@show lower_bound, primal
         node.ub = primal
         return lower_bound, primal
     end

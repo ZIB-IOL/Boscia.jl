@@ -48,7 +48,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :percentage_dual_gap => 0.7, :dual_gap => dual_gap, :print_iter => print_iter)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :dual_gap_decay_factor => 0.7, :dual_gap => dual_gap, :print_iter => print_iter)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -57,7 +57,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
     fw_dual_gap_limit= fw_epsilon,
-    FW_time = Millisecond(0)))
+    fw_time = Millisecond(0)))
 
     """
     Output of BranchWolfe
@@ -98,7 +98,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
                 dual_gap = tree.incumbent-tree.lb
                 time = float(Dates.value(Dates.now()-time_ref))
                 push!(list_time_cb, time)
-                FW_time = Dates.value(node.FW_time)
+                fw_time = Dates.value(node.fw_time)
                 if !isempty(FW_iterations)
                     FW_iter = FW_iterations[end]
                 else
@@ -123,7 +123,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
                     if (mod(iteration, print_iter*40) == 0)
                         print_callback(headers, format_string, print_header=true)
                     end
-                    print_callback((iteration, nodes_left, tree.lb, tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree.lb) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, FW_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                    print_callback((iteration, nodes_left, tree.lb, tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree.lb) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, FW_iter, active_set_size, discarded_set_size), format_string, print_header=false)
                 end
             end
             # update current_node_id

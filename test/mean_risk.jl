@@ -68,7 +68,7 @@ const M1 =  (A1 + A1')/2
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :percentage_dual_gap => 0.7, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -76,7 +76,7 @@ const M1 =  (A1 + A1')/2
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
     fw_dual_gap_limit = 1e-3,
-    FW_time = Millisecond(0))
+    fw_time = Millisecond(0))
     )
 
     function build_FW_callback(tree)
