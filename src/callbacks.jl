@@ -1,7 +1,7 @@
 # FW callback
-function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, FW_iterations)
+function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations)
     return function fw_callback(state, active_set)
-        push!(FW_iterations, copy(state.t))
+        push!(fw_iterations, copy(state.t))
 
         vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
         (best_v, best_val) = find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
