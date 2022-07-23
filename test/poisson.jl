@@ -107,22 +107,32 @@ N = 5.0
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p+1, collect(p+1:2p), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    fw_dual_gap_limit= 1e-3)
+    fw_dual_gap_limit= 1e-3,
+    fw_time = Millisecond(0))
     )
 
+    function build_FW_callback(tree)
+        return function fw_callback(state, active_set)
+            # print("Primal: $(state.primal)\n")
+            # print("Length of active set: $(length(active_set.weights))\n")
+        end
+    end
+
+    fw_callback = build_FW_callback(tree)
+    tree.root.options[:callback] = fw_callback
     # Profile.init()
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)
@@ -213,7 +223,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2p+1, collect(p+1:2p), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     function perform_strong_branch(tree, node)
@@ -224,7 +234,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -232,8 +242,19 @@ end
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
-    fw_dual_gap_limit= 1e-3)
+    fw_dual_gap_limit = 1e-3,
+    fw_time = Millisecond(0))
     )
+
+    function build_FW_callback(tree)
+        return function fw_callback(state, active_set)
+            # print("Primal: $(state.primal)\n")
+            # print("Length of active set: $(length(active_set.weights))\n")
+        end
+    end
+
+    fw_callback = build_FW_callback(tree)
+    tree.root.options[:callback] = fw_callback
 
     # Profile.init()
     # ProfileView.@profview Bonobo.optimize!(tree)
@@ -353,22 +374,32 @@ push!(groups,((k-1)*group_size+1):pg)
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2pg+1, collect(pg+1:2pg), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     tree = Bonobo.initialize(; 
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1,
-    fw_dual_gap_limit= 1e-3)
+    fw_dual_gap_limit = 1e-3,
+    fw_time = Millisecond(0))
     )
 
+    function build_FW_callback(tree)
+        return function fw_callback(state, active_set)
+            # print("Primal: $(state.primal)\n")
+            # print("Length of active set: $(length(active_set.weights))\n")
+        end
+    end
+
+    fw_callback = build_FW_callback(tree)
+    tree.root.options[:callback] = fw_callback
     # Profile.init()
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)
@@ -463,7 +494,7 @@ end
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, 2pg+1, collect(pg+1:2pg), time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3)
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     function perform_strong_branch(tree, node)
@@ -474,7 +505,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-4, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -482,9 +513,19 @@ end
     discarded_vertices = vertex_storage,
     local_bounds = BranchWolfe.IntegerBounds(),
     level = 1, 
-    fw_dual_gap_limit= 1e-3)
+    fw_dual_gap_limit= 1e-3,
+    fw_time = Millisecond(0))
     )
 
+    function build_FW_callback(tree)
+        return function fw_callback(state, active_set)
+            # print("Primal: $(state.primal)\n")
+            # print("Length of active set: $(length(active_set.weights))\n")
+        end
+    end
+
+    fw_callback = build_FW_callback(tree)
+    tree.root.options[:callback] = fw_callback
     # Profile.init()
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)

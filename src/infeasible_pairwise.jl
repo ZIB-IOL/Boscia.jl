@@ -27,22 +27,22 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::InfeasibleF
   
    # add new bounds to the feasible region left and right
    # copy bounds from parent
-   varBoundsLeft = copy(node.local_bounds)
-   varBoundsRight = copy(node.local_bounds)
+   varbounds_left = copy(node.local_bounds)
+   varbounds_right = copy(node.local_bounds)
 
-   if haskey(varBoundsLeft.upper_bounds, vidx)
-    delete!(varBoundsLeft.upper_bounds, vidx)
+   if haskey(varbounds_left.upper_bounds, vidx)
+    delete!(varbounds_left.upper_bounds, vidx)
    end
-   if haskey(varBoundsRight.lower_bounds, vidx)
-    delete!(varBoundsRight.lower_bounds, vidx)
+   if haskey(varbounds_right.lower_bounds, vidx)
+    delete!(varbounds_right.lower_bounds, vidx)
    end
-   push!(varBoundsLeft.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
-   push!(varBoundsRight.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
+   push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
+   push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
    
    #valid_active is set at evaluation time
-   node_info_left = (valid_active = Bool[], local_bounds = varBoundsLeft) 
-   node_info_right = (valid_active = Bool[],local_bounds = varBoundsRight)
+   node_info_left = (valid_active = Bool[], local_bounds = varbounds_left) 
+   node_info_right = (valid_active = Bool[],local_bounds = varbounds_right)
    
    return [node_info_left, node_info_right]
 
