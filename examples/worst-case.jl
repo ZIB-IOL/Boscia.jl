@@ -33,7 +33,7 @@ const MOI = MathOptInterface
 n = 9
 alpha = 0.00
 
-diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
+const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
 @testset "Interface - norm hyperbox" begin
     o = SCIP.Optimizer()

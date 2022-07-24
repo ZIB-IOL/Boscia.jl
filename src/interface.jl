@@ -1,5 +1,5 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 20, kwargs...)
+function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 20, dual_gap_decay_factor=0.8, kwargs...)
     if verbose
         println("\nBranchWolfe Algorithm\n")
         println("Parameter settings.")
@@ -43,13 +43,13 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :dual_gap_decay_factor => 0.7, :dual_gap => dual_gap, :print_iter => print_iter)),
-        branch_strategy = branching_strategy, #() ->
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter)),
+        branch_strategy = branching_strategy,
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -58,14 +58,14 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     level = 1, 
     fw_dual_gap_limit= fw_epsilon,
     fw_time = Millisecond(0)))
-    
+
     # build callbacks
-    list_ub_cb = []
-    list_lb_cb = []
-    list_time_cb = [] 
-    list_num_nodes_cb = [] 
-    list_lmo_calls_cb = []
-    fw_iterations = []
+    list_ub_cb = Float64[]
+    list_lb_cb = Float64[]
+    list_time_cb = Float64[] 
+    list_num_nodes_cb = Int[] 
+    list_lmo_calls_cb = Int[]
+    fw_iterations = Int[]
     bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations)
 
     min_number_lower = Inf
@@ -74,7 +74,6 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
 
-    time_ref = Dates.now()
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = Bonobo.get_solution(tree)
@@ -101,7 +100,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     time_ref = Dates.now()
     iteration = 0
 
-    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]
     format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
