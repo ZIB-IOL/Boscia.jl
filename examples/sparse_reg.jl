@@ -11,7 +11,7 @@ using Printf
 
 # Constant parameters for the sparse regression
 # min norm(y-A β)² + λ_0 ∑ z_i + λ_2 ||β||²
-# s.t. -Mz_i<=β_i <= Mz_i
+# s.t. -Mz_i <= β_i <= Mz_i
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
 Random.seed!(42)
