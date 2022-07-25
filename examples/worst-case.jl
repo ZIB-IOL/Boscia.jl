@@ -66,4 +66,6 @@ const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     @test f(x) == f(xopt)
+    println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
+    println()
 end
