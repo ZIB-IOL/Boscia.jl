@@ -110,42 +110,56 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         print_callback(headers, format_string, print_header=true)
     end
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
-        if !node_infeasible & !worse_than_incumbent
-            # update lower bound
-            push!(list_ub_cb, copy(tree.incumbent)) 
-            push!(list_lb_cb, copy(tree.lb))
-            push!(list_num_nodes_cb, copy(tree.num_nodes))
-            iteration += 1
-            dual_gap = tree.incumbent-tree.lb
-            time = float(Dates.value(Dates.now()-time_ref))
-            push!(list_time_cb, time)
-            fw_time = Dates.value(node.fw_time)
-            fw_iter = if !isempty(fw_iterations)
-                fw_iterations[end]
-            else
-                0
-            end
-            if !isempty(tree.root.problem.lmo.optimizing_times)
-                LMO_time = sum(1000*tree.root.problem.lmo.optimizing_times)
-                empty!(tree.root.problem.lmo.optimizing_times)
-            end 
-            LMO_calls = tree.root.problem.lmo.ncalls
-            push!(list_lmo_calls_cb, copy(LMO_calls))
+        time = float(Dates.value(Dates.now()-time_ref))
+        push!(list_time_cb, time)
+        push!(list_ub_cb, copy(tree.incumbent)) 
+        push!(list_lb_cb, copy(tree.lb))
+        push!(list_num_nodes_cb, copy(tree.num_nodes))
+        iteration += 1
+        dual_gap = tree.incumbent-tree.lb
+        fw_time = Dates.value(node.fw_time)
+        fw_iter = if !isempty(fw_iterations)
+            fw_iterations[end]
+        else
+            0
+        end
+        LMO_calls = tree.root.problem.lmo.ncalls
+        push!(list_lmo_calls_cb, copy(LMO_calls))
+        # update lower bound
+        if !isempty(tree.root.problem.lmo.optimizing_times)
+            LMO_time = 1000 * sum(tree.root.problem.lmo.optimizing_times)
+            empty!(tree.root.problem.lmo.optimizing_times)
+        end
 
-            if !isempty(tree.nodes)
-                lower_bounds = [n[2].lb for n in tree.nodes]
-                tree.lb = minimum(lower_bounds)
-            end
-
+        if !isempty(tree.nodes)
+            lower_bounds = [n[2].lb for n in tree.nodes]
+            tree.lb = minimum(lower_bounds)
+        end
+        if !node_infeasible && !worse_than_incumbent
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
-            nodes_left= length(tree.nodes)
-            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
-                if (mod(iteration, print_iter*40) == 0)
-                    print_callback(headers, format_string, print_header=true)
-                end
-                print_callback((iteration, nodes_left, tree.lb, tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree.lb) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+            nodes_left = length(tree.nodes)
+        end
+        if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
+            if (mod(iteration, print_iter*40) == 0)
+                print_callback(headers, format_string, print_header=true)
             end
+            print_callback(
+                (
+                    iteration,
+                    nodes_left,
+                    tree.lb,
+                    tree.incumbent,
+                    dual_gap,
+                    relative_gap(tree.incumbent, tree.lb) * 100.0,
+                    time / 1000.0,
+                    tree.num_nodes/time * 1000.0,
+                    fw_time, LMO_time,
+                    tree.root.problem.lmo.ncalls, fw_iter,
+                    active_set_size, discarded_set_size,
+                ),
+                format_string, print_header=false,
+            )
         end
         # update current_node_id
         if !Bonobo.terminated(tree)
