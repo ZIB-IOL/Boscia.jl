@@ -66,8 +66,8 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     list_num_nodes_cb = Int[] 
     list_lmo_calls_cb = Int[]
     fw_iterations = Int[]
-    results = Dict{Symbol, Any}()
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, results)
+    result = Dict{Symbol, Any}()
+    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, result)
 
     min_number_lower = Inf
     fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, fw_iterations)
@@ -78,7 +78,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = Bonobo.get_solution(tree)
-    return x, time_lmo, results
+    return x, time_lmo, result
 end
 
 """
@@ -97,7 +97,7 @@ Output of BranchWolfe
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, results)
+function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, result)
     time_ref = Dates.now()
     iteration = 0
 
@@ -175,13 +175,13 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                     status_string = "Optimal (tolerance reached)"
                 end
         
-                results[:primal_objective] = primal_value 
-                results[:dual_bound] = tree.lb
-                results[:dual_gap] = relative_gap(primal_value,tree.lb) * 100.0
-                results[:number_nodes] = tree.num_nodes
-                results[:lmo_calls] = tree.root.problem.lmo.ncalls
+                result[:primal_objective] = primal_value 
+                result[:dual_bound] = tree.lb
+                result[:dual_gap] = relative_gap(primal_value,tree.lb) * 100.0
+                result[:number_nodes] = tree.num_nodes
+                result[:lmo_calls] = tree.root.problem.lmo.ncalls
                 total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
-                results[:total_time_in_sec] = total_time_in_sec
+                result[:total_time_in_sec] = total_time_in_sec
 
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
