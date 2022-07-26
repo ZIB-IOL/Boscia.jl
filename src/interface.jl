@@ -1,5 +1,5 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 20, dual_gap_decay_factor=0.8, kwargs...)
+function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 100, dual_gap_decay_factor=0.8, kwargs...)
     if verbose
         println("\nBranchWolfe Algorithm\n")
         println("Parameter settings.")
