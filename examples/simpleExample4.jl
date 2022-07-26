@@ -38,15 +38,16 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     function grad!(storage, x)
-        @. storage = (x - diffi)*W
+        Ws = transpose(W) * W
+        @. storage = Ws * (x - diffi)
     end
 
-    x = rand(n)
-    print("test: ", f(x))
+    # x = rand(n)
+    # print("test: ", f(x))
 
-    stoc = zeros(m)
-    grad!(stoc, x)
-    print("test 2: ", stoc)
+    # stoc = zeros(n)
+    # grad!(stoc, x)
+    # print("test 2: ", stoc)
 
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
