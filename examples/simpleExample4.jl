@@ -40,19 +40,11 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     function grad!(storage, x)
         Ws = transpose(W) * W
         mul!(storage, Ws, (x - diffi))
-        storage
     end
-
-    # x = rand(n)
-    # print("test: ", f(x))
-
-    # stoc = zeros(n)
-    # grad!(stoc, x)
-    # print("test 2: ", stoc)
 
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
-    # build optimal solution
+    # build optimal solution / TODO: this is not the optimal solution
     xopt = zeros(n)
     for i in 1:n
         if diffi[i] > 0.5
@@ -61,4 +53,5 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     @test f(x) == f(xopt)
+
 end
