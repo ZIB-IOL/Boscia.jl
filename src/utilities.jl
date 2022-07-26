@@ -177,7 +177,7 @@ By default (in Bonobo) stops then the priority queue is empty.
 """
 function Bonobo.terminated(tree::Bonobo.BnBTree{FrankWolfeNode})
     dual_gap = get(tree.root.options, :dual_gap, -1)
-    if tree.incumbent - tree.lb < dual_gap || isempty(tree.nodes)
+    if tree.incumbent - tree_lb(tree) < dual_gap || isempty(tree.nodes)
         return true
     end
     return false
