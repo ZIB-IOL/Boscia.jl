@@ -66,7 +66,8 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     list_num_nodes_cb = Int[] 
     list_lmo_calls_cb = Int[]
     fw_iterations = Int[]
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations)
+    results = Dict{Symbol, Any}()
+    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, results)
 
     min_number_lower = Inf
     fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, fw_iterations)
@@ -77,7 +78,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = Bonobo.get_solution(tree)
-    return x, time_lmo
+    return x, time_lmo, results
 end
 
 """
@@ -96,7 +97,7 @@ Output of BranchWolfe
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations)
+function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, results)
     time_ref = Dates.now()
     iteration = 0
 
@@ -174,6 +175,14 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                     status_string = "Optimal (tolerance reached)"
                 end
         
+                results[:primal_objective] = primal_value 
+                results[:dual_bound] = tree.lb
+                results[:dual_gap] = relative_gap(primal_value,tree.lb) * 100.0
+                results[:number_nodes] = tree.num_nodes
+                results[:lmo_calls] = tree.root.problem.lmo.ncalls
+                total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
+                results[:total_time_in_sec] = total_time_in_sec
+
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
                 println("\t Dual Bound: ", tree.lb)
@@ -181,7 +190,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 println("Search Statistics.")
                 println("\t Total number of nodes processed: ", tree.num_nodes)
                 println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
-                total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
                 println("\t Total time (s): ", total_time_in_sec)
                 println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)        
                 println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
