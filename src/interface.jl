@@ -135,7 +135,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
 
             if !isempty(tree.nodes)
                 lower_bounds = [n[2].lb for n in tree.nodes]
-                tree.lb = minimum(lower_bounds)
+                tree.lb = min(minimum(lower_bounds), tree.incumbent)
             end
 
             active_set_size = length(node.active_set)
@@ -176,8 +176,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
-                println("\t Dual Bound (absolute): ", tree.lb)
-                println("\t Dual Bound (relative in %): $(relative_gap(primal_value,tree.lb) * 100.0)\n")
+                println("\t Dual Bound: ", tree.lb)
+                println("\t Dual Gap (relative in %): $(relative_gap(primal_value,tree.lb) * 100.0)\n")
                 println("Search Statistics.")
                 println("\t Total number of nodes processed: ", tree.num_nodes)
                 println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
