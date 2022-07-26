@@ -55,7 +55,7 @@ const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         @. storage = x-diffi
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     # build optimal solution
     xopt = zeros(n)
@@ -66,6 +66,7 @@ const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     @test f(x) == f(xopt)
+    @test result[:number_nodes] ==  2^(n+1)-1
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
     println()
 end
