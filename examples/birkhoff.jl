@@ -26,8 +26,8 @@ const MOI = MathOptInterface
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
 
-n = 10
-k = 4
+n = 9
+k = 3
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
