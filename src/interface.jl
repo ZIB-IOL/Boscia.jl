@@ -109,7 +109,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         print_callback(headers, format_string, print_header=true)
     end
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
-        if !node_infeasible & !worse_than_incumbent
+        if !node_infeasible
             # update lower bound
             push!(list_ub_cb, copy(tree.incumbent)) 
             push!(list_lb_cb, copy(tree.lb))
