@@ -111,9 +111,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
         if !node_infeasible
             # update lower bound
-            push!(list_ub_cb, copy(tree.incumbent)) 
-            push!(list_lb_cb, copy(tree.lb))
-            push!(list_num_nodes_cb, copy(tree.num_nodes))
+            push!(list_ub_cb, tree.incumbent) 
+            push!(list_lb_cb, tree.lb)
+            push!(list_num_nodes_cb, tree.num_nodes)
             iteration += 1
             dual_gap = tree.incumbent-tree.lb
             time = float(Dates.value(Dates.now()-time_ref))
@@ -127,6 +127,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             if !isempty(tree.root.problem.lmo.optimizing_times)
                 LMO_time = sum(1000*tree.root.problem.lmo.optimizing_times)
                 empty!(tree.root.problem.lmo.optimizing_times)
+            else 
+                LMO_time = 0
             end 
             LMO_calls = tree.root.problem.lmo.ncalls
             push!(list_lmo_calls_cb, copy(LMO_calls))
@@ -149,6 +151,42 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         # update current_node_id
         if !Bonobo.terminated(tree)
             tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+        end
+    
+        if Bonobo.terminated(tree)
+            if verbose
+                print_callback = FrankWolfe.print_callback
+                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+                format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
+                print_callback(headers, format_string, print_footer=true)
+                println()
+        
+                x = Bonobo.get_solution(tree)
+                println("Solution Statistics.")
+                primal_value = tree.root.problem.f(x)
+        
+                # TODO: here we need to calculate the actual state
+        
+                status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
+                if isempty(tree.nodes)
+                    status_string = "Optimal (tree empty)"
+                else
+                    status_string = "Optimal (tolerance reached)"
+                end
+        
+                println("\t Solution Status: ", status_string)
+                println("\t Primal Objective: ", primal_value)
+                println("\t Dual Bound (absolute): ", tree.lb)
+                println("\t Dual Bound (relative in %): $(relative_gap(primal_value,tree.lb) * 100.0)\n")
+                println("Search Statistics.")
+                println("\t Total number of nodes processed: ", tree.num_nodes)
+                println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
+                total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
+                println("\t Total time (s): ", total_time_in_sec)
+                println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)        
+                println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
+                println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
+            end
         end
     end
 end

@@ -15,7 +15,7 @@ using Printf
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
 Random.seed!(42)
-n0=15; p = 5*n0; k = ceil(n0/5);
+n0=20; p = 5*n0; k = ceil(n0/5);
 const lambda_0 = rand(Float64); const lambda_2 = 10.0*rand(Float64);
 const A = rand(Float64, n0, p)
 const y = rand(Float64, n0)
@@ -47,4 +47,4 @@ function grad!(storage, x)
     return storage
 end
 
-x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, fw_epsilon=1e-3)
+x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)

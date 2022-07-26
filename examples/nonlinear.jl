@@ -53,6 +53,6 @@ function grad!(storage, x)
     mul!(storage, A, y, -2, 2)
 end
 
-x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter=1)
 
 @show x
