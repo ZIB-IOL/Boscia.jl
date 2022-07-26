@@ -38,7 +38,7 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     function grad!(storage, x)
-        @. storage = (x - diffi)*W
+        @. storage = transpose(W) * W * (x - diffi)
     end
 
     x = rand(n)
