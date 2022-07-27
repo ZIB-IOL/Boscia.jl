@@ -30,12 +30,12 @@ const MOI = MathOptInterface
 # (1/2, ..., 1/2) point is slightly perturbed so that the problem has (usually)
 # a unique solution. See below for the exact realization
 
-n = 9
+n = 10
 alpha = 0.00
 
 const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
-@testset "Interface - norm hyperbox" begin
+@testset "Interface - 2-norm over hypercube" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -66,7 +66,10 @@ const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     @test f(x) == f(xopt)
-    @test result[:number_nodes] ==  2^(n+1)-1
+    if alpha == 0 # next test is only valid if we do not have any perturbation on the continuous opt
+        @test result[:number_nodes] ==  2^(n+1)-1
+    end
+
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
     println()
 end

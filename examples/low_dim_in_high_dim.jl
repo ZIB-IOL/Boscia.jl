@@ -13,8 +13,8 @@ const MOI = MathOptInterface
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
 # https://arxiv.org/abs/2204.05266. 
 
-m = 20 # larger dimension
-n = 9 # small dimension
+m = 30 # larger dimension
+n = 10 # small dimension
 
 alpha = 0.00
 diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
@@ -42,8 +42,10 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         mul!(storage, Ws, (x - diffi))
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-    
+    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+        
+    @show result # solution statistics also as dict for further processing
+
     if n < 15  # only do for small n 
         valopt, xopt = BranchWolfe.min_via_enum(f,n)
         @test f(x) == f(xopt)

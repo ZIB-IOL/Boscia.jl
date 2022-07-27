@@ -27,7 +27,9 @@ const ys = map(1:n) do idx
 end
 Ns = 5.0
 
-@testset "Interface - sparse regression" begin
+# TODO: document better
+
+@testset "Sparse regression" begin
     k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
