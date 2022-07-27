@@ -207,7 +207,7 @@ const diff = Random.rand(Bool,n)*0.6.+0.3
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return sum(0.5*(x.-diff).^2)
+        return 0.5 * sum((x[i] - diff[i])^2 for i in 1:n)
     end
     function grad!(storage, x)
         @. storage = x-diff
@@ -217,7 +217,7 @@ const diff = Random.rand(Bool,n)*0.6.+0.3
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     tree = Bonobo.initialize(; 
