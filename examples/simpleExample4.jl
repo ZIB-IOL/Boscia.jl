@@ -44,8 +44,8 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     
-    if n < 15  # only do for small n 
-        valopt, xopt = BranchWolfe.min_via_enum(f,n)
+    if n < 50  # only do for small n 
+        valopt, xopt = BranchWolfe.min_via_enum(f, n)
         @test f(x) == f(xopt)
     end
 

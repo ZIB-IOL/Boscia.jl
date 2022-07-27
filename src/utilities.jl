@@ -185,11 +185,12 @@ end
 
 
 """
-Naive optimization by enumeration
+Naive optimization by enumeration.
+Default uses binary values.
+Otherwise, third argument should be a vector of n sets of possible values for the variables.
 """
-
-function min_via_enum(f,n)
-    solutions = reverse.(Iterators.product(fill(0:2,n)...))[:]
+function min_via_enum(f, n, values = fill(0:1,n))
+    solutions = Iterators.product(values...)
     best_val = Inf
     best_sol = nothing
     for sol in solutions
@@ -201,4 +202,3 @@ function min_via_enum(f,n)
     end
     return best_val, best_sol
 end
-
