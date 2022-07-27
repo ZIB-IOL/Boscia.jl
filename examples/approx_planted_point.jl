@@ -13,7 +13,7 @@ const MOI = MathOptInterface
 n = 20
 diffi = Random.rand(Bool,n)*0.6.+0.3
 
-@testset "Interface - norm hyperbox" begin
+@testset "Approximate planted point" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)

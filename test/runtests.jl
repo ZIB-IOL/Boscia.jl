@@ -621,3 +621,7 @@ end
     x = Bonobo.get_solution(tree)
     @test isapprox(x, round.(diff1), atol = 1e-5, rtol= 1e-5)
 end
+
+for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
+    include(file)
+end

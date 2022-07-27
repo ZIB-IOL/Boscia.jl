@@ -59,7 +59,7 @@ function grad!(storage, x)
     storage
 end
 
-@testset "Interface - Birkhoff" begin
+@testset "Birkhoff" begin
 
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
