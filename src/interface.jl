@@ -36,8 +36,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         end
     end
 
-    direction = Vector{Float64}(undef,n)
-    Random.rand!(direction)
+    direction = ones(n)
     v = compute_extreme_point(lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
@@ -70,7 +69,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, result)
 
     min_number_lower = Inf
-    fw_callback = BranchWolfe.build_FW_callback(tree, min_number_lower, true, fw_iterations)
+    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id

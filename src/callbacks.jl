@@ -1,20 +1,24 @@
 # FW callback
 function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations)
+    vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
+    # variable to only fetch heuristics when the counter increases
+    ncalls = -1
     return function fw_callback(state, active_set)
-        push!(fw_iterations, copy(state.t))
-
-        vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
-        (best_v, best_val) = find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
-        if best_val < tree.incumbent
-            node = tree.nodes[tree.root.current_node_id[]]
-            sol = Bonobo.DefaultSolution(best_val, best_v, node)
-            if isempty(tree.solutions)
-                push!(tree.solutions, sol)
-            else
-                tree.solutions[1] = sol
+        push!(fw_iterations, state.t)
+        if ncalls != state.lmo.ncalls
+            ncalls = state.lmo.ncalls
+            (best_v, best_val) = find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
+            if best_val < tree.incumbent
+                node = tree.nodes[tree.root.current_node_id[]]
+                sol = Bonobo.DefaultSolution(best_val, best_v, node)
+                if isempty(tree.solutions)
+                    push!(tree.solutions, sol)
+                else
+                    tree.solutions[1] = sol
+                end
+                tree.incumbent = best_val
+                Bonobo.bound!(tree, node.id)
             end
-            tree.incumbent = best_val
-            Bonobo.bound!(tree, node.id)
         end
 
         if (state.primal - state.dual_gap > tree.incumbent)
