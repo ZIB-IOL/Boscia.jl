@@ -59,7 +59,8 @@ function grad!(storage, x)
     storage
 end
 
-@testset "Interface - norm hyperbox" begin
+@testset "Interface - Birkhoff" begin
+
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -78,6 +79,8 @@ end
 
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
+    # TODO the below needs to be fixed
+    # TODO can use the min_via_enum function if not too many solutions
     # build optimal solution
     xopt = zeros(n)
     for i in 1:n
