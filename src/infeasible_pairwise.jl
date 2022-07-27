@@ -9,7 +9,7 @@ A node in the branch-and-bound tree storing information for a Frank-Wolfe subpro
 
 `std` stores the id, lower and upper bound of the node.
 `valid_active` vector of booleans indicating which vertices in the global active set are valid for the node.
-`lmo` is the minimization oracle capturing the feasible region.   
+`lmo` is the minimization oracle capturing the feasible region.
 """
 mutable struct InfeasibleFrankWolfeNode{IB<:IntegerBounds} <: AbstractFrankWolfeNode
     std::Bonobo.BnBNodeInfo
@@ -24,7 +24,7 @@ based on their parent and the index of the branching variable
 function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::InfeasibleFrankWolfeNode, vidx::Int)
    # get solution
    x = Bonobo.get_relaxed_values(tree, node)
-  
+
    # add new bounds to the feasible region left and right
    # copy bounds from parent
    varbounds_left = copy(node.local_bounds)
@@ -39,11 +39,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::InfeasibleF
    push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
    push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-   
    #valid_active is set at evaluation time
    node_info_left = (valid_active = Bool[], local_bounds = varbounds_left) 
    node_info_right = (valid_active = Bool[],local_bounds = varbounds_right)
-   
+
    return [node_info_left, node_info_right]
 
 end

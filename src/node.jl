@@ -107,7 +107,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.g,
         tree.root.problem.lmo,
         node.active_set,
-        epsilon = get(tree.root.options, :FW_tol, -1),
+        epsilon = node.fw_dual_gap_limit,
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
@@ -140,6 +140,8 @@ function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 end
 
 function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
-    dual_gap = relative_gap(tree.incumbent,tree.lb)
+    dual_gap = relative_gap(tree.incumbent,tree_lb(tree))
     return isempty(tree.node_queue) || dual_gap ≤ tree.root.options[:dual_gap]
 end
+
+tree_lb(tree::Bonobo.BnBTree) = min(tree.lb, tree.incumbent)

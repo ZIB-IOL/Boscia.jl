@@ -13,7 +13,7 @@ function relative_gap(primal,dual)
     end
     return gap
 end
-    
+
 """
 Check feasibility and boundedness
 """
@@ -175,10 +175,30 @@ end
 Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
 """
-function Bonobo.terminated(tree::Bonobo.BnBTree)
+function Bonobo.terminated(tree::Bonobo.BnBTree{FrankWolfeNode})
     dual_gap = get(tree.root.options, :dual_gap, -1)
-    if tree.incumbent - tree.lb < dual_gap || isempty(tree.nodes)
+    if tree.incumbent - tree_lb(tree) < dual_gap || isempty(tree.nodes)
         return true
     end
     return false
-end 
+end
+
+
+"""
+Naive optimization by enumeration.
+Default uses binary values.
+Otherwise, third argument should be a vector of n sets of possible values for the variables.
+"""
+function min_via_enum(f, n, values = fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        val = f(sol)
+        if best_val > val
+            best_val = val
+            best_sol = sol
+        end
+    end
+    return best_val, best_sol
+end

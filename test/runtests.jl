@@ -73,7 +73,7 @@ include("interface_test.jl")
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = BranchWolfe.FrankWolfeNode, 
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap_decay_factor => 0.7,  :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7,  :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -172,8 +172,8 @@ end
     @test BranchWolfe.is_linear_feasible(o, ones(n)) == false
     @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 5.0], ones(n-5)))
     @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 2.0, 1.5, 0.0, 5.0], ones(n-5))) == false
-    @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n-5))) == false   
-    @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n-5))) == false   
+    @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n-5))) == false
+    @test BranchWolfe.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n-5))) == false
 end
 
 # diff needs to defined outside of test to avoid a "unsupported const declaration
@@ -207,7 +207,7 @@ const diff = Random.rand(Bool,n)*0.6.+0.3
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return sum(0.5*(x.-diff).^2)
+        return 0.5 * sum((x[i] - diff[i])^2 for i in 1:n)
     end
     function grad!(storage, x)
         @. storage = x-diff
@@ -217,13 +217,13 @@ const diff = Random.rand(Bool,n)*0.6.+0.3
     m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, collect(1:n), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
+    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -292,7 +292,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -377,7 +377,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-5, :dual_gap_decay_factor => 0.7, :verbose => false, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => 0.7, :verbose => false, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -446,7 +446,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -519,7 +519,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree,
@@ -596,7 +596,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:FW_tol => 1e-7, :verbose => false,  :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false,  :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree,
@@ -620,4 +620,8 @@ end
     @time Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
     @test isapprox(x, round.(diff1), atol = 1e-5, rtol= 1e-5)
+end
+
+for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
+    include(file)
 end
