@@ -43,15 +43,10 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-
-    # build optimal solution / TODO: this is not the optimal solution
-    xopt = zeros(n)
-    for i in 1:n
-        if diffi[i] > 0.5
-            xopt[i] = 1
-        end
+    
+    if n < 15  # only do for small n 
+        valopt, xopt = BranchWolfe.min_via_enum(f,n)
+        @test f(x) == f(xopt)
     end
-
-    @test f(x) == f(xopt)
 
 end

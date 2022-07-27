@@ -182,3 +182,23 @@ function Bonobo.terminated(tree::Bonobo.BnBTree{FrankWolfeNode})
     end
     return false
 end
+
+
+"""
+Naive optimization by enumeration
+"""
+
+function min_via_enum(f,n)
+    solutions = reverse.(Iterators.product(fill(0:2,n)...))[:]
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        val = f(sol)
+        if best_val > val
+            best_val = val
+            best_sol = sol
+        end
+    end
+    return best_val, best_sol
+end
+
