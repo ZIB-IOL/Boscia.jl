@@ -13,11 +13,11 @@ const MOI = MathOptInterface
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
 # https://arxiv.org/abs/2204.05266. 
 
-m = 30 # larger dimension
-n = 10 # small dimension
+m = 500 # larger dimension
+n = 12 # small dimension
 
 alpha = 0.00
-diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
+const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
 @testset "Low-dimensional function" begin
     o = SCIP.Optimizer()
@@ -32,14 +32,14 @@ diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     lmo = FrankWolfe.MathOptLMO(o)
 
     W = rand(m,n)
+    Ws = transpose(W) * W
 
     function f(x)
-        return sum(0.5*((W*(x.-diffi))).^2)
+        return 0.5 * (dot(x, Ws, x) - dot(refpoint, Ws, x) - dot(x, Ws, refpoint))
     end
 
     function grad!(storage, x)
-        Ws = transpose(W) * W
-        mul!(storage, Ws, (x - diffi))
+        mul!(storage, Ws, (x - refpoint))
     end
 
     x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
