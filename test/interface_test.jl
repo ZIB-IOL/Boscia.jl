@@ -31,7 +31,7 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
 
     @show dual_gap
     @test x == round.(diffi)
@@ -81,38 +81,10 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     @show x
     @show dual_gap
     @test sum(ai'* x) <= bi + eps()
-
-    # Run without binary constraints
-    q = SCIP.Optimizer()
-    MOI.set(q, MOI.Silent(), true)
-    MOI.empty!(q)
-    z = MOI.add_variables(q,n)
-    I =  rand(1:n, Int64(floor(n/2)))  #collect(1:n)
-    for i in 1:n
-        MOI.add_constraint(q, z[i], MOI.GreaterThan(0.0))
-    end 
-    MOI.add_constraint(q, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,z), 0.0), MOI.LessThan(bi))
-    #MOI.add_constraint(q, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.GreaterThan(minimum(ai)))
-    MOI.add_constraint(q, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0))
-    lmo = FrankWolfe.MathOptLMO(q)
-    direction = Vector{Float64}(undef,n)
-    Random.rand!(direction)
-    v = compute_extreme_point(lmo, direction)
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    z,_,primal,dual_gap,_ , active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        active_set,
-    ) 
-    @show z
-    @show f(z)
-    @show dual_gap
-    @show f(x)-f(z) 
 end
 
 
@@ -140,7 +112,7 @@ const ys = map(1:n) do idx
 end
 Ns = 5.0
 
-@testset "Interface - sparse regression" begin
+@testset "Interface - sparse poissonregression" begin
 k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -200,46 +172,9 @@ k = 10
         return storage
     end
 
-    x, _, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     @show x
     @show dual_gap
     @show f(x)
     @test sum(x[p+1:2p]) <= k
-
-    # Run without binary constraints
-    k = p
-    q = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    w = MOI.add_variables(q, p)
-    z = MOI.add_variables(q, p)
-    b = MOI.add_variable(q)
-    MOI.set(q, MOI.Silent(), true)
-    for i in 1:p
-        MOI.add_constraint(q, z[i], MOI.GreaterThan(0.0))
-        MOI.add_constraint(q, z[i], MOI.LessThan(1.0))
-       # MOI.add_constraint(o, z[i], MOI.ZeroOne())
-    end
-    for i in 1:p
-        MOI.add_constraint(q, -Ns * z[i]- w[i], MOI.LessThan(0.0))
-        MOI.add_constraint(q, Ns * z[i]- w[i], MOI.GreaterThan(0.0))
-    end
-    MOI.add_constraint(q, sum(z, init=0.0), MOI.LessThan(1.0 * k))
-    MOI.add_constraint(q, sum(z, init=0.0), MOI.GreaterThan(1.0))
-    MOI.add_constraint(q, b, MOI.LessThan(Ns))
-    MOI.add_constraint(q, b, MOI.GreaterThan(-Ns))
-    lmo = FrankWolfe.MathOptLMO(q)
-    direction = Vector{Float64}(undef,2p+1)
-    Random.rand!(direction)
-    v = compute_extreme_point(lmo, direction)
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    y,_,primal,dual_gap,_ , active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        active_set,
-    ) 
-    @show y
-    @show f(y)
-    @show dual_gap
-    @show (f(x)-f(y)) 
 end
