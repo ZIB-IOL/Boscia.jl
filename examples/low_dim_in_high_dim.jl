@@ -18,6 +18,16 @@ n = 12 # small dimension
 
 alpha = 0.00
 const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
+W = rand(m,n)
+const Ws = transpose(W) * W
+
+function f(x)
+    return 0.5 * (dot(x, Ws, x) - dot(refpoint, Ws, x) - dot(x, Ws, refpoint))
+end
+
+function grad!(storage, x)
+    mul!(storage, Ws, (x - refpoint))
+end
 
 @testset "Low-dimensional function" begin
     o = SCIP.Optimizer()
@@ -30,17 +40,6 @@ const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         MOI.add_constraint(o, xi, MOI.ZeroOne())
     end
     lmo = FrankWolfe.MathOptLMO(o)
-
-    W = rand(m,n)
-    Ws = transpose(W) * W
-
-    function f(x)
-        return 0.5 * (dot(x, Ws, x) - dot(refpoint, Ws, x) - dot(x, Ws, refpoint))
-    end
-
-    function grad!(storage, x)
-        mul!(storage, Ws, (x - refpoint))
-    end
 
     x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
         

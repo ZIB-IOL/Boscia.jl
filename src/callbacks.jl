@@ -51,7 +51,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
         end
 
-        if check_rounding_value
+        if check_rounding_value && state.tt == FrankWolfe.last
             # round values
             x_rounded = copy(state.x)
             for idx in tree.branching_indices
