@@ -89,7 +89,7 @@ Ns = 5.0
         return storage
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     @show x
     @test sum(x[p+1:2p]) <= k
 end
