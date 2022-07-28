@@ -80,17 +80,17 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
 
     x = Bonobo.get_solution(tree)
 
-    # TO DO: If problem is not purely binary or integer
-    # fix all integral variables and compute again to find the optimal continuous values.
+    
+    # Build solution lmo
+    fix_bounds = IntegerBounds()
+    for i in tree.root.problem.integer_variables
+        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
+        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+    end
+    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
+    
+    # Final solve in case of mixed problem
     if tree.root.problem.nvars > length(tree.root.problem.integer_variables)
-        # read bounds from x
-        fix_bounds = IntegerBounds()
-        for i in tree.root.problem.integer_variables
-            push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-            push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
-        end
-        # build lmo 
-        build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
@@ -108,6 +108,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         ) 
     end
 
+    # Check solution and polish
     x_raw = x
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
