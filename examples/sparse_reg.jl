@@ -49,4 +49,4 @@ end
 
 x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)
 
-@show result
+# @show result // too large to be output
