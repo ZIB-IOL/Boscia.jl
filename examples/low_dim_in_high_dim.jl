@@ -43,12 +43,12 @@ const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     end
 
     x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-        
-    @show result # solution statistics also as dict for further processing
+    
+    # @show result # solution statistics also as dict for further processing // too large for printing usually
 
     if n < 15  # only do for small n 
         valopt, xopt = BranchWolfe.min_via_enum(f,n)
-        @test f(x) == f(xopt)
+        @test f(x) ≈ f(xopt)
     end
 
 end

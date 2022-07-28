@@ -1,7 +1,7 @@
 
 function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 100, dual_gap_decay_factor=0.8, kwargs...)
     if verbose
-        println("\nBranchWolfe Algorithm\n")
+        println("\nBranchWolfe Algorithm.\n")
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", traverse_strategy)
         println("\t Branching strategy: ", branching_strategy)
@@ -95,6 +95,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
+        println("Performing final solve for cleanup.")
         x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
             tree.root.problem.f,
             tree.root.problem.g,
@@ -123,9 +124,9 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
             @warn "Polished solution not linear feasible"
         else
             x = x_polished
-
         end
     end
+    println() # cleaner output
     return x, time_lmo, result, dual_gap
 end
 
@@ -149,7 +150,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     time_ref = Dates.now()
     iteration = 0
 
-    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (iters)", "Active Set", "Discarded"]
+    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
     format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
@@ -246,7 +247,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
 
             if verbose
                 print_callback = FrankWolfe.print_callback
-                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (iters)", "Active Set", "Discarded"]   
+                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
                 format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
                 print_callback(headers, format_string, print_footer=true)
                 println()
