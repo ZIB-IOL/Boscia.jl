@@ -13,7 +13,7 @@ const MOI = MathOptInterface
 n = 20
 diffi = Random.rand(Bool,n)*0.6.+0.3
 
-@testset "Interface - norm hyperbox" begin
+@testset "Approximate planted point" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -26,7 +26,7 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum(0.5*(x.-diffi).^2)
+        return 0.5 * sum((x[i]-diffi[i])^2 for i in eachindex(x))
     end
     function grad!(storage, x)
         @. storage = x-diffi

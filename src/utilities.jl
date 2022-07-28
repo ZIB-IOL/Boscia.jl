@@ -1,6 +1,20 @@
 # Ultilities function 
 
 """
+Compute relative gap consistently everywhere
+"""
+function relative_gap(primal,dual)
+    gap = if signbit(primal) != signbit(dual)
+        Inf
+    elseif primal == dual
+        0.0
+    else
+        (primal - dual) / min(abs(primal), abs(dual))
+    end
+    return gap
+end
+
+"""
 Check feasibility and boundedness
 """
 function check_feasibility(lmo::TimeTrackingLMO)
@@ -161,10 +175,31 @@ end
 Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
 """
-function Bonobo.terminated(tree::Bonobo.BnBTree)
+function Bonobo.terminated(tree::Bonobo.BnBTree{FrankWolfeNode})
     dual_gap = get(tree.root.options, :dual_gap, -1)
-    if tree.incumbent - tree.lb < dual_gap || isempty(tree.nodes)
+    if tree.incumbent - tree_lb(tree) < dual_gap || isempty(tree.nodes)
         return true
     end
     return false
-end 
+end
+
+
+"""
+Naive optimization by enumeration.
+Default uses binary values.
+Otherwise, third argument should be a vector of n sets of possible values for the variables.
+"""
+function min_via_enum(f, n, values = fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        val = f(sol_vec)
+        if best_val > val
+            best_val = val
+            best_sol = sol_vec
+        end
+    end
+    return best_val, best_sol
+end

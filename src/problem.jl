@@ -77,33 +77,32 @@ Checks if x is valid for all linear and variable bound constraints
 """
 function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
     valvar(f) = v[f.value]
-
-    ## ScalarAffine
-    # LessThan
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
-        @debug "constraints $F, $S"
-
-        if S != MOI.ZeroOne && !(S <: MOI.Indicator) && S != MOI.Integer
-            #@show F, S
-            cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F, S}())
-            #@show cons_list
-            for c_idx in cons_list
-                #@show c_idx
-                func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
-                val = MOIU.eval_variables(valvar, func)
-                #@show val
-                #@show 
-                set = MOI.get(o, MOI.ConstraintSet(), c_idx) # errors here
-                @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
-                dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
-                if dist > 1e-6
-                    return false
-                end
-            end
+        isfeasible = is_linear_feasible_subroutine(o, F, S, valvar)
+        if !isfeasible
+            return false
         end
     end
-    
    # satisfies all constraints
+    return true
+end
+
+# function barrier for performance
+function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F, S}
+    if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
+        return true
+    end
+    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F, S}())
+    for c_idx in cons_list
+        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+        val = MOIU.eval_variables(valvar, func)
+        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+        @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+        dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
+        if dist > 1e-6
+            return false
+        end
+    end
     return true
 end
 

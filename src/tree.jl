@@ -45,5 +45,5 @@ function process_node(tree::BranchingTree, node::Node, problem::SimpleOptimizati
         if tree.upperbound > val
             tree.upperbound = val
         end
-    end    
+    end
 end
