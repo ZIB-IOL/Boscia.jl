@@ -41,13 +41,10 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-        
-    @show result # solution statistics also as dict for further processing
-
+    x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    
     if n < 15  # only do for small n 
         valopt, xopt = BranchWolfe.min_via_enum(f,n)
-        @test f(x) == f(xopt)
+        @test f(x) ≈ f(xopt)
     end
-
 end
