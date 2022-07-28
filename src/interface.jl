@@ -68,7 +68,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
     result = Dict{Symbol, Any}()
-    lmo_calls_per_layer = []
+    lmo_calls_per_layer = Vector{Vector{Int}}()
     bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer)
 
     min_number_lower = Inf
