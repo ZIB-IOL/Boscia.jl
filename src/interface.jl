@@ -80,7 +80,53 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = Bonobo.get_solution(tree)
-    return x, time_lmo, result
+
+    
+    # Build solution lmo
+    fix_bounds = IntegerBounds()
+    for i in tree.root.problem.integer_variables
+        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
+        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+    end
+    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
+    
+    # Final solve in case of mixed problem
+    if tree.root.problem.nvars > length(tree.root.problem.integer_variables)
+        v = compute_extreme_point(lmo, direction)
+        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        # evaluate 
+        x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            active_set,
+            add_dropped_vertices=true,
+            use_extra_vertex_storage=true,
+            extra_vertex_storage=FrankWolfe.DeletedVertexStorage(typeof(v)[], 1),
+            #callback=fw_callback,
+            lazy=true,
+            verbose=true,
+        ) 
+    end
+
+    # Check solution and polish
+    x_raw = x
+    x_polished = x
+    if !is_linear_feasible(tree.root.problem.lmo, x)
+        error("Reported solution not linear feasbile!")
+    end
+    if !is_integer_feasible(tree, x)
+        for i in tree.root.problem.integer_variables
+            x_polished[i] = round(x_polished[i])
+        end
+        if !is_linear_feasible(tree.root.problem.lmo, x_polished)
+            @warn "Polished solution not linear feasible"
+        else
+            x = x_polished
+
+        end
+    end
+    return x, time_lmo, result, dual_gap
 end
 
 """

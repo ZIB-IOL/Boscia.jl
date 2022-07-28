@@ -33,6 +33,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
     # split active set
@@ -121,6 +122,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
+
+    # check check_feasibility
+    if !is_linear_feasible(tree.root.problem.lmo, x)
+        @error "Solution not linear feasible!"
+    end
 
     # Found an upper bound?
     if is_integer_feasible(tree,x)

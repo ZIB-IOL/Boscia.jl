@@ -25,9 +25,9 @@ const MOI = MathOptInterface
 
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
-
-n = 9
-k = 3
+println("Start Birkhoff example")
+n = 2
+k = 2
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
@@ -77,12 +77,12 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     # TODO the below needs to be fixed
     # TODO can use the min_via_enum function if not too many solutions
     # build optimal solution
-    xopt = zeros(n)
+    #=xopt = zeros(n)
     for i in 1:n
         if diffi[i] > 0.5
             xopt[i] = 1
@@ -91,5 +91,5 @@ end
 
     @test f(x) == f(xopt)
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
-    println()
+    println()=#
 end

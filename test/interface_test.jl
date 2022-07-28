@@ -31,8 +31,9 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
 
+    @show dual_gap
     @test x == round.(diffi)
 end
 
@@ -57,7 +58,7 @@ const Mi =  (Ai + Ai')/2
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o,n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    I =  rand(1:n, Int64(floor(n/2)))  #collect(1:n)
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
@@ -80,8 +81,9 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     @show x
+    @show dual_gap
     @test sum(ai'* x) <= bi + eps()
 end
 
@@ -110,7 +112,7 @@ const ys = map(1:n) do idx
 end
 Ns = 5.0
 
-@testset "Interface - sparse regression" begin
+@testset "Interface - sparse poissonregression" begin
 k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -170,7 +172,9 @@ k = 10
         return storage
     end
 
-    x, _ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     @show x
+    @show dual_gap
+    @show f(x)
     @test sum(x[p+1:2p]) <= k
 end

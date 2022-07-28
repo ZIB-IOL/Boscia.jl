@@ -42,7 +42,7 @@ const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         mul!(storage, Ws, (x - refpoint))
     end
 
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
         
     @show result # solution statistics also as dict for further processing
 

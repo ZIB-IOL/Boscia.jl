@@ -33,7 +33,7 @@ const MOI = MathOptInterface
 n = 10
 alpha = 0.00
 
-const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
+const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
 @testset "Interface - 2-norm over hypercube" begin
     o = SCIP.Optimizer()
@@ -48,19 +48,19 @@ const diffi = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum(0.5*(x.-diffi).^2)
+        return sum(0.5*(x.-diffw).^2)
     end
 
     function grad!(storage, x)
-        @. storage = x-diffi
+        @. storage = x-diffw
     end
 
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     # build optimal solution
     xopt = zeros(n)
     for i in 1:n
-        if diffi[i] > 0.5
+        if diffw[i] > 0.5
             xopt[i] = 1
         end
     end
