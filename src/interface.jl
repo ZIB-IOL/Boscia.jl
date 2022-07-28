@@ -64,9 +64,11 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     list_time_cb = Float64[] 
     list_num_nodes_cb = Int[] 
     list_lmo_calls_cb = Int[]
+    list_active_set_size_cb = Int[]
+    list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
     result = Dict{Symbol, Any}()
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, result)
+    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result)
 
     min_number_lower = Inf
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
@@ -96,7 +98,7 @@ Output of BranchWolfe
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, result)
+function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result)
     time_ref = Dates.now()
     iteration = 0
 
@@ -140,6 +142,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
 
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
+            push!(list_active_set_size_cb, active_set_size)
+            push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left= length(tree.nodes)
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
                 if (mod(iteration, print_iter*40) == 0)
@@ -181,6 +185,16 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 result[:lmo_calls] = tree.root.problem.lmo.ncalls
                 total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
                 result[:total_time_in_sec] = total_time_in_sec
+
+                # list_num_nodes, list_lmo_calls, active_set_size, discarded_set_size
+                result[:list_num_nodes] = list_num_nodes_cb
+                result[:list_lmo_calls_acc] = list_lmo_calls_cb
+                result[:list_active_set_size] = list_active_set_size_cb
+                result[:list_discarded_set_size] = list_discarded_set_size_cb
+                result[:list_lb] = list_lb_cb
+                result[:list_ub] = list_ub_cb 
+                result[:list_time] = list_time_cb
+                
 
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
