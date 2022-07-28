@@ -102,7 +102,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     time_ref = Dates.now()
     iteration = 0
 
-    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]
+    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (iters)", "Active Set", "Discarded"]
     format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
@@ -160,7 +160,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         if Bonobo.terminated(tree)
             if verbose
                 print_callback = FrankWolfe.print_callback
-                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls)", "FW (iters)", "Active Set", "Discarded"]   
+                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (iters)", "Active Set", "Discarded"]   
                 format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
                 print_callback(headers, format_string, print_footer=true)
                 println()
@@ -185,8 +185,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 result[:lmo_calls] = tree.root.problem.lmo.ncalls
                 total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
                 result[:total_time_in_sec] = total_time_in_sec
-
-                # list_num_nodes, list_lmo_calls, active_set_size, discarded_set_size
                 result[:list_num_nodes] = list_num_nodes_cb
                 result[:list_lmo_calls_acc] = list_lmo_calls_cb
                 result[:list_active_set_size] = list_active_set_size_cb
