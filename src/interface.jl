@@ -68,7 +68,8 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
     result = Dict{Symbol, Any}()
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result)
+    lmo_calls_per_layer = Vector{Vector{Int}}()
+    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer)
 
     min_number_lower = Inf
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
@@ -98,7 +99,7 @@ Output of BranchWolfe
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result)
+function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer)
     time_ref = Dates.now()
     iteration = 0
 
@@ -132,8 +133,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             else 
                 LMO_time = 0
             end 
-            LMO_calls = tree.root.problem.lmo.ncalls
-            push!(list_lmo_calls_cb, copy(LMO_calls))
+            LMO_calls_c = tree.root.problem.lmo.ncalls
+            push!(list_lmo_calls_cb, copy(LMO_calls_c))
 
             if !isempty(tree.nodes)
                 lower_bounds = [n[2].lb for n in tree.nodes]
@@ -151,6 +152,17 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 end
                 print_callback((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
             end
+            # lmo calls per layer
+            if length(list_lmo_calls_cb) > 1
+                LMO_calls = list_lmo_calls_cb[end] - list_lmo_calls_cb[end-1]
+            else 
+                LMO_calls = list_lmo_calls_cb[end]
+            end
+            if length(lmo_calls_per_layer) < node.level
+                push!(lmo_calls_per_layer, [LMO_calls])
+            else 
+                push!(lmo_calls_per_layer[node.level], LMO_calls)
+            end
         end
         # update current_node_id
         if !Bonobo.terminated(tree)
@@ -158,42 +170,43 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         end
     
         if Bonobo.terminated(tree)
+            x = Bonobo.get_solution(tree)
+            primal_value = tree.root.problem.f(x)
+    
+            # TODO: here we need to calculate the actual state
+    
+            status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
+            if isempty(tree.nodes)
+                status_string = "Optimal (tree empty)"
+            else
+                status_string = "Optimal (tolerance reached)"
+            end
+    
+            result[:primal_objective] = primal_value 
+            result[:dual_bound] = tree_lb(tree)
+            result[:dual_gap] = relative_gap(primal_value,tree_lb(tree)) * 100.0
+            result[:number_nodes] = tree.num_nodes
+            result[:lmo_calls] = tree.root.problem.lmo.ncalls
+            total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
+            result[:total_time_in_sec] = total_time_in_sec
+            result[:list_num_nodes] = list_num_nodes_cb
+            result[:list_lmo_calls_acc] = list_lmo_calls_cb
+            result[:list_active_set_size] = list_active_set_size_cb
+            result[:list_discarded_set_size] = list_discarded_set_size_cb
+            result[:list_lb] = list_lb_cb
+            result[:list_ub] = list_ub_cb 
+            result[:list_time] = list_time_cb
+            result[:lmo_calls_per_layer] = lmo_calls_per_layer
+
             if verbose
                 print_callback = FrankWolfe.print_callback
                 headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/Sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (iters)", "Active Set", "Discarded"]   
                 format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
                 print_callback(headers, format_string, print_footer=true)
                 println()
-        
-                x = Bonobo.get_solution(tree)
-                println("Solution Statistics.")
-                primal_value = tree.root.problem.f(x)
-        
-                # TODO: here we need to calculate the actual state
-        
-                status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
-                if isempty(tree.nodes)
-                    status_string = "Optimal (tree empty)"
-                else
-                    status_string = "Optimal (tolerance reached)"
-                end
-        
-                result[:primal_objective] = primal_value 
-                result[:dual_bound] = tree_lb(tree)
-                result[:dual_gap] = relative_gap(primal_value,tree_lb(tree)) * 100.0
-                result[:number_nodes] = tree.num_nodes
-                result[:lmo_calls] = tree.root.problem.lmo.ncalls
-                total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
-                result[:total_time_in_sec] = total_time_in_sec
-                result[:list_num_nodes] = list_num_nodes_cb
-                result[:list_lmo_calls_acc] = list_lmo_calls_cb
-                result[:list_active_set_size] = list_active_set_size_cb
-                result[:list_discarded_set_size] = list_discarded_set_size_cb
-                result[:list_lb] = list_lb_cb
-                result[:list_ub] = list_ub_cb 
-                result[:list_time] = list_time_cb
-                
 
+                println("Solution Statistics.")
+                
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
                 println("\t Dual Bound: ", tree_lb(tree))
