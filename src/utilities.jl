@@ -194,10 +194,11 @@ function min_via_enum(f, n, values = fill(0:1,n))
     best_val = Inf
     best_sol = nothing
     for sol in solutions
-        val = f(collect(sol))
+        sol_vec = collect(sol)
+        val = f(sol_vec)
         if best_val > val
             best_val = val
-            best_sol = collect(sol)
+            best_sol = sol_vec
         end
     end
     return best_val, best_sol
