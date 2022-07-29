@@ -34,6 +34,17 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
                 push!(global_bounds, (idx, s))
             end
         end
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex, MOI.Interval{Float64}}(idx)
+        if MOI.is_valid(lmo.o, cidx)
+            x = MOI.VariableIndex(idx)
+            s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
+            MOI.delete(lmo.o, cidx)
+            MOI.add_constraint(lmo.o,  x, MOI.GreaterThan(s.lower))
+            MOI.add_constraint(lmo.o,  x, MOI.LessThan(s.upper))
+            push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
+            push!(global_bounds, (idx, MOI.LessThan(s.upper)))
+        end
+        @assert !MOI.is_valid(lmo.o, cidx)
     end
 
     direction = ones(n)
