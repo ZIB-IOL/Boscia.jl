@@ -68,7 +68,7 @@ const M1 =  (A1 + A1')/2
     tree = Bonobo.initialize(;
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 

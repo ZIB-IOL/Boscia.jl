@@ -1,5 +1,16 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 100, dual_gap_decay_factor=0.8, kwargs...)
+function branch_wolfe(f, 
+    grad!, 
+    lmo; 
+    traverse_strategy = Bonobo.BFS(), 
+    branching_strategy = Bonobo.MOST_INFEASIBLE(), 
+    fw_epsilon = 1e-5, 
+    verbose = false, 
+    dual_gap = 1e-7, 
+    print_iter = 100, 
+    dual_gap_decay_factor=0.8, 
+    max_fw_iter = 10000,
+    kwargs...)
     if verbose
         println("\nBranchWolfe Algorithm.\n")
         println("Parameter settings.")
@@ -47,7 +58,7 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter)),
         branch_strategy = branching_strategy,
     )
     Bonobo.set_root!(tree, 

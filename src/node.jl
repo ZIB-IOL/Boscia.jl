@@ -109,6 +109,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.lmo,
         node.active_set,
         epsilon = node.fw_dual_gap_limit,
+        max_iteration = tree.root.options[:max_fw_iter],
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
