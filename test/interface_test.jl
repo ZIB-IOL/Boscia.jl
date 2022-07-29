@@ -82,9 +82,8 @@ const Mi =  (Ai + Ai')/2
     end
 
     x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
-    @show x
-    @show dual_gap
-    @test sum(ai'* x) <= bi + eps()
+
+    @test sum(ai'* x) <= bi + 1e-3
 end
 
 
@@ -112,7 +111,7 @@ const ys = map(1:n) do idx
 end
 Ns = 5.0
 
-@testset "Interface - sparse poissonregression" begin
+@testset "Interface - sparse poisson regression" begin
 k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -173,8 +172,6 @@ k = 10
     end
 
     x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
-    @show x
-    @show dual_gap
-    @show f(x)
+
     @test sum(x[p+1:2p]) <= k
 end
