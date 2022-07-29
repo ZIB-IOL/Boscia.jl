@@ -127,7 +127,8 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
     end
-    if !is_integer_feasible(tree, x)
+    if !is_integer_feasible(tree.root.problem.integer_variables, x, atol = 1e-16, rtol=1e-16)
+        @info "Polish solution"
         for i in tree.root.problem.integer_variables
             x_polished[i] = round(x_polished[i])
         end
@@ -138,6 +139,11 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         end
     end
     println() # cleaner output
+
+    # Reset LMO 
+    int_bounds = IntegerBounds()
+    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, int_bounds, tree.root.problem.integer_variables)
+    
     return x, time_lmo, result, dual_gap
 end
 

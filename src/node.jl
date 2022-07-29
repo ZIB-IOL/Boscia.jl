@@ -79,10 +79,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # set relative accurary for the IP solver
-   #= accurary = node.level >= 2 ? 0.1/(floor(node.level/2)*(3/4)) : 0.10
+    accurary = node.level >= 2 ? 0.1/(floor(node.level/2)*(3/4)) : 0.10
     if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
-    end =#
+    end 
 
     if isempty(node.active_set)
         consI_list = MOI.get(tree.root.problem.lmo.lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
