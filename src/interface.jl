@@ -14,8 +14,8 @@ function branch_wolfe(f,
     if verbose
         println("\nBranchWolfe Algorithm.\n")
         println("Parameter settings.")
-        println("\t Tree traversal strategy: ", traverse_strategy)
-        println("\t Branching strategy: ", branching_strategy)
+        println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
+        println("\t Branching strategy: ", _value_to_print(branching_strategy))
         println("\t Absolute dual gap tolerance: ", dual_gap)
         println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)\n")
     end
@@ -45,6 +45,17 @@ function branch_wolfe(f,
                 push!(global_bounds, (idx, s))
             end
         end
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex, MOI.Interval{Float64}}(idx)
+        if MOI.is_valid(lmo.o, cidx)
+            x = MOI.VariableIndex(idx)
+            s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
+            MOI.delete(lmo.o, cidx)
+            MOI.add_constraint(lmo.o,  x, MOI.GreaterThan(s.lower))
+            MOI.add_constraint(lmo.o,  x, MOI.LessThan(s.upper))
+            push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
+            push!(global_bounds, (idx, MOI.LessThan(s.upper)))
+        end
+        @assert !MOI.is_valid(lmo.o, cidx)
     end
 
     direction = ones(n)
