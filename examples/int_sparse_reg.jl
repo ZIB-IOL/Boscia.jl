@@ -4,6 +4,7 @@ using FrankWolfe
 using Random
 using SCIP
 import Bonobo
+using Test
 import MathOptInterface
 const MOI = MathOptInterface
 
@@ -16,9 +17,9 @@ const MOI = MathOptInterface
 
 # There A represents the collection of data points and 
 # is a very tall matrix, i.e. number of rows = m >> number of columns = n.
-# y is the vector of results.
-# r controls how often we have to maximal split on a index.
-# k is the sparsity parameter. We only want a few non zero entries.
+# y - is the vector of results.
+# r - controls how often we have to maximal split on a index.
+# k - is the sparsity parameter. We only want a few non zero entries.
 
 n = 10
 m = 30
@@ -31,12 +32,12 @@ for _ in 1:(n-k)
 end
 
 k=0 # correct k
-for i in 1:n
+#=for i in 1:n
     if sol_x[i] == 0 
         global k += 1
     end
 end
-k = n-k
+k = n-k =#
 
 const D = rand(m,n)
 const y_d = D*sol_x
@@ -46,20 +47,21 @@ const y_d = D*sol_x
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o,n)
-    z = MOI.add_variables(o,n)
+    #z = MOI.add_variables(o,n)
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0*l))
         MOI.add_constraint(o, x[i], MOI.Integer())
 
-        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
-        MOI.add_constraint(o, z[i], MOI.ZeroOne())
+        #MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        #MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        #MOI.add_constraint(o, z[i], MOI.ZeroOne())
 
-        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0*l], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+        #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0*l], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
+       # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
     end 
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+    #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+   # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
     lmo = FrankWolfe.MathOptLMO(o)
 
@@ -68,18 +70,20 @@ const y_d = D*sol_x
     end
     
     function grad!(storage, x)
-        storage.=vcat(2*(transpose(D)*D*x[1:n] - transpose(D)*y_d + lambda_2*x[1:n]), zeros(n))
+        storage.=2*(transpose(D)*D*x[1:n] - transpose(D)*y_d)  #vcat(..,zeros(n))
         return storage
     end
 
-    function perform_strong_branch(tree, node)
+   #= function perform_strong_branch(tree, node)
         return node.level <= length(tree.root.problem.integer_variables)
     end
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
-    MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+    MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy = branching_strategy, print_iter = 1)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter = 1)
 
+    x_min = BranchWolfe.min_via_enum(f, n, fill(0:l, n))
+    #@show x_min
     @test f(x) == f(sol_x)
     @test isapprox(x[1:n], sol_x)
 end

@@ -124,6 +124,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     node.active_set = active_set
     lower_bound = primal - dual_gap
 
+    @show primal
+    @show dual_gap
+    @show lower_bound
+
     # check check_feasibility
     if !is_linear_feasible(tree.root.problem.lmo, x)
         @error "Solution not linear feasible!"
