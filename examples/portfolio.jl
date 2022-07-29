@@ -3,12 +3,10 @@ using FrankWolfe
 using Test
 using Random
 using SCIP
-# using Statistics
 using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
-
 
 n = 15
 const ri = 10 * rand(n)

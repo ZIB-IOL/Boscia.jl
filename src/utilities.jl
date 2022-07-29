@@ -204,3 +204,9 @@ function min_via_enum(f, n, values = fill(0:1,n))
     end
     return best_val, best_sol
 end
+
+# utility function to print the values of the parameters
+_value_to_print(::Bonobo.BFS) = "Best-first search"
+_value_to_print(::PartialStrongBranching) = "Partial strong branching"
+_value_to_print(::HybridStrongBranching) = "Hybrid strong branching"
+_value_to_print(::Bonobo.MOST_INFEASIBLE) = "Most-infeasible"
