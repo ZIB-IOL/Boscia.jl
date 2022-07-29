@@ -53,7 +53,7 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
-@testset "Interface - Buchheim" begin
+@testset "Interface - Buchheim et. al." begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
