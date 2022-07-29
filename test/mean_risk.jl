@@ -19,7 +19,7 @@ const M1 =  (A1 + A1')/2
 @assert isposdef(M1)
 
 
-@testset "Buchheim mean risk" begin
+@testset "Buchheim et. al. mean risk" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
