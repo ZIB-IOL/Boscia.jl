@@ -15,7 +15,7 @@ const MOI = MathOptInterface
 # x_i ∈ Z for i = 1,..,n
 
 # There A represents the collection of data points and 
-# is a very flat matrix, i.e. number of rows = m >> number of columns = n.
+# is a very tall matrix, i.e. number of rows = m >> number of columns = n.
 # y is the vector of results.
 # r controls how often we have to maximal split on a index.
 # k is the sparsity parameter. We only want a few non zero entries.
@@ -36,6 +36,7 @@ for i in 1:n
         global k += 1
     end
 end
+k = n-k
 
 const D = rand(m,n)
 const y_d = D*sol_x
@@ -59,7 +60,7 @@ const y_d = D*sol_x
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
     end 
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
+   # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
