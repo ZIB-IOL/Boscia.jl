@@ -64,7 +64,7 @@ CHANGE - lower/upper bound is changed to the node specific one
 DELETE - custom bound from the previous node that is invalid at current node and has to be deleted
 ADD    - bound has to be added for this node because it does not exist in the global bounds (e.g. variable bound is a half open interval globally) 
 """
-function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::IntegerBounds, nodeBounds::IntegerBounds, int_vars::Vector{Int64})
+function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, global_bounds::IntegerBounds, nodeBounds::IntegerBounds, int_vars::Vector{Int})
     consLT_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.LessThan{Float64}}()) 
     consGT_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.GreaterThan{Float64}}()) 
     cons_delete = []
@@ -72,7 +72,7 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
     # Lower bounds
     for c_idx in consGT_list
         if c_idx.value in int_vars
-            if haskey(globalBounds.lower_bounds, c_idx.value)
+            if haskey(global_bounds.lower_bounds, c_idx.value)
                 # change 
                  if haskey(nodeBounds.lower_bounds, c_idx.value)
                      if c_idx.value == 5
@@ -81,7 +81,7 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
                     MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value])
                 else
                 # keep
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, globalBounds.lower_bounds[c_idx.value])
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, global_bounds.lower_bounds[c_idx.value])
                 end
             else
                 # delete
@@ -93,13 +93,13 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
     # Upper bounds
     for c_idx in consLT_list
         if c_idx.value in int_vars
-            if haskey(globalBounds.upper_bounds, c_idx.value)
+            if haskey(global_bounds.upper_bounds, c_idx.value)
                 # change 
                  if haskey(nodeBounds.upper_bounds, c_idx.value) 
                     MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.upper_bounds[c_idx.value]) 
                 else
                 # keep
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, globalBounds.upper_bounds[c_idx.value])
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, global_bounds.upper_bounds[c_idx.value])
                 end
             else
                 # delete
@@ -115,12 +115,12 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, globalBounds::Integ
 
     # add node specific constraints
     for key in keys(nodeBounds.lower_bounds)
-        if !haskey(globalBounds.lower_bounds, key)
+        if !haskey(global_bounds.lower_bounds, key)
             MOI.add_constraint(lmo.o, MOI.VariableIndex(key), nodeBounds.lower_bounds[key])
         end
     end
     for key in keys(nodeBounds.upper_bounds)
-        if !haskey(globalBounds.upper_bounds, key)
+        if !haskey(global_bounds.upper_bounds, key)
             MOI.add_constraint(lmo.o, MOI.VariableIndex(key), nodeBounds.upper_bounds[key])
         end
     end
