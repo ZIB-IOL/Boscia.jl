@@ -623,5 +623,7 @@ end
 end
 
 for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
-    include(file)
+    if endswith(file, "jl")
+        include(file)
+    end
 end

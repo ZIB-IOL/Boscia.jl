@@ -178,7 +178,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
         if !node_infeasible
             # update lower bound
-            push!(list_ub_cb, tree.incumbent) 
+            push!(list_ub_cb, tree.incumbent)
             push!(list_lb_cb, tree_lb(tree))
             push!(list_num_nodes_cb, tree.num_nodes)
             iteration += 1
@@ -194,9 +194,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             if !isempty(tree.root.problem.lmo.optimizing_times)
                 LMO_time = sum(1000*tree.root.problem.lmo.optimizing_times)
                 empty!(tree.root.problem.lmo.optimizing_times)
-            else 
+            else
                 LMO_time = 0
-            end 
+            end
             LMO_calls_c = tree.root.problem.lmo.ncalls
             push!(list_lmo_calls_cb, copy(LMO_calls_c))
 
