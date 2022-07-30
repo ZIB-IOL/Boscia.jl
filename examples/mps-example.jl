@@ -23,6 +23,7 @@ lmo = FrankWolfe.MathOptLMO(o)
 const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:10]
 unique!(vs)
 @assert !isempty(vs)
+const b = randn(n)
 
 function f(x)
     r = dot(b, x)
