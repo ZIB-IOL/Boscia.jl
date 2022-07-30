@@ -38,8 +38,6 @@ julia> using BranchWolfe
 
 julia> using FrankWolfe
 
-julia> using Test
-
 julia> using Random
 
 julia> using SCIP
