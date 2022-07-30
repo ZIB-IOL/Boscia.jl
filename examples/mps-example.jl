@@ -24,6 +24,8 @@ const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:10]
 unique!(vs)
 @assert !isempty(vs)
 
+b = rand(n)
+
 function f(x)
     r = dot(b, x)
     for v in vs
