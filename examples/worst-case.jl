@@ -3,7 +3,6 @@ using FrankWolfe
 using Test
 using Random
 using SCIP
-# using Statistics
 using LinearAlgebra
 using Distributions
 import MathOptInterface
