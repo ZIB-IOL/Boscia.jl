@@ -14,6 +14,8 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 > [xxx](xxx).
 
+`BranchWolfe.jl` heavily uses on [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl).
+
 ## Installation
 
 The most recent release is available via the julia package manager, e.g., with
