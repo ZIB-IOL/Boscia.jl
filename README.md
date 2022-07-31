@@ -14,7 +14,7 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 > [xxx](xxx).
 
-`BranchWolfe.jl` heavily uses on [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl).
+`BranchWolfe.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree.
 
 ## Installation
 
