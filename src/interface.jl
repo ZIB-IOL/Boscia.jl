@@ -167,7 +167,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     time_ref = Dates.now()
     iteration = 0
 
-    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
+    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
     format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
     print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
@@ -214,7 +214,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback(headers, format_string, print_header=true)
                 end
-                print_callback((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)) * 100.0, time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
             end
             # lmo calls per layer
             if length(list_lmo_calls_cb) > 1
@@ -248,7 +248,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             result[:primal_objective] = primal_value 
             result[:dual_bound] = tree_lb(tree)
-            result[:dual_gap] = relative_gap(primal_value,tree_lb(tree)) * 100.0
+            result[:dual_gap] = relative_gap(primal_value,tree_lb(tree))
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.lmo.ncalls
             total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
@@ -274,7 +274,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 println("\t Solution Status: ", status_string)
                 println("\t Primal Objective: ", primal_value)
                 println("\t Dual Bound: ", tree_lb(tree))
-                println("\t Dual Gap (relative in %): $(relative_gap(primal_value,tree_lb(tree)) * 100.0)\n")
+                println("\t Dual Gap (relative): $(relative_gap(primal_value,tree_lb(tree)))\n")
                 println("Search Statistics.")
                 println("\t Total number of nodes processed: ", tree.num_nodes)
                 println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
