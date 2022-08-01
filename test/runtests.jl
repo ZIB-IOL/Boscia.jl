@@ -11,8 +11,8 @@ import HiGHS
 using Dates
 
 # For bug hunting:
-seed = 0x8a634a1cc2e35199
-#seed = rand(UInt64)
+#seed = 0xd0cc4c6d90c50bb9
+seed = rand(UInt64)
 @show seed
 Random.seed!(seed)
 
