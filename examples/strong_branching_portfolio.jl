@@ -59,3 +59,8 @@ x, _, result_strong_branching = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose 
 
 plot(result_baseline[:list_time],result_baseline[:list_ub], label="BL"); plot!(result_baseline[:list_time],result_baseline[:list_lb], label="BL")
 plot!(result_strong_branching[:list_time], result_strong_branching[:list_ub], label="SB"); plot!(result_strong_branching[:list_time], result_strong_branching[:list_lb], label="SB")
+
+plot(result_baseline[:list_ub], label="BL")
+plot!(result_baseline[:list_lb], label="BL")
+plot!(result_strong_branching[:list_ub], label="SB")
+plot!(result_strong_branching[:list_lb], label="SB")
