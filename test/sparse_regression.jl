@@ -1,4 +1,5 @@
 using Statistics
+using LinearAlgebra
 
 # Constant parameters for the sparse regression
 # min norm(y-A β)² + λ_0 ∑ z_i + λ_2 ||β||²
@@ -56,7 +57,7 @@ const M = 2*var(A)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return sum((y-A*x[1:p]).^2) + lambda_0*sum(x[p+1:2p]) + lambda_2*FrankWolfe.norm(x[1:p])^2
+        return sum((y-A*x[1:p]).^2) + lambda_0*sum(x[p+1:2p]) + lambda_2*norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage.=vcat(2*(transpose(A)*A*x[1:p] - transpose(A)*y + lambda_2*x[1:p]), lambda_0*ones(p))
@@ -157,7 +158,7 @@ push!(groups,((k_int-1)*group_size+p+1):2p)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return sum((y_g-A_g*x[1:p]).^2) + lambda_0_g*sum(x[p+1:2p]) + lambda_2_g*FrankWolfe.norm(x[1:p])^2
+        return sum((y_g-A_g*x[1:p]).^2) + lambda_0_g*sum(x[p+1:2p]) + lambda_2_g*norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage.=vcat(2*(transpose(A_g)*A_g*x[1:p] - transpose(A_g)*y_g + lambda_2_g*x[1:p]), lambda_0_g*ones(p))

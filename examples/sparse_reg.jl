@@ -39,11 +39,13 @@ MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p),x[p
 lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
-    return sum((y-A*x[1:p]).^2) + lambda_0*sum(x[p+1:2p]) + lambda_2*FrankWolfe.norm(x[1:p])^2
+    xv = @view(x[1:p])
+    return norm(y-A*xv)^2 + lambda_0*sum(x[p+1:2p]) + lambda_2*norm(xv)^2
 end
 
 function grad!(storage, x)
-    storage.=vcat(2*(transpose(A)*A*x[1:p] - transpose(A)*y + lambda_2*x[1:p]), lambda_0*ones(p))
+    storage[1:p] .= 2*(transpose(A)*A*x[1:p] - transpose(A)*y + lambda_2*x[1:p])
+    storage[p+1:2p] .= lambda_0
     return storage
 end
 
