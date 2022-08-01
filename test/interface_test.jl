@@ -53,7 +53,7 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
-@testset "Interface - Buchheim" begin
+@testset "Interface - Buchheim et. al." begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -81,7 +81,7 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(ai'* x) <= bi + 1e-3
 end
@@ -171,7 +171,7 @@ k = 10
         return storage
     end
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(x[p+1:2p]) <= k
 end
