@@ -25,8 +25,10 @@ unique!(vs)
 @assert !isempty(vs)
 const b = randn(n)
 
+b_mps = rand(n)
+
 function f(x)
-    r = dot(b, x)
+    r = dot(b_mps, x)
     for v in vs
         r += 1/2 * norm(x - v)^2
     end
@@ -35,7 +37,7 @@ end
 
 function grad!(storage, x)
     mul!(storage, length(vs) * I, x)
-    storage .+= b
+    storage .+= b_mps
     for v in vs
         @. storage -= v
     end

@@ -205,8 +205,25 @@ function min_via_enum(f, n, values = fill(0:1,n))
     return best_val, best_sol
 end
 
+function sparse_min_via_enum(f, n, k, values = fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        if sum(Int.(iszero.(sol_vec))) >= (n-k)
+            val = f(sol_vec)
+            if best_val > val
+                best_val = val
+                best_sol = sol_vec
+            end
+        end
+    end
+    return best_val, best_sol
+end
+
 # utility function to print the values of the parameters
-_value_to_print(::Bonobo.BFS) = "Best-first search"
+_value_to_print(::Bonobo.BFS) = "Move best bound"
 _value_to_print(::PartialStrongBranching) = "Partial strong branching"
 _value_to_print(::HybridStrongBranching) = "Hybrid strong branching"
-_value_to_print(::Bonobo.MOST_INFEASIBLE) = "Most-infeasible"
+_value_to_print(::Bonobo.MOST_INFEASIBLE) = "Most infeasible"
