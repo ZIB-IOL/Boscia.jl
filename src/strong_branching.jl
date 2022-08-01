@@ -27,6 +27,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
         end
     end
     relaxed_lmo = FrankWolfe.MathOptLMO(branching.optimizer)
+    @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
@@ -46,7 +47,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
-                    if v[idx] <= fxi
+                    if v[idx] <= xrel[idx]
                         push!(active_set, ((λ, v)))
                     end
                 end
@@ -70,7 +71,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
-                    if v[idx] >= cxi
+                    if v[idx] >= xrel[idx]
                         push!(active_set, ((λ, v)))
                     end
                 end
@@ -97,7 +98,6 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
         max_idx = -1
     end
     if max_idx <= 0
-        @info "Integral, node lb: $(node.lb)"
         max_idx = -1
     end
     return max_idx
