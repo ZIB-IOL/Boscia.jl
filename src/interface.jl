@@ -128,7 +128,7 @@ function branch_wolfe(f,
             extra_vertex_storage=FrankWolfe.DeletedVertexStorage(typeof(v)[], 1),
             #callback=fw_callback,
             lazy=true,
-            verbose=true,
+            verbose=verbose,
         ) 
     end
 
