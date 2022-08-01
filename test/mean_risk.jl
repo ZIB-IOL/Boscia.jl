@@ -48,14 +48,11 @@ const M1 =  (A1 + A1')/2
     v = compute_extreme_point(time_lmo, direction)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    function h(x)
-        return Ω
-    end
     function f(x)
-        return h(x) * (x' * M1 * x) - r' * x
+        return Ω * (x' * M1 * x) - r' * x
     end
     function grad!(storage, x)
-        storage.= 2 * M1 * x - r
+        storage.= 2 * Ω * M1 * x - r
         return storage
     end
     active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
