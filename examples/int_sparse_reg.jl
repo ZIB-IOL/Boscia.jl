@@ -24,15 +24,15 @@ const MOI = MathOptInterface
 n = 10
 m = 30
 l = 5
-k = 5
+k = 4
 
 sol_x = rand(1:l, n)
 for _ in 1:(n-k)
     sol_x[rand(1:n)] = 0
-end
+end 
 
-k=0 # correct k
-#=for i in 1:n
+#=k=0 # correct k
+for i in 1:n
     if sol_x[i] == 0 
         global k += 1
     end
@@ -47,20 +47,20 @@ const y_d = D*sol_x
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o,n)
-    #z = MOI.add_variables(o,n)
+    z = MOI.add_variables(o,n)
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0*l))
         MOI.add_constraint(o, x[i], MOI.Integer())
 
-        #MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
-        #MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
-        #MOI.add_constraint(o, z[i], MOI.ZeroOne())
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne())
 
-        #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0*l], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
-       # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0*l], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
     end 
-    #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -70,7 +70,7 @@ const y_d = D*sol_x
     end
     
     function grad!(storage, x)
-        storage.=2*(transpose(D)*D*x[1:n] - transpose(D)*y_d)  #vcat(..,zeros(n))
+        storage.=vcat(2*(transpose(D)*D*x[1:n] - transpose(D)*y_d), zeros(n))  #vcat(..,zeros(n))
         return storage
     end
 
@@ -82,8 +82,9 @@ const y_d = D*sol_x
 
     x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter = 1)
 
-    x_min = BranchWolfe.min_via_enum(f, n, fill(0:l, n))
+    val_min, x_min = BranchWolfe.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min
-    @test f(x) == f(sol_x)
-    @test isapprox(x[1:n], sol_x)
+    #@show x[1:n]
+    @test val_min == f(x)
+    @test isapprox(x[1:n], x_min)
 end
