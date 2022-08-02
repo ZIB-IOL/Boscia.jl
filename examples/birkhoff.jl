@@ -59,7 +59,6 @@ function grad!(storage, x)
 end
 
 @testset "Birkhoff" begin
-
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -98,17 +97,7 @@ end
 
     x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
-    # TODO the below needs to be fixed
-    # TODO can use the min_via_enum function if not too many solutions
-    # build optimal solution
-    #=xopt = zeros(n)
-    for i in 1:n
-        if diffi[i] > 0.5
-            xopt[i] = 1
-        end
-    end
 
-    @test f(x) == f(xopt)
-    println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
-    println()=#
+
+    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 end

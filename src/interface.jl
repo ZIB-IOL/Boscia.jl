@@ -1,5 +1,18 @@
 
-function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching_strategy = Bonobo.MOST_INFEASIBLE(), fw_epsilon = 1e-5, verbose = false, dual_gap = 1e-7, print_iter = 100, dual_gap_decay_factor=0.8, kwargs...)
+function branch_wolfe(
+    f,
+    grad!,
+    lmo;
+    traverse_strategy = Bonobo.BFS(),
+    branching_strategy = Bonobo.MOST_INFEASIBLE(),
+    fw_epsilon = 1e-5,
+    verbose = false,
+    dual_gap = 1e-7,
+    print_iter = 100,
+    dual_gap_decay_factor=0.8,
+    max_fw_iter=10000,
+    kwargs...,
+)
     if verbose
         println("\nBranchWolfe Algorithm.\n")
         println("Parameter settings.")
@@ -106,23 +119,18 @@ function branch_wolfe(f, grad!, lmo; traverse_strategy = Bonobo.BFS(), branching
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
-        println("Performing final solve for cleanup.")
+        verbose && println("Performing final solve for cleanup.")
         x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
             tree.root.problem.f,
             tree.root.problem.g,
             tree.root.problem.lmo,
             active_set,
-            add_dropped_vertices=true,
-            use_extra_vertex_storage=true,
-            extra_vertex_storage=FrankWolfe.DeletedVertexStorage(typeof(v)[], 1),
-            #callback=fw_callback,
             lazy=true,
-            verbose=true,
-        ) 
+            verbose=false,
+        )
     end
 
     # Check solution and polish
-    x_raw = x
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
