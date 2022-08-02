@@ -72,10 +72,15 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] >= xrel[idx]
-                        push!(active_set, ((λ, v)))
+                        push!(active_set, (λ, v))
                     end
                 end
-                @assert !isempty(active_set)
+                if isempty(active_set)                    
+                    @show xrel[idx]
+                    @show length(active_set)
+                    @info [active_set.atoms[idx] for idx in eachindex(active_set)]
+                    error("Empty active set, unreachable")
+                end
                 FrankWolfe.active_set_renormalize!(active_set)
                 _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, verbose=false, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
                 right_relaxed = primal_relaxed - dual_gap_relaxed

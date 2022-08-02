@@ -6,6 +6,7 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
+import HiGHS
 
 # Example on the Birkhoff polytope but using permutation matrices directly
 # https://arxiv.org/pdf/2011.02752.pdf
@@ -58,14 +59,14 @@ function grad!(storage, x)
     storage
 end
 
-@testset "Birkhoff" begin
+function build_birkhoff_lmo()
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     Y = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
     X = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
     theta = MOI.add_variables(o, k)
-
+    
     for i in 1:k
         MOI.add_constraint.(o, Y[i], MOI.GreaterThan(0.0))
         MOI.add_constraint.(o, Y[i], MOI.LessThan(1.0))
@@ -93,11 +94,15 @@ end
         )
     end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
-    lmo = FrankWolfe.MathOptLMO(o)
+    return FrankWolfe.MathOptLMO(o)
+end
 
-    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-
-
-
-    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+@testset "Birkhoff" begin
+    lmo = build_birkhoff_lmo()
+    x, _, result_baseline = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    lmo = build_birkhoff_lmo()
+    branching_strategy = BranchWolfe.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
+    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+    x_strong, _, result_strong = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
+    @test f(x) ≈ f(x_strong)
 end

@@ -71,7 +71,7 @@ function branch_wolfe(
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter)),
         branch_strategy = branching_strategy,
     )
     Bonobo.set_root!(tree, 
