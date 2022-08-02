@@ -43,5 +43,5 @@ function grad!(storage, x)
 end
 
 @testset "MPS instance" begin
-    x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 end

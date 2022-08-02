@@ -57,6 +57,6 @@ function grad!(storage, x)
     return storage
 end
 
-x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)
+x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)
 
 # @show result // too large to be output

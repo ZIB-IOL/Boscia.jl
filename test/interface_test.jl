@@ -31,9 +31,8 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
 
-    @show dual_gap
     @test x == round.(diffi)
 end
 
@@ -81,7 +80,7 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(ai'* x) <= bi + 1e-3
 end
@@ -171,7 +170,7 @@ k = 10
         return storage
     end
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(x[p+1:2p]) <= k
 end

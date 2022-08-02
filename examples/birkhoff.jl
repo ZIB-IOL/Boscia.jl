@@ -96,7 +96,7 @@ end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     # TODO the below needs to be fixed
     # TODO can use the min_via_enum function if not too many solutions
