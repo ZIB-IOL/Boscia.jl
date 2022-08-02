@@ -10,6 +10,7 @@ function branch_wolfe(f,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
+    min_number_lower = Inf, 
     kwargs...)
     if verbose
         println("\nBranchWolfe Algorithm.\n")
@@ -93,7 +94,6 @@ function branch_wolfe(f,
     lmo_calls_per_layer = Vector{Vector{Int}}()
     bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer)
 
-    min_number_lower = Inf
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
 
     tree.root.options[:callback] = fw_callback
