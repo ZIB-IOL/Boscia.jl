@@ -133,7 +133,7 @@ function branch_wolfe(f,
     end
 
     # Check solution and polish
-    x_raw = x
+    x_raw = copy(x)
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
@@ -155,7 +155,7 @@ function branch_wolfe(f,
     int_bounds = IntegerBounds()
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, int_bounds, tree.root.problem.integer_variables)
     
-    return x, time_lmo, result, dual_gap
+    return x, time_lmo, result
 end
 
 """
@@ -259,7 +259,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             result[:primal_objective] = primal_value 
             result[:dual_bound] = tree_lb(tree)
-            result[:dual_gap] = relative_gap(primal_value,tree_lb(tree))
+            result[:rel_dual_gap] = relative_gap(primal_value,tree_lb(tree))
+            result[:dual_gap] = tree.incumbent-tree_lb(tree)
+            result[:raw_solution] = Bonobo.get_solution(tree)
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.lmo.ncalls
             total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
