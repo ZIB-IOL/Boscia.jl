@@ -80,7 +80,7 @@ const y_d = D*sol_x
     branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
-    x, _,_, dual_gap = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter = 1)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter = 1)
 
     val_min, x_min = BranchWolfe.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min

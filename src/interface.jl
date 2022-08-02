@@ -6,7 +6,8 @@ function branch_wolfe(f,
     branching_strategy = Bonobo.MOST_INFEASIBLE(), 
     fw_epsilon = 1e-5, 
     verbose = false, 
-    dual_gap = 1e-7, 
+    dual_gap = 1e-6, 
+    rel_dual_gap = 0.01,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
@@ -18,7 +19,8 @@ function branch_wolfe(f,
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
         println("\t Absolute dual gap tolerance: ", dual_gap)
-        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)\n")
+        println("\t Relative dual gap tolerance: ", rel_dual_gap)
+        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)")
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
@@ -29,11 +31,21 @@ function branch_wolfe(f,
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 
     integer_variables = Vector{Int}()
+    num_int = 0
+    num_bin = 0
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
         push!(integer_variables, cidx.value)
+        num_int += 1
     end
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.ZeroOne}())
         push!(integer_variables, cidx.value)
+        num_bin += 1
+    end
+
+    if verbose
+        println("\t Total number of varibales: ", n)
+        println("\t Number of integer variables: ", num_int)
+        println("\t Number of binary variables: $(num_bin)\n")
     end
 
     global_bounds = BranchWolfe.IntegerBounds()
@@ -72,6 +84,8 @@ function branch_wolfe(f,
         Node = typeof(nodeEx),
         root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter)),
         branch_strategy = branching_strategy,
+        dual_gap_limit = rel_dual_gap,
+        abs_gap_limit = dual_gap,
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
@@ -135,7 +149,7 @@ function branch_wolfe(f,
     end
 
     # Check solution and polish
-    x_raw = x
+    x_raw = copy(x)
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
@@ -157,7 +171,7 @@ function branch_wolfe(f,
     int_bounds = IntegerBounds()
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, int_bounds, tree.root.problem.integer_variables)
     
-    return x, time_lmo, result, dual_gap
+    return x, time_lmo, result
 end
 
 """
@@ -266,7 +280,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             result[:primal_objective] = primal_value 
             result[:dual_bound] = tree_lb(tree)
-            result[:dual_gap] = relative_gap(primal_value,tree_lb(tree))
+            result[:rel_dual_gap] = relative_gap(primal_value,tree_lb(tree))
+            result[:dual_gap] = tree.incumbent-tree_lb(tree)
+            result[:raw_solution] = Bonobo.get_solution(tree)
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.lmo.ncalls
             total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
