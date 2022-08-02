@@ -18,7 +18,8 @@ function branch_wolfe(f,
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
         println("\t Absolute dual gap tolerance: ", dual_gap)
-        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)\n")
+        println("\t Relative dual gap tolerance: ", rel_dual_gap)
+        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)")
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
@@ -29,11 +30,21 @@ function branch_wolfe(f,
     time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
 
     integer_variables = Vector{Int}()
+    num_int = 0
+    num_bin = 0
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.Integer}())
         push!(integer_variables, cidx.value)
+        num_int += 1
     end
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.ZeroOne}())
         push!(integer_variables, cidx.value)
+        num_bin += 1
+    end
+
+    if verbose
+        println("\t Total number of varibales: ", n)
+        println("\t Number of integer variables: ", num_int)
+        println("\t Number of binary variables: $(num_bin)\n")
     end
 
     global_bounds = BranchWolfe.IntegerBounds()
