@@ -55,7 +55,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
    # compute new dual gap
    fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
-   fw_dual_gap_limit = max(fw_dual_gap_limit, 1e-6)
+   fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
    # update the LMO
    node_info_left = (active_set = active_set_left, discarded_vertices = discarded_set_left, local_bounds = varbounds_left, level = node.level+1, fw_dual_gap_limit = fw_dual_gap_limit, fw_time = Millisecond(0))
