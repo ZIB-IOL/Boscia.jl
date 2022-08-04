@@ -11,7 +11,8 @@ function branch_wolfe(f,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
-    min_number_lower = Inf, 
+    min_number_lower = Inf,
+    min_node_fw_epsilon=1e-6,
     kwargs...)
     if verbose
         println("\nBranchWolfe Algorithm.\n")
@@ -82,7 +83,11 @@ function branch_wolfe(f,
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter)),
+        root = (
+            problem=m,
+            current_node_id = Ref{Int}(0),
+            options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter, :min_node_fw_epsilon => min_node_fw_epsilon)
+        ),
         branch_strategy = branching_strategy,
         dual_gap_limit = rel_dual_gap,
         abs_gap_limit = dual_gap,
