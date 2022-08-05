@@ -1,7 +1,7 @@
 # BranchWolfe.jl
 
-[![Build Status](https://github.com/ZIB-IOL/FrankWolfe.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/BranchWolfe.jl/actions)
-[![Coverage](https://codecov.io/gh/ZIB-IOL/FrankWolfe.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl)
+[![Build Status](https://github.com/ZIB-IOL/BranchWolfe.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/BranchWolfe.jl/actions)
+[![Coverage](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl)
 
 A package for Branch-and-Bound on top of Frank-Wolfe methods.
 
@@ -55,7 +55,6 @@ julia> n = 6
 6
 
 julia> const diffw = 0.5 * ones(n)
-WARNING: redefinition of constant diffw. This may fail, cause incorrect answers, or produce other errors.
 6-element Vector{Float64}:
  0.5
  0.5
