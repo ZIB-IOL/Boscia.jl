@@ -7,7 +7,7 @@ function branch_wolfe(f,
     fw_epsilon = 1e-5, 
     verbose = false, 
     dual_gap = 1e-6, 
-    rel_dual_gap = 0.01,
+    rel_dual_gap = 1.0e-2,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
@@ -19,9 +19,9 @@ function branch_wolfe(f,
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
-        println("\t Absolute dual gap tolerance: ", dual_gap)
-        println("\t Relative dual gap tolerance: ", rel_dual_gap)
-        println("\t Frank-Wolfe subproblem tolerance: $(fw_epsilon)")
+        @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
+        @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
+        @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
@@ -99,7 +99,7 @@ function branch_wolfe(f,
     level = 1, 
     fw_dual_gap_limit= fw_epsilon,
     fw_time = Millisecond(0)))
-
+    
     # build callbacks
     list_ub_cb = Float64[]
     list_lb_cb = Float64[]
