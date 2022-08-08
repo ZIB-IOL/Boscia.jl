@@ -35,17 +35,18 @@ const M = 2*var(A)
 o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
 MOI.empty!(o)
-x = MOI.add_variables(o,2p)
-for i in p+1:2p
-    MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-    MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
-    MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
+x = MOI.add_variables(o,p)
+z = MOI.add_variables(o, p)
+for i in 1:p
+    MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+    MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+    MOI.add_constraint(o, z[i], MOI.ZeroOne()) # or MOI.Integer()
 end 
 for i in 1:p
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,M], [x[i], x[i+p]]), 0.0), MOI.GreaterThan(0.0))
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-M], [x[i], x[i+p]]), 0.0), MOI.LessThan(0.0))
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,M], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-M], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
 end
-MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p),x[p+1:2p]), 0.0), MOI.LessThan(k))
+MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p),z), 0.0), MOI.LessThan(k))
 lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
