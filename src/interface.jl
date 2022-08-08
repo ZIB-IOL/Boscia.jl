@@ -1,5 +1,6 @@
 
-function branch_wolfe(f, 
+function branch_wolfe(
+    f,
     grad!, 
     lmo; 
     traverse_strategy = Bonobo.BFS(), 
@@ -13,7 +14,8 @@ function branch_wolfe(f,
     max_fw_iter = 10000,
     min_number_lower = Inf,
     min_node_fw_epsilon=1e-6,
-    kwargs...)
+    kwargs...,
+)
     if verbose
         println("\nBranchWolfe Algorithm.\n")
         println("Parameter settings.")
@@ -138,16 +140,12 @@ function branch_wolfe(f,
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
-        println("Performing final solve for cleanup.")
+        verbose && println("Performing final solve for cleanup.")
         x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
             tree.root.problem.f,
             tree.root.problem.g,
             tree.root.problem.lmo,
             active_set,
-            add_dropped_vertices=true,
-            use_extra_vertex_storage=true,
-            extra_vertex_storage=FrankWolfe.DeletedVertexStorage(typeof(v)[], 1),
-            #callback=fw_callback,
             lazy=true,
             verbose=verbose,
         ) 

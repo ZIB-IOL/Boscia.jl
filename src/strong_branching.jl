@@ -27,6 +27,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
         end
     end
     relaxed_lmo = FrankWolfe.MathOptLMO(branching.optimizer)
+    @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
@@ -46,7 +47,7 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
-                    if v[idx] <= fxi
+                    if v[idx] <= xrel[idx]
                         push!(active_set, ((λ, v)))
                     end
                 end
@@ -70,11 +71,16 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
-                    if v[idx] >= cxi
-                        push!(active_set, ((λ, v)))
+                    if v[idx] >= xrel[idx]
+                        push!(active_set, (λ, v))
                     end
                 end
-                @assert !isempty(active_set)
+                if isempty(active_set)                    
+                    @show xrel[idx]
+                    @show length(active_set)
+                    @info [active_set.atoms[idx] for idx in eachindex(active_set)]
+                    error("Empty active set, unreachable")
+                end
                 FrankWolfe.active_set_renormalize!(active_set)
                 _, _, primal_relaxed, dual_gap_relaxed, _ = FrankWolfe.blended_pairwise_conditional_gradient(tree.root.problem.f, tree.root.problem.g, relaxed_lmo, active_set, verbose=false, epsilon=branching.solving_epsilon, max_iteration=branching.max_iteration)
                 right_relaxed = primal_relaxed - dual_gap_relaxed
@@ -97,7 +103,6 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
         max_idx = -1
     end
     if max_idx <= 0
-        @info "Integral, node lb: $(node.lb)"
         max_idx = -1
     end
     return max_idx

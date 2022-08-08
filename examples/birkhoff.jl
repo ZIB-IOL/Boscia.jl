@@ -6,6 +6,7 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
+import HiGHS
 
 # Example on the Birkhoff polytope but using permutation matrices directly
 # https://arxiv.org/pdf/2011.02752.pdf
@@ -58,8 +59,7 @@ function grad!(storage, x)
     storage
 end
 
-@testset "Birkhoff" begin
-
+function build_birkhoff_lmo()
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -94,21 +94,28 @@ end
         )
     end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
-    lmo = FrankWolfe.MathOptLMO(o)
+    return FrankWolfe.MathOptLMO(o)
+end
 
-    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+lmo = build_birkhoff_lmo()
+x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
-    # TODO the below needs to be fixed
-    # TODO can use the min_via_enum function if not too many solutions
-    # build optimal solution
-    #=xopt = zeros(n)
-    for i in 1:n
-        if diffi[i] > 0.5
-            xopt[i] = 1
-        end
-    end
+# TODO the below needs to be fixed
+# TODO can use the min_via_enum function if not too many solutions
+# build optimal solution
+# xopt = zeros(n)
+# for i in 1:n
+#     if diffi[i] > 0.5
+#         xopt[i] = 1
+#     end
+# end
 
-    @test f(x) == f(xopt)
-    println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
-    println()=#
+@testset "Birkhoff" begin
+    lmo = build_birkhoff_lmo()
+    x, _, result_baseline = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    lmo = build_birkhoff_lmo()
+    branching_strategy = BranchWolfe.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
+    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+    x_strong, _, result_strong = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
+    @test f(x) ≈ f(x_strong)
 end
