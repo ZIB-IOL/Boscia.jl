@@ -66,7 +66,7 @@ function build_birkhoff_lmo()
     Y = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
     X = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
     theta = MOI.add_variables(o, k)
-    
+
     for i in 1:k
         MOI.add_constraint.(o, Y[i], MOI.GreaterThan(0.0))
         MOI.add_constraint.(o, Y[i], MOI.LessThan(1.0))
