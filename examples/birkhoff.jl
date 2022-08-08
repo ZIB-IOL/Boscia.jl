@@ -28,7 +28,7 @@ import HiGHS
 # the objective only uses the last n^2 variables
 # Small dimensions since the size of the problem grows quickly (2 k n^2 + k variables)
 n = 3
-k = 3
+k = 2
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
@@ -96,6 +96,19 @@ function build_birkhoff_lmo()
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
     return FrankWolfe.MathOptLMO(o)
 end
+
+lmo = build_birkhoff_lmo()
+x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+
+# TODO the below needs to be fixed
+# TODO can use the min_via_enum function if not too many solutions
+# build optimal solution
+# xopt = zeros(n)
+# for i in 1:n
+#     if diffi[i] > 0.5
+#         xopt[i] = 1
+#     end
+# end
 
 @testset "Birkhoff" begin
     lmo = build_birkhoff_lmo()

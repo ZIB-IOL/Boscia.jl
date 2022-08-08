@@ -41,7 +41,7 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     
     if n < 15  # only do for small n 
         valopt, xopt = BranchWolfe.min_via_enum(f,n)

@@ -73,7 +73,7 @@ include("interface_test.jl")
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = BranchWolfe.FrankWolfeNode, 
-        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7,  :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7,  :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -223,7 +223,7 @@ const diff = Random.rand(Bool,n)*0.6.+0.3
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -292,7 +292,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree, 
@@ -377,7 +377,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => 0.7, :verbose => false, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:dual_gap_decay_factor => 0.7, :verbose => false, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -446,7 +446,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     tree = Bonobo.initialize(; 
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
     )
     Bonobo.set_root!(tree, 
         (active_set = active_set, 
@@ -519,7 +519,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree,
@@ -596,7 +596,7 @@ end
     tree = Bonobo.initialize(;
         traverse_strategy = Bonobo.BFS(),
         Node = typeof(nodeEx),
-        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false,  :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+        root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false,  :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
         branch_strategy = branching_strategy, #() ->
     )
     Bonobo.set_root!(tree,

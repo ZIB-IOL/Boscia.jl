@@ -9,6 +9,23 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+# Poisson sparse regression
+
+# min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
+# s.t. -N z_i <= w_i <= N z_i
+# b ∈ [-N, N]
+# ∑ z_i <= k 
+# z_i ∈ {0,1} for i = 1,..,p
+
+# y_i    - data points, poisson distributed 
+# X_i, b - coefficient for the linear estimation of the expected value of y_i
+# w_i    - continuous variables
+# z_i    - binary variables s.t. z_i = 0 => w_i = 0
+# k      - max number of non zero entries in w
+
+# In a poisson regression, we want to model count data.
+# It is assumed that y_i is poisson distributed and that the log 
+# of its expected value can be computed linearly.
 
 n = 20
 p = n
@@ -89,7 +106,7 @@ Ns = 5.0
         return storage
     end
 
-    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     @show x
     @test sum(x[p+1:2p]) <= k
 end

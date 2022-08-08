@@ -18,7 +18,7 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
-@testset "Buchheim example" begin
+@testset "Buchheim et. al. example" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -46,7 +46,7 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-    @show x
+    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    # @show x
     @test sum(ai'* x) <= bi + eps()
 end

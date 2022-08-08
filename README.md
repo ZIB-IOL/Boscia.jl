@@ -1,7 +1,7 @@
 # BranchWolfe.jl
 
-[![Build Status](https://github.com/ZIB-IOL/FrankWolfe.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/BranchWolfe.jl/actions)
-[![Coverage](https://codecov.io/gh/ZIB-IOL/FrankWolfe.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl)
+[![Build Status](https://github.com/ZIB-IOL/BranchWolfe.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/BranchWolfe.jl/actions)
+[![Coverage](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl)
 
 A package for Branch-and-Bound on top of Frank-Wolfe methods.
 
@@ -55,7 +55,6 @@ julia> n = 6
 6
 
 julia> const diffw = 0.5 * ones(n)
-WARNING: redefinition of constant diffw. This may fail, cause incorrect answers, or produce other errors.
 6-element Vector{Float64}:
  0.5
  0.5
@@ -111,7 +110,7 @@ Parameter settings.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Iteration       Open          Bound      Incumbent      Gap (abs)        Gap (%)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its) #ActiveSet  Discarded
+ Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its) #ActiveSet  Discarded
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          1          2  -1.332268e-15   7.500000e-01   7.500000e-01            Inf   2.890000e-01   1.038062e+01            158              1              4          3          1          0
        100         27   6.250000e-01   7.500000e-01   1.250000e-01   2.000000e+01   3.830000e-01   3.315927e+02              1              0            326          1          1          0

@@ -19,7 +19,7 @@ const M1 =  (A1 + A1')/2
 @assert isposdef(M1)
 
 
-@testset "Buchheim mean risk" begin
+@testset "Buchheim et. al. mean risk" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -48,14 +48,11 @@ const M1 =  (A1 + A1')/2
     v = compute_extreme_point(time_lmo, direction)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    function h(x)
-        return Ω
-    end
     function f(x)
-        return h(x) * (x' * M1 * x) - r' * x
+        return Ω * (x' * M1 * x) - r' * x
     end
     function grad!(storage, x)
-        storage.= 2 * M1 * x - r
+        storage.= 2 * Ω * M1 * x - r
         return storage
     end
     active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
@@ -68,7 +65,7 @@ const M1 =  (A1 + A1')/2
     tree = Bonobo.initialize(;
     traverse_strategy = Bonobo.BFS(),
     Node = typeof(nodeEx),
-    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6)),
+    root = (problem=m, current_node_id = current_node_id = Ref{Int}(0), options= Dict{Symbol, Any}(:verbose => false, :dual_gap_decay_factor => 0.7, :dual_gap => 1e-6, :max_fw_iter => 10000, :min_node_fw_epsilon => 1e-6)),
     )
     Bonobo.set_root!(tree, 
     (active_set = active_set, 

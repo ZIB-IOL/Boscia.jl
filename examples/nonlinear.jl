@@ -16,7 +16,7 @@ seed=10
 
 Random.seed!(seed)
 
-const o = SCIP.Optimizer()
+o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
 MOI.empty!(o)
 x = MOI.add_variables(o, n)
@@ -28,7 +28,7 @@ end
 
 # print(o.variable_info)
 
-const lmo = FrankWolfe.MathOptLMO(o)
+lmo = FrankWolfe.MathOptLMO(o)
 
 #const A = LinearAlgebra.Symmetric(randn(n,n), :U)
 const A = let
@@ -53,6 +53,6 @@ function grad!(storage, x)
     mul!(storage, A, y, -2, 2)
 end
 
-x, _,_,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter=1)
+x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter=1)
 
 @show x
