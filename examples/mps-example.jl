@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -45,5 +45,5 @@ function grad!(storage, x)
 end
 
 @testset "MPS instance" begin
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
 end

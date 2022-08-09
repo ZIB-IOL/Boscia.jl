@@ -1,5 +1,5 @@
 
-function branch_wolfe(
+function solve(
     f,
     grad!, 
     lmo; 
@@ -17,7 +17,7 @@ function branch_wolfe(
     kwargs...,
 )
     if verbose
-        println("\nBranchWolfe Algorithm.\n")
+        println("\nBoscia Algorithm.\n")
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
@@ -31,7 +31,7 @@ function branch_wolfe(
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
-    time_lmo = BranchWolfe.TimeTrackingLMO(lmo)
+    time_lmo = Boscia.TimeTrackingLMO(lmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
@@ -51,7 +51,7 @@ function branch_wolfe(
         println("\t Number of binary variables: $(num_bin)\n")
     end
 
-    global_bounds = BranchWolfe.IntegerBounds()
+    global_bounds = Boscia.IntegerBounds()
     for idx in integer_variables
         for ST in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
             cidx = MOI.ConstraintIndex{MOI.VariableIndex, ST}(idx)
@@ -79,8 +79,8 @@ function branch_wolfe(
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
+    nodeEx = Boscia.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, Boscia.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
@@ -97,7 +97,7 @@ function branch_wolfe(
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
-    local_bounds = BranchWolfe.IntegerBounds(),
+    local_bounds = Boscia.IntegerBounds(),
     level = 1, 
     fw_dual_gap_limit= fw_epsilon,
     fw_time = Millisecond(0)))
@@ -178,15 +178,15 @@ function branch_wolfe(
 end
 
 """
-Output of BranchWolfe
+Output of Boscia
 
-    iter :          current iteration of BranchWolfe
+    iter :          current iteration of Boscia
     node id :       current node id
     lower bound :   tree_lb(tree)
     incumbent :     tree.incumbent
     gap :           tree.incumbent-tree_lb(tree)
     rel. gap :      dual_gap/tree.incumbent
-    time :          total time of BranchWolfe
+    time :          total time of Boscia
     time/nodes :    average time per node
     FW time :       time spent in FW 
     LMO time :      time used by LMO
