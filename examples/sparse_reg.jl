@@ -2,6 +2,7 @@ using Statistics
 using Boscia
 using FrankWolfe
 using Random
+using LinearAlgebra
 using SCIP
 import Bonobo
 import MathOptInterface
