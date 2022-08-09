@@ -1,20 +1,20 @@
-# BranchWolfe.jl
+# Boscia.jl
 
-[![Build Status](https://github.com/ZIB-IOL/BranchWolfe.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/BranchWolfe.jl/actions)
-[![Coverage](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/BranchWolfe.jl)
+[![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
+[![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
 
 A package for Branch-and-Bound on top of Frank-Wolfe methods.
 
 ## Overview
 
-The BranchWolfe.jl combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithms to solve mixed-integer convex optimization problems of the form `min_{x ∈ C, x_I ∈ Z^n} f(x)`, where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
+The Boscia.jl combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithms to solve mixed-integer convex optimization problems of the form `min_{x ∈ C, x_I ∈ Z^n} f(x)`, where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
 They are especially useful when we have a method to optimize a linear function over `C` and the integrality constraints in a compuationally efficient way. 
 
 A paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > [xxx](xxx).
 
-`BranchWolfe.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree.
+`Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree.
 
 ## Installation
 
@@ -22,13 +22,13 @@ The most recent release is available via the julia package manager, e.g., with
 
 ```julia
 using Pkg
-Pkg.add("BranchWolfe")
+Pkg.add("Boscia")
 ```
 
 or the master branch:
 
 ```julia
-Pkg.add(url="https://github.com/ZIB-IOL/BranchWolfe.jl", rev="master")
+Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="master")
 ```
 
 ## Getting started
@@ -36,7 +36,7 @@ Pkg.add(url="https://github.com/ZIB-IOL/BranchWolfe.jl", rev="master")
 Here is a simple example to get started. For more examples see the examples folder in the package.
 
 ```julia
-julia> using BranchWolfe
+julia> using Boscia
 
 julia> using FrankWolfe
 
@@ -98,9 +98,9 @@ julia> function grad!(storage, x)
        end
 grad! (generic function with 1 method)
 
-julia> x, _, result,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+julia> x, _, result,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 
-BranchWolfe Algorithm.
+Boscia Algorithm.
 
 Parameter settings.
 	 Tree traversal strategy: Best-first search

@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -98,7 +98,7 @@ function build_birkhoff_lmo()
 end
 
 lmo = build_birkhoff_lmo()
-x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 
 # TODO the below needs to be fixed
 # TODO can use the min_via_enum function if not too many solutions
@@ -112,10 +112,10 @@ x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
 @testset "Birkhoff" begin
     lmo = build_birkhoff_lmo()
-    x, _, result_baseline = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose = true)
     lmo = build_birkhoff_lmo()
-    branching_strategy = BranchWolfe.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
-    x_strong, _, result_strong = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)
 end
