@@ -11,6 +11,13 @@ const MOI = MathOptInterface
 
 # Poisson sparse regression
 
+# For bug hunting:
+#seed = 0xd0cc4c6d90c50bb9
+#seed = rand(UInt64)
+#@show seed
+seed = 0x10d1634d9c36da46
+Random.seed!(seed)
+
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
 # b ∈ [-N, N]
@@ -88,7 +95,7 @@ Ns = 5.0
             a = dot(w, Xs[:,i]) + b
             1/n * (exp(a) - ys[i] * a)
         end
-        s + α * norm(w)^2
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:p])
@@ -107,7 +114,7 @@ Ns = 5.0
         return storage
     end
 
-    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     @show x
     @show f(x)
     @test f(x) <= f(result[:raw_solution])
