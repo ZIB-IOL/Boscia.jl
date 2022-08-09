@@ -126,6 +126,8 @@ function branch_wolfe(
 
     x = Bonobo.get_solution(tree)
 
+    @show x
+    @show f(x)
     
     # Build solution lmo
     fix_bounds = IntegerBounds()
@@ -133,10 +135,21 @@ function branch_wolfe(
         push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
         push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
     end
-    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
-    
+    @show tree.root.problem.integer_variables
+    #@show fix_bounds
+    opt = SCIP.Optimizer() # creates the empty optimizer
+    MOI.set(opt, MOI.Silent(), true)
+    MOI.empty!(opt)
+    index_map = MOI.copy_to(opt, tree.root.problem.lmo.lmo.o)
+    polish_lmo = FrankWolfe.MathOptLMO(opt)
+    build_LMO(polish_lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
+    print(polish_lmo.o)
+  # n  = length(tree.root.problem.integer_variables)
+  # y_test = vcat(zeros(n), ones(n) - x[tree.root.problem.integer_variables], [0.0])
+  # @show y_test
+  # @assert is_linear_feasible(tree.root.problem.lmo, y_test)
     # Final solve in case of mixed problem
-    if tree.root.problem.nvars > length(tree.root.problem.integer_variables)
+    if true || tree.root.problem.nvars > length(tree.root.problem.integer_variables)
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
@@ -144,7 +157,7 @@ function branch_wolfe(
         x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
             tree.root.problem.f,
             tree.root.problem.g,
-            tree.root.problem.lmo,
+            polish_lmo,
             active_set,
             lazy=true,
             verbose=verbose,
@@ -154,6 +167,7 @@ function branch_wolfe(
     # Check solution and polish
     x_raw = copy(x)
     x_polished = x
+    @show x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
     end
@@ -274,6 +288,11 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             # TODO: here we need to calculate the actual state
     
+            # If the tree is empty, incumbent and solution should be the same!
+            if isempty(tree.nodes) 
+                @assert isapprox(tree.incumbent, primal_value)
+            end
+
             status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
             if isempty(tree.nodes)
                 status_string = "Optimal (tree empty)"
@@ -281,6 +300,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 status_string = "Optimal (tolerance reached)"
             end
     
+
             result[:primal_objective] = primal_value 
             result[:dual_bound] = tree_lb(tree)
             result[:rel_dual_gap] = relative_gap(primal_value,tree_lb(tree))

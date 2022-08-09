@@ -46,10 +46,11 @@ Ns = 5.0
 
 # TODO: document better
 
-@testset "Sparse regression" begin
+@testset "Sparse poisson regression" begin
     k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
@@ -59,10 +60,10 @@ Ns = 5.0
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
     for i in 1:p
-        MOI.add_constraint(o, -Ns * z[i]- w[i], MOI.LessThan(0.0))
-        MOI.add_constraint(o, Ns * z[i]- w[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, Ns * z[i] + w[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, -Ns * z[i] + w[i], MOI.LessThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
-        gl = MOI.VectorAffineFunction(
+        #=gl = MOI.VectorAffineFunction(
             [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
                 MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, w[i])),],
             [0.0, 0.0], )
@@ -71,7 +72,7 @@ Ns = 5.0
                 MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, w[i])),],
             [0.0, 0.0], )
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
-        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) 
+        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) =#
     end
     MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
@@ -84,15 +85,15 @@ Ns = 5.0
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
-            a = dot(ws, Xs[:,i]) + b
+            a = dot(w, Xs[:,i]) + b
             1/n * (exp(a) - ys[i] * a)
         end
-        s + α * norm(ws)^2
+        s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:p])
         b = θ[end]
-        storage[1:p] .= 2α .* ws
+        storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
         for i in 1:n
@@ -106,7 +107,9 @@ Ns = 5.0
         return storage
     end
 
-    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
     @show x
+    @show f(x)
+    @test f(x) <= f(result[:raw_solution])
     @test sum(x[p+1:2p]) <= k
 end
