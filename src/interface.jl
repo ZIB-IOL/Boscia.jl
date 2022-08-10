@@ -111,11 +111,12 @@ function branch_wolfe(
     list_active_set_size_cb = Int[]
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
+    node_level = Int[]
     result = Dict{Symbol, Any}()
     lmo_calls_per_layer = Vector{Vector{Int}}()
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer)
+    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
 
@@ -196,7 +197,7 @@ Output of BranchWolfe
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer)
+function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
     time_ref = Dates.now()
     iteration = 0
 
@@ -214,6 +215,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             push!(list_ub_cb, tree.incumbent)
             push!(list_lb_cb, tree_lb(tree))
             push!(list_num_nodes_cb, tree.num_nodes)
+            push!(node_level, node.level)
             iteration += 1
             dual_gap = tree.incumbent-tree_lb(tree)
             time = float(Dates.value(Dates.now()-time_ref))
@@ -309,6 +311,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             result[:lmo_calls_per_layer] = lmo_calls_per_layer
             result[:active_set_size_per_layer] = active_set_size_per_layer
             result[:discarded_set_size_per_layer] = discarded_set_size_per_layer
+            result[:node_level] = node_level
 
             if verbose
                 print_callback = FrankWolfe.print_callback
