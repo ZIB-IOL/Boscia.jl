@@ -258,6 +258,18 @@ function print_callback_b(data, format_string; print_header=false, print_footer=
     end
 end
 
+"""
+    get_solution(tree::BnBTree; result=1)
+
+Return the solution values of the problem. 
+See [`get_objective_value`](@ref) to obtain the objective value instead.
+"""
+# DELETE LATER!!!!
+function Bonobo.get_solution(tree::BnBTree{N,R,V,S}; result=1) where {N,R,V,S<:Bonobo.DefaultSolution{N,V}}
+    #return tree.solutions[result].solution
+    return tree.incumbent_solution.solution
+end
+
 # utility function to print the values of the parameters
 _value_to_print(::Bonobo.BFS) = "Move best bound"
 _value_to_print(::PartialStrongBranching) = "Partial strong branching"

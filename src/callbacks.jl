@@ -11,11 +11,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             if best_val < tree.incumbent
                 node = tree.nodes[tree.root.current_node_id[]]
                 sol = Bonobo.DefaultSolution(best_val, best_v, node)
-                if isempty(tree.solutions)
-                    push!(tree.solutions, sol)
-                else
-                    tree.solutions[1] = sol
+                push!(tree.solutions, sol)
+                if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+                    tree.incumbent_solution = sol
                 end
+                #if isempty(tree.solutions)
+                 #   push!(tree.solutions, sol)
+                #else
+                 #   tree.solutions[1] = sol
+                #end
                 tree.incumbent = best_val
                 Bonobo.bound!(tree, node.id)
             end
@@ -30,11 +34,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
             sol = Bonobo.DefaultSolution(val, copy(state.v), node)
-            if isempty(tree.solutions)
-                push!(tree.solutions, sol)
-            else
-                tree.solutions[1] = sol
+            push!(tree.solutions, sol)
+            if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+                tree.incumbent_solution = sol
             end
+           # if isempty(tree.solutions)
+            #    push!(tree.solutions, sol)
+            #else
+             #   tree.solutions[1] = sol
+            #end
             tree.incumbent = val
             Bonobo.bound!(tree, node.id)
         end
@@ -64,11 +72,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 if val < tree.incumbent
                     node = tree.nodes[tree.root.current_node_id[]]
                     sol = Bonobo.DefaultSolution(val, x_rounded, node)
-                    if isempty(tree.solutions)
-                        push!(tree.solutions, sol)
-                    else
-                        tree.solutions[1] = sol
+                    push!(tree.solutions, sol)
+                    if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+                        tree.incumbent_solution = sol
                     end
+                    #if isempty(tree.solutions)
+                    #    push!(tree.solutions, sol)
+                    #else
+                    #    tree.solutions[1] = sol
+                    #end
                     tree.incumbent = val
                     Bonobo.bound!(tree, node.id)
                 end
