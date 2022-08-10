@@ -80,11 +80,13 @@ const y_d = D*sol_x
     branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
-    x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true, print_iter = 1)
+
+    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true, print_iter = 10)
 
     val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min
     #@show x[1:n]
     @test val_min == f(x)
     @test isapprox(x[1:n], x_min)
+    @test f(x) == f(result[:raw_solution])
 end

@@ -5,6 +5,7 @@ using Random
 using SCIP
 import MathOptInterface
 import Bonobo
+using HiGHS
 using Printf
 using Dates
 const MOI = MathOptInterface
@@ -23,12 +24,5 @@ include("heuristics.jl")
 include("strong_branching.jl")
 include("utilities.jl")
 include("interface.jl")
-
-using Statistics
-using Random
-using Distributions
-using LinearAlgebra
-import HiGHS
-
 
 end # module

@@ -12,6 +12,12 @@ import HiGHS
 # https://arxiv.org/pdf/2011.02752.pdf
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
 
+# For bug hunting:
+seed = rand(UInt64)
+@show seed
+seed = 0x3eb09305cecf69f0 
+Random.seed!(seed)
+
 
 # min_{X, θ} 1/2 * || ∑_{i in [k]} θ_i X_i - Xhat ||^2
 # θ ∈ Δ_k (simplex)
@@ -100,6 +106,7 @@ end
 lmo = build_birkhoff_lmo()
 x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 
+
 # TODO the below needs to be fixed
 # TODO can use the min_via_enum function if not too many solutions
 # build optimal solution
@@ -113,9 +120,11 @@ x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 @testset "Birkhoff" begin
     lmo = build_birkhoff_lmo()
     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose = true)
+    @test f(x) <= f(result_baseline[:raw_solution])
     lmo = build_birkhoff_lmo()
     branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
     x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)
+    @test f(x) <= f(result_strong[:raw_solution])
 end

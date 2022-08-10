@@ -10,7 +10,7 @@ const MOI = MathOptInterface
 import HiGHS
 
 n = 20
-const ri = 10 * rand(n)
+const ri = 2 * rand(n)
 const ai = rand(n)
 const Ωi = 3 * rand(Float64)
 const bi = sum(ai)
