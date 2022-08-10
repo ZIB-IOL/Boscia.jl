@@ -97,18 +97,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # time tracking FW 
     time_ref = Dates.now()
 
-    if node.id === 168
-        nothing
-        println("Here!")
-    end
-
-    # DEBUG 
-    # Commented out old debug code
-    # x = FrankWolfe.get_active_set_iterate(node.active_set)
-    # gradient = randn(Float64, length(x))
-    # tree.root.problem.g(gradient, x)
-    #@show gradient
-
     # call blended_pairwise_conditional_gradient
     x,_,primal,dual_gap,_ , active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
@@ -126,15 +114,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     ) 
 
     node.fw_time = Dates.now() - time_ref
-
-   #= if tree.incumbent != Inf
-        println("\n")
-        @show node.id
-        @show tree.incumbent
-        #@show tree.solutions[1].solution
-        @show tree.root.problem.f(tree.incumbent_solution.solution)
-        @show tree.incumbent === tree.root.problem.f(tree.incumbent_solution.solution)
-    end =#
 
     # update active set of the node
     node.active_set = active_set
