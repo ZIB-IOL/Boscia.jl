@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -9,9 +9,11 @@ const MOI = MathOptInterface
 
 # Example reading a polytope from a MIPLIB instance
 
-src = MOI.FileFormats.Model(filename="22433.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "22433.mps"))
-
+# src = MOI.FileFormats.Model(filename="22433.mps")
+# MOI.read_from_file(src, joinpath(@__DIR__, "22433.mps"))
+src = MOI.FileFormats.Model(filename="ab71-20-100.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "ab71-20-100.mps"))
+#=
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
@@ -43,5 +45,7 @@ function grad!(storage, x)
 end
 
 @testset "MPS instance" begin
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    @test f(x) <= f(result[:raw_solution])
 end
+=#

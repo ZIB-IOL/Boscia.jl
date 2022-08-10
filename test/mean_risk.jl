@@ -35,11 +35,11 @@ const M1 =  (A1 + A1')/2
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(a,x), 0.0), MOI.GreaterThan(minimum(a)))
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n0),x), 0.0), MOI.GreaterThan(1.0))
     lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = BranchWolfe.IntegerBounds()
+    global_bounds = Boscia.IntegerBounds()
     for i = 1:n0
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
     end
-    time_lmo= BranchWolfe.TimeTrackingLMO(lmo)
+    time_lmo= Boscia.TimeTrackingLMO(lmo)
 
     # Define the root of the tree
     # we fix the direction so we can actually find a veriable to split on later!
@@ -56,10 +56,10 @@ const M1 =  (A1 + A1')/2
         return storage
     end
     active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
-    m = BranchWolfe.SimpleOptimizationProblem(f, grad!, n0, I, time_lmo, global_bounds) 
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n0, I, time_lmo, global_bounds) 
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, BranchWolfe.IntegerBounds(), 1, 1e-3, Millisecond(0))
+    nodeEx = Boscia.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), active_set, vertex_storage, Boscia.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
     # create tree
     tree = Bonobo.initialize(;
@@ -70,7 +70,7 @@ const M1 =  (A1 + A1')/2
     Bonobo.set_root!(tree, 
     (active_set = active_set, 
     discarded_vertices = vertex_storage,
-    local_bounds = BranchWolfe.IntegerBounds(),
+    local_bounds = Boscia.IntegerBounds(),
     level = 1,
     fw_dual_gap_limit = 1e-3,
     fw_time = Millisecond(0))

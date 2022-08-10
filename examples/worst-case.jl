@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -54,7 +54,7 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         @. storage = x-diffw
     end
 
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
 
     # build optimal solution
     xopt = zeros(n)
@@ -69,6 +69,7 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         @test result[:number_nodes] ==  2^(n+1)-1
     end
 
+    @test f(x) <= f(result[:raw_solution])
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
     println()
 end

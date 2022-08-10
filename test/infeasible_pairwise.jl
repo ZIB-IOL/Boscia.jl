@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using Test
 using FrankWolfe
 using Random
@@ -27,12 +27,12 @@ Random.seed!(1)
         MOI.add_constraint(o, xi, MOI.ZeroOne())
     end
     lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = BranchWolfe.IntegerBounds()
+    global_bounds = Boscia.IntegerBounds()
     for i = 1:a
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(1.0)))
     end
-    time_lmo=BranchWolfe.TimeTrackingLMO(lmo)
+    time_lmo=Boscia.TimeTrackingLMO(lmo)
 
     # Define the root of the tree
     # we fix the direction so we can actually find a veriable to split on later!
@@ -48,10 +48,10 @@ Random.seed!(1)
     end
 
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = BranchWolfe.SimpleOptimizationProblemInfeasible(f, grad!, a, collect(1:a), time_lmo, global_bounds, active_set)
+    m = Boscia.SimpleOptimizationProblemInfeasible(f, grad!, a, collect(1:a), time_lmo, global_bounds, active_set)
 
     # TO DO: how to do this elegantly
-    nodeEx = BranchWolfe.InfeasibleFrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), Bool[], BranchWolfe.IntegerBounds())
+    nodeEx = Boscia.InfeasibleFrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0,0.0), Bool[], Boscia.IntegerBounds())
 
     # create tree
     tree = Bonobo.initialize(; 
@@ -61,7 +61,7 @@ Random.seed!(1)
     )
     Bonobo.set_root!(tree, 
         (valid_active = Bool[], 
-        local_bounds= BranchWolfe.IntegerBounds())
+        local_bounds= Boscia.IntegerBounds())
     )
     # Profile.init()
     # ProfileView.@profview Bonobo.optimize!(tree)
