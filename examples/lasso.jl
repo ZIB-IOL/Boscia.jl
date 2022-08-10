@@ -1,6 +1,6 @@
 using Statistics
 using Distributions
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Random
 using Test
@@ -82,7 +82,7 @@ push!(groups,((k_int-1)*group_size+1):p)
         MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size),z[groups[i]]), 0.0), MOI.GreaterThan(1.0))
     end
     lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = BranchWolfe.IntegerBounds()
+    global_bounds = Boscia.IntegerBounds()
     for i = 1:p
         push!(global_bounds, (i+p, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i+p, MOI.LessThan(1.0)))
@@ -98,7 +98,7 @@ push!(groups,((k_int-1)*group_size+1):p)
         return storage
     end
    
-    x,_,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, rel_dual_gap = 1e-5)
+    x,_,result = Boscia.solve(f, grad!, lmo, verbose = true, rel_dual_gap = 1e-5)
 
     # println("Solution: $(x[1:p])")
     z = x[p+1:2p]
