@@ -114,11 +114,12 @@ Ns = 0.1
     end
 
     x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-    @show x
+
     y =result[:raw_solution]
-    @show y
-    @show f(x)
-    @show f(y)
+    #@show x
+    #@show y
+    #@show f(x)
+    #@show f(y)
     @test f(x) <= f(result[:raw_solution])
     @test sum(x[p+1:2p]) <= k
 end
