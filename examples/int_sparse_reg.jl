@@ -1,5 +1,5 @@
 using Statistics
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Random
 using SCIP
@@ -77,12 +77,13 @@ const y_d = D*sol_x
    #= function perform_strong_branch(tree, node)
         return node.level <= length(tree.root.problem.integer_variables)
     end
-    branching_strategy = BranchWolfe.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+    branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
-    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter = 1)
 
-    val_min, x_min = BranchWolfe.sparse_min_via_enum(f, n, k, fill(0:l, n))
+    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true, print_iter = 10)
+
+    val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min
     #@show x[1:n]
     @test val_min == f(x)

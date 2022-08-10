@@ -1,4 +1,4 @@
-module BranchWolfe
+module Boscia
 
 using FrankWolfe
 using Random

@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -32,7 +32,7 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _, result= BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,_= Boscia.solve(f, grad!, lmo, verbose = true)
 
     @test x == round.(diffi)
     @test f(x) == f(result[:raw_solution])

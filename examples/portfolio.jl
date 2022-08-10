@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -46,7 +46,7 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
     # @show x
     @test sum(ai'* x) <= bi + eps()
     @test f(x) <= f(result[:raw_solution])

@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -41,10 +41,10 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
     
     if n < 15  # only do for small n 
-        valopt, xopt = BranchWolfe.min_via_enum(f,n)
+        valopt, xopt = Boscia.min_via_enum(f,n)
         @test f(x) ≈ f(xopt)
     end
 

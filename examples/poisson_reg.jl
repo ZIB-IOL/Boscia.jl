@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -113,13 +113,7 @@ Ns = 0.1
         return storage
     end
 
-    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
-
-    y =result[:raw_solution]
-    #@show x
-    #@show y
-    #@show f(x)
-    #@show f(y)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
     @test f(x) <= f(result[:raw_solution])
     @test sum(x[p+1:2p]) <= k
 end

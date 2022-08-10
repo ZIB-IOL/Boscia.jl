@@ -1,4 +1,4 @@
-using BranchWolfe
+using Boscia
 using FrankWolfe
 using Test
 using Random
@@ -48,14 +48,14 @@ function grad!(storage, x)
     return storage
 end
 
-x, _, result_baseline = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, )
+x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose = true, )
 @test dot(ai, x) <= bi + eps()
 
-branching_strategy = BranchWolfe.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
+branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
 MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
 
 lmo = prepare_portfolio_lmo()
-x, _, result_strong_branching = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
+x, _, result_strong_branching = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
 
 plot(result_baseline[:list_time],result_baseline[:list_ub], label="BL"); plot!(result_baseline[:list_time],result_baseline[:list_lb], label="BL")
 plot!(result_strong_branching[:list_time], result_strong_branching[:list_ub], label="SB"); plot!(result_strong_branching[:list_time], result_strong_branching[:list_lb], label="SB")

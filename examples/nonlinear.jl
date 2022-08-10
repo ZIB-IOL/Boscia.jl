@@ -3,7 +3,7 @@ using FrankWolfe
 using LinearAlgebra
 import MathOptInterface
 using Random
-using BranchWolfe
+using Boscia
 import Bonobo
 using Printf
 using Dates
@@ -53,6 +53,6 @@ function grad!(storage, x)
     mul!(storage, A, y, -2, 2)
 end
 
-x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, print_iter=1)
+x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true, print_iter=1)
 
 @show x
