@@ -279,8 +279,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             # If the tree is empty, incumbent and solution should be the same!
             if isempty(tree.nodes) 
-                @show tree.incumbent
-                @show primal_value
                 @assert isapprox(tree.incumbent, primal_value)
             end
 

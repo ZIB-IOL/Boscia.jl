@@ -126,4 +126,5 @@ x, _, result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
     x_strong, _, result_strong = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)
     @test f(x) <= f(result_strong[:raw_solution])
+
 end
