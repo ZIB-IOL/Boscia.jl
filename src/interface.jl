@@ -139,7 +139,7 @@ function solve(
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
 
     # Final solve in case of mixed problem
-    if true || tree.root.problem.nvars > length(tree.root.problem.integer_variables)
+    if true
         v = compute_extreme_point(lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         # evaluate 
