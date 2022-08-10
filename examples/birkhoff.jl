@@ -15,7 +15,7 @@ import HiGHS
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-#seed = 0x4b22a347e37ba3f1  
+seed = 0x3eb09305cecf69f0 
 Random.seed!(seed)
 
 

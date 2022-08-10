@@ -274,6 +274,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         end
     
         if Bonobo.terminated(tree)
+            Bonobo.sort_solutions!(tree.solutions, tree.sense)
             x = Bonobo.get_solution(tree)
             primal_value = tree.root.problem.f(x)
     
