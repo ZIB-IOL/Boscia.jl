@@ -47,4 +47,6 @@ end
         valopt, xopt = BranchWolfe.min_via_enum(f,n)
         @test f(x) ≈ f(xopt)
     end
+
+    @test f(x) <= f(result[:raw_solution])
 end

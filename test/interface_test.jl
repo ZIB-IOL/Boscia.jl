@@ -31,9 +31,10 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
         @. storage = x-diffi
     end
 
-    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
+    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = false)
 
     @test x == round.(diffi)
+    @test f(x) == f(result[:raw_solution])
 end
 
 
@@ -43,7 +44,7 @@ end
 #           y_i in Z for i in I
 
 n = 10
-const ri = 10 * rand(n)
+const ri = 2 * rand(n)
 const ai = rand(n)
 const Ωi = 3 * rand(Float64)
 const bi = sum(ai)
@@ -80,9 +81,10 @@ const Mi =  (Ai + Ai')/2
         return storage
     end
 
-    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(ai'* x) <= bi + 1e-3
+    @test f(x) <= f(result[:raw_solution])
 end
 
 
@@ -148,15 +150,15 @@ k = 10
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
-            a = dot(ws, Xs[:,i]) + b
+            a = dot(w, Xs[:,i]) + b
             1/n * (exp(a) - ys[i] * a)
         end
-        s + α * norm(ws)^2
+        s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:p])
         b = θ[end]
-        storage[1:p] .= 2α .* ws
+        storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
         for i in 1:n
@@ -170,7 +172,8 @@ k = 10
         return storage
     end
 
-    x, _,_ = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
+    x, _,result = BranchWolfe.branch_wolfe(f, grad!, lmo, verbose = true)
 
     @test sum(x[p+1:2p]) <= k
+    @test f(x) <= f(result[:raw_solution])
 end

@@ -69,6 +69,7 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
         @test result[:number_nodes] ==  2^(n+1)-1
     end
 
+    @test f(x) <= f(result[:raw_solution])
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
     println()
 end
