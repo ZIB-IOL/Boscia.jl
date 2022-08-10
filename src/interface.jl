@@ -126,52 +126,17 @@ function branch_wolfe(
 
     x = Bonobo.get_solution(tree)
 
-    @show x
-    @show f(x)
-    
     # Build solution lmo
     fix_bounds = IntegerBounds()
     for i in tree.root.problem.integer_variables
         push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
         push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
     end
-    #@show fix_bounds
-    #opt = SCIP.Optimizer() # creates the empty optimizer
-    #MOI.set(opt, MOI.Silent(), true)
-    #MOI.empty!(opt)
-    #index_map = MOI.copy_to(opt, tree.root.problem.lmo.lmo.o)
-    #polish_lmo = FrankWolfe.MathOptLMO(opt)
 
-    # brute force
-    o = HiGHS.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    w = MOI.add_variables(o, 20)
-    z = MOI.add_variables(o, 20)
-    b = MOI.add_variable(o)
-    for i in 1:20
-        MOI.add_constraint(o, z[i], MOI.GreaterThan(round(x[i+20])))
-        MOI.add_constraint(o, z[i], MOI.LessThan(round(x[i+20])))
-       # MOI.add_constraint(o, z[i], MOI.ZeroOne())
-    end
-    for i in 1:20
-        MOI.add_constraint(o, 5.0 * z[i] + w[i], MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, -5.0 * z[i] + w[i], MOI.LessThan(0.0))
-    end
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * 10))
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
-    MOI.add_constraint(o, b, MOI.LessThan(5.0))
-    MOI.add_constraint(o, b, MOI.GreaterThan(-5.0))
-    lmo = FrankWolfe.MathOptLMO(o)
+    MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
+    SCIP.SCIPfreeTransform(tree.root.problem.lmo.lmo.o)
+    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
 
-    #MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-    #SCIP.SCIPfreeTransform(tree.root.problem.lmo.lmo.o)
-    #build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
-    #print(lmo.o)
-  # n  = length(tree.root.problem.integer_variables)
-  # y_test = vcat(zeros(n), ones(n) - x[tree.root.problem.integer_variables], [0.0])
-  # @show y_test
-  # @assert is_linear_feasible(tree.root.problem.lmo, y_test)
     # Final solve in case of mixed problem
     if true || tree.root.problem.nvars > length(tree.root.problem.integer_variables)
         v = compute_extreme_point(lmo, direction)
@@ -185,15 +150,13 @@ function branch_wolfe(
             active_set,
             lazy=true,
             verbose=verbose,
-            max_iteration = 100,
-            print_iter = 1,
+            max_iteration = 10000,
         ) 
     end
 
     # Check solution and polish
     x_raw = copy(x)
     x_polished = x
-    @show x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
     end
@@ -239,11 +202,11 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
 
     headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
     format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
-    print_callback = FrankWolfe.print_callback
+    #print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
-        print_callback(headers, format_string, print_header=true)
+        print_callback_b(headers, format_string, print_header=true)
     end
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
         if !node_infeasible
@@ -282,9 +245,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             nodes_left= length(tree.nodes)
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
                 if (mod(iteration, print_iter*40) == 0)
-                    print_callback(headers, format_string, print_header=true)
+                    print_callback_b(headers, format_string, print_header=true)
                 end
-                print_callback((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback_b((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
             end
             # lmo calls per layer
             if length(list_lmo_calls_cb) > 1
@@ -316,7 +279,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     
             # If the tree is empty, incumbent and solution should be the same!
             if isempty(tree.nodes) 
-               # @assert isapprox(tree.incumbent, primal_value)
+                @assert isapprox(tree.incumbent, primal_value)
             end
 
             status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
@@ -371,3 +334,5 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         end
     end
 end
+
+
