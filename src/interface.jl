@@ -213,7 +213,6 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
         if !node_infeasible
             # update lower bound
             push!(list_ub_cb, tree.incumbent)
-            push!(list_lb_cb, tree_lb(tree))
             push!(list_num_nodes_cb, tree.num_nodes)
             push!(node_level, node.level)
             iteration += 1
@@ -243,6 +242,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 tree.lb = min(minimum(lower_bounds), tree.incumbent)
             end
 
+            push!(list_lb_cb, tree_lb(tree))
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
             push!(list_active_set_size_cb, active_set_size)
