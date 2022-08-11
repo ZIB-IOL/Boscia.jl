@@ -110,4 +110,4 @@ push!(groups,((k_int-1)*group_size+1):p)
     @show f(x)
     @show f(vcat(β_sol, zeros(p)))
     @show x[1:p]
-end 
+end
