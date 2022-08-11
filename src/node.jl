@@ -39,6 +39,12 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx)
     discarded_set_left, discarded_set_right = split_vertices_set!(node.discarded_vertices, tree, vidx, x)
+
+    #@assert isapprox(sum(active_set_left.weights),1.0) 
+    #@assert sum(active_set_left.weights .< 0) == 0
+    #@assert isapprox(sum(active_set_right.weights),1.0) 
+    #@assert sum(active_set_right.weights .< 0) == 0
+
     # add new bounds to the feasible region left and right
     # copy bounds from parent
     varbounds_left = copy(node.local_bounds)
@@ -111,12 +117,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         lazy=true,
-        #verbose=true,
-        #print_iter = 1,
     ) 
-
-    @show x
-    print(tree.root.problem.lmo.lmo.o)
 
     node.fw_time = Dates.now() - time_ref
 
@@ -124,10 +125,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     node.active_set = active_set
     lower_bound = primal - dual_gap
 
-    # check check_feasibility
-    if !is_linear_feasible(tree.root.problem.lmo, x)
-        @error "Solution not linear feasible!"
-    end
+    # check feasibility
+    @assert is_linear_feasible(tree.root.problem.lmo, x)
 
     # Found an upper bound?
     if is_integer_feasible(tree,x)
@@ -145,10 +144,5 @@ Returns the solution vector of the relaxed problem at the node
 function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     return copy(FrankWolfe.get_active_set_iterate(node.active_set))
 end
-
-#=function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
-    dual_gap = relative_gap(tree.incumbent,tree_lb(tree))
-    return isempty(tree.node_queue) || dual_gap ≤ tree.root.options[:dual_gap]
-end=#
 
 tree_lb(tree::Bonobo.BnBTree) = min(tree.lb, tree.incumbent)
