@@ -48,7 +48,7 @@ const ys = map(1:n) do idx
     a = dot(Xs[idx,:], ws) + bs
     rand(Distributions.Poisson(exp(a)))
 end
-Ns = 0.09
+Ns = 0.10
 
 # TODO: document better
 
@@ -114,8 +114,8 @@ Ns = 0.09
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
-    @show x
+    #@show x
     @show result[:raw_solution]
-    @test f(x) <= f(result[:raw_solution])
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
 end
