@@ -216,6 +216,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             push!(list_num_nodes_cb, tree.num_nodes)
             push!(node_level, node.level)
             iteration += 1
+            if tree.lb == -Inf && isempty(tree.nodes)
+                tree.lb = node.lb
+            end
             dual_gap = tree.incumbent-tree_lb(tree)
             time = float(Dates.value(Dates.now()-time_ref))
             push!(list_time_cb, time)
