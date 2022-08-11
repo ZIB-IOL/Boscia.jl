@@ -24,7 +24,7 @@ const MOI = MathOptInterface
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-seed = 0xca9df73348cee594
+#seed = 0xf019ccfbe2bfbe09 
 Random.seed!(seed)
 
 n = 10
@@ -87,7 +87,7 @@ const y_d = D*sol_x
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
 
-    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true, print_iter = 10)
+    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true, max_fw_iter = 10001, rel_dual_gap = 1e-3)
 
     val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min
@@ -95,5 +95,5 @@ const y_d = D*sol_x
     @show x_min
     @test val_min == f(x)
     @test isapprox(x[1:n], x_min)
-    @test isapprox(f(x), f(result[:raw_solution]))
+    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-6)
 end
