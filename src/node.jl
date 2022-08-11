@@ -104,14 +104,19 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.lmo,
         node.active_set,
         epsilon = node.fw_dual_gap_limit,
+        line_search =FrankWolfe.Goldenratio(),
         max_iteration = tree.root.options[:max_fw_iter],
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         lazy=true,
-        verbose=false,
+        #verbose=true,
+        #print_iter = 1,
     ) 
+
+    @show x
+    print(tree.root.problem.lmo.lmo.o)
 
     node.fw_time = Dates.now() - time_ref
 

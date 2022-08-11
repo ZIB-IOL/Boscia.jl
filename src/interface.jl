@@ -149,6 +149,7 @@ function solve(
             tree.root.problem.g,
             lmo,
             active_set,
+            line_search =FrankWolfe.Goldenratio(),
             lazy=true,
             verbose=verbose,
             max_iteration = 10000,

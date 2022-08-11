@@ -14,7 +14,7 @@ const MOI = MathOptInterface
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-#seed = 0xf08e581a886e519a   
+seed = 0xfe03ee83ca373eab   
 Random.seed!(seed)
 
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
@@ -48,7 +48,7 @@ const ys = map(1:n) do idx
     a = dot(Xs[idx,:], ws) + bs
     rand(Distributions.Poisson(exp(a)))
 end
-Ns = 0.1
+Ns = 0.09
 
 # TODO: document better
 
@@ -114,6 +114,8 @@ Ns = 0.1
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    @show x
+    @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution])
     @test sum(x[p+1:2p]) <= k
 end
