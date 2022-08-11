@@ -209,9 +209,15 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     if verbose
         print_callback_b(headers, format_string, print_header=true)
     end
-    return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false)
+    return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update = false)
         if !node_infeasible
             # update lower bound
+            if lb_update == true
+                tree.node_queue[node.id] = (node.lb, node.id)
+                _ , prio = peek(tree.node_queue)
+                @assert tree.lb <= prio[1]
+                tree.lb = prio[1]
+            end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
             push!(node_level, node.level)
