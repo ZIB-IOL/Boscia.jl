@@ -25,7 +25,7 @@ using Printf
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-Random.seed!(42)
+
 n0=20; p = 5*n0; k = ceil(n0/5);
 const lambda_0 = rand(Float64); const lambda_2 = 10.0*rand(Float64);
 const A = rand(Float64, n0, p)
@@ -33,7 +33,6 @@ const y = rand(Float64, n0)
 const M = 2*var(A)
 
 # "Sparse Regression" 
-
 @testset "Sparse regression" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -67,3 +66,4 @@ const M = 2*var(A)
     # @show result // too large to be output
     @test f(x) <= f(result[:raw_solution])
 end
+
