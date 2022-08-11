@@ -72,4 +72,8 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     @test f(x) <= f(result[:raw_solution])
     println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
     println()
+
+    # test if number of nodes is still correct when stopping FW early
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = false, min_number_lower=5)
+    @test result[:number_nodes] ==  2^(n+1)-1
 end

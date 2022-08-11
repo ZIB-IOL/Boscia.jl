@@ -47,7 +47,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             Bonobo.bound!(tree, node.id)
         end
 
-        if !isempty(tree.nodes) && min_number_lower <= length(values(tree.nodes))
+        if state.t > 1 && !isempty(tree.nodes) && min_number_lower <= length(values(tree.nodes))
             counter = 0
             for n in values(tree.nodes)
                 if n.lb < val
