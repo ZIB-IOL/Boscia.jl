@@ -47,11 +47,7 @@ const MOD = MathOptSetDistances
         end
     end
 
-    print(lmo.o)
-
     Boscia.build_LMO(lmo, global_bounds, integer_bound, collect(1:n))
-
-    print(lmo.o)
 
     @test Boscia.is_linear_feasible(o, ones(n)) == false
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 5.0], ones(n-5)))

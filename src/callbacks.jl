@@ -4,11 +4,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     return function fw_callback(state, active_set)
-        #print(tree.root.problem.lmo.lmo.o)
-       # @show sum(active_set.weights)
-       # @show active_set.weights
-       # @show state.tt
-       # @show state.gamma
         @assert isapprox(sum(active_set.weights),1.0) 
         @assert sum(active_set.weights .< 0) == 0
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
