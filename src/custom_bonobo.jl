@@ -26,7 +26,8 @@ which are set in the following ways:
 1. If the node is infeasible the kwarg `node_infeasible` is set to `true`.
 2. If the node has a higher lower bound than the incumbent the kwarg `worse_than_incumbent` is set to `true`.
 """
-function Bonobo.optimize!(tree::Bonobo.BnBTree; callback=(args...; kwargs...)->())
+function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args...; kwargs...)->())
+    #println("OWN OPTIMIZE")
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         lb, ub = Bonobo.evaluate_node!(tree, node)
