@@ -47,10 +47,13 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
             continue
         end
 
-        tree.node_queue[node.id] = (node.lb, node.id)
-        _ , prio = peek(tree.node_queue)
-        @assert tree.lb <= prio[1]
-        tree.lb = prio[1]
+        #tree.node_queue[node.id] = (node.lb, node.id)
+        #_ , prio = peek(tree.node_queue)
+        #@assert tree.lb <= prio[1]
+        #tree.lb = prio[1]
+        p_lb = tree.lb
+        tree.lb = minimum([prio[2][1] for prio in tree.node_queue])
+        @assert p_lb <= tree.lb
 
         updated = Bonobo.update_best_solution!(tree, node)
         if updated

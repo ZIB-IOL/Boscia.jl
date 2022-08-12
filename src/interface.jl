@@ -153,7 +153,7 @@ function solve(
             tree.root.problem.g,
             lmo,
             active_set,
-            #line_search =FrankWolfe.Goldenratio(),
+            line_search = FrankWolfe.Adaptive(verbose = false),
             lazy=true,
             verbose=verbose,
             max_iteration = 10000,
@@ -249,7 +249,9 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             push!(list_lmo_calls_cb, copy(LMO_calls_c))
 
             if !isempty(tree.node_queue)
+                p_lb = tree.lb
                 tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
+                @assert p_lb <= tree.lb
             end
             dual_gap = tree.incumbent-tree_lb(tree)
             push!(list_lb_cb, tree_lb(tree))
