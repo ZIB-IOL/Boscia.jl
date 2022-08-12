@@ -9,9 +9,9 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 n = 15
-const ri = 10 * rand(n)
+const ri = rand(n)
 const ai = rand(n)
-const Ωi = 3 * rand(Float64)
+const Ωi = rand(Float64)
 const bi = sum(ai)
 Ai = randn(n,n)
 Ai = Ai' * Ai
@@ -31,15 +31,11 @@ const Mi =  (Ai + Ai')/2
         end
     end 
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.LessThan(bi))
-    #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.GreaterThan(minimum(ai)))
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),x), 0.0), MOI.GreaterThan(1.0))
     lmo = FrankWolfe.MathOptLMO(o)
 
-    function h(x)
-        return Ωi
-    end
     function f(x)
-        return h(x) * (x' * Mi * x) - ri' * x
+        return Ωi * (x' * Mi * x) - ri' * x
     end
     function grad!(storage, x)
         storage.= 2 * Mi * x - ri
@@ -48,6 +44,6 @@ const Mi =  (Ai + Ai')/2
 
     x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
     # @show x
-    @test sum(ai'* x) <= bi + eps()
-    @test f(x) <= f(result[:raw_solution])
+    @test sum(ai'* x) <= bi + 1e-6
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
