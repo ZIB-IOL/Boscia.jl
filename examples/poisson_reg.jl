@@ -14,7 +14,7 @@ const MOI = MathOptInterface
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-seed = 0xfe03ee83ca373eab   
+#seed = 0xfe03ee83ca373eab   
 Random.seed!(seed)
 
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2

@@ -64,6 +64,6 @@ const M = 2*var(A)
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)
 
     # @show result // too large to be output
-    @test f(x) <= f(result[:raw_solution])
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 

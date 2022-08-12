@@ -45,6 +45,10 @@ function solve(
         num_bin += 1
     end
 
+    if num_bin == 0 && num_int == 0
+        error("No integer or binary variables! Please use an IP solver!")
+    end
+
     if verbose
         println("\t Total number of varibales: ", n)
         println("\t Number of integer variables: ", num_int)
@@ -149,7 +153,7 @@ function solve(
             tree.root.problem.g,
             lmo,
             active_set,
-            line_search =FrankWolfe.Goldenratio(),
+            #line_search =FrankWolfe.Goldenratio(),
             lazy=true,
             verbose=verbose,
             max_iteration = 10000,

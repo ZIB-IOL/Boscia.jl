@@ -126,5 +126,5 @@ x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
     x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)
-    @test f(x) <= f(result_strong[:raw_solution]) + 1e-4
+    @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end
