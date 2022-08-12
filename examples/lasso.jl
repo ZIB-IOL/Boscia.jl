@@ -106,7 +106,7 @@ push!(groups,((k_int-1)*group_size+1):p)
     for i in 1:k_int
         @test sum(z[groups[i]]) >= 1
     end
-    @test f(x) <= f(result[:raw_solution])
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
     @show f(x)
     @show f(vcat(β_sol, zeros(p)))
     @show x[1:p]

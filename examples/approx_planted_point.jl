@@ -35,5 +35,5 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
     x, _,result= Boscia.solve(f, grad!, lmo, verbose = true)
 
     @test x == round.(diffi)
-    @test f(x) == f(result[:raw_solution])
+    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol= 1e-3)
 end

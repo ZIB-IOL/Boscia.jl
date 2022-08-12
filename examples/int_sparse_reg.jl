@@ -24,7 +24,7 @@ const MOI = MathOptInterface
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-#seed = 0xf019ccfbe2bfbe09 
+#seed = 0xeadb922ca734998b  
 Random.seed!(seed)
 
 n = 10
@@ -63,7 +63,6 @@ const y_d = D*sol_x
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
 
-        MOI.add_constraint(o, 1.0 * x[i] + 1.0 * l * z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, 1.0 * x[i] - 1.0 * l * z[i], MOI.LessThan(0.0))
     end 
     MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0*k))
