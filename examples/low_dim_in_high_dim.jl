@@ -12,9 +12,10 @@ const MOI = MathOptInterface
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
 # https://arxiv.org/abs/2204.05266. 
-
-m = 500 # larger dimension
-n = 12 # small dimension
+seed = 1
+Random.seed!(seed)
+m = 100 #500 # larger dimension
+n = 5 #12 # small dimension
 
 alpha = 0.00
 const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
