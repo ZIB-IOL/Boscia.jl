@@ -110,7 +110,7 @@ const ys = map(1:n) do idx
     a = dot(Xs[idx,:], ws) + bs
     rand(Distributions.Poisson(exp(a)))
 end
-Ns = 5.0
+Ns = 0.1
 
 @testset "Interface - sparse poisson regression" begin
 k = 10

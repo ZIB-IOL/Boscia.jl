@@ -4,6 +4,11 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     return function fw_callback(state, active_set)
+        @assert isapprox(sum(active_set.weights),1.0) 
+        @assert sum(active_set.weights .< 0) == 0
+        @assert is_linear_feasible(tree.root.problem.lmo, state.x)
+        @assert is_linear_feasible(tree.root.problem.lmo, state.v)
+
         push!(fw_iterations, state.t)
         if ncalls != state.lmo.ncalls
             ncalls = state.lmo.ncalls
@@ -15,11 +20,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                     tree.incumbent_solution = sol
                 end
-                #if isempty(tree.solutions)
-                 #   push!(tree.solutions, sol)
-                #else
-                 #   tree.solutions[1] = sol
-                #end
                 tree.incumbent = best_val
                 Bonobo.bound!(tree, node.id)
             end
@@ -38,11 +38,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                 tree.incumbent_solution = sol
             end
-           # if isempty(tree.solutions)
-            #    push!(tree.solutions, sol)
-            #else
-             #   tree.solutions[1] = sol
-            #end
             tree.incumbent = val
             Bonobo.bound!(tree, node.id)
         end
@@ -76,11 +71,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                     if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                         tree.incumbent_solution = sol
                     end
-                    #if isempty(tree.solutions)
-                    #    push!(tree.solutions, sol)
-                    #else
-                    #    tree.solutions[1] = sol
-                    #end
                     tree.incumbent = val
                     Bonobo.bound!(tree, node.id)
                 end
