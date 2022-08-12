@@ -216,12 +216,12 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
     end
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update = false)
         if !node_infeasible
-            # update lower bound
+            #update lower bound
             if lb_update == true
-                #p_lb = tree.lb
-                tree.lb = node.lb >= tree.lb ? node.lb : tree.lb
-                #tree.lb = minimum([prio[2][1] for prio in tree.node_queue])
-                #@assert p_lb <= tree.lb
+                tree.node_queue[node.id] = (node.lb, node.id)
+                _ , prio = peek(tree.node_queue)
+                @assert tree.lb <= prio[1]
+                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
@@ -230,7 +230,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             if tree.lb == -Inf && isempty(tree.nodes)
                 tree.lb = node.lb
             end
-            dual_gap = tree.incumbent-tree_lb(tree)
+    
             time = float(Dates.value(Dates.now()-time_ref))
             push!(list_time_cb, time)
             fw_time = Dates.value(node.fw_time)
@@ -248,11 +248,10 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             LMO_calls_c = tree.root.problem.lmo.ncalls
             push!(list_lmo_calls_cb, copy(LMO_calls_c))
 
-            if !isempty(tree.nodes)
-                lower_bounds = [n[2].lb for n in tree.nodes]
-                tree.lb = min(minimum(lower_bounds), tree.incumbent)
+            if !isempty(tree.node_queue)
+                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
             end
-
+            dual_gap = tree.incumbent-tree_lb(tree)
             push!(list_lb_cb, tree_lb(tree))
             active_set_size = length(node.active_set)
             discarded_set_size = length(node.discarded_vertices.storage)
