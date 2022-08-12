@@ -292,7 +292,7 @@ const n1 = 10
 const diff1 = rand(Bool, n1)*0.8.+1.1
 
 @testset "IP vs LP solver" begin
-    o = SCIP.Optimizer()
+   #= o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n1)
@@ -300,8 +300,6 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
         MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
         MOI.add_constraint(o, xi, MOI.LessThan(4.0))
     end
-    lb = min(sum(round.(diff1)), sum(diff1))-0.1
-    ub = max(sum(round.(diff1)), sum(diff1))+0.1
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0), MOI.LessThan(ub))
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0), MOI.GreaterThan(lb))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -317,13 +315,6 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     Random.rand!(direction)
     v = compute_extreme_point(time_lmo, direction)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
-
-    function f(x)
-        return sum((x.-diff1).^2)
-    end
-    function grad!(storage, x)
-        @. storage = 2*(x-diff1)
-    end
 
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     active_set = FrankWolfe.ActiveSet([(1.0, v)]) 
@@ -369,7 +360,7 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
     else
         @warn "Did not solve correctly"
     end
-
+=#
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -379,6 +370,8 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
         MOI.add_constraint(o, xi, MOI.LessThan(4.0))
         MOI.add_constraint(o, xi, MOI.Integer()) # or MOI.Integer()
     end
+    lb = min(sum(round.(diff1)), sum(diff1))-0.1
+    ub = max(sum(round.(diff1)), sum(diff1))+0.1
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0), MOI.LessThan(ub))
     MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0), MOI.GreaterThan(lb))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -387,6 +380,14 @@ const diff1 = rand(Bool, n1)*0.8.+1.1
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(4.0)))
     end 
+
+    function f(x)
+        return sum((x.-diff1).^2)
+    end
+    function grad!(storage, x)
+        @. storage = 2*(x-diff1)
+    end
+    
     time_lmo=Boscia.TimeTrackingLMO(lmo)
     # Define the root of the tree
     direction = Vector{Float64}(undef,n1)
