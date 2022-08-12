@@ -29,7 +29,7 @@ k = 4
 sol_x = rand(1:l, n)
 for _ in 1:(n-k)
     sol_x[rand(1:n)] = 0
-end 
+end
 
 #=k=0 # correct k
 for i in 1:n
@@ -57,20 +57,22 @@ const y_d = D*sol_x
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
 
-        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,1.0*l], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+        MOI.add_constraint(o, 1.0 * x[i] + 1.0 * l * z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, 1.0 * x[i] - 1.0 * l * z[i], MOI.LessThan(0.0))
     end 
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0*k))
    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum((y_d-D*x[1:n]).^2)  #+ lambda_2*FrankWolfe.norm(x)^2 + lambda_0*sum(x[p+1:2p]) 
+        xv = @view(x[1:n])
+        return 1/2 * sum(abs2, y_d - D * xv)  #+ lambda_2*FrankWolfe.norm(x)^2 + lambda_0*sum(x[p+1:2p])
     end
     
     function grad!(storage, x)
-        storage.=vcat(2*(transpose(D)*D*x[1:n] - transpose(D)*y_d), zeros(n))  #vcat(..,zeros(n))
+        storage .= 0
+        @view(storage[1:n]) .= transpose(D)* (D*@view(x[1:n]) - y_d)
         return storage
     end
 
