@@ -21,8 +21,13 @@ n = MOI.get(o, MOI.NumberOfVariables())
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:10]
+const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:20]
+# done to avoid one vertex being systematically selected
 unique!(vs)
+filter!(vs) do v
+    v[end] != 21477.0
+end
+
 @assert !isempty(vs)
 const b_mps = randn(n)
 
