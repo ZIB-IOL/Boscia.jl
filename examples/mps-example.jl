@@ -6,6 +6,7 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
+import Ipopt
 
 # Example reading a polytope from a MIPLIB instance
 
@@ -44,4 +45,23 @@ end
 @testset "MPS instance" begin
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
     @test f(x) <= f(result[:raw_solution])
+end
+
+# Relaxed version
+filtered_src = MOI.Utilities.ModelFilter(o) do item
+    if item isa Tuple
+        (_, S) = item
+        if S <: Union{MOI.Indicator, MOI.Integer, MOI.ZeroOne}
+            return false
+        end
+    end
+    return !(item isa MOI.ConstraintIndex{<:Any, <:Union{MOI.ZeroOne, MOI.Integer, MOI.Indicator}})
+end
+ipopt_optimizer = MOI.Bridges.full_bridge_optimizer(Ipopt.Optimizer(), Float64)
+index_map = MOI.copy_to(ipopt_optimizer, filtered_src)
+# sanity check, otherwise the functions need permuted indices
+for (v1, v2) in index_map
+    if v1 isa MOI.VariableIndex
+        @assert v1 == v2
+    end
 end
