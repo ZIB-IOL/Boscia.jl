@@ -9,11 +9,9 @@ const MOI = MathOptInterface
 
 # Example reading a polytope from a MIPLIB instance
 
-# src = MOI.FileFormats.Model(filename="22433.mps")
-# MOI.read_from_file(src, joinpath(@__DIR__, "22433.mps"))
-src = MOI.FileFormats.Model(filename="ab71-20-100.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "ab71-20-100.mps"))
-#=
+src = MOI.FileFormats.Model(filename="22433.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "22433.mps"))
+
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
@@ -26,7 +24,6 @@ const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:10]
 unique!(vs)
 @assert !isempty(vs)
 const b_mps = randn(n)
-
 
 function f(x)
     r = dot(b_mps, x)
@@ -48,4 +45,3 @@ end
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
     @test f(x) <= f(result[:raw_solution])
 end
-=#
