@@ -8,6 +8,15 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+# For bug hunting:
+seed = rand(UInt64)
+seed = 0x8abe67301e43f00c 
+@show seed
+Random.seed!(seed)
+
+# seed = 0x8abe67301e43f00c emptz tree after 1 node??? and incument >> lower bound
+
+
 n = 15
 const ri = rand(n)
 const ai = rand(n)
@@ -43,7 +52,11 @@ const Mi =  (Ai + Ai')/2
     end
 
     x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
-    # @show x
+    @show x
+    @show result[:raw_solution]
     @test sum(ai'* x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
+
+
+# seed = 0x946d4b7835e92ffa takes 90 minutes to solve!

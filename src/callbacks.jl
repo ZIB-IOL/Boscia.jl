@@ -31,6 +31,9 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         end
 
         if (state.primal - state.dual_gap > tree.incumbent)
+            println("Callback break")
+            @show tree.incumbent
+            @show state.primal - state.dual_gap
             return false
         end
 

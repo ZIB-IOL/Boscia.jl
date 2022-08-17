@@ -120,6 +120,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         lazy=true,
+        verbose = true,
     ) 
 
     node.fw_time = Dates.now() - time_ref
@@ -127,6 +128,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
+
+    @show x
+    @show primal
+    @show dual_gap
 
     # check feasibility
     @assert is_linear_feasible(tree.root.problem.lmo, x)
