@@ -43,11 +43,11 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent
             Bonobo.close_node!(tree, node)
-            callback(tree, node; worse_than_incumbent=true, lb_update = node.lb == tree.incumbent)
+            callback(tree, node; worse_than_incumbent=true, lb_update = isapprox(node.lb, tree.incumbent))
             continue
         end
 
-        #tree.node_queue[node.id] = (node.lb, node.id)
+        tree.node_queue[node.id] = (node.lb, node.id)
         #_ , prio = peek(tree.node_queue)
         #@assert tree.lb <= prio[1]
         #tree.lb = prio[1]
