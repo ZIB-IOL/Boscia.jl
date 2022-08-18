@@ -9,6 +9,7 @@ function solve(
     verbose = false, 
     dual_gap = 1e-6, 
     rel_dual_gap = 1.0e-2,
+    time_limit = Inf,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
@@ -92,7 +93,12 @@ function solve(
         root = (
             problem=m,
             current_node_id = Ref{Int}(0),
-            options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter, :min_node_fw_epsilon => min_node_fw_epsilon)
+            options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, 
+                                        :dual_gap => dual_gap, 
+                                        :print_iter => print_iter, 
+                                        :max_fw_iter => max_fw_iter, 
+                                        :min_node_fw_epsilon => min_node_fw_epsilon, 
+                                        :time_limit => time_limit)
         ),
         branch_strategy = branching_strategy,
         dual_gap_limit = rel_dual_gap,
@@ -120,7 +126,8 @@ function solve(
     lmo_calls_per_layer = Vector{Vector{Int}}()
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
-    bnb_callback = build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
+    time_ref = Dates.now()
+    bnb_callback = build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
 
@@ -129,36 +136,7 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = Bonobo.get_solution(tree)
-
-    # Build solution lmo
-    fix_bounds = IntegerBounds()
-    for i in tree.root.problem.integer_variables
-        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
-    end
-
-    MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-    SCIP.SCIPfreeTransform(tree.root.problem.lmo.lmo.o)
-    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
-
-    # Final solve in case of mixed problem
-    if true
-        v = compute_extreme_point(lmo, direction)
-        active_set = FrankWolfe.ActiveSet([(1.0, v)])
-        # evaluate 
-        verbose && println("Performing final solve for cleanup.")
-        x,_,dual_gap,_,_ ,_ = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            lmo,
-            active_set,
-            line_search = FrankWolfe.Adaptive(verbose = false),
-            lazy=true,
-            verbose=verbose,
-            max_iteration = 10000,
-        ) 
-    end
+    x = postsolve(tree, result, time_ref, verbose)
 
     # Check solution and polish
     x_raw = copy(x)
@@ -183,7 +161,7 @@ function solve(
     int_bounds = IntegerBounds()
     build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, int_bounds, tree.root.problem.integer_variables)
     
-    return x, time_lmo, result
+    return x, tree.root.problem.lmo, result
 end
 
 """
@@ -202,8 +180,7 @@ Output of Boscia
     LMO calls :     number of compute_extreme_point calls in FW
     FW iterations : number of iterations in FW
 """
-function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
-    time_ref = Dates.now()
+function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
     iteration = 0
 
     headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
@@ -227,12 +204,20 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             push!(list_num_nodes_cb, tree.num_nodes)
             push!(node_level, node.level)
             iteration += 1
-            if tree.lb == -Inf && isempty(tree.nodes)
+            if tree.lb == -Inf && isempty(tree.nodes) 
                 tree.lb = node.lb
             end
     
             time = float(Dates.value(Dates.now()-time_ref))
             push!(list_time_cb, time)
+            
+            if tree.root.options[:time_limit] < Inf 
+                if time/1000.0 ≥ tree.root.options[:time_limit]
+                    @assert tree.root.problem.solving_stage == SOLVING
+                    tree.root.problem.solving_stage = TIME_LIMIT_REACHED
+                end
+            end
+            
             fw_time = Dates.value(node.fw_time)
             fw_iter = if !isempty(fw_iterations)
                 fw_iterations[end]
@@ -253,6 +238,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
                 @assert p_lb <= tree.lb
             end
+            # correct lower bound if necessary
+            tree.lb = tree_lb(tree)
             dual_gap = tree.incumbent-tree_lb(tree)
             push!(list_lb_cb, tree_lb(tree))
             active_set_size = length(node.active_set)
@@ -260,7 +247,7 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
             push!(list_active_set_size_cb, active_set_size)
             push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left= length(tree.nodes)
-            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) # TODO: need to output the very last iteration also if we skip some inbetween
+            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) 
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback_b(headers, format_string, print_header=true)
                 end
@@ -300,23 +287,8 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 @assert isapprox(tree.incumbent, primal_value)
             end
 
-            status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
-            if isempty(tree.nodes)
-                status_string = "Optimal (tree empty)"
-            else
-                status_string = "Optimal (tolerance reached)"
-            end
-    
-
-            result[:primal_objective] = primal_value 
-            result[:dual_bound] = tree_lb(tree)
-            result[:rel_dual_gap] = relative_gap(primal_value,tree_lb(tree))
-            result[:dual_gap] = tree.incumbent-tree_lb(tree)
-            result[:raw_solution] = Bonobo.get_solution(tree)
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.lmo.ncalls
-            total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
-            result[:total_time_in_sec] = total_time_in_sec
             result[:list_num_nodes] = list_num_nodes_cb
             result[:list_lmo_calls_acc] = list_lmo_calls_cb
             result[:list_active_set_size] = list_active_set_size_cb
@@ -335,23 +307,89 @@ function build_bnb_callback(tree, list_lb_cb, list_ub_cb, list_time_cb, list_num
                 format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
                 print_callback(headers, format_string, print_footer=true)
                 println()
-
-                println("Solution Statistics.")
-                
-                println("\t Solution Status: ", status_string)
-                println("\t Primal Objective: ", primal_value)
-                println("\t Dual Bound: ", tree_lb(tree))
-                println("\t Dual Gap (relative): $(relative_gap(primal_value,tree_lb(tree)))\n")
-                println("Search Statistics.")
-                println("\t Total number of nodes processed: ", tree.num_nodes)
-                println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
-                println("\t Total time (s): ", total_time_in_sec)
-                println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)        
-                println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
-                println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
             end
         end
     end
+end
+
+function postsolve(tree, result, time_ref, verbose = false)
+    x = Bonobo.get_solution(tree)
+
+    # Build solution lmo
+    fix_bounds = IntegerBounds()
+    for i in tree.root.problem.integer_variables
+        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
+        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+    end
+
+    MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
+    SCIP.SCIPfreeTransform(tree.root.problem.lmo.lmo.o)
+    build_LMO(tree.root.problem.lmo, tree.root.problem.integer_variable_bounds, fix_bounds, tree.root.problem.integer_variables)
+    # Postprocessing
+    direction = ones(length(x))
+    v = compute_extreme_point(tree.root.problem.lmo, direction)
+    active_set = FrankWolfe.ActiveSet([(1.0, v)])
+    verbose && println("Postprocessing")
+    x,_,primal,dual_gap,_,_ = FrankWolfe.blended_pairwise_conditional_gradient(
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.lmo,
+        active_set,
+        line_search = FrankWolfe.Adaptive(verbose = false),
+        lazy=true,
+        verbose=verbose,
+        max_iteration = 10000,
+    ) 
+
+    status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
+    if isempty(tree.nodes)
+        status_string = "Optimal (tree empty)"
+        tree.root.problem.solving_stage = OPT_TREE_EMPTY
+    elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+        status_string = "Time limit reached"
+    else
+        status_string = "Optimal (tolerance reached)"
+        tree.root.problem.solving_stage = OPT_GAP_REACHED
+    end
+
+    # update tree
+    @assert primal <= tree.incumbent + 1e-5
+    if primal < tree.incumbent
+        tree.incumbent = primal
+        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+    else
+        @assert tree.lb <= primal - dual_gap 
+    end
+    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+    tree.incumbent_solution.solution = tree.solutions[1].solution = x
+
+    result[:primal_objective] = primal 
+    result[:dual_bound] = tree_lb(tree)
+    result[:rel_dual_gap] = relative_gap(primal,tree_lb(tree))
+    result[:dual_gap] = tree.incumbent-tree_lb(tree)
+    result[:raw_solution] = x
+    total_time_in_sec = (Dates.value(Dates.now()-time_ref))/1000.0
+    result[:total_time_in_sec] = total_time_in_sec
+
+    if verbose 
+        println()
+
+        println("Solution Statistics.")
+                
+        println("\t Solution Status: ", status_string)
+        println("\t Primal Objective: ", primal)
+        println("\t Dual Bound: ", tree_lb(tree))
+        println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
+        println("Search Statistics.")
+        println("\t Total number of nodes processed: ", tree.num_nodes)
+        println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
+        println("\t Total time (s): ", total_time_in_sec)
+        println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)        
+        println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
+         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
+    end
+
+    return x
 end
 
 

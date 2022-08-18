@@ -2,6 +2,7 @@
 
 [![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
+[![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/Boscia)](https://pkgs.genieframework.com?packages=Boscia)
 
 A package for Branch-and-Bound on top of Frank-Wolfe methods.
 
