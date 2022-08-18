@@ -44,17 +44,18 @@ const Mi =  (Ai + Ai')/2
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return Ωi * (x' * Mi * x) - ri' * x
+        return 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x)
     end
     function grad!(storage, x)
-        storage.= 2 * Mi * x - ri
+        mul!(storage, Mi, x)
+        storage .-= ri
         return storage
     end
 
     x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
     @show x
     @show result[:raw_solution]
-    @test sum(ai'* x) <= bi + 1e-6
+    @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
