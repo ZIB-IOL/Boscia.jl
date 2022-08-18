@@ -121,6 +121,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         callback=tree.root.options[:callback],
         lazy=true,
         verbose = true,
+        print_iter = 1,
     ) 
 
     node.fw_time = Dates.now() - time_ref

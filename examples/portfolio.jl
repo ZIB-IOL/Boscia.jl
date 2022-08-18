@@ -27,6 +27,9 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
+@show bi
+@show ai[end] * 93.0 <= bi +1e-6
+
 @testset "Buchheim et. al. example" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
