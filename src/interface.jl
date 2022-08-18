@@ -338,15 +338,6 @@ function postsolve(tree, result, time_ref, verbose = false)
         verbose=verbose,
         max_iteration = 10000,
     ) 
-    # update tree
-    @assert primal <= tree.incumbent
-    if primal < tree.incumbent
-        tree.incumbent = primal
-    else
-        @assert tree.lb <= primal - dual_gap 
-    end
-    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
-    tree.incumbent_solution.solution = tree.solutions[1].solution = x
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -358,6 +349,17 @@ function postsolve(tree, result, time_ref, verbose = false)
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
+
+    # update tree
+    @assert primal <= tree.incumbent + 1e-5
+    if primal < tree.incumbent
+        tree.incumbent = primal
+        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+    else
+        @assert tree.lb <= primal - dual_gap 
+    end
+    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+    tree.incumbent_solution.solution = tree.solutions[1].solution = x
 
     result[:primal_objective] = primal 
     result[:dual_bound] = tree_lb(tree)
