@@ -9,6 +9,7 @@ function solve(
     verbose = false, 
     dual_gap = 1e-6, 
     rel_dual_gap = 1.0e-2,
+    time_limit = Inf,
     print_iter = 100, 
     dual_gap_decay_factor=0.8, 
     max_fw_iter = 10000,
@@ -92,7 +93,12 @@ function solve(
         root = (
             problem=m,
             current_node_id = Ref{Int}(0),
-            options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, :dual_gap => dual_gap, :print_iter => print_iter, :max_fw_iter => max_fw_iter, :min_node_fw_epsilon => min_node_fw_epsilon)
+            options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, 
+                                        :dual_gap => dual_gap, 
+                                        :print_iter => print_iter, 
+                                        :max_fw_iter => max_fw_iter, 
+                                        :min_node_fw_epsilon => min_node_fw_epsilon, 
+                                        :time_limit => time_limit)
         ),
         branch_strategy = branching_strategy,
         dual_gap_limit = rel_dual_gap,
@@ -185,7 +191,7 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
     if verbose
         print_callback_b(headers, format_string, print_header=true)
     end
-    return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update = false, time_limit_reached = false)
+    return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update = false)
         if !node_infeasible
             #update lower bound
             if lb_update == true
@@ -204,6 +210,14 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
     
             time = float(Dates.value(Dates.now()-time_ref))
             push!(list_time_cb, time)
+            
+            if tree.root.options[:time_limit] < Inf 
+                if time/1000.0 ≥ tree.root.options[:time_limit]
+                    @assert tree.root.problem.solving_stage == SOLVING
+                    tree.root.problem.solving_stage = TIME_LIMIT_REACHED
+                end
+            end
+            
             fw_time = Dates.value(node.fw_time)
             fw_iter = if !isempty(fw_iterations)
                 fw_iterations[end]
@@ -326,23 +340,28 @@ function postsolve(tree, result, time_ref, verbose = false)
         verbose=verbose,
         max_iteration = 10000,
     ) 
-    # update tree
-    @assert primal <= tree.incumbent
-    if primal < tree.incumbent
-        tree.incumbent = primal
-    else
-        @assert tree.lb <= primal - dual_gap 
-    end
-    tree.lb = primal - dual_gap
-    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
-    tree.incumbent_solution.solution = tree.solutions[1].solution = x
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
         status_string = "Optimal (tree empty)"
+        tree.root.problem.solving_stage = OPT_TREE_EMPTY
+    elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+        status_string = "Time limit reached"
     else
         status_string = "Optimal (tolerance reached)"
+        tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
+
+    # update tree
+    @assert primal <= tree.incumbent + 1e-5
+    if primal < tree.incumbent
+        tree.incumbent = primal
+        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+    else
+        @assert tree.lb <= primal - dual_gap 
+    end
+    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+    tree.incumbent_solution.solution = tree.solutions[1].solution = x
 
     result[:primal_objective] = primal 
     result[:dual_bound] = tree_lb(tree)
