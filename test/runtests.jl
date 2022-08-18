@@ -285,6 +285,7 @@ end
 include("sparse_regression.jl") 
 include("poisson.jl")
 include("mean_risk.jl")
+include("time_limit.jl")
 
 
 Random.seed!(6)

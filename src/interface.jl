@@ -210,12 +210,14 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
     
             time = float(Dates.value(Dates.now()-time_ref))
             push!(list_time_cb, time)
+            
             if tree.root.options[:time_limit] < Inf 
                 if time/1000.0 ≥ tree.root.options[:time_limit]
                     @assert tree.root.problem.solving_stage == SOLVING
                     tree.root.problem.solving_stage = TIME_LIMIT_REACHED
                 end
             end
+            
             fw_time = Dates.value(node.fw_time)
             fw_iter = if !isempty(fw_iterations)
                 fw_iterations[end]
