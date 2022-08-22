@@ -50,7 +50,7 @@ const Mi =  (Ai + Ai')/2
         return 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x)
     end
     function grad!(storage, x)
-        mul!(storage, Mi, x)
+        mul!(storage, Mi, x, Ωi, 0)
         storage .-= ri
         return storage
     end
