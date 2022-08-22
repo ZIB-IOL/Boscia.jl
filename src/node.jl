@@ -36,8 +36,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
-    #@show node.active_set
-    #@show x
 
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx)
@@ -120,8 +118,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         lazy=true,
-        verbose = true,
-        print_iter = 1,
     ) 
 
     node.fw_time = Dates.now() - time_ref
@@ -129,10 +125,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
-
-    @show x
-    @show primal
-    @show dual_gap
 
     # check feasibility
     @assert is_linear_feasible(tree.root.problem.lmo, x)

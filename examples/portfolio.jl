@@ -8,15 +8,6 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-# For bug hunting:
-seed = rand(UInt64)
-seed = 0x8abe67301e43f00c 
-@show seed
-Random.seed!(seed)
-
-# seed = 0x8abe67301e43f00c emptz tree after 1 node??? and incument >> lower bound
-
-
 n = 15
 const ri = rand(n)
 const ai = rand(n)
@@ -27,8 +18,6 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
-@show bi
-@show ai[end] * 93.0 <= bi +1e-6
 
 @testset "Buchheim et. al. example" begin
     o = SCIP.Optimizer()
@@ -56,8 +45,6 @@ const Mi =  (Ai + Ai')/2
     end
 
     x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
-    @show x
-    @show result[:raw_solution]
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
