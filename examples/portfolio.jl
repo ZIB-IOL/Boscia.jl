@@ -18,6 +18,7 @@ Ai = Ai' * Ai
 const Mi =  (Ai + Ai')/2
 @assert isposdef(Mi)
 
+
 @testset "Buchheim et. al. example" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -35,15 +36,18 @@ const Mi =  (Ai + Ai')/2
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return Ωi * (x' * Mi * x) - ri' * x
+        return 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x)
     end
     function grad!(storage, x)
-        storage.= 2 * Mi * x - ri
+        mul!(storage, Mi, x, Ωi, 0)
+        storage .-= ri
         return storage
     end
 
     x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
-    # @show x
-    @test sum(ai'* x) <= bi + 1e-6
+    @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
+
+
+# seed = 0x946d4b7835e92ffa takes 90 minutes to solve!
