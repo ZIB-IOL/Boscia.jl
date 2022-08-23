@@ -14,7 +14,7 @@ They are especially useful when we have a method to optimize a linear function o
 
 A paper presenting the package with mathematical explanations and numerous examples can be found here:
 
-> [xxx](xxx).
+> Convex integer optimization with Frank-Wolfe methods.
 
 `Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree.
 
