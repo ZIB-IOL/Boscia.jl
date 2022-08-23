@@ -1,3 +1,10 @@
+mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value} <: Bonobo.AbstractSolution{Node, Value}
+    objective::Float64
+    solution::Value
+    node::Node
+    source::Symbol 
+end
+
 """
     AbtractFrankWolfeNode <: Bonobo.AbstractNode 
 """

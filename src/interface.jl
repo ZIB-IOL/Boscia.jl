@@ -87,9 +87,12 @@ function solve(
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = Boscia.FrankWolfeNode(Bonobo.BnBNodeInfo(1, 0.0, 0.0), active_set, vertex_storage, Boscia.IntegerBounds(), 1, 1e-3, Millisecond(0))
 
+    Node = typeof(nodeEx)
+    Value = Vector{Float64}
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
         Node = typeof(nodeEx),
+        Solution = FrankWolfeSolution{Node, Value}, 
         root = (
             problem=m,
             current_node_id = Ref{Int}(0),
@@ -321,6 +324,7 @@ end
 
 function postsolve(tree, result, time_ref, verbose = false)
     x = Bonobo.get_solution(tree)
+    # println("Source of solution : ", tree.solutions[1].source)
 
     # Build solution lmo
     fix_bounds = IntegerBounds()

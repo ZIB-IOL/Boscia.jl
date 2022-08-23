@@ -79,3 +79,15 @@ function Bonobo.update_best_solution!(tree::Bonobo.BnBTree{<:FrankWolfeNode}, no
     Bonobo.add_new_solution!(tree, node)
     return true
 end
+
+function Bonobo.add_new_solution!(tree::Bonobo.BnBTree{N,R,V,S}, node::Bonobo.AbstractNode) where {N,R,V,S<:FrankWolfeSolution{N,V}}
+    sol = FrankWolfeSolution(node.ub, Bonobo.get_relaxed_values(tree, node), node, :iterate)
+    push!(tree.solutions, sol)
+    if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+        tree.incumbent_solution = sol
+    end
+end
+
+function Bonobo.get_solution(tree::Bonobo.BnBTree{N,R,V,S}; result=1) where {N,R,V,S<:FrankWolfeSolution{N,V}}
+    return tree.solutions[result].solution
+end

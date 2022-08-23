@@ -16,7 +16,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             if best_val < tree.incumbent
                 tree.root.updated_incumbent[] = true
                 node = tree.nodes[tree.root.current_node_id[]]
-                sol = Bonobo.DefaultSolution(best_val, best_v, node)
+                sol = FrankWolfeSolution(best_val, best_v, node, :SCIP)
                 push!(tree.solutions, sol)
                 if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                     tree.incumbent_solution = sol
@@ -35,7 +35,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             tree.root.updated_incumbent[] = true
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
-            sol = Bonobo.DefaultSolution(val, copy(state.v), node)
+            sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
             push!(tree.solutions, sol)
             if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                 tree.incumbent_solution = sol
@@ -70,7 +70,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 if val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
-                    sol = Bonobo.DefaultSolution(val, x_rounded, node)
+                    sol = FrankWolfeSolution(val, x_rounded, node, :rounded)
                     push!(tree.solutions, sol)
                     if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
                         tree.incumbent_solution = sol
