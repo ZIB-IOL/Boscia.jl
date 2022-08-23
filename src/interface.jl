@@ -324,7 +324,6 @@ end
 
 function postsolve(tree, result, time_ref, verbose = false)
     x = Bonobo.get_solution(tree)
-    # println("Source of solution : ", tree.solutions[1].source)
 
     # Build solution lmo
     fix_bounds = IntegerBounds()
