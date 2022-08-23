@@ -93,6 +93,7 @@ function solve(
         root = (
             problem=m,
             current_node_id = Ref{Int}(0),
+            updated_incumbent = Ref{Bool}(false),
             options= Dict{Symbol, Any}(:dual_gap_decay_factor => dual_gap_decay_factor, 
                                         :dual_gap => dual_gap, 
                                         :print_iter => print_iter, 
@@ -183,8 +184,8 @@ Output of Boscia
 function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb, list_num_nodes_cb, list_lmo_calls_cb, verbose, fw_iterations, list_active_set_size_cb, list_discarded_set_size_cb, result, lmo_calls_per_layer, active_set_size_per_layer, discarded_set_size_per_layer, node_level)
     iteration = 0
 
-    headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
-    format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
+    headers = [" ", "Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
+    format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
     #print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
 
@@ -247,11 +248,17 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
             push!(list_active_set_size_cb, active_set_size)
             push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left= length(tree.nodes)
-            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree)) 
+            if tree.root.updated_incumbent[]
+                incumbent_updated = "*"
+            else 
+                incumbent_updated = " "
+            end
+            if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree) || tree.root.updated_incumbent[]) 
                 if (mod(iteration, print_iter*40) == 0)
                     print_callback_b(headers, format_string, print_header=true)
                 end
-                print_callback_b((iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback_b((incumbent_updated, iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                tree.root.updated_incumbent[] = false
             end
             # lmo calls per layer
             if length(list_lmo_calls_cb) > 1
@@ -303,8 +310,8 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
 
             if verbose
                 print_callback = FrankWolfe.print_callback
-                headers = ["Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
-                format_string = "%10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %10i %10i\n"
+                headers = [" ", "Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (%)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
+                format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
                 print_callback(headers, format_string, print_footer=true)
                 println()
             end
@@ -355,6 +362,7 @@ function postsolve(tree, result, time_ref, verbose = false)
     # update tree
     @assert primal <= tree.incumbent + 1e-5
     if primal < tree.incumbent
+        tree.root.updated_incumbent[] = true
         tree.incumbent = primal
         tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
     else

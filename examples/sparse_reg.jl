@@ -9,6 +9,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 using Dates
 using Printf
+using Test
 
 # Sparse regression
 
