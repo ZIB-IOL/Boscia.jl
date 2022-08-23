@@ -91,7 +91,7 @@ function solve(
     Value = Vector{Float64}
     tree = Bonobo.initialize(; 
         traverse_strategy = traverse_strategy,
-        Node = typeof(nodeEx),
+        Node = Node,
         Solution = FrankWolfeSolution{Node, Value}, 
         root = (
             problem=m,
