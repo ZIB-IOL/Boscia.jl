@@ -9,7 +9,8 @@ A package for Branch-and-Bound on top of Frank-Wolfe methods.
 ## Overview
 
 The Boscia.jl combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithms to solve mixed-integer convex optimization problems of the form `min_{x ∈ C, x_I ∈ Z^n} f(x)`, where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
-They are especially useful when we have a method to optimize a linear function over `C` and the integrality constraints in a compuationally efficient way. 
+They are especially useful when we have a method to optimize a linear function over `C` and the integrality constraints in a compuationally efficient way.
+`C` is specified using the MathOptInterface API or any DSL like JuMP implementing it.
 
 A paper presenting the package with mathematical explanations and numerous examples can be found here:
 
@@ -19,17 +20,9 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 ## Installation
 
-The most recent release is available via the julia package manager, e.g., with
-
+Add Boscia in its current state with:
 ```julia
-using Pkg
-Pkg.add("Boscia")
-```
-
-or the master branch:
-
-```julia
-Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="master")
+Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
 ```
 
 ## Getting started
@@ -37,67 +30,38 @@ Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="master")
 Here is a simple example to get started. For more examples see the examples folder in the package.
 
 ```julia
-julia> using Boscia
+using Boscia
+using FrankWolfe
+using Random
+using SCIP
+using LinearAlgebra
+import MathOptInterface
+const MOI = MathOptInterface
 
-julia> using FrankWolfe
+n = 6
 
-julia> using Random
+const diffw = 0.5 * ones(n)
+o = SCIP.Optimizer()
 
-julia> using SCIP
+MOI.set(o, MOI.Silent(), true)
 
-julia> using LinearAlgebra
+x = MOI.add_variables(o, n)
 
-julia> import MathOptInterface
+for xi in x
+    MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+    MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+    MOI.add_constraint(o, xi, MOI.ZeroOne())
+end
 
-julia> const MOI = MathOptInterface
-MathOptInterface
+lmo = FrankWolfe.MathOptLMO(o)
 
-julia> n = 6
-6
+function f(x)
+    return sum(0.5*(x.-diffw).^2)
+end
 
-julia> const diffw = 0.5 * ones(n)
-6-element Vector{Float64}:
- 0.5
- 0.5
- 0.5
- 0.5
- 0.5
- 0.5
-
-julia> o = SCIP.Optimizer()
-SCIP.Optimizer
-
-julia> MOI.set(o, MOI.Silent(), true)
-
-julia> MOI.empty!(o)
-
-julia> x = MOI.add_variables(o, n)
-6-element Vector{MathOptInterface.VariableIndex}:
- MathOptInterface.VariableIndex(1)
- MathOptInterface.VariableIndex(2)
- MathOptInterface.VariableIndex(3)
- MathOptInterface.VariableIndex(4)
- MathOptInterface.VariableIndex(5)
- MathOptInterface.VariableIndex(6)
-
-julia> for xi in x
-           MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
-           MOI.add_constraint(o, xi, MOI.LessThan(1.0))
-           MOI.add_constraint(o, xi, MOI.ZeroOne())
-       end
-
-julia> lmo = FrankWolfe.MathOptLMO(o)
-FrankWolfe.MathOptLMO{SCIP.Optimizer}(SCIP.Optimizer, true)
-
-julia> function f(x)
-           return sum(0.5*(x.-diffw).^2)
-       end
-f (generic function with 1 method)
-
-julia> function grad!(storage, x)
-           @. storage = x-diffw
-       end
-grad! (generic function with 1 method)
+function grad!(storage, x)
+    @. storage = x-diffw
+end
 
 julia> x, _, result,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 
@@ -132,4 +96,3 @@ Search Statistics.
 	 Nodes / sec: 310.51344743276286
 	 LMO calls / node: 2.9921259842519685
 ```
-
