@@ -36,8 +36,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
-    #@show node.active_set
-    #@show x
 
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx)

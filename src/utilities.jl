@@ -1,5 +1,4 @@
 # Ultilities function 
-
 """
 Compute relative gap consistently everywhere
 """
@@ -176,12 +175,22 @@ end
 Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
 """
-function Bonobo.terminated(tree::Bonobo.BnBTree{FrankWolfeNode})
-    dual_gap = get(tree.root.options, :dual_gap, -1)
-    if tree.incumbent - tree_lb(tree) < dual_gap || isempty(tree.nodes)
+function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
+    if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
         return true
     end
-    return false
+    absgap = tree.incumbent - tree.lb
+    if absgap ≤ tree.options.abs_gap_limit
+        return true
+    end
+    dual_gap = if signbit(tree.incumbent) != signbit(tree.lb)
+        Inf
+    elseif tree.incumbent == tree.lb
+        0.0
+    else
+        absgap / min(abs(tree.incumbent), abs(tree.lb))
+    end
+    return isempty(tree.nodes) || dual_gap ≤ tree.options.dual_gap_limit
 end
 
 

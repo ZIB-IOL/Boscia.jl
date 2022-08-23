@@ -1,3 +1,12 @@
+"""
+Enum for the solving stage
+"""
+@enum Solve_Stage::Int32 begin
+    SOLVING = 0
+    OPT_GAP_REACHED = 1
+    OPT_TREE_EMPTY = 2
+    TIME_LIMIT_REACHED = 3 
+end
 
 """
 Represents an optimization problem of the form:
@@ -18,10 +27,13 @@ mutable struct SimpleOptimizationProblem{F, G, LMO<:FrankWolfe.LinearMinimizatio
     integer_variables::Vector{Int64}
     lmo::LMO
     integer_variable_bounds::IB
+    solving_stage::Solve_Stage
     #constraints_lessthan::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.LessThan{T}}}
     #constraints_greaterthan::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.GreaterThan{T}}}
     #constraints_equalto::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.EqualTo{T}}}
 end
+
+SimpleOptimizationProblem(f,g, n, int_vars, lmo, int_bounds) = SimpleOptimizationProblem(f, g, n, int_vars, lmo, int_bounds, SOLVING) 
 
 mutable struct SimpleOptimizationProblemInfeasible{F, G, AT<:FrankWolfe.ActiveSet, DVS<:FrankWolfe.DeletedVertexStorage, LMO<:FrankWolfe.LinearMinimizationOracle, IB<:IntegerBounds} <: AbstractSimpleOptimizationProblem
     f::F
