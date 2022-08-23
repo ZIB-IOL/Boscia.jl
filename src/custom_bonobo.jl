@@ -69,3 +69,13 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
     end
     Bonobo.sort_solutions!(tree.solutions, tree.sense)
 end
+
+function Bonobo.update_best_solution!(tree::Bonobo.BnBTree{<:FrankWolfeNode}, node::Bonobo.AbstractNode)
+    isinf(node.ub) && return false
+    node.ub >= tree.incumbent && return false
+    tree.root.updated_incumbent[] = true
+    tree.incumbent = node.ub
+
+    Bonobo.add_new_solution!(tree, node)
+    return true
+end
