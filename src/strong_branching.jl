@@ -108,8 +108,6 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialS
     return max_idx
 end
 
-using Bonobo
-
 """
 Hybrid between partial strong branching and another strategy.
 `perform_strong_branch(tree, node) -> Bool` decides whether to perform strong branching or not.
