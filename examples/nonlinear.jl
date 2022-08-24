@@ -7,7 +7,6 @@ using Boscia
 import Bonobo
 using Printf
 using Dates
-using PyPlot
 
 const MOI = MathOptInterface
 
