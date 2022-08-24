@@ -45,7 +45,7 @@ end
     
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f,n)
-        @test f(x) ≈ f(xopt)
+        @test (f(x) - f(xopt)) / abs(f(xopt)) <= 1e-3
     end
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
