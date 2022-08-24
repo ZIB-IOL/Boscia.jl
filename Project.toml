@@ -22,7 +22,6 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 Distributions = "0.25"
-GLPK = "1"
 HiGHS = "1"
 MathOptInterface = "1"
 MathOptSetDistances = "0.2"
