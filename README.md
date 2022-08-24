@@ -16,7 +16,7 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 > Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
 
-`Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems and [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree.
+`Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems, [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree, and [SCIP](https://scipopt.org) for the MIP subproblems.
 
 ## Installation
 
