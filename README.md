@@ -8,7 +8,10 @@ A package for Branch-and-Bound on top of Frank-Wolfe methods.
 
 ## Overview
 
-The Boscia.jl combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithms to solve mixed-integer convex optimization problems of the form `min_{x ∈ C, x_I ∈ Z^n} f(x)`, where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
+The Boscia.jl solver combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithm to solve mixed-integer convex optimization problems of the form
+`min_{x ∈ C, x_I ∈ Z^n} f(x)`,
+where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
+
 They are especially useful when we have a method to optimize a linear function over `C` and the integrality constraints in a compuationally efficient way.
 `C` is specified using the MathOptInterface API or any DSL like JuMP implementing it.
 
