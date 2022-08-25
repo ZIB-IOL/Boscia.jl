@@ -66,36 +66,54 @@ function grad!(storage, x)
     @. storage = x-diffw
 end
 
-julia> x, _, result,_ = Boscia.solve(f, grad!, lmo, verbose = true)
+x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
 
 Boscia Algorithm.
 
 Parameter settings.
-	 Tree traversal strategy: Best-first search
-	 Branching strategy: Most-infeasible
-	 Absolute dual gap tolerance: 1.0e-7
-	 Frank-Wolfe subproblem tolerance: 1.0e-5
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+	 Total number of varibales: 6
+	 Number of integer variables: 0
+	 Number of binary variables: 6
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its) #ActiveSet  Discarded
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         1          2  -1.332268e-15   7.500000e-01   7.500000e-01            Inf   2.890000e-01   1.038062e+01            158              1              4          3          1          0
-       100         27   6.250000e-01   7.500000e-01   1.250000e-01   2.000000e+01   3.830000e-01   3.315927e+02              1              0            326          1          1          0
-       127          0   7.500000e-01   7.500000e-01   0.000000e+00   0.000000e+00   4.090000e-01   3.105134e+02              1              0            380          1          1          0
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -1.202020e-06   7.500000e-01   7.500012e-01            Inf   3.870000e-01   7.751938e+00            237              2              9         13            1          0
+         100         27   6.249998e-01   7.500000e-01   1.250002e-01   2.000004e-01   5.590000e-01   2.271914e+02              0              0            641          0            1          0
+         127          0   7.500000e-01   7.500000e-01   0.000000e+00   0.000000e+00   5.770000e-01   2.201040e+02              0              0            695          0            1          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+[ Info: In memory_mode memory iterates are written back into x0!
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   7.500000e-01   7.500000e-01   0.000000e+00   1.086583e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   7.500000e-01   7.500000e-01   0.000000e+00   1.927792e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
 
 Solution Statistics.
 	 Solution Status: Optimal (tree empty)
 	 Primal Objective: 0.75
 	 Dual Bound: 0.75
-	 Dual Gap (relative in %): 0.0
+	 Dual Gap (relative): 0.0
 
 Search Statistics.
 	 Total number of nodes processed: 127
-	 Total number of lmo calls: 380
-	 Total time (s): 0.409
-	 LMO calls / sec: 929.0953545232275
-	 Nodes / sec: 310.51344743276286
-	 LMO calls / node: 2.9921259842519685
-```
+	 Total number of lmo calls: 699
+	 Total time (s): 0.58
+	 LMO calls / sec: 1205.1724137931035
+	 Nodes / sec: 218.96551724137933
+	 LMO calls / node: 5.503937007874016
