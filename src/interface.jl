@@ -189,11 +189,11 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
 
     headers = [" ", "Iteration", "Open", "Bound", "Incumbent", "Gap (abs)", "Gap (rel)", "Time (s)", "Nodes/sec", "FW (ms)", "LMO (ms)", "LMO (calls c)", "FW (Its)", "#ActiveSet", "Discarded"]   
     format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
-    #print_callback = FrankWolfe.print_callback
+    print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
-        print_callback_b(headers, format_string, print_header=true)
+        print_callback(headers, format_string, print_header=true)
     end
     return function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update = false)
         if !node_infeasible
@@ -258,9 +258,9 @@ function build_bnb_callback(tree, time_ref, list_lb_cb, list_ub_cb, list_time_cb
             end
             if verbose && (mod(iteration, print_iter) == 0 || iteration == 1 || Bonobo.terminated(tree) || tree.root.updated_incumbent[]) 
                 if (mod(iteration, print_iter*40) == 0)
-                    print_callback_b(headers, format_string, print_header=true)
+                    print_callback(headers, format_string, print_header=true)
                 end
-                print_callback_b((incumbent_updated, iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
+                print_callback((incumbent_updated, iteration, nodes_left, tree_lb(tree), tree.incumbent, dual_gap, relative_gap(tree.incumbent,tree_lb(tree)), time / 1000.0, tree.num_nodes/time * 1000.0, fw_time, LMO_time, tree.root.problem.lmo.ncalls, fw_iter, active_set_size, discarded_set_size), format_string, print_header=false)
                 tree.root.updated_incumbent[] = false
             end
             # lmo calls per layer

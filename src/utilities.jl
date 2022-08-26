@@ -231,41 +231,6 @@ function sparse_min_via_enum(f, n, k, values = fill(0:1,n))
     return best_val, best_sol
 end
 
-# ONLY a hack! Issue with eval in FrankWolfe
-"""
-    print_callback(state,storage)
-Handles formating of the callback state into a table format with consistent length independent of state values.
-"""
-function print_callback_b(data, format_string; print_header=false, print_footer=false)
-    print_formatted(fmt, args...) = @eval @printf($fmt, $(args...))
-    if print_header || print_footer
-        temp = strip(format_string, ['\n'])
-        temp = replace(temp, "%" => "")
-        temp = replace(temp, "e" => "")
-        temp = replace(temp, "i" => "")
-        temp = replace(temp, "s" => "")
-        temp = split(temp, " ")
-        len = 0
-        for i in temp
-            len = len + parse(Int, i)
-        end
-        lenHeaderFooter = len + 2 + length(temp) - 1
-        if print_footer
-            line = "-"^lenHeaderFooter
-            @printf("%s\n", line)
-        end
-        if print_header
-            line = "-"^lenHeaderFooter
-            @printf("\n%s\n", line)
-            s_format_string = replace(format_string, "e" => "s")
-            s_format_string = replace(s_format_string, "i" => "s")
-            print_formatted(s_format_string, data...)
-            @printf("%s\n", line)
-        end
-    else
-        print_formatted(format_string, data...)
-    end
-end
 
 # utility function to print the values of the parameters
 _value_to_print(::Bonobo.BFS) = "Move best bound"
