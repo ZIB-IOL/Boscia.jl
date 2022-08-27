@@ -62,7 +62,7 @@ const M = 2*var(A)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=1)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, fw_epsilon=1e-3, print_iter=10)
 
     # @show result // too large to be output
     @test f(x) <= f(result[:raw_solution]) + 1e-6
