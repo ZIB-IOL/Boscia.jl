@@ -8,7 +8,14 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-n = 15
+# For bug hunting:
+seed = rand(UInt64)
+@show seed
+seed = 0x92ba072e994434c8
+Random.seed!(seed)
+
+
+n = 30
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
