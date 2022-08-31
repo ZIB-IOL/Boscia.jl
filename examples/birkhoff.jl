@@ -14,8 +14,8 @@ import HiGHS
 
 # For bug hunting:
 seed = rand(UInt64)
+seed = 0x6a330cff07fe872a
 @show seed
-seed = 0x3eb09305cecf69f0 
 Random.seed!(seed)
 
 
@@ -33,7 +33,7 @@ Random.seed!(seed)
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
 # Small dimensions since the size of the problem grows quickly (2 k n^2 + k variables)
-n = 3
+n = 5
 k = 2
 
 # generate random doubly stochastic matrix

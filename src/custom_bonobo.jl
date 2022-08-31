@@ -30,7 +30,10 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
     #println("OWN OPTIMIZE")
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
+        println("get_next_node")
+        @show node.id
         lb, ub = Bonobo.evaluate_node!(tree, node)
+        println("evaluate_node")
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
             Bonobo.close_node!(tree, node)
@@ -39,6 +42,7 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
         end
 
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
+        println("set_node_bound")
        
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent
@@ -56,16 +60,21 @@ function Bonobo.optimize!(tree::Bonobo.BnBTree{<:FrankWolfeNode}; callback=(args
         @assert p_lb <= tree.lb
 
         updated = Bonobo.update_best_solution!(tree, node)
+        println("update_best_solution")
         if updated
             Bonobo.bound!(tree, node.id)
+            println("bound")
             if isapprox(tree.incumbent, tree.lb; atol=tree.options.atol, rtol=tree.options.rtol)
                 break
             end
         end
 
         Bonobo.close_node!(tree, node)
+        println("close_node")
         Bonobo.branch!(tree, node)
+        println("branch")
         callback(tree, node)
+        println("callback\n")
     end
     Bonobo.sort_solutions!(tree.solutions, tree.sense)
 end
