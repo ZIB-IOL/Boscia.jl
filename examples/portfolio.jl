@@ -8,7 +8,8 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-n = 15
+
+n = 30
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
