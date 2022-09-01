@@ -110,6 +110,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     if node.id == 41
         nothing
+        print(tree.root.problem.lmo.lmo.o)
     end
     # time tracking FW 
     time_ref = Dates.now()
@@ -129,6 +130,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         callback=tree.root.options[:callback],
         lazy=true,
     ) 
+    if node.id == 41
+        nothing
+        print(tree.root.problem.lmo.lmo.o)
+        error("Stop to isolate example")
+    end
     println("AFTER evaluation")
     node.fw_time = Dates.now() - time_ref
 

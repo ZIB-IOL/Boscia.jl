@@ -38,6 +38,7 @@ k = 2
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
+@show Xstar
 while norm(sum(Xstar, dims=1) .- 1) > 1e-6 || norm(sum(Xstar, dims=2) .- 1) > 1e-6
     Xstar ./= sum(Xstar, dims=1)
     Xstar ./= sum(Xstar, dims=2)
