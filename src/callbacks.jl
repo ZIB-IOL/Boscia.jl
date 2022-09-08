@@ -9,9 +9,10 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
 
-      #  if tree.root.current_node_id[] == 41
-       #     @show state.gradient
-       # end
+        if tree.root.current_node_id[] == 41
+            @show state.tt
+            @show state.gradient
+        end
 
         push!(fw_iterations, state.t)
         if ncalls != state.lmo.ncalls
