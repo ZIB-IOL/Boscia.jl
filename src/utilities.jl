@@ -147,30 +147,6 @@ function split_vertices_set!(discarded_set::FrankWolfe.DeletedVertexStorage{T}, 
     return (discarded_set, right_as)
 end
 
-
-"""
-Sort active set by weight and feasibility.
-
-DOES NOT WORK; matrix not a good idea, try vector and append?
-"""
-function sort_active_set!(as::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNode)
-    if isempty(as)
-        return nothing
-    end
-    mergedVec = rand(2, size(node.bool_active,1))
-    mergedVec[1,:]=node.bool_active
-    mergedVec[2,:]=active_set
-    #sort by weight and feasibility
-    sort(mergedVec, by = x->x[2], rev=true)
-    sort(mergedVec, by = x->x[1], rev=true)
-
-    node.bool_active .= mergedVec[1]
-    as .= mergedVec[2:size(mergedVec,1)]
-
-    return (node.bool_active, as)
-end
-
-
 """
 Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
