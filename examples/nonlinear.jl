@@ -49,9 +49,9 @@ function grad!(storage, x)
     # storage = Ax
     mul!(storage, A, x)
     # storage = 2Ax - 2Ay
-    mul!(storage, A, y, -2, 2)
+    return mul!(storage, A, y, -2, 2)
 end
 
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose = true, print_iter = 1)
+x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=1)
 
 @show x

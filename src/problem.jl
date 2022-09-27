@@ -77,11 +77,11 @@ Checks if a given vector is valid integral solution. Specifically for mixed prob
 function is_integer_feasible(
     integer_variables::AbstractVector{<:Integer},
     x::AbstractVector;
-    atol = 1e-6,
-    rtol = 1e-6,
+    atol=1e-6,
+    rtol=1e-6,
 )
     for idx in integer_variables
-        if !isapprox(x[idx], round(x[idx]); atol = atol, rtol = rtol)
+        if !isapprox(x[idx], round(x[idx]); atol=atol, rtol=rtol)
             return false
         end
     end
@@ -92,8 +92,8 @@ function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
     return is_integer_feasible(
         tree.root.problem.integer_variables,
         x;
-        atol = tree.options.atol,
-        rtol = tree.options.rtol,
+        atol=tree.options.atol,
+        rtol=tree.options.rtol,
     )
 end
 
@@ -123,12 +123,7 @@ function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
 end
 
 # function barrier for performance
-function is_linear_feasible_subroutine(
-    o::MOI.ModelLike,
-    ::Type{F},
-    ::Type{S},
-    valvar,
-) where {F,S}
+function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F,S}
     if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
         return true
     end
@@ -147,7 +142,6 @@ function is_linear_feasible_subroutine(
     return true
 end
 
-is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) =
-    is_linear_feasible(lmo.lmo.o, v)
+is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.lmo.o, v)
 is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
     is_linear_feasible(lmo.o, v)

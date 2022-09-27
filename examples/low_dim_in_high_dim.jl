@@ -26,7 +26,7 @@ function f(x)
 end
 
 function grad!(storage, x)
-    mul!(storage, Ws, (x - refpoint))
+    return mul!(storage, Ws, (x - refpoint))
 end
 
 @testset "Low-dimensional function" begin
@@ -41,7 +41,7 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)

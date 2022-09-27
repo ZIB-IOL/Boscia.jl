@@ -32,7 +32,7 @@ time_limit = 30.0
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-    for i = 1:n
+    for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
             MOI.add_constraint(o, x[i], MOI.Integer())
@@ -59,7 +59,7 @@ time_limit = 30.0
     end
 
     start_time = Dates.now()
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit = time_limit)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=time_limit)
     time_taken = float(Dates.value(Dates.now() - start_time)) / 1000
     # @show x
     @test sum(ai' * x) <= bi + 1e-6

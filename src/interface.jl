@@ -3,18 +3,18 @@ function solve(
     f,
     grad!,
     lmo;
-    traverse_strategy = Bonobo.BFS(),
-    branching_strategy = Bonobo.MOST_INFEASIBLE(),
-    fw_epsilon = 1e-5,
-    verbose = false,
-    dual_gap = 1e-6,
-    rel_dual_gap = 1.0e-2,
-    time_limit = Inf,
-    print_iter = 100,
-    dual_gap_decay_factor = 0.8,
-    max_fw_iter = 10000,
-    min_number_lower = Inf,
-    min_node_fw_epsilon = 1e-6,
+    traverse_strategy=Bonobo.BFS(),
+    branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    fw_epsilon=1e-5,
+    verbose=false,
+    dual_gap=1e-6,
+    rel_dual_gap=1.0e-2,
+    time_limit=Inf,
+    print_iter=100,
+    dual_gap_decay_factor=0.8,
+    max_fw_iter=10000,
+    min_number_lower=Inf,
+    min_node_fw_epsilon=1e-6,
     kwargs...,
 )
     if verbose
@@ -84,14 +84,7 @@ function solve(
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        n,
-        integer_variables,
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = Boscia.FrankWolfeNode(
         Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         active_set,
@@ -105,14 +98,14 @@ function solve(
     Node = typeof(nodeEx)
     Value = Vector{Float64}
     tree = Bonobo.initialize(;
-        traverse_strategy = traverse_strategy,
-        Node = Node,
-        Solution = FrankWolfeSolution{Node,Value},
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=traverse_strategy,
+        Node=Node,
+        Solution=FrankWolfeSolution{Node,Value},
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_gap => dual_gap,
                 :print_iter => print_iter,
@@ -121,19 +114,19 @@ function solve(
                 :time_limit => time_limit,
             ),
         ),
-        branch_strategy = branching_strategy,
-        dual_gap_limit = rel_dual_gap,
-        abs_gap_limit = dual_gap,
+        branch_strategy=branching_strategy,
+        dual_gap_limit=rel_dual_gap,
+        abs_gap_limit=dual_gap,
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = fw_epsilon,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=fw_epsilon,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -174,10 +167,9 @@ function solve(
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
 
     tree.root.options[:callback] = fw_callback
-    tree.root.current_node_id[] =
-        Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+    tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
 
-    Bonobo.optimize!(tree; callback = bnb_callback)
+    Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = postsolve(tree, result, time_ref, verbose)
 
@@ -187,12 +179,7 @@ function solve(
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
     end
-    if !is_integer_feasible(
-        tree.root.problem.integer_variables,
-        x,
-        atol = 1e-16,
-        rtol = 1e-16,
-    )
+    if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16)
         @info "Polish solution"
         for i in tree.root.problem.integer_variables
             x_polished[i] = round(x_polished[i])
@@ -275,14 +262,14 @@ function build_bnb_callback(
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
-        print_callback(headers, format_string, print_header = true)
+        print_callback(headers, format_string, print_header=true)
     end
     return function callback(
         tree,
         node;
-        worse_than_incumbent = false,
-        node_infeasible = false,
-        lb_update = false,
+        worse_than_incumbent=false,
+        node_infeasible=false,
+        lb_update=false,
     )
         if !node_infeasible
             #update lower bound
@@ -290,8 +277,7 @@ function build_bnb_callback(
                 tree.node_queue[node.id] = (node.lb, node.id)
                 _, prio = peek(tree.node_queue)
                 @assert tree.lb <= prio[1]
-                tree.lb =
-                    min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
+                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
@@ -328,8 +314,7 @@ function build_bnb_callback(
 
             if !isempty(tree.node_queue)
                 p_lb = tree.lb
-                tree.lb =
-                    min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
+                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
                 @assert p_lb <= tree.lb
             end
             # correct lower bound if necessary
@@ -353,7 +338,7 @@ function build_bnb_callback(
                 tree.root.updated_incumbent[]
             )
                 if (mod(iteration, print_iter * 40) == 0)
-                    print_callback(headers, format_string, print_header = true)
+                    print_callback(headers, format_string, print_header=true)
                 end
                 print_callback(
                     (
@@ -374,7 +359,7 @@ function build_bnb_callback(
                         discarded_set_size,
                     ),
                     format_string,
-                    print_header = false,
+                    print_header=false,
                 )
                 tree.root.updated_incumbent[] = false
             end
@@ -447,14 +432,14 @@ function build_bnb_callback(
                     "Discarded",
                 ]
                 format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
-                print_callback(headers, format_string, print_footer = true)
+                print_callback(headers, format_string, print_footer=true)
                 println()
             end
         end
     end
 end
 
-function postsolve(tree, result, time_ref, verbose = false)
+function postsolve(tree, result, time_ref, verbose=false)
     x = Bonobo.get_solution(tree)
 
     # Build solution lmo
@@ -482,10 +467,10 @@ function postsolve(tree, result, time_ref, verbose = false)
         tree.root.problem.g,
         tree.root.problem.lmo,
         active_set,
-        line_search = FrankWolfe.Adaptive(verbose = false),
-        lazy = true,
-        verbose = verbose,
-        max_iteration = 10000,
+        line_search=FrankWolfe.Adaptive(verbose=false),
+        lazy=true,
+        verbose=verbose,
+        max_iteration=10000,
     )
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
@@ -504,8 +489,7 @@ function postsolve(tree, result, time_ref, verbose = false)
     if primal < tree.incumbent
         tree.root.updated_incumbent[] = true
         tree.incumbent = primal
-        tree.lb =
-            tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
     else
         @assert tree.lb <= primal - dual_gap
     end

@@ -1,5 +1,4 @@
-import FrankWolfe:
-    fast_dot, compute_extreme_point, muladd_memory_mode, get_active_set_iterate
+import FrankWolfe: fast_dot, compute_extreme_point, muladd_memory_mode, get_active_set_iterate
 
 """
 InfeasibleFrankWolfeNode functions
@@ -45,8 +44,8 @@ function Bonobo.get_branching_nodes_info(
     push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
     #valid_active is set at evaluation time
-    node_info_left = (valid_active = Bool[], local_bounds = varbounds_left)
-    node_info_right = (valid_active = Bool[], local_bounds = varbounds_right)
+    node_info_left = (valid_active=Bool[], local_bounds=varbounds_left)
+    node_info_right = (valid_active=Bool[], local_bounds=varbounds_right)
 
     return [node_info_left, node_info_right]
 
@@ -84,24 +83,24 @@ function infeasible_blended_pairwise(
     lmo,
     x0,
     node::InfeasibleFrankWolfeNode;
-    line_search::FrankWolfe.LineSearchMethod = Adaptive(),
-    epsilon = 1e-7,
-    max_iteration = 10000,
-    print_iter = 1000,
-    trajectory = false,
-    verbose = false,
-    memory_mode::FrankWolfe.MemoryEmphasis = InplaceEmphasis(),
-    gradient = nothing,
-    callback = nothing,
-    timeout = Inf,
-    print_callback = print_callback,
-    renorm_interval = 1000,
-    lazy = false,
-    linesearch_workspace = nothing,
-    lazy_tolerance = 2.0,
-    filter_function = (args...) -> true,
-    eager_filter = true,
-    coldStart = false,
+    line_search::FrankWolfe.LineSearchMethod=Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    print_iter=1000,
+    trajectory=false,
+    verbose=false,
+    memory_mode::FrankWolfe.MemoryEmphasis=InplaceEmphasis(),
+    gradient=nothing,
+    callback=nothing,
+    timeout=Inf,
+    print_callback=print_callback,
+    renorm_interval=1000,
+    lazy=false,
+    linesearch_workspace=nothing,
+    lazy_tolerance=2.0,
+    filter_function=(args...) -> true,
+    eager_filter=true,
+    coldStart=false,
 )
     # add the first vertex to active set from initialization
     active_set = ActiveSet([(1.0, x0)])
@@ -112,24 +111,24 @@ function infeasible_blended_pairwise(
         lmo,
         active_set,
         node,
-        line_search = line_search,
-        epsilon = epsilon,
-        max_iteration = max_iteration,
-        print_iter = print_iter,
-        trajectory = trajectory,
-        verbose = verbose,
-        memory_mode = memory_mode,
-        gradient = gradient,
-        callback = callback,
-        timeout = timeout,
-        print_callback = print_callback,
-        renorm_interval = renorm_interval,
-        lazy = lazy,
-        linesearch_workspace = linesearch_workspace,
-        lazy_tolerance = lazy_tolerance,
-        filter_function = filter_function,
-        eager_filter = eager_filter,
-        coldStart = coldStart,
+        line_search=line_search,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        print_iter=print_iter,
+        trajectory=trajectory,
+        verbose=verbose,
+        memory_mode=memory_mode,
+        gradient=gradient,
+        callback=callback,
+        timeout=timeout,
+        print_callback=print_callback,
+        renorm_interval=renorm_interval,
+        lazy=lazy,
+        linesearch_workspace=linesearch_workspace,
+        lazy_tolerance=lazy_tolerance,
+        filter_function=filter_function,
+        eager_filter=eager_filter,
+        coldStart=coldStart,
     )
 end
 
@@ -139,24 +138,24 @@ function infeasible_blended_pairwise(
     lmo,
     active_set::FrankWolfe.ActiveSet,
     node::InfeasibleFrankWolfeNode;
-    line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
-    epsilon = 1e-7,
-    max_iteration = 10000,
-    print_iter = 1000,
-    trajectory = false,
-    verbose = false,
-    memory_mode::FrankWolfe.MemoryEmphasis = FrankWolfe.InplaceEmphasis(),
-    gradient = nothing,
-    callback = nothing,
-    timeout = Inf,
-    print_callback = FrankWolfe.print_callback,
-    renorm_interval = 1000,
-    lazy = false,
-    linesearch_workspace = nothing,
-    lazy_tolerance = 2.0,
-    filter_function = (args...) -> true,
-    eager_filter = true, # removes infeasible points from the get go
-    coldStart = false, # if the active set is completey infeasible, it will be cleaned up and restarted
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    print_iter=1000,
+    trajectory=false,
+    verbose=false,
+    memory_mode::FrankWolfe.MemoryEmphasis=FrankWolfe.InplaceEmphasis(),
+    gradient=nothing,
+    callback=nothing,
+    timeout=Inf,
+    print_callback=FrankWolfe.print_callback,
+    renorm_interval=1000,
+    lazy=false,
+    linesearch_workspace=nothing,
+    lazy_tolerance=2.0,
+    filter_function=(args...) -> true,
+    eager_filter=true, # removes infeasible points from the get go
+    coldStart=false, # if the active set is completey infeasible, it will be cleaned up and restarted
 )
     # format string for output of the algorithm
     format_string = "%6s %13s %14e %14e %14e %14e %14e %14i\n"
@@ -205,17 +204,9 @@ function infeasible_blended_pairwise(
         if memory_mode isa FrankWolfe.InplaceEmphasis
             @info("In memory_mode memory iterates are written back into x0!")
         end
-        headers = (
-            "Type",
-            "Iteration",
-            "Primal",
-            "Dual",
-            "Dual Gap",
-            "Time",
-            "It/sec",
-            "#ActiveSet",
-        )
-        print_callback(headers, format_string, print_header = true)
+        headers =
+            ("Type", "Iteration", "Primal", "Dual", "Dual Gap", "Time", "It/sec", "#ActiveSet")
+        print_callback(headers, format_string, print_header=true)
     end
 
     # likely not needed anymore as now the iterates are provided directly via the active set
@@ -231,8 +222,7 @@ function infeasible_blended_pairwise(
     gamma = 1.0
 
     if linesearch_workspace === nothing
-        linesearch_workspace =
-            FrankWolfe.build_linesearch_workspace(line_search, x, gradient)
+        linesearch_workspace = FrankWolfe.build_linesearch_workspace(line_search, x, gradient)
     end
 
     while t <= max_iteration && (phi >= max(epsilon, eps()) || !filter_function(lmo, x))
@@ -310,12 +300,7 @@ function infeasible_blended_pairwise(
                     active_set.weights[v_local_loc] += gamma
                 end
                 populate_valid_active!(active_set, node, lmo)
-                FrankWolfe.active_set_update_iterate_pairwise!(
-                    active_set,
-                    gamma,
-                    v_local,
-                    a,
-                )
+                FrankWolfe.active_set_update_iterate_pairwise!(active_set, gamma, v_local, a)
             end
         else # add to active set
             if lazy # otherwise, v computed above already
@@ -368,16 +353,16 @@ function infeasible_blended_pairwise(
         end
         if callback !== nothing
             state = (
-                t = t,
-                primal = primal,
-                dual = primal - phi,
-                dual_gap = phi,
-                time = tot_time,
-                x = x,
-                v = vertex_taken,
-                gamma = gamma,
-                active_set = active_set,
-                gradient = gradient,
+                t=t,
+                primal=primal,
+                dual=primal - phi,
+                dual_gap=phi,
+                time=tot_time,
+                x=x,
+                v=vertex_taken,
+                gamma=gamma,
+                active_set=active_set,
+                gradient=gradient,
             )
             callback(state)
         end
@@ -448,7 +433,7 @@ function infeasible_blended_pairwise(
             length(active_set),
         )
         print_callback(rep, format_string)
-        print_callback(nothing, format_string, print_footer = true)
+        print_callback(nothing, format_string, print_footer=true)
         flush(stdout)
     end
 
@@ -461,7 +446,7 @@ function active_set_argminmax_filter(
     node::InfeasibleFrankWolfeNode,
     lmo::FrankWolfe.LinearMinimizationOracle,
     filter_function::Function;
-    Φ = 0.5,
+    Φ=0.5,
 )
     val = Inf
     valM = -Inf

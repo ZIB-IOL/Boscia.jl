@@ -54,11 +54,11 @@ const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
         @. storage = x - diffw
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
 
     # build optimal solution
     xopt = zeros(n)
-    for i = 1:n
+    for i in 1:n
         if diffw[i] > 0.5
             xopt[i] = 1
         end
@@ -69,11 +69,11 @@ const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
         @test result[:number_nodes] == 2^(n + 1) - 1
     end
 
-    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-3)
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     println("\nNumber of processed nodes should be: ", 2^(n + 1) - 1)
     println()
 
     # test if number of nodes is still correct when stopping FW early
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = false, min_number_lower = 5)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, min_number_lower=5)
     @test result[:number_nodes] == 2^(n + 1) - 1
 end

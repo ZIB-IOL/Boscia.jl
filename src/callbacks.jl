@@ -1,11 +1,6 @@
 # FW callback
-function build_FW_callback(
-    tree,
-    min_number_lower,
-    check_rounding_value::Bool,
-    fw_iterations,
-)
-    vars = [MOI.VariableIndex(var) for var = 1:tree.root.problem.nvars]
+function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations)
+    vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     return function fw_callback(state, active_set)

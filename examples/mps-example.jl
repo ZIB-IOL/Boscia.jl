@@ -10,7 +10,7 @@ import Ipopt
 
 # Example reading a polytope from a MIPLIB instance
 
-src = MOI.FileFormats.Model(filename = "22433.mps")
+src = MOI.FileFormats.Model(filename="22433.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "22433.mps"))
 
 o = SCIP.Optimizer()
@@ -21,11 +21,11 @@ n = MOI.get(o, MOI.NumberOfVariables())
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ = 1:20]
+const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:20]
 # done to avoid one vertex being systematically selected
 unique!(vs)
 filter!(vs) do v
-    v[end] != 21477.0
+    return v[end] != 21477.0
 end
 
 @assert !isempty(vs)
@@ -48,7 +48,7 @@ function grad!(storage, x)
 end
 
 @testset "MPS instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution])
 end
 
@@ -60,9 +60,7 @@ filtered_src = MOI.Utilities.ModelFilter(o) do item
             return false
         end
     end
-    return !(
-        item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}}
-    )
+    return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
 end
 ipopt_optimizer = MOI.Bridges.full_bridge_optimizer(Ipopt.Optimizer(), Float64)
 index_map = MOI.copy_to(ipopt_optimizer, filtered_src)

@@ -42,12 +42,12 @@ const M = 2 * var(A)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i = p+1:2p
+    for i in p+1:2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
     end
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(
             o,
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M], [x[i], x[i+p]]), 0.0),
@@ -72,14 +72,12 @@ const M = 2 * var(A)
     end
 
     function grad!(storage, x)
-        storage[1:p] .=
-            2 * (transpose(A) * A * x[1:p] - transpose(A) * y + lambda_2 * x[1:p])
+        storage[1:p] .= 2 * (transpose(A) * A * x[1:p] - transpose(A) * y + lambda_2 * x[1:p])
         storage[p+1:2p] .= lambda_0
         return storage
     end
 
-    x, _, result =
-        Boscia.solve(f, grad!, lmo, verbose = true, fw_epsilon = 1e-3, print_iter = 10)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
 
     # @show result // too large to be output
     @test f(x) <= f(result[:raw_solution]) + 1e-6

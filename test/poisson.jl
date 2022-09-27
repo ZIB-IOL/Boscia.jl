@@ -20,14 +20,14 @@ p = n0
 # underlying true weights
 const w0 = 2 * rand(Float64, p) .- 1
 # set 50 entries to 0
-for _ = 1:20
+for _ in 1:20
     w0[rand(1:p)] = 0
 end
 const b0 = 2 * rand(Float64) - 1
 const X0 = 2 * rand(Float64, n0, p) .- 1
 const y0 = map(1:n0) do idx
     a = dot(X0[idx, :], w0) + b0
-    rand(Distributions.Poisson(exp(a)))
+    return rand(Distributions.Poisson(exp(a)))
 end
 N = 5.0
 
@@ -38,12 +38,12 @@ N = 5.0
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(o, -N * z[i] - w[i], MOI.LessThan(0.0))
         MOI.add_constraint(o, N * z[i] - w[i], MOI.GreaterThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
@@ -64,12 +64,12 @@ N = 5.0
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(N)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-N)))
     end
-    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, b, MOI.LessThan(N))
     MOI.add_constraint(o, b, MOI.GreaterThan(-N))
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:p
+    for i in 1:p
         push!(global_bounds, (p + i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (p + i, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-N)))
@@ -88,9 +88,9 @@ N = 5.0
         b = θ[end]
         s = sum(1:n0) do i
             a = dot(w, X0[:, i]) + b
-            1 / n0 * (exp(a) - y0[i] * a)
+            return 1 / n0 * (exp(a) - y0[i] * a)
         end
-        s + α * norm(w)^2
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:p])
@@ -98,7 +98,7 @@ N = 5.0
         storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
-        for i = 1:n0
+        for i in 1:n0
             xi = @view(X0[:, i])
             a = dot(w, xi) + b
             storage[1:p] .+= 1 / n0 * xi * exp(a)
@@ -110,14 +110,7 @@ N = 5.0
     end
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        2p + 1,
-        collect(p+1:2p),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p + 1, collect(p+1:2p), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -132,13 +125,13 @@ N = 5.0
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -150,12 +143,12 @@ N = 5.0
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -189,12 +182,12 @@ end
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(o, -N * z[i] - w[i], MOI.LessThan(0.0))
         MOI.add_constraint(o, N * z[i] - w[i], MOI.GreaterThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
@@ -215,12 +208,12 @@ end
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(N)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-N)))
     end
-    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, b, MOI.LessThan(N))
     MOI.add_constraint(o, b, MOI.GreaterThan(-N))
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:p
+    for i in 1:p
         push!(global_bounds, (p + i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (p + i, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-N)))
@@ -239,9 +232,9 @@ end
         b = θ[end]
         s = sum(1:n0) do i
             a = dot(w, X0[:, i]) + b
-            1 / n0 * (exp(a) - y0[i] * a)
+            return 1 / n0 * (exp(a) - y0[i] * a)
         end
-        s + α * norm(w)^2
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:p])
@@ -249,7 +242,7 @@ end
         storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
-        for i = 1:n0
+        for i in 1:n0
             xi = @view(X0[:, i])
             a = dot(w, xi) + b
             storage[1:p] .+= 1 / n0 * xi * exp(a)
@@ -261,14 +254,7 @@ end
     end
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        2p + 1,
-        collect(p+1:2p),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p + 1, collect(p+1:2p), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -289,13 +275,13 @@ end
         Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -303,17 +289,17 @@ end
                 :min_node_fw_epsilon => 1e-6,
             ),
         ),
-        branch_strategy = branching_strategy, #() ->
+        branch_strategy=branching_strategy, #() ->
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -347,21 +333,21 @@ pg = n0g
 # underlying true weights
 const w0g = 2 * rand(Float64, pg) .- 1
 # set 50 entries to 0
-for _ = 1:15
+for _ in 1:15
     w0g[rand(1:pg)] = 0
 end
 const b0g = 2 * rand(Float64) - 1
 const X0g = 2 * rand(Float64, n0g, pg) .- 1
 const y0g = map(1:n0g) do idx
     a = dot(X0g[idx, :], w0g) + b0g
-    rand(Distributions.Poisson(exp(a)))
+    return rand(Distributions.Poisson(exp(a)))
 end
 Ng = 5.0
 
 k = 10
 group_size = convert(Int64, floor(pg / k))
 groups = []
-for i = 1:(k-1)
+for i in 1:(k-1)
     push!(groups, ((i-1)*group_size+1):(i*group_size))
 end
 push!(groups, ((k-1)*group_size+1):pg)
@@ -372,12 +358,12 @@ push!(groups, ((k-1)*group_size+1):pg)
     w = MOI.add_variables(o, pg)
     z = MOI.add_variables(o, pg)
     b = MOI.add_variable(o)
-    for i = 1:pg
+    for i in 1:pg
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i = 1:pg
+    for i in 1:pg
         MOI.add_constraint(o, -Ng * z[i] - w[i], MOI.LessThan(0.0))
         MOI.add_constraint(o, Ng * z[i] - w[i], MOI.GreaterThan(0.0))
         # Indicator: z[i] = 1 => -Ng <= w[i] <= Ng
@@ -398,16 +384,16 @@ push!(groups, ((k-1)*group_size+1):pg)
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ng)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ng)))
     end
-    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, b, MOI.LessThan(Ng))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ng))
-    for i = 1:k
+    for i in 1:k
         #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size),x[groups[i]]), 0.0), MOI.GreaterThan(1.0))
-        MOI.add_constraint(o, sum(z[groups[i]], init = 0.0), MOI.GreaterThan(1.0))
+        MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
     end
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:pg
+    for i in 1:pg
         push!(global_bounds, (pg + i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (pg + i, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-Ng)))
@@ -426,9 +412,9 @@ push!(groups, ((k-1)*group_size+1):pg)
         b = θ[end]
         s = sum(1:n0g) do i
             a = dot(w, X0g[:, i]) + b
-            1 / n0g * (exp(a) - y0g[i] * a)
+            return 1 / n0g * (exp(a) - y0g[i] * a)
         end
-        s + α * norm(w)^2
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:pg])
@@ -436,7 +422,7 @@ push!(groups, ((k-1)*group_size+1):pg)
         storage[1:pg] .= 2α .* w
         storage[pg+1:2pg] .= 0
         storage[end] = 0
-        for i = 1:n0g
+        for i in 1:n0g
             xi = @view(X0g[:, i])
             a = dot(w, xi) + b
             storage[1:pg] .+= 1 / n0g * xi * exp(a)
@@ -470,13 +456,13 @@ push!(groups, ((k-1)*group_size+1):pg)
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -488,12 +474,12 @@ push!(groups, ((k-1)*group_size+1):pg)
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -527,12 +513,12 @@ end
     w = MOI.add_variables(o, pg)
     z = MOI.add_variables(o, pg)
     b = MOI.add_variable(o)
-    for i = 1:pg
+    for i in 1:pg
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i = 1:pg
+    for i in 1:pg
         MOI.add_constraint(o, -Ng * z[i] - w[i], MOI.LessThan(0.0))
         MOI.add_constraint(o, Ng * z[i] - w[i], MOI.GreaterThan(0.0))
         # Indicator: z[i] = 1 => -Ng <= w[i] <= Ng
@@ -553,16 +539,16 @@ end
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ng)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ng)))
     end
-    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, b, MOI.LessThan(Ng))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ng))
-    for i = 1:k
+    for i in 1:k
         #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size),x[groups[i]]), 0.0), MOI.GreaterThan(1.0))
-        MOI.add_constraint(o, sum(z[groups[i]], init = 0.0), MOI.GreaterThan(1.0))
+        MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
     end
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:pg
+    for i in 1:pg
         push!(global_bounds, (pg + i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (pg + i, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-Ng)))
@@ -581,9 +567,9 @@ end
         b = θ[end]
         s = sum(1:n0g) do i
             a = dot(w, X0g[:, i]) + b
-            1 / n0g * (exp(a) - y0g[i] * a)
+            return 1 / n0g * (exp(a) - y0g[i] * a)
         end
-        s + α * norm(w)^2
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         w = @view(θ[1:pg])
@@ -591,7 +577,7 @@ end
         storage[1:pg] .= 2α .* w
         storage[pg+1:2pg] .= 0
         storage[end] = 0
-        for i = 1:n0g
+        for i in 1:n0g
             xi = @view(X0g[:, i])
             a = dot(w, xi) + b
             storage[1:pg] .+= 1 / n0g * xi * exp(a)
@@ -631,13 +617,13 @@ end
         Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -645,17 +631,17 @@ end
                 :min_node_fw_epsilon => 1e-6,
             ),
         ),
-        branch_strategy = branching_strategy, #() ->
+        branch_strategy=branching_strategy, #() ->
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 

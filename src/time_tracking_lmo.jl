@@ -21,7 +21,7 @@ function reset!(lmo::TimeTrackingLMO)
     empty!(lmo.optimizing_times)
     empty!(lmo.optimizing_nodes)
     empty!(lmo.simplex_iterations)
-    lmo.ncalls = 0
+    return lmo.ncalls = 0
 end
 
 function FrankWolfe.compute_extreme_point(lmo::TimeTrackingLMO, d; kwargs...)

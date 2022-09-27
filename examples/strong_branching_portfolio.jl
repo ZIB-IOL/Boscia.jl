@@ -34,7 +34,7 @@ function prepare_portfolio_lmo()
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     I = collect(1:n)
-    for i = 1:n
+    for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
             MOI.add_constraint(o, x[i], MOI.Integer())
@@ -65,7 +65,7 @@ end
 
 @testset "Portfolio strong branching" begin
     lmo = prepare_portfolio_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 
@@ -74,7 +74,7 @@ end
 
     lmo = prepare_portfolio_lmo()
     x, _, result_strong_branching =
-        Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy = branching_strategy)
+        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
 
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6

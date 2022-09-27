@@ -110,27 +110,22 @@ function split_vertices_set!(
     active_set::FrankWolfe.ActiveSet{T,R},
     tree,
     var::Int;
-    atol = 1e-5,
-    rtol = 1e-5,
+    atol=1e-5,
+    rtol=1e-5,
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
-    right_as = FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}(
-        [],
-        [],
-        similar(active_set.x),
-    )  # works..
+    right_as =
+        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))  # works..
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
-        if a[var] >= ceil(x[var]) ||
-           isapprox(a[var], ceil(x[var]), atol = atol, rtol = rtol)
+        if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as, tup)
             push!(left_del_indices, idx)
-        elseif a[var] <= floor(x[var]) ||
-               isapprox(a[var], floor(x[var]), atol = atol, rtol = rtol)
+        elseif a[var] <= floor(x[var]) || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
             # keep in left, don't add to right
         else #floor(x[var]) < a[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
@@ -167,20 +162,18 @@ function split_vertices_set!(
     tree,
     var::Int,
     x;
-    atol = 1e-5,
-    rtol = 1e-5,
+    atol=1e-5,
+    rtol=1e-5,
 ) where {T}
-    right_as =
-        FrankWolfe.DeletedVertexStorage{}(Vector{Float64}[], discarded_set.return_kth)
+    right_as = FrankWolfe.DeletedVertexStorage{}(Vector{Float64}[], discarded_set.return_kth)
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
-        if vertex[var] >= ceil(x[var]) ||
-           isapprox(vertex[var], ceil(x[var]), atol = atol, rtol = rtol)
+        if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
         elseif vertex[var] <= floor(x[var]) ||
-               isapprox(vertex[var], floor(x[var]), atol = atol, rtol = rtol)
+               isapprox(vertex[var], floor(x[var]), atol=atol, rtol=rtol)
             # keep in left, don't add to right
         else #floor(x[var]) < vertex[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
@@ -219,7 +212,7 @@ Naive optimization by enumeration.
 Default uses binary values.
 Otherwise, third argument should be a vector of n sets of possible values for the variables.
 """
-function min_via_enum(f, n, values = fill(0:1, n))
+function min_via_enum(f, n, values=fill(0:1, n))
     solutions = Iterators.product(values...)
     best_val = Inf
     best_sol = nothing
@@ -234,7 +227,7 @@ function min_via_enum(f, n, values = fill(0:1, n))
     return best_val, best_sol
 end
 
-function sparse_min_via_enum(f, n, k, values = fill(0:1, n))
+function sparse_min_via_enum(f, n, k, values=fill(0:1, n))
     solutions = Iterators.product(values...)
     best_val = Inf
     best_sol = nothing

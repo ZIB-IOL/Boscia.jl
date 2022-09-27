@@ -40,7 +40,7 @@ const MOD = MathOptSetDistances
 
     global_bounds = Boscia.IntegerBounds()
     @test isempty(global_bounds)
-    for i = 1:n
+    for i in 1:n
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         if i != 3
             push!(global_bounds, (i, MOI.LessThan(5.0)))
@@ -51,10 +51,7 @@ const MOD = MathOptSetDistances
 
     @test Boscia.is_linear_feasible(o, ones(n)) == false
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 5.0], ones(n - 5)))
-    @test Boscia.is_linear_feasible(o, vcat([5.0, 2.0, 1.5, 0.0, 5.0], ones(n - 5))) ==
-          false
-    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n - 5))) ==
-          false
-    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n - 5))) ==
-          false
+    @test Boscia.is_linear_feasible(o, vcat([5.0, 2.0, 1.5, 0.0, 5.0], ones(n - 5))) == false
+    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n - 5))) == false
+    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n - 5))) == false
 end

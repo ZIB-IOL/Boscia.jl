@@ -41,11 +41,7 @@ end
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
 """
-function Bonobo.get_branching_nodes_info(
-    tree::Bonobo.BnBTree,
-    node::FrankWolfeNode,
-    vidx::Int,
-)
+function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeNode, vidx::Int)
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
@@ -83,20 +79,20 @@ function Bonobo.get_branching_nodes_info(
 
     # update the LMO
     node_info_left = (
-        active_set = active_set_left,
-        discarded_vertices = discarded_set_left,
-        local_bounds = varbounds_left,
-        level = node.level + 1,
-        fw_dual_gap_limit = fw_dual_gap_limit,
-        fw_time = Millisecond(0),
+        active_set=active_set_left,
+        discarded_vertices=discarded_set_left,
+        local_bounds=varbounds_left,
+        level=node.level + 1,
+        fw_dual_gap_limit=fw_dual_gap_limit,
+        fw_time=Millisecond(0),
     )
     node_info_right = (
-        active_set = active_set_right,
-        discarded_vertices = discarded_set_right,
-        local_bounds = varbounds_right,
-        level = node.level + 1,
-        fw_dual_gap_limit = fw_dual_gap_limit,
-        fw_time = Millisecond(0),
+        active_set=active_set_right,
+        discarded_vertices=discarded_set_right,
+        local_bounds=varbounds_right,
+        level=node.level + 1,
+        fw_dual_gap_limit=fw_dual_gap_limit,
+        fw_time=Millisecond(0),
     )
     return [node_info_left, node_info_right]
 end
@@ -126,11 +122,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # set relative accurary for the IP solver
     accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
     if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
-        MOI.set(
-            tree.root.problem.lmo.lmo.o,
-            MOI.RawOptimizerAttribute("limits/gap"),
-            accurary,
-        )
+        MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     end
 
     if isempty(node.active_set)
@@ -138,8 +130,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             tree.root.problem.lmo.lmo.o,
             MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
         )
-        if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" &&
-           !isempty(consI_list)
+        if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" && !isempty(consI_list)
             @error "Unreachable node! Active set is empty!"
         end
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
@@ -149,21 +140,20 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
 
     # call blended_pairwise_conditional_gradient
-    x, _, primal, dual_gap, _, active_set =
-        FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            node.active_set,
-            epsilon = node.fw_dual_gap_limit,
-            max_iteration = tree.root.options[:max_fw_iter],
-            line_search = FrankWolfe.Adaptive(verbose = false),
-            add_dropped_vertices = true,
-            use_extra_vertex_storage = true,
-            extra_vertex_storage = node.discarded_vertices,
-            callback = tree.root.options[:callback],
-            lazy = true,
-        )
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.lmo,
+        node.active_set,
+        epsilon=node.fw_dual_gap_limit,
+        max_iteration=tree.root.options[:max_fw_iter],
+        line_search=FrankWolfe.Adaptive(verbose=false),
+        add_dropped_vertices=true,
+        use_extra_vertex_storage=true,
+        extra_vertex_storage=node.discarded_vertices,
+        callback=tree.root.options[:callback],
+        lazy=true,
+    )
 
     node.fw_time = Dates.now() - time_ref
 

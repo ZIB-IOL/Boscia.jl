@@ -25,7 +25,7 @@ const M1 = (A1 + A1') / 2
     MOI.empty!(o)
     x = MOI.add_variables(o, n0)
     I = collect(1:n0) #rand(1:n0, Int64(floor(n0/2)))
-    for i = 1:n0
+    for i in 1:n0
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
             MOI.add_constraint(o, x[i], MOI.Integer())
@@ -48,7 +48,7 @@ const M1 = (A1 + A1') / 2
     )
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n0
+    for i in 1:n0
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
     end
     time_lmo = Boscia.TimeTrackingLMO(lmo)
@@ -83,13 +83,13 @@ const M1 = (A1 + A1') / 2
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -101,12 +101,12 @@ const M1 = (A1 + A1') / 2
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 

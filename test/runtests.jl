@@ -62,27 +62,20 @@ include("interface_test.jl")
     end
 
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        n,
-        discrete_variables,
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n, discrete_variables, time_lmo, global_bounds)
 
     # create control instance of away_frank_wolfe
     x_afw, _, _, _, _, _ = FrankWolfe.away_frank_wolfe(f, grad!, time_lmo, active_set)
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = Boscia.FrankWolfeNode,
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=Boscia.FrankWolfeNode,
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -94,12 +87,12 @@ include("interface_test.jl")
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -172,7 +165,7 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
     end
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n
+    for i in 1:n
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(1.0)))
     end
@@ -185,7 +178,7 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return 0.5 * sum((x[i] - diff[i])^2 for i = 1:n)
+        return 0.5 * sum((x[i] - diff[i])^2 for i in 1:n)
     end
     function grad!(storage, x)
         @. storage = x - diff
@@ -207,13 +200,13 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -225,12 +218,12 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
     function build_FW_callback(tree)
@@ -261,7 +254,7 @@ end
     end
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n
+    for i in 1:n
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(1.0)))
     end
@@ -298,13 +291,13 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -312,17 +305,17 @@ end
                 :min_node_fw_epsilon => 1e-6,
             ),
         ),
-        branch_strategy = branching_strategy, #() ->
+        branch_strategy=branching_strategy, #() ->
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
     function build_FW_callback(tree)
@@ -448,7 +441,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
     )
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n1
+    for i in 1:n1
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(4.0)))
     end
@@ -469,14 +462,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
 
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        n1,
-        collect(1:n1),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -491,13 +477,13 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -509,12 +495,12 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -531,7 +517,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
     # ProfileView.@profview Bonobo.optimize!(tree)
     Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
-    @test isapprox(x, round.(diff1), atol = 1e-5, rtol = 1e-5)
+    @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
 
 @testset "Strong vs most infeasible branching IP" begin
@@ -566,7 +552,7 @@ end
     lmo = FrankWolfe.MathOptLMO(o)
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n1
+    for i in 1:n1
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(4.0)))
     end
@@ -577,14 +563,7 @@ end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        n1,
-        collect(1:n1),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -601,13 +580,13 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -615,17 +594,17 @@ end
                 :min_node_fw_epsilon => 1e-6,
             ),
         ),
-        branch_strategy = branching_strategy, #() ->
+        branch_strategy=branching_strategy, #() ->
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -641,7 +620,7 @@ end
 
     @time Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
-    @test isapprox(x, round.(diff1), atol = 1e-5, rtol = 1e-5)
+    @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
 
 @testset "Hybrid vs most infeasible branching IP" begin
@@ -676,7 +655,7 @@ end
     lmo = FrankWolfe.MathOptLMO(o)
     time_lmo = Boscia.TimeTrackingLMO(lmo)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:n1
+    for i in 1:n1
         push!(global_bounds, (i, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i, MOI.LessThan(4.0)))
     end
@@ -687,14 +666,7 @@ end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        n1,
-        collect(1:n1),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, n1, collect(1:n1), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -716,13 +688,13 @@ end
         Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -730,17 +702,17 @@ end
                 :min_node_fw_epsilon => 1e-6,
             ),
         ),
-        branch_strategy = branching_strategy, #() ->
+        branch_strategy=branching_strategy, #() ->
     )
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -755,10 +727,10 @@ end
     tree.root.options[:callback] = fw_callback
     @time Bonobo.optimize!(tree)
     x = Bonobo.get_solution(tree)
-    @test isapprox(x, round.(diff1), atol = 1e-5, rtol = 1e-5)
+    @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
 
-for file in readdir(joinpath(@__DIR__, "../examples/"), join = true)
+for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
     if endswith(file, "jl")
         include(file)
     end

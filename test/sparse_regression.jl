@@ -21,12 +21,12 @@ const M = 2 * var(A)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i = p+1:2p
+    for i in p+1:2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
     end
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(
             o,
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M], [x[i], x[i+p]]), 0.0),
@@ -62,7 +62,7 @@ const M = 2 * var(A)
     )
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:p
+    for i in 1:p
         push!(global_bounds, (i + p, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i + p, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-M)))
@@ -78,9 +78,7 @@ const M = 2 * var(A)
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
-        return sum((y - A * x[1:p]) .^ 2) +
-               lambda_0 * sum(x[p+1:2p]) +
-               lambda_2 * norm(x[1:p])^2
+        return sum((y - A * x[1:p]) .^ 2) + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
@@ -90,14 +88,7 @@ const M = 2 * var(A)
         return storage
     end
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        2p,
-        collect(p+1:2p),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -112,13 +103,13 @@ const M = 2 * var(A)
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -130,12 +121,12 @@ const M = 2 * var(A)
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -165,7 +156,7 @@ const y_g = rand(Float64, n0)
 const M_g = 2 * var(A_g)
 groups = []
 k_int = convert(Int64, k)
-for i = 1:(k_int-1)
+for i in 1:(k_int-1)
     push!(groups, ((i-1)*group_size+p+1):(i*group_size+p))
 end
 push!(groups, ((k_int-1)*group_size+p+1):2p)
@@ -175,26 +166,20 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i = p+1:2p
+    for i in p+1:2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
     end
-    for i = 1:p
+    for i in 1:p
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(
-                MOI.ScalarAffineTerm.([1.0, M_g], [x[i], x[i+p]]),
-                0.0,
-            ),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M_g], [x[i], x[i+p]]), 0.0),
             MOI.GreaterThan(0.0),
         )
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(
-                MOI.ScalarAffineTerm.([1.0, -M_g], [x[i], x[i+p]]),
-                0.0,
-            ),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M_g], [x[i], x[i+p]]), 0.0),
             MOI.LessThan(0.0),
         )
         # Indicator: x[i+p] = 1 => -M_g <= x[i] <= M_g
@@ -220,19 +205,16 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
         MOI.LessThan(k),
     )
-    for i = 1:k_int
+    for i in 1:k_int
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(
-                MOI.ScalarAffineTerm.(ones(group_size), x[groups[i]]),
-                0.0,
-            ),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size), x[groups[i]]), 0.0),
             MOI.GreaterThan(1.0),
         )
     end
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
-    for i = 1:p
+    for i in 1:p
         push!(global_bounds, (i + p, MOI.GreaterThan(0.0)))
         push!(global_bounds, (i + p, MOI.LessThan(1.0)))
         push!(global_bounds, (i, MOI.GreaterThan(-M_g)))
@@ -253,22 +235,13 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
     end
     function grad!(storage, x)
         storage .= vcat(
-            2 * (
-                transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]
-            ),
+            2 * (transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]),
             lambda_0_g * ones(p),
         )
         return storage
     end
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(
-        f,
-        grad!,
-        2p,
-        collect(p+1:2p),
-        time_lmo,
-        global_bounds,
-    )
+    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds)
 
     # TO DO: how to do this elegantly
     nodeEx = Boscia.FrankWolfeNode(
@@ -283,13 +256,13 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
 
     # create tree
     tree = Bonobo.initialize(;
-        traverse_strategy = Bonobo.BFS(),
-        Node = typeof(nodeEx),
-        root = (
-            problem = m,
-            current_node_id = Ref{Int}(0),
-            updated_incumbent = Ref{Bool}(false),
-            options = Dict{Symbol,Any}(
+        traverse_strategy=Bonobo.BFS(),
+        Node=typeof(nodeEx),
+        root=(
+            problem=m,
+            current_node_id=Ref{Int}(0),
+            updated_incumbent=Ref{Bool}(false),
+            options=Dict{Symbol,Any}(
                 :verbose => false,
                 :dual_gap_decay_factor => 0.7,
                 :dual_gap => 1e-6,
@@ -301,12 +274,12 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
     Bonobo.set_root!(
         tree,
         (
-            active_set = active_set,
-            discarded_vertices = vertex_storage,
-            local_bounds = Boscia.IntegerBounds(),
-            level = 1,
-            fw_dual_gap_limit = 1e-3,
-            fw_time = Millisecond(0),
+            active_set=active_set,
+            discarded_vertices=vertex_storage,
+            local_bounds=Boscia.IntegerBounds(),
+            level=1,
+            fw_dual_gap_limit=1e-3,
+            fw_time=Millisecond(0),
         ),
     )
 
@@ -322,11 +295,11 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
     x = Bonobo.get_solution(tree)
     # println("Solution: $(x[1:p])")
     @test sum(x[p+1:2p]) <= k
-    for i = 1:k_int
+    for i in 1:k_int
         @test sum(x[groups[i]]) >= 1
     end
     println("Non zero entries:")
-    for i = 1:p
+    for i in 1:p
         if x[i+p] == 1
             println("$(i)th entry: $(x[i])")
         end

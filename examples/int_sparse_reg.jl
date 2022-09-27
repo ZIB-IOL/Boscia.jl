@@ -33,7 +33,7 @@ l = 5
 k = 4
 
 sol_x = rand(1:l, n)
-for _ = 1:(n-k)
+for _ in 1:(n-k)
     sol_x[rand(1:n)] = 0
 end
 
@@ -54,7 +54,7 @@ const y_d = D * sol_x
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     z = MOI.add_variables(o, n)
-    for i = 1:n
+    for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0 * l))
         MOI.add_constraint(o, x[i], MOI.Integer())
@@ -65,7 +65,7 @@ const y_d = D * sol_x
 
         MOI.add_constraint(o, 1.0 * x[i] - 1.0 * l * z[i], MOI.LessThan(0.0))
     end
-    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
     # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -88,14 +88,7 @@ const y_d = D * sol_x
      MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        verbose = true,
-        max_fw_iter = 10001,
-        rel_dual_gap = 1e-3,
-    )
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, max_fw_iter=10001, rel_dual_gap=1e-3)
 
     val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min
@@ -103,5 +96,5 @@ const y_d = D * sol_x
     @show x_min
     @test val_min == f(x)
     @test isapprox(x[1:n], x_min)
-    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-6)
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-6)
 end

@@ -31,4 +31,4 @@ function grad!(storage, x)
     @. storage = x - diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)

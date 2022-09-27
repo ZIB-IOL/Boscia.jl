@@ -28,7 +28,7 @@ which are set in the following ways:
 """
 function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode};
-    callback = (args...; kwargs...) -> (),
+    callback=(args...; kwargs...) -> (),
 )
     #println("OWN OPTIMIZE")
     while !Bonobo.terminated(tree)
@@ -37,7 +37,7 @@ function Bonobo.optimize!(
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
             Bonobo.close_node!(tree, node)
-            callback(tree, node; node_infeasible = true)
+            callback(tree, node; node_infeasible=true)
             continue
         end
 
@@ -49,8 +49,8 @@ function Bonobo.optimize!(
             callback(
                 tree,
                 node;
-                worse_than_incumbent = true,
-                lb_update = isapprox(node.lb, tree.incumbent),
+                worse_than_incumbent=true,
+                lb_update=isapprox(node.lb, tree.incumbent),
             )
             continue
         end
@@ -66,12 +66,7 @@ function Bonobo.optimize!(
         updated = Bonobo.update_best_solution!(tree, node)
         if updated
             Bonobo.bound!(tree, node.id)
-            if isapprox(
-                tree.incumbent,
-                tree.lb;
-                atol = tree.options.atol,
-                rtol = tree.options.rtol,
-            )
+            if isapprox(tree.incumbent, tree.lb; atol=tree.options.atol, rtol=tree.options.rtol)
                 break
             end
         end
@@ -80,7 +75,7 @@ function Bonobo.optimize!(
         Bonobo.branch!(tree, node)
         callback(tree, node)
     end
-    Bonobo.sort_solutions!(tree.solutions, tree.sense)
+    return Bonobo.sort_solutions!(tree.solutions, tree.sense)
 end
 
 function Bonobo.update_best_solution!(
@@ -102,15 +97,14 @@ function Bonobo.add_new_solution!(
 ) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     sol = FrankWolfeSolution(node.ub, Bonobo.get_relaxed_values(tree, node), node, :iterate)
     push!(tree.solutions, sol)
-    if tree.incumbent_solution === nothing ||
-       sol.objective < tree.incumbent_solution.objective
+    if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
         tree.incumbent_solution = sol
     end
 end
 
 function Bonobo.get_solution(
     tree::Bonobo.BnBTree{N,R,V,S};
-    result = 1,
+    result=1,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     return tree.solutions[result].solution
 end

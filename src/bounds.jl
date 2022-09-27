@@ -71,14 +71,10 @@ function build_LMO(
     nodeBounds::IntegerBounds,
     int_vars::Vector{Int},
 )
-    consLT_list = MOI.get(
-        lmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}(),
-    )
-    consGT_list = MOI.get(
-        lmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}(),
-    )
+    consLT_list =
+        MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
+    consGT_list =
+        MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}())
     cons_delete = []
 
     # Lower bounds
@@ -90,12 +86,7 @@ function build_LMO(
                     if c_idx.value == 5
                         @debug "Found key variable $(nodeBounds.lower_bounds[c_idx.value])"
                     end
-                    MOI.set(
-                        lmo.o,
-                        MOI.ConstraintSet(),
-                        c_idx,
-                        nodeBounds.lower_bounds[c_idx.value],
-                    )
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value])
                 else
                     # keep
                     MOI.set(
@@ -118,12 +109,7 @@ function build_LMO(
             if haskey(global_bounds.upper_bounds, c_idx.value)
                 # change 
                 if haskey(nodeBounds.upper_bounds, c_idx.value)
-                    MOI.set(
-                        lmo.o,
-                        MOI.ConstraintSet(),
-                        c_idx,
-                        nodeBounds.upper_bounds[c_idx.value],
-                    )
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.upper_bounds[c_idx.value])
                 else
                     # keep
                     MOI.set(
@@ -161,9 +147,5 @@ function build_LMO(
 
 end
 
-build_LMO(
-    lmo::TimeTrackingLMO,
-    gb::IntegerBounds,
-    nb::IntegerBounds,
-    int_vars::Vector{Int64},
-) = build_LMO(lmo.lmo, gb, nb, int_vars)
+build_LMO(lmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) =
+    build_LMO(lmo.lmo, gb, nb, int_vars)

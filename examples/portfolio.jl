@@ -26,7 +26,7 @@ const Mi = (Ai + Ai') / 2
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-    for i = 1:n
+    for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
             MOI.add_constraint(o, x[i], MOI.Integer())
@@ -53,7 +53,7 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end

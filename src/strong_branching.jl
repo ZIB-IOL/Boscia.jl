@@ -21,10 +21,7 @@ function Bonobo.get_branching_variable(
                 return false
             end
         end
-        return !(
-            item isa
-            MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}}
-        )
+        return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
     end
     index_map = MOI.copy_to(branching.optimizer, filtered_src)
     # sanity check, otherwise the functions need permuted indices
@@ -39,12 +36,7 @@ function Bonobo.get_branching_variable(
     empty!(active_set)
     num_frac = 0
     for idx in Bonobo.get_branching_indices(tree.root)
-        if !isapprox(
-            xrel[idx],
-            round(xrel[idx]),
-            atol = tree.options.atol,
-            rtol = tree.options.rtol,
-        )
+        if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
             # left node: x_i <=  floor(̂x_i)
             fxi = floor(xrel[idx])
             # create LMO
@@ -76,9 +68,9 @@ function Bonobo.get_branching_variable(
                         tree.root.problem.g,
                         relaxed_lmo,
                         active_set,
-                        verbose = false,
-                        epsilon = branching.solving_epsilon,
-                        max_iteration = branching.max_iteration,
+                        verbose=false,
+                        epsilon=branching.solving_epsilon,
+                        max_iteration=branching.max_iteration,
                     )
                 left_relaxed = primal_relaxed - dual_gap_relaxed
             else
@@ -119,9 +111,9 @@ function Bonobo.get_branching_variable(
                         tree.root.problem.g,
                         relaxed_lmo,
                         active_set,
-                        verbose = false,
-                        epsilon = branching.solving_epsilon,
-                        max_iteration = branching.max_iteration,
+                        verbose=false,
+                        epsilon=branching.solving_epsilon,
+                        max_iteration=branching.max_iteration,
                     )
                 right_relaxed = primal_relaxed - dual_gap_relaxed
             else
@@ -164,7 +156,7 @@ function HybridStrongBranching(
     solving_epsilon::Float64,
     optimizer::O,
     perform_strong_branch::Function,
-    alternative = Bonobo.MOST_INFEASIBLE(),
+    alternative=Bonobo.MOST_INFEASIBLE(),
 ) where {O}
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, optimizer),
@@ -194,7 +186,7 @@ function strong_up_to_depth(
     solving_epsilon::Float64,
     optimizer::O,
     max_depth::Int,
-    alternative = Bonobo.MOST_INFEASIBLE(),
+    alternative=Bonobo.MOST_INFEASIBLE(),
 ) where {O}
     perform_strong_while_depth(_, node) = node.level <= max_depth
     return HybridStrongBranching(
