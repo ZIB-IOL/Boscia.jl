@@ -17,8 +17,8 @@ m = 500 # larger dimension
 n = 12 # small dimension
 
 alpha = 0.00
-const refpoint = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
-W = rand(m,n)
+const refpoint = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
+W = rand(m, n)
 const Ws = transpose(W) * W
 
 function f(x)
@@ -42,9 +42,9 @@ end
     lmo = FrankWolfe.MathOptLMO(o)
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
-    
+
     if n < 15  # only do for small n 
-        valopt, xopt = Boscia.min_via_enum(f,n)
+        valopt, xopt = Boscia.min_via_enum(f, n)
         @test (f(x) - f(xopt)) / abs(f(xopt)) <= 1e-3
     end
 

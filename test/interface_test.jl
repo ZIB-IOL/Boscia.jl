@@ -10,7 +10,7 @@ import FrankWolfe
 # Testing of the interface function solve
 
 n = 20
-diffi = Random.rand(Bool,n)*0.6.+0.3
+diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
 @testset "Interface - norm hyperbox" begin
     o = SCIP.Optimizer()
@@ -25,13 +25,13 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum(0.5*(x.-diffi).^2)
+        return sum(0.5 * (x .- diffi) .^ 2)
     end
     function grad!(storage, x)
-        @. storage = x-diffi
+        @. storage = x - diffi
     end
 
-    x, _,result = Boscia.solve(f, grad!, lmo, verbose = false)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = false)
 
     @test x == round.(diffi)
     @test f(x) == f(result[:raw_solution])
@@ -48,9 +48,9 @@ const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
 const bi = sum(ai)
-Ai = randn(n,n)
+Ai = randn(n, n)
 Ai = Ai' * Ai
-const Mi =  (Ai + Ai')/2
+const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
 #=
 @testset "Interface - Buchheim et. al." begin
@@ -95,52 +95,58 @@ end
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p
 
-n=30
+n = 30
 p = n
 
 # underlying true weights
-const ws = rand(Float64, p) 
+const ws = rand(Float64, p)
 # set 50 entries to 0
-for _ in 1:20
+for _ = 1:20
     ws[rand(1:p)] = 0
 end
-const bs = rand(Float64) 
-const Xs = randn(Float64, n, p) 
+const bs = rand(Float64)
+const Xs = randn(Float64, n, p)
 const ys = map(1:n) do idx
-    a = dot(Xs[idx,:], ws) + bs
+    a = dot(Xs[idx, :], ws) + bs
     rand(Distributions.Poisson(exp(a)))
 end
 Ns = 0.1
 
 @testset "Interface - sparse poisson regression" begin
-k = 10
+    k = 10
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
-    for i in 1:p
+    for i = 1:p
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i in 1:p
-        MOI.add_constraint(o, -Ns * z[i]- w[i], MOI.LessThan(0.0))
-        MOI.add_constraint(o, Ns * z[i]- w[i], MOI.GreaterThan(0.0))
+    for i = 1:p
+        MOI.add_constraint(o, -Ns * z[i] - w[i], MOI.LessThan(0.0))
+        MOI.add_constraint(o, Ns * z[i] - w[i], MOI.GreaterThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
         gl = MOI.VectorAffineFunction(
-            [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
-                MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, w[i])),],
-            [0.0, 0.0], )
+            [
+                MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, w[i])),
+            ],
+            [0.0, 0.0],
+        )
         gg = MOI.VectorAffineFunction(
-            [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
-                MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, w[i])),],
-            [0.0, 0.0], )
+            [
+                MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, w[i])),
+            ],
+            [0.0, 0.0],
+        )
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
-        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) 
+        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns)))
     end
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
+    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init = 0.0), MOI.GreaterThan(1.0))
     MOI.add_constraint(o, b, MOI.LessThan(Ns))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -150,8 +156,8 @@ k = 10
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
-            a = dot(w, Xs[:,i]) + b
-            1/n * (exp(a) - ys[i] * a)
+            a = dot(w, Xs[:, i]) + b
+            1 / n * (exp(a) - ys[i] * a)
         end
         s + α * norm(w)^2
     end
@@ -161,18 +167,18 @@ k = 10
         storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
-        for i in 1:n
-            xi = @view(Xs[:,i])
+        for i = 1:n
+            xi = @view(Xs[:, i])
             a = dot(w, xi) + b
-            storage[1:p] .+= 1/n * xi * exp(a)
-            storage[1:p] .-= 1/n * ys[i] * xi
-            storage[end] += 1/n * (exp(a) - ys[i])
+            storage[1:p] .+= 1 / n * xi * exp(a)
+            storage[1:p] .-= 1 / n * ys[i] * xi
+            storage[end] += 1 / n * (exp(a) - ys[i])
         end
         storage ./= norm(storage)
         return storage
     end
 
-    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
 
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution])

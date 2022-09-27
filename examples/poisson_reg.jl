@@ -37,15 +37,15 @@ n = 20
 p = n
 
 # underlying true weights
-const ws = rand(Float64, p) 
+const ws = rand(Float64, p)
 # set 50 entries to 0
-for _ in 1:20
+for _ = 1:20
     ws[rand(1:p)] = 0
 end
-const bs = rand(Float64) 
-const Xs = randn(Float64, n, p) 
+const bs = rand(Float64)
+const Xs = randn(Float64, n, p)
 const ys = map(1:n) do idx
-    a = dot(Xs[idx,:], ws) + bs
+    a = dot(Xs[idx, :], ws) + bs
     rand(Distributions.Poisson(exp(a)))
 end
 Ns = 0.10
@@ -60,12 +60,12 @@ Ns = 0.10
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
-    for i in 1:p
+    for i = 1:p
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    for i in 1:p
+    for i = 1:p
         MOI.add_constraint(o, Ns * z[i] + w[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, -Ns * z[i] + w[i], MOI.LessThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
@@ -80,8 +80,8 @@ Ns = 0.10
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) =#
     end
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
-    MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
+    MOI.add_constraint(o, sum(z, init = 0.0), MOI.LessThan(1.0 * k))
+    MOI.add_constraint(o, sum(z, init = 0.0), MOI.GreaterThan(1.0))
     MOI.add_constraint(o, b, MOI.LessThan(Ns))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
     lmo = FrankWolfe.MathOptLMO(o)
@@ -91,8 +91,8 @@ Ns = 0.10
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
-            a = dot(w, Xs[:,i]) + b
-            1/n * (exp(a) - ys[i] * a)
+            a = dot(w, Xs[:, i]) + b
+            1 / n * (exp(a) - ys[i] * a)
         end
         return s + α * norm(w)^2
     end
@@ -102,12 +102,12 @@ Ns = 0.10
         storage[1:p] .= 2α .* w
         storage[p+1:2p] .= 0
         storage[end] = 0
-        for i in 1:n
-            xi = @view(Xs[:,i])
+        for i = 1:n
+            xi = @view(Xs[:, i])
             a = dot(w, xi) + b
-            storage[1:p] .+= 1/n * xi * exp(a)
-            storage[1:p] .-= 1/n * ys[i] * xi
-            storage[end] += 1/n * (exp(a) - ys[i])
+            storage[1:p] .+= 1 / n * xi * exp(a)
+            storage[1:p] .-= 1 / n * ys[i] * xi
+            storage[end] += 1 / n * (exp(a) - ys[i])
         end
         storage ./= norm(storage)
         return storage

@@ -5,7 +5,7 @@ Enum for the solving stage
     SOLVING = 0
     OPT_GAP_REACHED = 1
     OPT_TREE_EMPTY = 2
-    TIME_LIMIT_REACHED = 3 
+    TIME_LIMIT_REACHED = 3
 end
 
 """
@@ -18,9 +18,14 @@ s.t.  A1 x <= b1
       x_j ∈ {0,1} ∀ j in binary_variables
 ```
 """
-abstract type AbstractSimpleOptimizationProblem end 
+abstract type AbstractSimpleOptimizationProblem end
 
-mutable struct SimpleOptimizationProblem{F, G, LMO<:FrankWolfe.LinearMinimizationOracle, IB<:IntegerBounds} <: AbstractSimpleOptimizationProblem
+mutable struct SimpleOptimizationProblem{
+    F,
+    G,
+    LMO<:FrankWolfe.LinearMinimizationOracle,
+    IB<:IntegerBounds,
+} <: AbstractSimpleOptimizationProblem
     f::F
     g::G
     nvars::Int
@@ -33,9 +38,17 @@ mutable struct SimpleOptimizationProblem{F, G, LMO<:FrankWolfe.LinearMinimizatio
     #constraints_equalto::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.EqualTo{T}}}
 end
 
-SimpleOptimizationProblem(f,g, n, int_vars, lmo, int_bounds) = SimpleOptimizationProblem(f, g, n, int_vars, lmo, int_bounds, SOLVING) 
+SimpleOptimizationProblem(f, g, n, int_vars, lmo, int_bounds) =
+    SimpleOptimizationProblem(f, g, n, int_vars, lmo, int_bounds, SOLVING)
 
-mutable struct SimpleOptimizationProblemInfeasible{F, G, AT<:FrankWolfe.ActiveSet, DVS<:FrankWolfe.DeletedVertexStorage, LMO<:FrankWolfe.LinearMinimizationOracle, IB<:IntegerBounds} <: AbstractSimpleOptimizationProblem
+mutable struct SimpleOptimizationProblemInfeasible{
+    F,
+    G,
+    AT<:FrankWolfe.ActiveSet,
+    DVS<:FrankWolfe.DeletedVertexStorage,
+    LMO<:FrankWolfe.LinearMinimizationOracle,
+    IB<:IntegerBounds,
+} <: AbstractSimpleOptimizationProblem
     f::F
     g::G
     nvars::Int
@@ -61,17 +74,27 @@ Bonobo.get_branching_indices(root::NamedTuple) = Bonobo.get_branching_indices(ro
 """
 Checks if a given vector is valid integral solution. Specifically for mixed problems.
 """
-function is_integer_feasible(integer_variables::AbstractVector{<:Integer}, x::AbstractVector; atol=1e-6, rtol=1e-6)
+function is_integer_feasible(
+    integer_variables::AbstractVector{<:Integer},
+    x::AbstractVector;
+    atol = 1e-6,
+    rtol = 1e-6,
+)
     for idx in integer_variables
-        if !isapprox(x[idx], round(x[idx]); atol=atol, rtol=rtol)
+        if !isapprox(x[idx], round(x[idx]); atol = atol, rtol = rtol)
             return false
         end
     end
     return true
 end
 
-function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector) 
-    return is_integer_feasible(tree.root.problem.integer_variables, x; atol=tree.options.atol, rtol=tree.options.rtol) 
+function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
+    return is_integer_feasible(
+        tree.root.problem.integer_variables,
+        x;
+        atol = tree.options.atol,
+        rtol = tree.options.rtol,
+    )
 end
 
 
@@ -95,16 +118,21 @@ function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
             return false
         end
     end
-   # satisfies all constraints
+    # satisfies all constraints
     return true
 end
 
 # function barrier for performance
-function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F, S}
+function is_linear_feasible_subroutine(
+    o::MOI.ModelLike,
+    ::Type{F},
+    ::Type{S},
+    valvar,
+) where {F,S}
     if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
         return true
     end
-    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F, S}())
+    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
     for c_idx in cons_list
         func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
         val = MOIU.eval_variables(valvar, func)
@@ -119,5 +147,7 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
     return true
 end
 
-is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.lmo.o, v)
-is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) = is_linear_feasible(lmo.o, v)
+is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) =
+    is_linear_feasible(lmo.lmo.o, v)
+is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
+    is_linear_feasible(lmo.o, v)

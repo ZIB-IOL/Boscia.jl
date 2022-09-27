@@ -32,7 +32,7 @@ const MOI = MathOptInterface
 n = 10
 alpha = 0.00
 
-const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
+const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
 
 @testset "Interface - 2-norm over hypercube" begin
     o = SCIP.Optimizer()
@@ -47,18 +47,18 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum(0.5*(x.-diffw).^2)
+        return sum(0.5 * (x .- diffw) .^ 2)
     end
 
     function grad!(storage, x)
-        @. storage = x-diffw
+        @. storage = x - diffw
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
 
     # build optimal solution
     xopt = zeros(n)
-    for i in 1:n
+    for i = 1:n
         if diffw[i] > 0.5
             xopt[i] = 1
         end
@@ -66,14 +66,14 @@ const diffw = 0.5 * ones(n) + Random.rand(n)* alpha * 1/n
 
     @test f(x) == f(xopt)
     if alpha == 0 # next test is only valid if we do not have any perturbation on the continuous opt
-        @test result[:number_nodes] ==  2^(n+1)-1
+        @test result[:number_nodes] == 2^(n + 1) - 1
     end
 
-    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol= 1e-3)
-    println("\nNumber of processed nodes should be: ", 2^(n+1)-1)
+    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-3)
+    println("\nNumber of processed nodes should be: ", 2^(n + 1) - 1)
     println()
 
     # test if number of nodes is still correct when stopping FW early
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = false, min_number_lower=5)
-    @test result[:number_nodes] ==  2^(n+1)-1
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = false, min_number_lower = 5)
+    @test result[:number_nodes] == 2^(n + 1) - 1
 end

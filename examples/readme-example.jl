@@ -24,11 +24,11 @@ end
 lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
-    return sum(0.5*(x.-diffw).^2)
+    return sum(0.5 * (x .- diffw) .^ 2)
 end
 
 function grad!(storage, x)
-    @. storage = x-diffw
+    @. storage = x - diffw
 end
 
 x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
