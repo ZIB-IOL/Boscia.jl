@@ -15,7 +15,7 @@ import HiGHS
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
-seed = 0x3eb09305cecf69f0 
+seed = 0x3eb09305cecf69f0
 Random.seed!(seed)
 
 
@@ -46,7 +46,7 @@ end
 function f(x)
     s = zero(eltype(x))
     for i in eachindex(Xstar)
-        s += 0.5 * (sum(x[(j-1) * n^2 + i] for j in 1:k) - Xstar[i])^2
+        s += 0.5 * (sum(x[(j-1)*n^2+i] for j in 1:k) - Xstar[i])^2
     end
     return s
 end
@@ -55,14 +55,14 @@ end
 function grad!(storage, x)
     storage .= 0
     for j in 1:k
-        Sk = reshape(@view(storage[(j-1) * n^2 + 1 : j * n^2]), n, n)
-        @. Sk = - Xstar
+        Sk = reshape(@view(storage[(j-1)*n^2+1:j*n^2]), n, n)
+        @. Sk = -Xstar
         for m in 1:k
-            Yk = reshape(@view(x[(m-1) * n^2 + 1 : m * n^2]), n, n)
+            Yk = reshape(@view(x[(m-1)*n^2+1:m*n^2]), n, n)
             @. Sk += Yk
         end
     end
-    storage
+    return storage
 end
 
 function build_birkhoff_lmo()
@@ -81,30 +81,26 @@ function build_birkhoff_lmo()
         MOI.add_constraint(o, theta[i], MOI.LessThan(1.0))
         # doubly stochastic constraints
         MOI.add_constraint.(
-            o, vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            o,
+            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
             MOI.EqualTo(1.0),
         )
         MOI.add_constraint.(
-            o, vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            o,
+            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
             MOI.EqualTo(1.0),
         )
         # 0 ≤ Y_i ≤ X_i
-        MOI.add_constraint.(
-            o, 1.0 * Y[i] - X[i],
-            MOI.LessThan(0.0),
-        )
+        MOI.add_constraint.(o, 1.0 * Y[i] - X[i], MOI.LessThan(0.0))
         # 0 ≤ θ_i - Y_i ≤ 1 - X_i
-        MOI.add_constraint.(
-            o, 1.0 * theta[i] .- Y[i] .+ X[i],
-            MOI.LessThan(1.0),
-        )
+        MOI.add_constraint.(o, 1.0 * theta[i] .- Y[i] .+ X[i], MOI.LessThan(1.0))
     end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
     return FrankWolfe.MathOptLMO(o)
 end
 
 lmo = build_birkhoff_lmo()
-x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
+x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
 
 
 # TODO the below needs to be fixed
@@ -119,12 +115,13 @@ x, _,_ = Boscia.solve(f, grad!, lmo, verbose = true)
 
 @testset "Birkhoff" begin
     lmo = build_birkhoff_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
     lmo = build_birkhoff_lmo()
     branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
-    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy)
+    x_strong, _, result_strong =
+        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end

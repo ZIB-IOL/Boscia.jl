@@ -4,7 +4,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     return function fw_callback(state, active_set)
-        @assert isapprox(sum(active_set.weights),1.0) 
+        @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
@@ -12,13 +12,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         push!(fw_iterations, state.t)
         if ncalls != state.lmo.ncalls
             ncalls = state.lmo.ncalls
-            (best_v, best_val) = find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
+            (best_v, best_val) =
+                find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
             if best_val < tree.incumbent
                 tree.root.updated_incumbent[] = true
                 node = tree.nodes[tree.root.current_node_id[]]
                 sol = FrankWolfeSolution(best_val, best_v, node, :SCIP)
                 push!(tree.solutions, sol)
-                if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+                if tree.incumbent_solution === nothing ||
+                   sol.objective < tree.incumbent_solution.objective
                     tree.incumbent_solution = sol
                 end
                 tree.incumbent = best_val
@@ -37,7 +39,8 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             node = tree.nodes[tree.root.current_node_id[]]
             sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
             push!(tree.solutions, sol)
-            if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+            if tree.incumbent_solution === nothing ||
+               sol.objective < tree.incumbent_solution.objective
                 tree.incumbent_solution = sol
             end
             tree.incumbent = val
@@ -45,7 +48,9 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         end
 
         node = tree.nodes[tree.root.current_node_id[]]
-        if length(node.active_set) > 1 && !isempty(tree.nodes) && min_number_lower <= length(values(tree.nodes))
+        if length(node.active_set) > 1 &&
+           !isempty(tree.nodes) &&
+           min_number_lower <= length(values(tree.nodes))
             counter = 0
             for n in values(tree.nodes)
                 if n.lb < val
@@ -65,14 +70,15 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
             # check linear feasibility
             if is_linear_feasible(tree.root.problem.lmo, x_rounded)
-                 # evaluate f(rounded)
+                # evaluate f(rounded)
                 val = tree.root.problem.f(x_rounded)
                 if val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
                     sol = FrankWolfeSolution(val, x_rounded, node, :rounded)
                     push!(tree.solutions, sol)
-                    if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+                    if tree.incumbent_solution === nothing ||
+                       sol.objective < tree.incumbent_solution.objective
                         tree.incumbent_solution = sol
                     end
                     tree.incumbent = val

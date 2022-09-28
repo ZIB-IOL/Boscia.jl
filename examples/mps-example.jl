@@ -25,7 +25,7 @@ const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:20]
 # done to avoid one vertex being systematically selected
 unique!(vs)
 filter!(vs) do v
-    v[end] != 21477.0
+    return v[end] != 21477.0
 end
 
 @assert !isempty(vs)
@@ -34,7 +34,7 @@ const b_mps = randn(n)
 function f(x)
     r = dot(b_mps, x)
     for v in vs
-        r += 1/2 * norm(x - v)^2
+        r += 1 / 2 * norm(x - v)^2
     end
     return r
 end
@@ -48,7 +48,7 @@ function grad!(storage, x)
 end
 
 @testset "MPS instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution])
 end
 
@@ -56,11 +56,11 @@ end
 filtered_src = MOI.Utilities.ModelFilter(o) do item
     if item isa Tuple
         (_, S) = item
-        if S <: Union{MOI.Indicator, MOI.Integer, MOI.ZeroOne}
+        if S <: Union{MOI.Indicator,MOI.Integer,MOI.ZeroOne}
             return false
         end
     end
-    return !(item isa MOI.ConstraintIndex{<:Any, <:Union{MOI.ZeroOne, MOI.Integer, MOI.Indicator}})
+    return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
 end
 ipopt_optimizer = MOI.Bridges.full_bridge_optimizer(Ipopt.Optimizer(), Float64)
 index_map = MOI.copy_to(ipopt_optimizer, filtered_src)

@@ -12,11 +12,12 @@ Keeps track of the bounds of the integer (binary) variables.
 `upper_bounds` dictionary of the MOI.LessThan, index is the key.
 """
 mutable struct IntegerBounds #<: AbstractVector{Tuple{Int,MOI.LessThan{Float64}, MOI.GreaterThan{Float64}}}
-    lower_bounds::Dict{Int, MOI.GreaterThan{Float64}}
-    upper_bounds::Dict{Int, MOI.LessThan{Float64}}
+    lower_bounds::Dict{Int,MOI.GreaterThan{Float64}}
+    upper_bounds::Dict{Int,MOI.LessThan{Float64}}
 end
 
-IntegerBounds() = IntegerBounds(Dict{Int, MOI.GreaterThan{Float64}}(), Dict{Int, MOI.LessThan{Float64}}())
+IntegerBounds() =
+    IntegerBounds(Dict{Int,MOI.GreaterThan{Float64}}(), Dict{Int,MOI.LessThan{Float64}}())
 
 function Base.push!(ib::IntegerBounds, (idx, bound))
     if bound isa MOI.GreaterThan{Float64}
@@ -64,9 +65,16 @@ CHANGE - lower/upper bound is changed to the node specific one
 DELETE - custom bound from the previous node that is invalid at current node and has to be deleted
 ADD    - bound has to be added for this node because it does not exist in the global bounds (e.g. variable bound is a half open interval globally) 
 """
-function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, global_bounds::IntegerBounds, nodeBounds::IntegerBounds, int_vars::Vector{Int})
-    consLT_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.LessThan{Float64}}()) 
-    consGT_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex, MOI.GreaterThan{Float64}}()) 
+function build_LMO(
+    lmo::FrankWolfe.LinearMinimizationOracle,
+    global_bounds::IntegerBounds,
+    nodeBounds::IntegerBounds,
+    int_vars::Vector{Int},
+)
+    consLT_list =
+        MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
+    consGT_list =
+        MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}())
     cons_delete = []
 
     # Lower bounds
@@ -74,14 +82,19 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, global_bounds::Inte
         if c_idx.value in int_vars
             if haskey(global_bounds.lower_bounds, c_idx.value)
                 # change 
-                 if haskey(nodeBounds.lower_bounds, c_idx.value)
-                     if c_idx.value == 5
+                if haskey(nodeBounds.lower_bounds, c_idx.value)
+                    if c_idx.value == 5
                         @debug "Found key variable $(nodeBounds.lower_bounds[c_idx.value])"
-                     end
+                    end
                     MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value])
                 else
-                # keep
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, global_bounds.lower_bounds[c_idx.value])
+                    # keep
+                    MOI.set(
+                        lmo.o,
+                        MOI.ConstraintSet(),
+                        c_idx,
+                        global_bounds.lower_bounds[c_idx.value],
+                    )
                 end
             else
                 # delete
@@ -95,11 +108,16 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, global_bounds::Inte
         if c_idx.value in int_vars
             if haskey(global_bounds.upper_bounds, c_idx.value)
                 # change 
-                 if haskey(nodeBounds.upper_bounds, c_idx.value) 
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.upper_bounds[c_idx.value]) 
+                if haskey(nodeBounds.upper_bounds, c_idx.value)
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.upper_bounds[c_idx.value])
                 else
-                # keep
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, global_bounds.upper_bounds[c_idx.value])
+                    # keep
+                    MOI.set(
+                        lmo.o,
+                        MOI.ConstraintSet(),
+                        c_idx,
+                        global_bounds.upper_bounds[c_idx.value],
+                    )
                 end
             else
                 # delete
@@ -129,4 +147,5 @@ function build_LMO(lmo::FrankWolfe.LinearMinimizationOracle, global_bounds::Inte
 
 end
 
-build_LMO(lmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) = build_LMO(lmo.lmo, gb, nb, int_vars)
+build_LMO(lmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) =
+    build_LMO(lmo.lmo, gb, nb, int_vars)

@@ -37,16 +37,16 @@ n = 20
 p = n
 
 # underlying true weights
-const ws = rand(Float64, p) 
+const ws = rand(Float64, p)
 # set 50 entries to 0
 for _ in 1:20
     ws[rand(1:p)] = 0
 end
-const bs = rand(Float64) 
-const Xs = randn(Float64, n, p) 
+const bs = rand(Float64)
+const Xs = randn(Float64, n, p)
 const ys = map(1:n) do idx
-    a = dot(Xs[idx,:], ws) + bs
-    rand(Distributions.Poisson(exp(a)))
+    a = dot(Xs[idx, :], ws) + bs
+    return rand(Distributions.Poisson(exp(a)))
 end
 Ns = 0.10
 
@@ -91,8 +91,8 @@ Ns = 0.10
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
-            a = dot(w, Xs[:,i]) + b
-            1/n * (exp(a) - ys[i] * a)
+            a = dot(w, Xs[:, i]) + b
+            return 1 / n * (exp(a) - ys[i] * a)
         end
         return s + α * norm(w)^2
     end
@@ -103,17 +103,17 @@ Ns = 0.10
         storage[p+1:2p] .= 0
         storage[end] = 0
         for i in 1:n
-            xi = @view(Xs[:,i])
+            xi = @view(Xs[:, i])
             a = dot(w, xi) + b
-            storage[1:p] .+= 1/n * xi * exp(a)
-            storage[1:p] .-= 1/n * ys[i] * xi
-            storage[end] += 1/n * (exp(a) - ys[i])
+            storage[1:p] .+= 1 / n * xi * exp(a)
+            storage[1:p] .-= 1 / n * ys[i] * xi
+            storage[end] += 1 / n * (exp(a) - ys[i])
         end
         storage ./= norm(storage)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     #@show x
     @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6

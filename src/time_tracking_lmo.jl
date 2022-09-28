@@ -4,7 +4,8 @@
 An LMO wrapping another one tracking the time, number of nodes and number of calls.
 
 """
-mutable struct TimeTrackingLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <: FrankWolfe.LinearMinimizationOracle
+mutable struct TimeTrackingLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <:
+               FrankWolfe.LinearMinimizationOracle
     lmo::LMO
     optimizing_times::Vector{Float64}
     optimizing_nodes::Vector{Int}
@@ -12,14 +13,15 @@ mutable struct TimeTrackingLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <: Fran
     ncalls::Int
 end
 
-TimeTrackingLMO(lmo::FrankWolfe.LinearMinimizationOracle) = TimeTrackingLMO(lmo, Float64[], Int[], Int[], 0)
+TimeTrackingLMO(lmo::FrankWolfe.LinearMinimizationOracle) =
+    TimeTrackingLMO(lmo, Float64[], Int[], Int[], 0)
 
 # if we want to reset the info between nodes in Bonobo
 function reset!(lmo::TimeTrackingLMO)
     empty!(lmo.optimizing_times)
     empty!(lmo.optimizing_nodes)
     empty!(lmo.simplex_iterations)
-    lmo.ncalls = 0
+    return lmo.ncalls = 0
 end
 
 function FrankWolfe.compute_extreme_point(lmo::TimeTrackingLMO, d; kwargs...)

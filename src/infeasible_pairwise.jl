@@ -21,29 +21,33 @@ end
 InfeasibleFrankWolfeNode: Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
 """
-function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::InfeasibleFrankWolfeNode, vidx::Int)
-   # get solution
-   x = Bonobo.get_relaxed_values(tree, node)
+function Bonobo.get_branching_nodes_info(
+    tree::Bonobo.BnBTree,
+    node::InfeasibleFrankWolfeNode,
+    vidx::Int,
+)
+    # get solution
+    x = Bonobo.get_relaxed_values(tree, node)
 
-   # add new bounds to the feasible region left and right
-   # copy bounds from parent
-   varbounds_left = copy(node.local_bounds)
-   varbounds_right = copy(node.local_bounds)
+    # add new bounds to the feasible region left and right
+    # copy bounds from parent
+    varbounds_left = copy(node.local_bounds)
+    varbounds_right = copy(node.local_bounds)
 
-   if haskey(varbounds_left.upper_bounds, vidx)
-    delete!(varbounds_left.upper_bounds, vidx)
-   end
-   if haskey(varbounds_right.lower_bounds, vidx)
-    delete!(varbounds_right.lower_bounds, vidx)
-   end
-   push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
-   push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
+    if haskey(varbounds_left.upper_bounds, vidx)
+        delete!(varbounds_left.upper_bounds, vidx)
+    end
+    if haskey(varbounds_right.lower_bounds, vidx)
+        delete!(varbounds_right.lower_bounds, vidx)
+    end
+    push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
+    push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-   #valid_active is set at evaluation time
-   node_info_left = (valid_active = Bool[], local_bounds = varbounds_left) 
-   node_info_right = (valid_active = Bool[],local_bounds = varbounds_right)
+    #valid_active is set at evaluation time
+    node_info_left = (valid_active=Bool[], local_bounds=varbounds_left)
+    node_info_right = (valid_active=Bool[], local_bounds=varbounds_right)
 
-   return [node_info_left, node_info_right]
+    return [node_info_left, node_info_right]
 
 end
 
@@ -51,7 +55,11 @@ end
 """
 Build up valid_active; is called whenever the global active_set changes
 """
-function  populate_valid_active!(active_set::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNode, lmo::FrankWolfe.LinearMinimizationOracle)
+function populate_valid_active!(
+    active_set::FrankWolfe.ActiveSet,
+    node::InfeasibleFrankWolfeNode,
+    lmo::FrankWolfe.LinearMinimizationOracle,
+)
     empty!(node.valid_active)
     for i in eachindex(active_set)
         push!(node.valid_active, is_linear_feasible(lmo, active_set.atoms[i]))
@@ -91,8 +99,8 @@ function infeasible_blended_pairwise(
     linesearch_workspace=nothing,
     lazy_tolerance=2.0,
     filter_function=(args...) -> true,
-    eager_filter = true,
-    coldStart = false,
+    eager_filter=true,
+    coldStart=false,
 )
     # add the first vertex to active set from initialization
     active_set = ActiveSet([(1.0, x0)])
@@ -120,8 +128,8 @@ function infeasible_blended_pairwise(
         lazy_tolerance=lazy_tolerance,
         filter_function=filter_function,
         eager_filter=eager_filter,
-        coldStart = coldStart,
-        )
+        coldStart=coldStart,
+    )
 end
 
 function infeasible_blended_pairwise(
@@ -146,19 +154,19 @@ function infeasible_blended_pairwise(
     linesearch_workspace=nothing,
     lazy_tolerance=2.0,
     filter_function=(args...) -> true,
-    eager_filter = true, # removes infeasible points from the get go
+    eager_filter=true, # removes infeasible points from the get go
     coldStart=false, # if the active set is completey infeasible, it will be cleaned up and restarted
 )
     # format string for output of the algorithm
-     format_string = "%6s %13s %14e %14e %14e %14e %14e %14i\n"
+    format_string = "%6s %13s %14e %14e %14e %14e %14e %14i\n"
 
     # if true, all infeasible vertices will be deleted from the active set
     if eager_filter
         if count(node.valid_active) > 0
             for i in Iterators.reverse(eachindex(node.valid_active))
                 if !node.valid_active[i]
-                    deleteat!(active_set,i)
-                    deleteat!(node.valid_active,i)
+                    deleteat!(active_set, i)
+                    deleteat!(node.valid_active, i)
                 end
             end
             FrankWolfe.active_set_renormalize!(active_set)
@@ -175,7 +183,7 @@ function infeasible_blended_pairwise(
     t = 0
     primal = Inf
     x = get_active_set_iterate(active_set)
-    feasible_x = eager_filter ? x : calculate_feasible_x(active_set,node, coldStart)
+    feasible_x = eager_filter ? x : calculate_feasible_x(active_set, node, coldStart)
     tt = FrankWolfe.regular
     traj_data = []
     if trajectory && callback === nothing
@@ -192,15 +200,13 @@ function infeasible_blended_pairwise(
             "MEMORY_MODE: $memory_mode STEPSIZE: $line_search EPSILON: $epsilon MAXITERATION: $max_iteration TYPE: $NumType",
         )
         grad_type = typeof(gradient)
-        println(
-            "GRADIENTTYPE: $grad_type LAZY: $lazy lazy_tolerance: $lazy_tolerance",
-        )
+        println("GRADIENTTYPE: $grad_type LAZY: $lazy lazy_tolerance: $lazy_tolerance")
         if memory_mode isa FrankWolfe.InplaceEmphasis
             @info("In memory_mode memory iterates are written back into x0!")
         end
         headers =
             ("Type", "Iteration", "Primal", "Dual", "Dual Gap", "Time", "It/sec", "#ActiveSet")
-            print_callback(headers, format_string, print_header=true)
+        print_callback(headers, format_string, print_header=true)
     end
 
     # likely not needed anymore as now the iterates are provided directly via the active set
@@ -219,7 +225,7 @@ function infeasible_blended_pairwise(
         linesearch_workspace = FrankWolfe.build_linesearch_workspace(line_search, x, gradient)
     end
 
-    while t <= max_iteration && (phi >= max(epsilon, eps()) || !filter_function(lmo,x))
+    while t <= max_iteration && (phi >= max(epsilon, eps()) || !filter_function(lmo, x))
 
         # managing time limit
         time_at_loop = time_ns()
@@ -245,8 +251,8 @@ function infeasible_blended_pairwise(
         grad!(gradient, x)
         feasible_x = eager_filter ? x : calculate_feasible_x(active_set, node, coldStart)
 
-        _, v_local, v_local_loc, v_val, a_val, a, a_loc, _,_ =
-            active_set_argminmax_filter(active_set, gradient, node,lmo, filter_function)
+        _, v_local, v_local_loc, v_val, a_val, a, a_loc, _, _ =
+            active_set_argminmax_filter(active_set, gradient, node, lmo, filter_function)
 
         local_gap = fast_dot(gradient, a) - fast_dot(gradient, v_local)
         # if not finite, there is no feasible vertex to move towards,
@@ -280,10 +286,10 @@ function infeasible_blended_pairwise(
                     d,
                     gamma_max,
                     linesearch_workspace,
-                    memory_mode
+                    memory_mode,
                 )
                 # reached maximum of lambda -> dropping away vertex
-                if gamma ≈ gamma_max 
+                if gamma ≈ gamma_max
                     tt = FrankWolfe.drop
                     active_set.weights[v_local_loc] += gamma
                     deleteat!(active_set, a_loc)
@@ -316,7 +322,7 @@ function infeasible_blended_pairwise(
                     d,
                     one(eltype(x)),
                     linesearch_workspace,
-                    memory_mode
+                    memory_mode,
                 )
                 # dropping active set and restarting from singleton
                 if gamma ≈ 1.0
@@ -337,7 +343,11 @@ function infeasible_blended_pairwise(
         if (
             ((mod(t, print_iter) == 0 || tt == FrankWolfe.dualstep) == 0 && verbose) ||
             callback !== nothing ||
-            !(line_search isa FrankWolfe.Agnostic || line_search isa FrankWolfe.Nonconvex || line_search isa FrankWolfe.FixedStep)
+            !(
+                line_search isa FrankWolfe.Agnostic ||
+                line_search isa FrankWolfe.Nonconvex ||
+                line_search isa FrankWolfe.FixedStep
+            )
         )
             primal = f(x)
         end
@@ -430,7 +440,14 @@ function infeasible_blended_pairwise(
     return x, v, primal, dual_gap, traj_data, active_set
 end
 
-function active_set_argminmax_filter(active_set::FrankWolfe.ActiveSet, direction, node::InfeasibleFrankWolfeNode, lmo::FrankWolfe.LinearMinimizationOracle, filter_function::Function; Φ=0.5)
+function active_set_argminmax_filter(
+    active_set::FrankWolfe.ActiveSet,
+    direction,
+    node::InfeasibleFrankWolfeNode,
+    lmo::FrankWolfe.LinearMinimizationOracle,
+    filter_function::Function;
+    Φ=0.5,
+)
     val = Inf
     valM = -Inf
     idx = -1
@@ -455,11 +472,15 @@ function active_set_argminmax_filter(active_set::FrankWolfe.ActiveSet, direction
     return (active_set[idx]..., idx, val, active_set[idxM]..., idxM, valM, valM - val ≥ Φ)
 end
 
-function calculate_feasible_x(active_set::FrankWolfe.ActiveSet, node::InfeasibleFrankWolfeNode, coldStart::Bool)
+function calculate_feasible_x(
+    active_set::FrankWolfe.ActiveSet,
+    node::InfeasibleFrankWolfeNode,
+    coldStart::Bool,
+)
     x = zeros(length(active_set.atoms[1]))
     s = zero(eltype(x))
     # Are there any feasible vertices
-    if count(node.valid_active) > 0 
+    if count(node.valid_active) > 0
         for i in eachindex(active_set)
             if node.valid_active[i]
                 x .+= active_set.weights[i] * active_set.atoms[i]

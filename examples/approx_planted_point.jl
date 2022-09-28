@@ -11,7 +11,7 @@ const MOI = MathOptInterface
 
 
 n = 20
-diffi = Random.rand(Bool,n)*0.6.+0.3
+diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
 @testset "Approximate planted point" begin
     o = SCIP.Optimizer()
@@ -26,14 +26,14 @@ diffi = Random.rand(Bool,n)*0.6.+0.3
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return 0.5 * sum((x[i]-diffi[i])^2 for i in eachindex(x))
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
     end
     function grad!(storage, x)
-        @. storage = x-diffi
+        @. storage = x - diffi
     end
 
-    x, _,result= Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
 
     @test x == round.(diffi)
-    @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol= 1e-3)
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end

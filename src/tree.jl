@@ -22,7 +22,7 @@ function run(tree::BranchingTree)
 end
 
 function update_best_bound!(tree::BranchingTree)
-    tree.lowerbound = minimum(node.local_lowerbound for node in tree.nodes)
+    return tree.lowerbound = minimum(node.local_lowerbound for node in tree.nodes)
 end
 
 function process_node(tree::BranchingTree, node::Node, problem::SimpleOptimizationProblem)
