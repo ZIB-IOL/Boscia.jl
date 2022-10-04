@@ -8,8 +8,7 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-
-n = 30
+n = 20
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
@@ -84,13 +83,19 @@ function enforce_epigraph(ch::GradientCutHandler)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    if zval < fx
+    if zval < fx + 1e-10
+        f = dot(ch.storage, ch.vars) - ch.epivar
+        s = MOI.LessThan(dot(ch.storage, values) - fx)
+        fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
+        @show fval - s.upper
+        @assert fval > s.upper - 1e-10
         MOI.add_constraint(
             ch.o,
             dot(ch.storage, ch.vars) - ch.epivar,
             MOI.LessThan(dot(ch.storage, values) - fx),
         )
         ch.ncalls += 1
+        @show ch.ncalls
         return SCIP.SCIP_CONSADDED
     end
     return SCIP.SCIP_FEASIBLE
@@ -111,10 +116,13 @@ end
 
 function SCIP.lock(ch::GradientCutHandler, constraint, locktype, nlockspos, nlocksneg)
     z::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, ch.epivar)
-    SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, z, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos, nlocksneg)
+    if z != C_NULL
+        SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, z, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos, nlocksneg)
+    end
     for x in ch.vars
         xi::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, x)
-        SCIP.SCIPaddVarLocksType(ch.o, xi, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos + nlocksneg, nlockspos + nlocksneg)
+        xi == C_NULL && continue
+        SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, xi, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos + nlocksneg, nlockspos + nlocksneg)
     end
 end
 
