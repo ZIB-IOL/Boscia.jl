@@ -8,7 +8,7 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-n = 20
+n = 100
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
@@ -83,12 +83,12 @@ function enforce_epigraph(ch::GradientCutHandler)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    if zval < fx + 1e-10
+    if zval < fx - 1e-10
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
         @show fval - s.upper
-        @assert fval > s.upper - 1e-10
+        @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
             dot(ch.storage, ch.vars) - ch.epivar,
@@ -129,7 +129,7 @@ end
 o = SCIP.Optimizer()
 MOI.empty!(o)
 x = MOI.add_variables(o, n)
-I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+I = collect(1:n)
 for i in 1:n
     MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
     if i in I
