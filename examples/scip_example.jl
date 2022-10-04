@@ -7,45 +7,47 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 MOI = MathOptInterface
+using CSV
+using DataFrames
 
-function build_lmo(dimension, seed)
-    #seed = 3 # 4 # 3 freezes ? after rens # 1 too slow
-    Random.seed!(seed)
+#seed = 3 # 4 # 3 freezes ? after rens # 1 too slow
+seed = 1
+dimension = 30
+iter = 2
 
-    n = dimension
-    ri = rand(n)
-    ai = rand(n)
-    Ωi = rand(Float64)
-    bi = sum(ai)
-    Ai = randn(n, n)
-    Ai = Ai' * Ai
-    Mi = (Ai + Ai') / 2
-    @assert isposdef(Mi)
+Random.seed!(seed)
+n = dimension
+ri = rand(n)
+ai = rand(n)
+Ωi = rand(Float64)
+bi = sum(ai)
+Ai = randn(n, n)
+Ai = Ai' * Ai
+Mi = (Ai + Ai') / 2
+@assert isposdef(Mi)
 
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-    for i in 1:n
-        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-        if i in I
-            MOI.add_constraint(o, x[i], MOI.Integer())
-        end
+o = SCIP.Optimizer()
+MOI.set(o, MOI.Silent(), true)
+MOI.empty!(o)
+x = MOI.add_variables(o, n)
+I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+for i in 1:n
+    MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+    if i in I
+        MOI.add_constraint(o, x[i], MOI.Integer())
     end
-    MOI.add_constraint(
-        o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
-        MOI.LessThan(bi),
-    )
-    MOI.add_constraint(
-        o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
-        MOI.GreaterThan(1.0),
-    )
-    lmo = FrankWolfe.MathOptLMO(o)
-    return lmo
 end
+MOI.add_constraint(
+    o,
+    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
+    MOI.LessThan(bi),
+)
+MOI.add_constraint(
+    o,
+    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+    MOI.GreaterThan(1.0),
+)
+lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
     return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -61,24 +63,16 @@ end
 # @test f(x) <= f(result[:raw_solution]) + 1e-6
 # @show MOI.get(o, MOI.SolveTimeSec())
 
-seeds = [1,2]
-dimensions = [10,15]
+# open("examples/csv/boscia_vs_scip.csv", "w") do f
+#     CSV.write(f,[], writeheader=true, header=["seed", "dimension","time_boscia","time_scip"])
+# end
 
-iter = 1#3
-
-for (seed_idx, seed_val) in enumerate(seeds)
-    for (dim_idx,dim_val) in enumerate(dimensions)
-        for i in 1:iter
-            seed = seed_val
-            dimension = dim_val
-            lmo = build_lmo(dimension, seed)
-            _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true)
-            df = DataFrame(seed=seed, dimension=n, time_boscia=result[:total_time_in_sec], memory_boscia=data[3])
-            file_name = "experiments/csv/boscia_vs_scip.csv"
-            CSV.write(file_name, df, append=false)
-        end
-    end
-end 
+for i in 1:iter
+    _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true)
+    df = DataFrame(seed=seed, dimension=n, time_boscia=result[:total_time_in_sec], time_scip=-Inf)
+    file_name = "examples/csv/boscia_vs_scip.csv"
+    CSV.write(file_name, df, append=true)
+end
 
 mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
     o::SCIP.Optimizer
@@ -181,34 +175,12 @@ SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gra
 
 MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)
 
-values = [0.9, 1.0]
-fw_epsilon_values = [1e-3, 5e-3, 1e-4, 1e-7]
-min_num_lower_values = [20, 40, 60, 80, 100, 200, Inf]
-seeds = [1]#,2,3]
-
-iter = 1#3
-
-for (seed_idx, seed_val) in enumerate(seeds)
-    for (index,value) in enumerate(values)
-        for i in 1:iter
-            for (idx,eps) in enumerate(fw_epsilon_values)
-                for (idx2, min_num_lower_val) in enumerate(min_num_lower_values)
-                    dual_gap_decay_factor = value
-                    min_number_lower = min_num_lower_val
-                    fw_epsilon = eps
-                    seed = seed_val
-                    data = @timed _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = fw_epsilon, print_iter=1)
-                    df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
-                    file_name = "experiments/csv/early_stopping_" * example * "_" * string(n) * "_" * string(k) * "_" * string(seed) * "_" * string(min_number_lower) * "_" * string(dual_gap_decay_factor) * "_" * string(fw_epsilon) * "_" * string(i) *".csv"
-                    CSV.write(file_name, df, append=false)
-                end
-            end
-        end
-    end
-end  
-
-MOI.optimize!(o)
-println("SCIP")
-@show MOI.get(o, MOI.ObjectiveValue())
-@show MOI.get(o, MOI.SolveTimeSec())
-
+for i in 1:iter
+    MOI.optimize!(o)
+    # @show MOI.get(o, MOI.ObjectiveValue())
+    time_scip = MOI.get(o, MOI.SolveTimeSec())
+    @show time_scip
+    df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
+    df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
+    CSV.write("examples/csv/boscia_vs_scip.csv", df_temp, append=false)
+end
