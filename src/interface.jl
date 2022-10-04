@@ -470,7 +470,7 @@ function postsolve(tree, result, time_ref, verbose=false)
         line_search=FrankWolfe.Adaptive(verbose=false),
         lazy=true,
         verbose=verbose,
-        max_iteration=10000,
+        max_iteration=50000,
     )
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
