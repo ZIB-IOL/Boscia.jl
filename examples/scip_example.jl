@@ -18,12 +18,14 @@ Ai = Ai' * Ai
 const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
 
+# integer set
+const I = 1:(n÷2)
 
 o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
 MOI.empty!(o)
 x = MOI.add_variables(o, n)
-I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+
 for i in 1:n
     MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
     if i in I
@@ -87,7 +89,6 @@ function enforce_epigraph(ch::GradientCutHandler)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        @show fval - s.upper
         @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
@@ -95,7 +96,6 @@ function enforce_epigraph(ch::GradientCutHandler)
             MOI.LessThan(dot(ch.storage, values) - fx),
         )
         ch.ncalls += 1
-        @show ch.ncalls
         return SCIP.SCIP_CONSADDED
     end
     return SCIP.SCIP_FEASIBLE
@@ -129,7 +129,6 @@ end
 o = SCIP.Optimizer()
 MOI.empty!(o)
 x = MOI.add_variables(o, n)
-I = collect(1:n)
 for i in 1:n
     MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
     if i in I
@@ -156,3 +155,5 @@ SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gra
 MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)
 
 MOI.optimize!(o)
+
+@show epigraph_ch.ncalls
