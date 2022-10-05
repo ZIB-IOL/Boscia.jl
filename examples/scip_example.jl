@@ -145,38 +145,44 @@ function SCIP.lock(ch::GradientCutHandler, constraint, locktype, nlockspos, nloc
     end
 end
 
-o = SCIP.Optimizer()
-MOI.set(o, MOI.Silent(), true)
-MOI.empty!(o)
-x = MOI.add_variables(o, n)
-I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-for i in 1:n
-    MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-    if i in I
-        MOI.add_constraint(o, x[i], MOI.Integer())
+function build_scip_optimizer()
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, n)
+    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    for i in 1:n
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        if i in I
+            MOI.add_constraint(o, x[i], MOI.Integer())
+        end
     end
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
+        MOI.LessThan(bi),
+    )
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.GreaterThan(1.0),
+    )
+    
+    z = MOI.add_variable(o)
+    MOI.add_constraint(o, z, MOI.GreaterThan(0.0))
+    
+    epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
+    SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+    
+    MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
+    return o
 end
-MOI.add_constraint(
-    o,
-    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
-    MOI.LessThan(bi),
-)
-MOI.add_constraint(
-    o,
-    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
-    MOI.GreaterThan(1.0),
-)
 
-z = MOI.add_variable(o)
-MOI.add_constraint(o, z, MOI.GreaterThan(0.0))
-
-epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
-SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
-
-MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)
 
 for i in 1:iter
+    o = build_scip_optimizer()
     MOI.optimize!(o)
+    MOI.set(o, MOI.TimeLimitSec(), 600)
     # @show MOI.get(o, MOI.ObjectiveValue())
     time_scip = MOI.get(o, MOI.SolveTimeSec())
     @show time_scip
