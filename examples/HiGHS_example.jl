@@ -2,7 +2,6 @@ using Boscia
 using FrankWolfe
 using Random
 using HiGHS
-using SCIP
 using LinearAlgebra
 import MathOptInterface
 
