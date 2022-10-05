@@ -107,12 +107,13 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
 
     for i in 1:iter
         o = build_scip_optimizer()
-        MOI.optimize!(o)
         MOI.set(o, MOI.TimeLimitSec(), 600)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
+        MOI.optimize!(o)
         # @show MOI.get(o, MOI.ObjectiveValue())
         time_scip = MOI.get(o, MOI.SolveTimeSec())
+        @show MOI.get(o, TerminationStatus())
         @show time_scip
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
@@ -148,21 +149,21 @@ function enforce_epigraph(ch::GradientCutHandler)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
     if zval < fx - 1e-10
-        # println(fx - zval)
+        println(fx - zval)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        # @show fval - s.upper
-        # @assert fval > s.upper - 1e-10
+        @show fval - s.upper
+        @assert fval > s.upper - 1e-10
         MOI.add_constraint(
             ch.o,
             dot(ch.storage, ch.vars) - ch.epivar,
             MOI.LessThan(dot(ch.storage, values) - fx),
         )
         ch.ncalls += 1
-        # @show ch.ncalls
         return SCIP.SCIP_CONSADDED
     end
+    @show ch.ncalls
     return SCIP.SCIP_FEASIBLE
 end
 
