@@ -3,6 +3,7 @@ module Boscia
 using FrankWolfe
 using Random
 using SCIP
+using HiGHS
 import MathOptInterface
 import Bonobo
 using Printf
