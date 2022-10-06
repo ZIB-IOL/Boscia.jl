@@ -113,7 +113,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.optimize!(o)
         # @show MOI.get(o, MOI.ObjectiveValue())
         time_scip = MOI.get(o, MOI.SolveTimeSec())
-        @show MOI.get(o, TerminationStatus())
+        # @show MOI.get(o, TerminationStatus())
         @show time_scip
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
