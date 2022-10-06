@@ -60,17 +60,21 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # @test f(x) <= f(result[:raw_solution]) + 1e-6
     # @show MOI.get(o, MOI.SolveTimeSec())
 
-    # open("examples/csv/boscia_vs_scip.csv", "w") do f
-    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension","time_boscia","time_scip"])
+    # open("examples/csv/boscia_vs_scip_1.csv", "w") do f
+    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
     # end
 
+    intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
+    time_boscia=0
     for i in 1:iter
         _, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
-        df = DataFrame(seed=seed, dimension=n, time_boscia=result[:total_time_in_sec], time_scip=-Inf)
-        file_name = "examples/csv/boscia_vs_scip.csv"
+        time_boscia=result[:total_time_in_sec]
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        file_name = "examples/csv/boscia_vs_scip_1.csv"
         CSV.write(file_name, df, append=true)
     end
+    @show time_boscia
 
     function build_scip_optimizer()
         o = SCIP.Optimizer()
@@ -102,22 +106,28 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
         
         MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
-        return o
+        return o, epigraph_ch
     end
 
     for i in 1:iter
-        o = build_scip_optimizer()
-        MOI.set(o, MOI.TimeLimitSec(), 600)
+        o, epigraph_ch = build_scip_optimizer()
+        limit = max(600, time_boscia*3)
+        MOI.set(o, MOI.TimeLimitSec(), limit)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
         # @show MOI.get(o, MOI.ObjectiveValue())
         time_scip = MOI.get(o, MOI.SolveTimeSec())
-        @show MOI.get(o, TerminationStatus())
-        @show time_scip
-        df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
+        solution_scip = MOI.get(o, MOI.ObjectiveValue())
+        termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
+        display(time_scip)
+        df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
-        CSV.write("examples/csv/boscia_vs_scip.csv", df_temp, append=false)
+        df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
+        df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
+        ncalls_scip = epigraph_ch.ncalls
+        df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
+        CSV.write("examples/csv/boscia_vs_scip_1.csv", df_temp, append=false)
     end
 end
 
