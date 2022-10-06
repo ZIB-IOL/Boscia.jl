@@ -60,9 +60,9 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # @test f(x) <= f(result[:raw_solution]) + 1e-6
     # @show MOI.get(o, MOI.SolveTimeSec())
 
-    # open("examples/csv/boscia_vs_scip_1.csv", "w") do f
-    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
-    # end
+    open("examples/csv/boscia_vs_scip_1.csv", "w") do f
+        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
+    end
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
@@ -116,11 +116,9 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
-        # @show MOI.get(o, MOI.ObjectiveValue())
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         solution_scip = MOI.get(o, MOI.ObjectiveValue())
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-        display(time_scip)
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
         df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
