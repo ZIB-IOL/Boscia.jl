@@ -503,6 +503,7 @@ function postsolve(tree, result, time_ref, verbose=false)
     result[:raw_solution] = x
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
+    result[:status] = status_string
 
     if verbose
         println()
