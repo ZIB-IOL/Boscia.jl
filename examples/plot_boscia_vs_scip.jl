@@ -4,8 +4,8 @@ using CSV
 
 iter = 1
 
-df = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
-df_temp = df[19:nrow(df), :]
+df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
+df_temp = df#[19:nrow(df), :]
 
 # display(df_temp)
 
