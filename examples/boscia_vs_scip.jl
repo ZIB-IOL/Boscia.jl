@@ -25,12 +25,13 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
 
     # integer set
     #I = 1:(n÷2)
-
+    I = collect(1:n)
+    
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2))) # 
+     
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
@@ -48,7 +49,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.GreaterThan(1.0),
     )
     lmo = FrankWolfe.MathOptLMO(o)
-    print(o)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -72,14 +72,15 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false)
         time_boscia=result[:total_time_in_sec]
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_1.csv"
         CSV.write(file_name, df, append=true)
     end
-    @show x#MOI.get(lmo.o, MOI.VariablePrimal(), x)
-    @show time_boscia
+
+    # @show x
+    # @show time_boscia
 
     function build_scip_optimizer()
         o = SCIP.Optimizer()
@@ -116,13 +117,12 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
 
     for i in 1:iter
         o, epigraph_ch, x = build_scip_optimizer()
-        limit = max(600, time_boscia*3)
+        limit = 1800 #max(600, time_boscia*3)
         MOI.set(o, MOI.TimeLimitSec(), limit)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
-        @show MOI.get(o, MOI.VariablePrimal(), x)
         solution_scip = f(MOI.get(o, MOI.VariablePrimal(), x))
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
