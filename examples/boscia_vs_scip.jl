@@ -67,7 +67,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # @show MOI.get(o, MOI.SolveTimeSec())
 
     # open("examples/csv/boscia_vs_scip_1.csv", "w") do f
-    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
+    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
     # end
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
@@ -76,7 +76,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     for i in 1:iter
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false)
         time_boscia=result[:total_time_in_sec]
-        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=result[:status], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_1.csv"
         CSV.write(file_name, df, append=true)
     end
