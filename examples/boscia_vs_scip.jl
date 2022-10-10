@@ -24,8 +24,8 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     @assert isposdef(Mi)
 
     # integer set
-    #I = 1:(n÷2)
-    I = collect(1:n)
+    I = 1:(n÷2)
+    #I = collect(1:n)
     
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -66,9 +66,9 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # @test f(x) <= f(result[:raw_solution]) + 1e-6
     # @show MOI.get(o, MOI.SolveTimeSec())
 
-    # open("examples/csv/boscia_vs_scip_1.csv", "w") do f
-    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
-    # end
+    open("examples/csv/boscia_vs_scip_mixed.csv", "w") do f
+        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
+    end
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
@@ -77,7 +77,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false)
         time_boscia=result[:total_time_in_sec]
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=result[:status], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
-        file_name = "examples/csv/boscia_vs_scip_1.csv"
+        file_name = "examples/csv/boscia_vs_scip_mixed.csv"
         CSV.write(file_name, df, append=true)
     end
 
@@ -126,13 +126,13 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         solution_scip = f(MOI.get(o, MOI.VariablePrimal(), x))
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-        df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
+        df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_mixed.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
         df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
         df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
         ncalls_scip = epigraph_ch.ncalls
         df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
-        CSV.write("examples/csv/boscia_vs_scip_1.csv", df_temp, append=false)
+        CSV.write("examples/csv/boscia_vs_scip_mixed.csv", df_temp, append=false)
     end
 end
 
