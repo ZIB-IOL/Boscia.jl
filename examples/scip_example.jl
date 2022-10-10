@@ -6,31 +6,26 @@ using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-MOI = MathOptInterface
-using CSV
-using DataFrames
+const MOI = MathOptInterface
 
-#seed = 3 # 4 # 3 freezes ? after rens # 1 too slow
-seed = 1
-dimension = 30
-iter = 2
-
-Random.seed!(seed)
-n = dimension
-ri = rand(n)
-ai = rand(n)
-Ωi = rand(Float64)
-bi = sum(ai)
+n = 100
+const ri = rand(n)
+const ai = rand(n)
+const Ωi = rand(Float64)
+const bi = sum(ai)
 Ai = randn(n, n)
 Ai = Ai' * Ai
-Mi = (Ai + Ai') / 2
+const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
+
+# integer set
+const I = 1:(n÷2)
 
 o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
 MOI.empty!(o)
 x = MOI.add_variables(o, n)
-I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+
 for i in 1:n
     MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
     if i in I
@@ -58,21 +53,10 @@ function grad!(storage, x)
     return storage
 end
 
-# x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-# @test dot(ai, x) <= bi + 1e-6
-# @test f(x) <= f(result[:raw_solution]) + 1e-6
-# @show MOI.get(o, MOI.SolveTimeSec())
+x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+@test dot(ai, x) <= bi + 1e-6
+@test f(x) <= f(result[:raw_solution]) + 1e-6
 
-# open("examples/csv/boscia_vs_scip.csv", "w") do f
-#     CSV.write(f,[], writeheader=true, header=["seed", "dimension","time_boscia","time_scip"])
-# end
-
-for i in 1:iter
-    _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true)
-    df = DataFrame(seed=seed, dimension=n, time_boscia=result[:total_time_in_sec], time_scip=-Inf)
-    file_name = "examples/csv/boscia_vs_scip.csv"
-    CSV.write(file_name, df, append=true)
-end
 
 mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
     o::SCIP.Optimizer
@@ -102,19 +86,16 @@ function enforce_epigraph(ch::GradientCutHandler)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
     if zval < fx - 1e-10
-        # println(fx - zval)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        # @show fval - s.upper
-        # @assert fval > s.upper - 1e-10
+        @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
             dot(ch.storage, ch.vars) - ch.epivar,
             MOI.LessThan(dot(ch.storage, values) - fx),
         )
         ch.ncalls += 1
-        # @show ch.ncalls
         return SCIP.SCIP_CONSADDED
     end
     return SCIP.SCIP_FEASIBLE
@@ -145,48 +126,34 @@ function SCIP.lock(ch::GradientCutHandler, constraint, locktype, nlockspos, nloc
     end
 end
 
-function build_scip_optimizer()
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-    for i in 1:n
-        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-        if i in I
-            MOI.add_constraint(o, x[i], MOI.Integer())
-        end
+o = SCIP.Optimizer()
+MOI.empty!(o)
+x = MOI.add_variables(o, n)
+for i in 1:n
+    MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+    if i in I
+        MOI.add_constraint(o, x[i], MOI.Integer())
     end
-    MOI.add_constraint(
-        o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
-        MOI.LessThan(bi),
-    )
-    MOI.add_constraint(
-        o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
-        MOI.GreaterThan(1.0),
-    )
-    
-    z = MOI.add_variable(o)
-    MOI.add_constraint(o, z, MOI.GreaterThan(0.0))
-    
-    epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
-    SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
-    
-    MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
-    return o
 end
+MOI.add_constraint(
+    o,
+    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
+    MOI.LessThan(bi),
+)
+MOI.add_constraint(
+    o,
+    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+    MOI.GreaterThan(1.0),
+)
 
+z = MOI.add_variable(o)
+MOI.add_constraint(o, z, MOI.GreaterThan(0.0))
 
-for i in 1:iter
-    o = build_scip_optimizer()
-    MOI.optimize!(o)
-    MOI.set(o, MOI.TimeLimitSec(), 600)
-    # @show MOI.get(o, MOI.ObjectiveValue())
-    time_scip = MOI.get(o, MOI.SolveTimeSec())
-    @show time_scip
-    df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip.csv"))
-    df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
-    CSV.write("examples/csv/boscia_vs_scip.csv", df_temp, append=false)
-end
+epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
+SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+
+MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)
+
+MOI.optimize!(o)
+
+@show epigraph_ch.ncalls
