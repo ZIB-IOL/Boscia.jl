@@ -23,6 +23,9 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     Mi = (Ai + Ai') / 2
     @assert isposdef(Mi)
 
+    # integer set
+    #I = 1:(n÷2)
+
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -45,6 +48,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.GreaterThan(1.0),
     )
     lmo = FrankWolfe.MathOptLMO(o)
+    print(o)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -68,12 +72,13 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
-        _, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
         time_boscia=result[:total_time_in_sec]
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_1.csv"
         CSV.write(file_name, df, append=true)
     end
+    @show x#MOI.get(lmo.o, MOI.VariablePrimal(), x)
     @show time_boscia
 
     function build_scip_optimizer()
@@ -81,7 +86,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.set(o, MOI.Silent(), true)
         MOI.empty!(o)
         x = MOI.add_variables(o, n)
-        I = collect(1:n) # rand(1:n0, Int64(floor(n0/2))) #
+        #I = collect(1:n) # rand(1:n0, Int64(floor(n0/2))) #
         for i in 1:n
             MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
             if i in I
@@ -117,8 +122,8 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
-        # SEARCH FOR BUG HERE
-        #solution_scip = f(SCIP.sol_values(o, x)) #MOI.get(o, MOI.ObjectiveValue())
+        @show MOI.get(o, MOI.VariablePrimal(), x)
+        solution_scip = f(MOI.get(o, MOI.VariablePrimal(), x))
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
@@ -158,12 +163,12 @@ function enforce_epigraph(ch::GradientCutHandler)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
     if zval < fx - 1e-10
-        println(fx - zval)
+        # println(fx - zval)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        @show fval - s.upper
-        @assert fval > s.upper - 1e-10
+        # @show fval - s.upper
+        @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
             dot(ch.storage, ch.vars) - ch.epivar,
@@ -172,7 +177,7 @@ function enforce_epigraph(ch::GradientCutHandler)
         ch.ncalls += 1
         return SCIP.SCIP_CONSADDED
     end
-    @show ch.ncalls
+    # @show ch.ncalls
     return SCIP.SCIP_FEASIBLE
 end
 
