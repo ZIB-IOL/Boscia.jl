@@ -30,6 +30,8 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
+    limit = 1800
+    MOI.set(o, MOI.TimeLimitSec(), limit)
     x = MOI.add_variables(o, n)
      
     for i in 1:n
@@ -117,7 +119,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
 
     for i in 1:iter
         o, epigraph_ch, x = build_scip_optimizer()
-        limit = 1800 #max(600, time_boscia*3)
         MOI.set(o, MOI.TimeLimitSec(), limit)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
