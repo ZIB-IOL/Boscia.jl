@@ -10,8 +10,8 @@ import Ipopt
 
 # Example reading a polytope from a MIPLIB instance
 
-src = MOI.FileFormats.Model(filename="22433.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/22433.mps"))
+src = MOI.FileFormats.Model(filename="timtab1.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/timtab1.mps"))
 
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
@@ -21,12 +21,12 @@ n = MOI.get(o, MOI.NumberOfVariables())
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:20]
+const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:5]
 # done to avoid one vertex being systematically selected
 unique!(vs)
-filter!(vs) do v
-    return v[end] != 21477.0
-end
+#filter!(vs) do v
+ #   return v[end] != 21477.0
+#end
 
 @assert !isempty(vs)
 const b_mps = randn(n)
@@ -47,7 +47,7 @@ function grad!(storage, x)
     end
 end
 
-@testset "MPS instance" begin
+@testset "MPS pk1 instance" begin
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution])
 end
