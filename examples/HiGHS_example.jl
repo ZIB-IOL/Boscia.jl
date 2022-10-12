@@ -24,7 +24,7 @@ end
 lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
-    return sum(0.5*(x.-diffw).^2)
+    return 0.5 * sum((x.-diffw).^2)
 end
 
 function grad!(storage, x)
