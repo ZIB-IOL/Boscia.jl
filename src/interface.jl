@@ -5,7 +5,7 @@ function solve(
     lmo;
     traverse_strategy=Bonobo.BFS(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    fw_epsilon=1e-5,
+    fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
@@ -14,7 +14,7 @@ function solve(
     dual_gap_decay_factor=0.8,
     max_fw_iter=10000,
     min_number_lower=Inf,
-    min_node_fw_epsilon=1e-6,
+    min_node_fw_epsilon=1e-5,
     kwargs...,
 )
     if verbose
@@ -25,6 +25,7 @@ function solve(
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
+        @printf("\t Frank-")
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())

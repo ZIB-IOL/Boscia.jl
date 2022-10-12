@@ -7,11 +7,12 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import Ipopt
+using ProfileView
 
 # Example reading a polytope from a MIPLIB instance
 
-src = MOI.FileFormats.Model(filename="timtab1.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/timtab1.mps"))
+src = MOI.FileFormats.Model(filename="neos5.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "examples/mps-files/neos5.mps"))
 
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
@@ -48,9 +49,11 @@ function grad!(storage, x)
 end
 
 @testset "MPS pk1 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    @test f(x) <= f(result[:raw_solution])
+    #x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100)
+    #@test f(x) <= f(result[:raw_solution])
 end
+@profview Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100, rel_dual_gap = 3e-1)
+@profview Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100, rel_dual_gap = 3e-1)
 
 # Relaxed version
 filtered_src = MOI.Utilities.ModelFilter(o) do item
