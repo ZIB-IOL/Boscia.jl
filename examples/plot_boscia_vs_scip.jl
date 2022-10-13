@@ -2,10 +2,10 @@ using PyPlot
 using DataFrames
 using CSV
 
-iter = 1
-
+# load file
 df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
-#[19:nrow(df), :] 
+
+display(df)
 
 indices = [index for index in 1:nrow(df) if isodd(index)]
 df_boscia = copy(df)
@@ -13,12 +13,13 @@ df_scip = copy(df)
 delete!(df_boscia, indices) 
 delete!(df_scip, indices) 
 
-display(df_scip)
+# display(df_scip)
 
 df_scip = filter(row -> !(row.termination_scip == "TIME_LIMIT"),  df_scip)
 #df_boscia = filter(row -> !(row.termination_boscia == "Time limit reached"),  df_boscia)
+df_boscia = filter(row -> !(row.time_boscia >= 1800),  df_boscia)
 
-display(df_scip)
+# display(df_scip)
 
 colors = ["b", "m", "c", "r", "g", "y", "k"]
 markers = ["o", "s", "^", "P", "X", "H", "D"]

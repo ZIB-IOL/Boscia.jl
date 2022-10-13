@@ -31,7 +31,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     limit = 1800
-    MOI.set(o, MOI.TimeLimitSec(), limit)
+    # MOI.set(o, MOI.TimeLimitSec(), limit)
     x = MOI.add_variables(o, n)
      
     for i in 1:n
@@ -75,7 +75,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
         time_boscia=result[:total_time_in_sec]
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=result[:status], time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_mixed.csv"
