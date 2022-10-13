@@ -24,8 +24,8 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     @assert isposdef(Mi)
 
     # integer set
-    #I = 1:(n÷2)
-    I = collect(1:n)
+    I = 1:(n÷2)
+    #I = collect(1:n)
     
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -85,7 +85,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_mixed.csv"
         CSV.write(file_name, df, append=true)
-        display(df)
     end
 
     # @show x
@@ -96,7 +95,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.set(o, MOI.Silent(), true)
         MOI.empty!(o)
         x = MOI.add_variables(o, n)
-        #I = collect(1:n) # rand(1:n0, Int64(floor(n0/2))) #
         for i in 1:n
             MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
             if i in I
