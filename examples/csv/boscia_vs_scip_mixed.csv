@@ -1,1 +1,2 @@
 seed,dimension,time_boscia,solution_boscia,termination_boscia,time_scip,solution_scip,termination_scip,ncalls_scip
+1,10,40.113,-2.1651242359202962,Optimal (tolerance reached),0.044338999999999996,-0.33685025234718974,OPTIMAL,0.0

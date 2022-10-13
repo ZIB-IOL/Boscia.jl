@@ -51,6 +51,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.GreaterThan(1.0),
     )
     lmo = FrankWolfe.MathOptLMO(o)
+    print(o)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -114,6 +115,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
         
         MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
+        print(o)
         return o, epigraph_ch, x
     end
 
