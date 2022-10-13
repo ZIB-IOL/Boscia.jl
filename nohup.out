@@ -140856,3 +140856,81 @@ in expression starting at /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/run_bo
        30900      30901  -1.871887e+01  -1.764226e+01   1.076612e+00   6.102464e-02   3.485125e+04   1.773279e+00           1174             98        2114122      10001           23         75
        31000      31001  -1.871834e+01  -1.764226e+01   1.076080e+00   6.099448e-02   3.496365e+04   1.773299e+00           1290             49        2120639      10001           21         85
        31100      31101  -1.871794e+01  -1.764226e+01   1.075684e+00   6.097203e-02   3.508176e+04   1.773030e+00           1169             87        2127617      10001           22         44
+ERROR: LoadError: AssertionError: is_linear_feasible(tree.root.problem.lmo, state.v)
+Stacktrace:
+ [1] (::Boscia.var"#fw_callback#14"{Bonobo.BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}, Float64, Bool, Vector{Int64}, Vector{MathOptInterface.VariableIndex}})(state::FrankWolfe.CallbackState{Float64, Float64, Float64, Vector{Float64}, Vector{Float64}, Float64, var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Vector{Float64}}, active_set::FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}})
+   @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/callbacks.jl:10
+ [2] blended_pairwise_conditional_gradient(f::var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, grad!::var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, lmo::Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, active_set::FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}; line_search::FrankWolfe.Adaptive{Float64, Int64}, epsilon::Float64, max_iteration::Int64, print_iter::Int64, trajectory::Bool, verbose::Bool, memory_mode::FrankWolfe.InplaceEmphasis, gradient::Nothing, callback::Boscia.var"#fw_callback#14"{Bonobo.BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}, Float64, Bool, Vector{Int64}, Vector{MathOptInterface.VariableIndex}}, traj_data::Vector{Any}, timeout::Float64, renorm_interval::Int64, lazy::Bool, linesearch_workspace::Nothing, lazy_tolerance::Float64, extra_vertex_storage::FrankWolfe.DeletedVertexStorage{Vector{Float64}}, add_dropped_vertices::Bool, use_extra_vertex_storage::Bool, recompute_last_vertex::Bool)
+   @ FrankWolfe /scratch/opt/htroppen/.julia/packages/FrankWolfe/Y55li/src/pairwise.jl:377
+ [3] evaluate_node!(tree::Bonobo.BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}, node::Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds})
+   @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/node.jl:143
+ [4] optimize!(tree::Bonobo.BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}; callback::Boscia.var"#callback#39"{Boscia.var"#callback#36#40"{Dates.DateTime, Vector{Float64}, Vector{Float64}, Vector{Float64}, Vector{Int64}, Vector{Int64}, Bool, Vector{Int64}, Vector{Int64}, Vector{Int64}, Dict{Symbol, Any}, Vector{Vector{Int64}}, Vector{Vector{Int64}}, Vector{Vector{Int64}}, Vector{Int64}, Int64}})
+   @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/custom_bonobo.jl:36
+ [5] solve(f::var"#f#1"{Matrix{Float64}, Float64, Vector{Float64}}, grad!::var"#grad!#2"{Matrix{Float64}, Float64, Vector{Float64}}, lmo::FrankWolfe.MathOptLMO{SCIP.Optimizer}; traverse_strategy::Bonobo.BFS, branching_strategy::Bonobo.MOST_INFEASIBLE, fw_epsilon::Float64, verbose::Bool, dual_gap::Float64, rel_dual_gap::Float64, time_limit::Float64, print_iter::Int64, dual_gap_decay_factor::Float64, max_fw_iter::Int64, min_number_lower::Float64, min_node_fw_epsilon::Float64, kwargs::Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+   @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:172
+ [6] boscia_vs_scip(seed::Int64, dimension::Int64, iter::Int64)
+   @ Main /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/boscia_vs_scip.jl:77
+ [7] top-level scope
+   @ /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/run_boscia_vs_scip.jl:6
+in expression starting at /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/run_boscia_vs_scip.jl:3
+(seed, dimension) = (1, 20)
+
+
+(seed, dimension) = (2, 20)
+
+
+(seed, dimension) = (3, 20)
+
+
+(seed, dimension) = (1, 25)
+
+
+(seed, dimension) = (2, 25)
+
+
+(seed, dimension) = (3, 25)
+
+
+(seed, dimension) = (1, 30)
+
+
+(seed, dimension) = (2, 30)
+
+
+(seed, dimension) = (3, 30)
+
+
+(seed, dimension) = (1, 35)
+
+
+(seed, dimension) = (2, 35)
+
+
+(seed, dimension) = (3, 35)
+
+
+(seed, dimension) = (1, 40)
+
+
+(seed, dimension) = (2, 40)
+
+
+(seed, dimension) = (3, 40)
+
+
+(seed, dimension) = (1, 45)
+
+
+(seed, dimension) = (2, 45)
+
+
+(seed, dimension) = (3, 45)
+
+
+(seed, dimension) = (1, 50)
+
+
+(seed, dimension) = (2, 50)
+
+
+(seed, dimension) = (3, 50)
