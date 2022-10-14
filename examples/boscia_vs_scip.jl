@@ -18,6 +18,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     ai = rand(n)
     Ωi = rand(Float64)
     bi = sum(ai)
+    bi = round(bi; digits=6)
     Ai = randn(n, n)
     Ai = Ai' * Ai
     Mi = (Ai + Ai') / 2
@@ -63,11 +64,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         return storage
     end
 
-    # x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    # @test dot(ai, x) <= bi + 1e-6
-    # @test f(x) <= f(result[:raw_solution]) + 1e-6
-    # @show MOI.get(o, MOI.SolveTimeSec())
-
     # open("examples/csv/boscia_vs_scip_mixed.csv", "w") do f
     #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
     # end
@@ -78,6 +74,8 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     for i in 1:iter
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
         @show x, f(x)
+        @test dot(ai, x) <= bi + 1e-6
+        @test f(x) <= f(result[:raw_solution]) + 1e-6
         time_boscia=result[:total_time_in_sec]
         status = result[:status]
         if result[:status] == "Optimal (tolerance reached)"
@@ -134,7 +132,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         # @show MOI.get(o, MOI.ObjectiveValue())
         vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
-        @assert sum(ai.*vars_scip) <= bi # constraint violated
+        @assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         solution_scip = f(vars_scip)
         @show solution_scip
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))

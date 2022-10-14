@@ -1,3 +1,1 @@
 seed,dimension,time_boscia,solution_boscia,termination_boscia,time_scip,solution_scip,termination_scip,ncalls_scip
-1,20,30.036,-10.144967922962644,OPTIMAL,5.152143,-10.144967542182897,OPTIMAL,1562.0
-1,20,29.977,-10.144967922962644,OPTIMAL,5.176455,-10.144967542182897,OPTIMAL,1562.0
