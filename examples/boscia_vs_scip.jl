@@ -68,16 +68,16 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     # @test f(x) <= f(result[:raw_solution]) + 1e-6
     # @show MOI.get(o, MOI.SolveTimeSec())
 
-    # open("examples/csv/boscia_vs_scip_mixed.csv", "w") do f
-    #     CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
-    # end
+    open("examples/csv/boscia_vs_scip_mixed.csv", "w") do f
+        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
+    end
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
-        # @show x, f(x)
+        @show x, f(x)
         time_boscia=result[:total_time_in_sec]
         if result[:status] == "Optimal (tolerance reached)"
             status = "OPTIMAL"
@@ -85,6 +85,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_mixed.csv"
         CSV.write(file_name, df, append=true)
+        # display(df)
     end
 
     # @show x
@@ -131,9 +132,10 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         MOI.optimize!(o)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         # @show MOI.get(o, MOI.ObjectiveValue())
-        # @show MOI.get(o, MOI.VariablePrimal(), x)
-        solution_scip = f(MOI.get(o, MOI.VariablePrimal(), x))
-        # @show solution_scip
+        vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
+        @assert sum(ai.*vars_scip) <= bi # constraint violated
+        solution_scip = f(vars_scip)
+        @show solution_scip
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
         df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_mixed.csv", types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
@@ -142,6 +144,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         ncalls_scip = epigraph_ch.ncalls
         df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
         CSV.write("examples/csv/boscia_vs_scip_mixed.csv", df_temp, append=false)
+        # display(df_temp)
     end
 end
 
@@ -173,7 +176,7 @@ function enforce_epigraph(ch::GradientCutHandler)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
     # @show zval, fx
-    if zval < fx - 1e-10
+    if zval < fx - 1e-6
         # println(fx - zval)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
