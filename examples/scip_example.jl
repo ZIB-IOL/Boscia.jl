@@ -8,7 +8,7 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-n = 100
+n = 10
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
@@ -85,7 +85,7 @@ function enforce_epigraph(ch::GradientCutHandler)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    if zval < fx - 1e-10
+    if zval < fx - 1e-6
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
@@ -147,7 +147,6 @@ MOI.add_constraint(
 )
 
 z = MOI.add_variable(o)
-MOI.add_constraint(o, z, MOI.GreaterThan(0.0))
 
 epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
 SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
