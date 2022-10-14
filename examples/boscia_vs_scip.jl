@@ -79,6 +79,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
         @show x, f(x)
         time_boscia=result[:total_time_in_sec]
+        status = result[:status]
         if result[:status] == "Optimal (tolerance reached)"
             status = "OPTIMAL"
         end
