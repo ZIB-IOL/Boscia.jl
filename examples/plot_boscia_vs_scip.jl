@@ -21,8 +21,10 @@ function plot_boscia_vs_scip(mode)
     df_scip = filter(row -> !(row.termination_scip == "TIME_LIMIT"),  df_scip)
     #df_boscia = filter(row -> !(row.termination_boscia == "Time limit reached"),  df_boscia)
     df_boscia = filter(row -> !(row.time_boscia >= 1800),  df_boscia)
+    df_boscia = filter(row -> !(row.termination_scip == "TIME_LIMIT" && isapprox(row.solution_boscia, row.solution_scip)),  df_boscia)
 
     # display(df_scip)
+    display(df_boscia)
 
     colors = ["b", "m", "c", "r", "g", "y", "k"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
@@ -42,7 +44,7 @@ function plot_boscia_vs_scip(mode)
     ax.plot(sort(df_scip[!,"time_scip"]), 1:nrow(df_scip), label="SCIP", color=colors[3], marker=markers[2])
 
     yticks(1:nrow(df_boscia),[])
-    #xlabel("Dimension")
+    ylabel("Solved instances")
     xlabel("Time in s")
     ax.set_xscale("log")
     ax.grid()
