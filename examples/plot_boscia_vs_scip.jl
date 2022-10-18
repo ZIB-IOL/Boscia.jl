@@ -5,7 +5,7 @@ using CSV
 function plot_boscia_vs_scip(mode)
     if mode == "integer"
         # load file
-        df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
+        df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_int.csv"))
     elseif mode == "mixed"
         df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_mixed.csv"))
     end
