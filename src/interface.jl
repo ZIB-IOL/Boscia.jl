@@ -1,4 +1,26 @@
-
+"""
+    solve
+   
+f - objective function oracle. 
+g - oracle for the gradient of the objective. 
+lmo - a MIP solver instance (SCIP) encoding the feasible region.    
+traverse_strategy - encodes how to choose the next node for evaluation. 
+                    By default the node with the best lower bound is picked.
+branching_strategy - by default we branch on the entry which is the farthest 
+                     away from being an integer.
+fw_epsilon - the tolerance for FrankWolfe in the root node.
+verbose - if true, a log and solution statistics are printed.
+dual_gap - if this absolute dual gap is reached, the algorithm stops.
+rel_dual_gap - if this relative dual gap is reached, the algorithm stops.
+time_limit - algorithm will stop if the time limit is reached. Depending on the problem
+             it is possible that no feasible solution has been found yet.     
+print_iter - encodes after how manz proccessed nodes the current node and solution status 
+             is printed. Will always print if a new integral solution has been found. 
+dual_gap_decay_factor - 
+max_fw_iter -
+min_number_lower -
+min_node_fw_epsilon -
+"""
 function solve(
     f,
     grad!,
@@ -80,7 +102,7 @@ function solve(
         @assert !MOI.is_valid(lmo.o, cidx)
     end
 
-    direction = ones(n)
+    direction = rand(n)
     v = compute_extreme_point(lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
@@ -201,6 +223,9 @@ function solve(
         int_bounds,
         tree.root.problem.integer_variables,
     )
+    if lmo.lmo.o isa SCIP.Optimizer
+        SCIP.SCIPfreeTransform(lmo.lmo.o)
+    end
 
     return x, tree.root.problem.lmo, result
 end
@@ -440,6 +465,13 @@ function build_bnb_callback(
     end
 end
 
+"""
+    postsolve(tree, result, time_ref, verbose)
+
+Runs the post solve both for a cleaner solutiona and to optimize 
+for the continuous variables if present.
+Prints solution statistics if verbose is true.        
+"""
 function postsolve(tree, result, time_ref, verbose=false)
     x = Bonobo.get_solution(tree)
 
@@ -472,6 +504,7 @@ function postsolve(tree, result, time_ref, verbose=false)
         lazy=true,
         verbose=verbose,
         max_iteration=10000,
+        epsilon = 1e-6,
     )
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
