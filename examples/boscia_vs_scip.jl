@@ -18,7 +18,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     ai = rand(n)
     Ωi = rand(Float64)
     bi = sum(ai)
-    bi = round(bi; digits=6)
     Ai = randn(n, n)
     Ai = Ai' * Ai
     Mi = (Ai + Ai') / 2
@@ -161,7 +160,7 @@ function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CO
     @assert length(constraints) == 0
     values = SCIP.sol_values(ch.o, ch.vars, sol)
     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
-    if zval < ch.f(values)
+    if zval < ch.f(values) - 1e-6
         return SCIP.SCIP_INFEASIBLE
     end
     return SCIP.SCIP_FEASIBLE
