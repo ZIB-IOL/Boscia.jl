@@ -6,6 +6,8 @@ function plot_boscia_vs_scip(mode)
     if mode == "integer"
         # load file
         df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_1.csv"))
+    elseif mode == "mixed"
+        df = DataFrame(CSV.File("examples/csv/boscia_vs_scip_mixed.csv"))
     end
 
     # display(df)
@@ -21,7 +23,7 @@ function plot_boscia_vs_scip(mode)
     df_scip = filter(row -> !(row.termination_scip == "TIME_LIMIT"),  df_scip)
     #df_boscia = filter(row -> !(row.termination_boscia == "Time limit reached"),  df_boscia)
     df_boscia = filter(row -> !(row.time_boscia >= 1800),  df_boscia)
-    df_boscia = filter(row -> !(row.termination_scip == "TIME_LIMIT" && isapprox(row.solution_boscia, row.solution_scip)),  df_boscia)
+    #df_boscia = filter(row -> !(row.termination_scip == "TIME_LIMIT" && isapprox(row.solution_boscia, row.solution_scip)),  df_boscia)
 
     # display(df_scip)
     display(df_boscia)
@@ -54,6 +56,8 @@ function plot_boscia_vs_scip(mode)
 
     if mode == "integer"
         file = ("examples/csv/boscia_vs_scip.png")
+    elseif mode == "mixed"
+        file = ("examples/csv/boscia_vs_scip_mixed.png")
     end
         
     savefig(file)
