@@ -55,9 +55,9 @@ function plot_boscia_vs_scip(mode)
     fig.subplots_adjust(right=0.75)  
 
     if mode == "integer"
-        file = ("examples/csv/boscia_vs_scip.png")
+        file = ("examples/csv/boscia_vs_scip.pdf")
     elseif mode == "mixed"
-        file = ("examples/csv/boscia_vs_scip_mixed.png")
+        file = ("examples/csv/boscia_vs_scip_mixed.pdf")
     end
         
     savefig(file)
