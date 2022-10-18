@@ -1,25 +1,27 @@
 """
     solve
    
-f - objective function oracle. 
-g - oracle for the gradient of the objective. 
-lmo - a MIP solver instance (SCIP) encoding the feasible region.    
-traverse_strategy - encodes how to choose the next node for evaluation. 
-                    By default the node with the best lower bound is picked.
-branching_strategy - by default we branch on the entry which is the farthest 
-                     away from being an integer.
-fw_epsilon - the tolerance for FrankWolfe in the root node.
-verbose - if true, a log and solution statistics are printed.
-dual_gap - if this absolute dual gap is reached, the algorithm stops.
-rel_dual_gap - if this relative dual gap is reached, the algorithm stops.
-time_limit - algorithm will stop if the time limit is reached. Depending on the problem
-             it is possible that no feasible solution has been found yet.     
-print_iter - encodes after how manz proccessed nodes the current node and solution status 
-             is printed. Will always print if a new integral solution has been found. 
-dual_gap_decay_factor - 
-max_fw_iter -
-min_number_lower -
-min_node_fw_epsilon -
+f                     - objective function oracle. 
+g                     - oracle for the gradient of the objective. 
+lmo                   - a MIP solver instance (SCIP) encoding the feasible region.    
+traverse_strategy     - encodes how to choose the next node for evaluation. 
+                        By default the node with the best lower bound is picked.
+branching_strategy    - by default we branch on the entry which is the farthest 
+                        away from being an integer.
+fw_epsilon            - the tolerance for FrankWolfe in the root node.
+verbose               - if true, a log and solution statistics are printed.
+dual_gap              - if this absolute dual gap is reached, the algorithm stops.
+rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
+time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
+                        it is possible that no feasible solution has been found yet.     
+print_iter            - encodes after how manz proccessed nodes the current node and solution status 
+                        is printed. Will always print if a new integral solution has been found. 
+dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
+                        fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
+max_fw_iter           - maximum number of iterations ina FrankWolfe run.
+min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
+                        lower bound.
+min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
 """
 function solve(
     f,
@@ -47,7 +49,7 @@ function solve(
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
-        @printf("\t Frank-")
+        @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
@@ -74,7 +76,7 @@ function solve(
     end
 
     if verbose
-        println("\t Total number of varibales: ", n)
+        println("\t Total number of variables: ", n)
         println("\t Number of integer variables: ", num_int)
         println("\t Number of binary variables: $(num_bin)\n")
     end
