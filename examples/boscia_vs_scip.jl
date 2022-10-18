@@ -6,7 +6,7 @@ using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-MOI = MathOptInterface
+const MOI = MathOptInterface
 using CSV
 using DataFrames
 
