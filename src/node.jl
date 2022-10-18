@@ -101,6 +101,7 @@ end
 Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
+    println("Node ID: $(node.id)")
     # build up node LMO
     build_LMO(
         tree.root.problem.lmo,
@@ -108,6 +109,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.local_bounds,
         tree.root.problem.integer_variables,
     )
+
+    # At the root node activate reoptimization for SCIP
+    #if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" 
+     #   MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("reoptimization/enable"), node.id == 1)
+   # end
 
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.lmo)
@@ -124,6 +130,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     end
+
 
     if isempty(node.active_set)
         consI_list = MOI.get(

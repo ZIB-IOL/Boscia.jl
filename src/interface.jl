@@ -27,6 +27,12 @@ function solve(
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
     end
 
+        # activate reoptimization at root node
+   # if MOI.get(lmo.o, MOI.SolverName()) == "SCIP" 
+    #MOI.set(lmo.o, MOI.RawOptimizerAttribute("reoptimization/enable"), true)
+    #end
+
+
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
     if v_indices != MOI.VariableIndex.(1:n)

@@ -14,6 +14,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
 @testset "Interface - norm hyperbox" begin
     o = SCIP.Optimizer()
+    MOI.set(o, MOI.RawOptimizerAttribute("reoptimization/enable"), true)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
