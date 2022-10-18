@@ -9,10 +9,18 @@ const MOI = MathOptInterface
 import Ipopt
 using ProfileView
 
-# Example reading a polytope from a MIPLIB instance
 
-src = MOI.FileFormats.Model(filename="neos5.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "examples/mps-files/neos5.mps"))
+seed = rand(UInt64)
+seed = 0xab30b963fc4f3488
+@show seed
+Random.seed!(seed)
+
+# Example reading a polytope from a MIPLIB instance
+# fastxgemm-n2r6s0t2
+# ran14x18-disj-8
+# pg5_34
+src = MOI.FileFormats.Model(filename="pg5_34.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/pg5_34.mps"))
 
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
@@ -32,10 +40,12 @@ unique!(vs)
 @assert !isempty(vs)
 const b_mps = randn(n)
 
+max_norm = maximum(norm.(vs))
+
 function f(x)
     r = dot(b_mps, x)
     for v in vs
-        r += 1 / 2 * norm(x - v)^2
+        r += 1 / (2) * norm(x - v)^2
     end
     return r
 end
@@ -49,11 +59,10 @@ function grad!(storage, x)
 end
 
 @testset "MPS pk1 instance" begin
-    #x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100)
-    #@test f(x) <= f(result[:raw_solution])
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3)
+    @test f(x) <= f(result[:raw_solution])
 end
-@profview Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100, rel_dual_gap = 3e-1)
-@profview Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 100, rel_dual_gap = 3e-1)
+
 
 # Relaxed version
 filtered_src = MOI.Utilities.ModelFilter(o) do item
