@@ -8,6 +8,8 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+# this example compares, on a cardinality-constrained portfolio problem, SCIP with lazy constraints to Boscia.
+
 n = 100
 const ri = rand(n)
 const ai = rand(n)
