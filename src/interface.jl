@@ -70,7 +70,7 @@ function solve(
     end
 
     if num_bin == 0 && num_int == 0
-        error("No integer or binary variables! Please use an IP solver!")
+        error("No integer or binary variables detected! Please use an IP solver!")
     end
 
     if verbose
