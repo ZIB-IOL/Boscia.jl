@@ -225,7 +225,7 @@ function solve(
         int_bounds,
         tree.root.problem.integer_variables,
     )
-    if lmo.lmo.o isa SCIP.Optimizer
+    if lmo.o isa SCIP.Optimizer
         SCIP.SCIPfreeTransform(lmo.lmo.o)
     end
 

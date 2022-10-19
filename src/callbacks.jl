@@ -7,6 +7,11 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
+        if !is_linear_feasible(tree.root.problem.lmo, state.v)
+            print(tree.root.problem.lmo.lmo.o)
+            @show state.v[1:100]
+            @show state.v[101:end]
+        end
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
 
         push!(fw_iterations, state.t)
