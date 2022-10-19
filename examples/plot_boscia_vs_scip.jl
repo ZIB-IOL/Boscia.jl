@@ -8,6 +8,8 @@ function plot_boscia_vs_scip(mode)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_int.csv")))
     elseif mode == "mixed"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed.csv")))
+    elseif mode == "mixed_lowdim"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_lowdim.csv")))
     else
         error("wrong option")
     end
@@ -67,6 +69,8 @@ function plot_boscia_vs_scip(mode)
         file = ("examples/csv/boscia_vs_scip.pdf")
     elseif mode == "mixed"
         file = ("examples/csv/boscia_vs_scip_mixed.pdf")
+    elseif mode == "mixed_lowdim"
+        file = ("examples/csv/boscia_vs_scip_mixed_lowdim.pdf")
     end
 
     savefig(file)
