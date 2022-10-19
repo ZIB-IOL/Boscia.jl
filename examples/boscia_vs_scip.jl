@@ -16,7 +16,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     n = dimension
     ri = rand(n)
     ai = rand(n)
-    Ωi = rand(Float64)
+    Ωi = rand()
     bi = sum(ai)
     Ai = randn(n, n)
     Ai = Ai' * Ai
