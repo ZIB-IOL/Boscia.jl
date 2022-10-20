@@ -53,18 +53,19 @@ function plot_boscia_vs_scip(mode)
     ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1])
     ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], linestyle="dashed")
     yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
-    ylabel("Solved instances")
-    xlabel("Time(s)")
+    ylabel("solved instances")
+    xlabel("time (s)")
     ax.set_xscale("log")
     ax.grid()
     if mode == "integer"
-        title("Boscia vs Outer Approximation for the pure-integer portfolio")
+        title("Pure-integer portfolio problem", loc="center")
+    else
+        title("Mixed-integer portfolio problem", loc="center")
     end
-    title("")
-    fig.legend(loc=7, fontsize=12)
+    fig.legend(loc=(0.07, 0.05), fontsize=10, ncol=2)
     fig.tight_layout()
     fig.subplots_adjust(right=0.75)  
-
+    PyPlot.tight_layout()
     if mode == "integer"
         file = ("examples/csv/boscia_vs_scip.pdf")
     elseif mode == "mixed"
