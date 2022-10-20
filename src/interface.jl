@@ -498,7 +498,7 @@ function postsolve(tree, result, time_ref, verbose=false)
     v = compute_extreme_point(tree.root.problem.lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     verbose && println("Postprocessing")
-    x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+    x_p, _, primal_p, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
         tree.root.problem.g,
         tree.root.problem.lmo,
@@ -506,9 +506,18 @@ function postsolve(tree, result, time_ref, verbose=false)
         line_search=FrankWolfe.Adaptive(verbose=false),
         lazy=true,
         verbose=verbose,
-        max_iteration=100000,
+        max_iteration=10000,
         epsilon = 1e-6,
     )
+
+    primal = tree.root.problem.f(x)
+    if primal_p > primal
+        @info("Primal value of the tree is better. It will be used.")
+        @debug("Postprocessing primal $(primal_p), tree primal $(primal)")
+    else
+        x = x_p
+        primal = primal_p
+    end
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -522,15 +531,17 @@ function postsolve(tree, result, time_ref, verbose=false)
     end
 
     # update tree
-    @show primal
-    @show tree.incumbent
+    @debug("Primal: $(primal)")
+    @debug("Tree incumbent: $(tree.incumbent)") 
     @assert primal <= tree.incumbent + 1e-5
     if primal < tree.incumbent
         tree.root.updated_incumbent[] = true
         tree.incumbent = primal
         tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
     else
-        @assert tree.lb <= primal - dual_gap
+        if tree.root.problem.solving_stage != OPT_TREE_EMPTY
+            @assert tree.lb <= primal - dual_gap
+        end
     end
     tree.incumbent_solution.objective = tree.solutions[1].objective = primal
     tree.incumbent_solution.solution = tree.solutions[1].solution = x

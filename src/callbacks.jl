@@ -11,6 +11,9 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             print(tree.root.problem.lmo.lmo.o)
             @show state.v[1:100]
             @show state.v[101:end]
+
+            @debug(tree.root.problem.lmo.lmo.o)
+            @debug("The vertex $(v)")
         end
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
 
