@@ -15,6 +15,8 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
+    warmstart_active_set=true,
+    warmstart_shadow_set=true,
     kwargs...,
 )
     if verbose
@@ -112,6 +114,8 @@ function solve(
                 :max_fw_iter => max_fw_iter,
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :time_limit => time_limit,
+                :warmstart_active_set => warmstart_active_set,
+                :warmstart_shadow_set => warmstart_shadow_set,
             ),
         ),
         branch_strategy=branching_strategy,
