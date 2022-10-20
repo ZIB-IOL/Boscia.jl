@@ -226,7 +226,7 @@ function solve(
         tree.root.problem.integer_variables,
     )
     if lmo.o isa SCIP.Optimizer
-        SCIP.SCIPfreeTransform(lmo.lmo.o)
+        SCIP.SCIPfreeTransform(lmo.o)
     end
 
     return x, tree.root.problem.lmo, result
@@ -492,6 +492,7 @@ function postsolve(tree, result, time_ref, verbose=false)
         fix_bounds,
         tree.root.problem.integer_variables,
     )
+
     # Postprocessing
     direction = ones(length(x))
     v = compute_extreme_point(tree.root.problem.lmo, direction)
@@ -505,7 +506,7 @@ function postsolve(tree, result, time_ref, verbose=false)
         line_search=FrankWolfe.Adaptive(verbose=false),
         lazy=true,
         verbose=verbose,
-        max_iteration=10000,
+        max_iteration=100000,
         epsilon = 1e-6,
     )
 
@@ -521,6 +522,8 @@ function postsolve(tree, result, time_ref, verbose=false)
     end
 
     # update tree
+    @show primal
+    @show tree.incumbent
     @assert primal <= tree.incumbent + 1e-5
     if primal < tree.incumbent
         tree.root.updated_incumbent[] = true
