@@ -11,16 +11,14 @@ using ProfileView
 
 
 seed = rand(UInt64)
-#seed = 0xab30b963fc4f3488
+seed = 0xef2a4e8a57cd989a
 @show seed
 Random.seed!(seed)
 
 # Example reading a polytope from a MIPLIB instance
-# fastxgemm-n2r6s0t2
-# ran14x18-disj-8
 # pg5_34
-src = MOI.FileFormats.Model(filename="ran14x18-disj-8.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/ran14x18-disj-8.mps"))
+src = MOI.FileFormats.Model(filename="pg5_34.mps")
+MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/pg5_34.mps"))
 
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
@@ -33,28 +31,25 @@ lmo = FrankWolfe.MathOptLMO(o)
 const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:5]
 # done to avoid one vertex being systematically selected
 unique!(vs)
-#filter!(vs) do v
- #   return v[end] != 21477.0
-#end
 
 @assert !isempty(vs)
 const b_mps = randn(n)
 
-max_norm = maximum(norm.(vs))
+const max_norm = maximum(norm.(vs))
 
 function f(x)
     r = dot(b_mps, x)
     for v in vs
-        r += 1 / (2) * norm(x - v)^2
+        r += 1 / (2 * max_norm) * norm(x - v)^2
     end
     return r
 end
 
 function grad!(storage, x)
-    mul!(storage, length(vs) * I, x)
+    mul!(storage, length(vs)/max_norm * I, x)
     storage .+= b_mps
     for v in vs
-        @. storage -= v
+        @. storage -= 1/max_norm * v
     end
 end
 

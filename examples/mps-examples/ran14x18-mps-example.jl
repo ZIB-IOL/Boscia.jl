@@ -11,12 +11,11 @@ using ProfileView
 
 
 seed = rand(UInt64)
-seed = 0xab30b963fc4f3488
+#seed = 0xab30b963fc4f3488
 @show seed
 Random.seed!(seed)
 
 # Example reading a polytope from a MIPLIB instance
-# fastxgemm-n2r6s0t2
 # ran14x18-disj-8
 src = MOI.FileFormats.Model(filename="ran14x18-disj-8.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/ran14x18-disj-8.mps"))
@@ -32,33 +31,30 @@ lmo = FrankWolfe.MathOptLMO(o)
 const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:15]
 # done to avoid one vertex being systematically selected
 unique!(vs)
-#filter!(vs) do v
- #   return v[end] != 21477.0
-#end
 
 @assert !isempty(vs)
 const b_mps = randn(n)
 
-max_norm = maximum(norm.(vs))
+const max_norm = maximum(norm.(vs))
 
 function f(x)
     r = dot(b_mps, x)
     for v in vs
-        r += 1 / (2) * norm(x - v)^2
+        r += 1 / (2 * max_norm) * norm(x - v)^2
     end
     return r
 end
 
 function grad!(storage, x)
-    mul!(storage, length(vs) * I, x)
+    mul!(storage, length(vs)/max_norm * I, x)
     storage .+= b_mps
     for v in vs
-        @. storage -= v
+        @. storage -= 1/max_norm * v
     end
 end
 
 @testset "MPS pk1 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e00, min_node_fw_epsilon = 1e-2)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=2400)
     @test f(x) <= f(result[:raw_solution])
 end
 
