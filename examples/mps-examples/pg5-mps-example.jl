@@ -11,7 +11,7 @@ using ProfileView
 
 
 seed = rand(UInt64)
-seed = 0xef2a4e8a57cd989a
+#seed = 0xef2a4e8a57cd989a
 @show seed
 Random.seed!(seed)
 

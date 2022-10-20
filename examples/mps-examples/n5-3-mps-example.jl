@@ -11,7 +11,7 @@ using ProfileView
 
 
 seed = rand(UInt64)
-#seed = 0xab30b963fc4f3488
+#seed = 0x34b7fea69efe2301
 @show seed
 Random.seed!(seed)
 
@@ -28,14 +28,14 @@ n = MOI.get(o, MOI.NumberOfVariables())
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:5]
+const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:100]
 # done to avoid one vertex being systematically selected
 unique!(vs)
 
 @assert !isempty(vs)
 const b_mps = randn(n)
 
-const max_norm = maximum(norm.(vs))
+const max_norm = 200 * maximum(norm.(vs))
 
 function f(x)
     r = dot(b_mps, x)

@@ -10,6 +10,11 @@ import Ipopt
 
 # Example reading a polytope from a MIPLIB instance
 
+seed = rand(UInt64)
+#seed = 0xab30b963fc4f3488
+@show seed
+Random.seed!(seed)
+
 src = MOI.FileFormats.Model(filename="22433.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-examples/mps-files/22433.mps"))
 
