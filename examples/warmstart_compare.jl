@@ -10,8 +10,6 @@ import HiGHS
 
 using Plots
 
-# Poisson sparse regression
-
 # For bug hunting:
 seed = rand(UInt64)
 @show seed
@@ -84,7 +82,7 @@ function build_birkhoff_lmo()
 end
 
 lmo = build_birkhoff_lmo()
-_, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+_, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)X
 _, _, result_no_active_set = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=true)
 _, _, result_no_shadow = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=true, warmstart_shadow_set=false)
 _, _, result_no_warmstart = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=false)
