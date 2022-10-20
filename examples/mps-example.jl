@@ -11,7 +11,7 @@ import Ipopt
 # Example reading a polytope from a MIPLIB instance
 
 src = MOI.FileFormats.Model(filename="22433.mps")
-MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/22433.mps"))
+MOI.read_from_file(src, joinpath(@__DIR__, "mps-examples/mps-files/22433.mps"))
 
 o = SCIP.Optimizer()
 MOI.copy_to(o, src)
