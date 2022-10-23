@@ -63,9 +63,9 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         return storage
     end
 
-    open("examples/csv/boscia_vs_scip_mixed_50.csv", "w") do f
-        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
-    end
+#    open("examples/csv/boscia_vs_scip_mixed_50.csv", "w") do f
+#        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
+#    end
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
