@@ -144,21 +144,35 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # time tracking FW 
     time_ref = Dates.now()
 
-    # call blended_pairwise_conditional_gradient
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        tree.root.problem.f,
-        tree.root.problem.g,
-        tree.root.problem.lmo,
-        node.active_set,
-        epsilon=node.fw_dual_gap_limit,
-        max_iteration=tree.root.options[:max_fw_iter],
-        line_search=FrankWolfe.Adaptive(verbose=false),
-        add_dropped_vertices=get(tree.root.options, :warmstart_shadow_set, false),
-        use_extra_vertex_storage=get(tree.root.options, :warmstart_shadow_set, false),
-        extra_vertex_storage=node.discarded_vertices,
-        callback=tree.root.options[:callback],
-        lazy=true,
-    )
+    if !tree.root.options[:afw]
+        # call blended_pairwise_conditional_gradient
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            add_dropped_vertices=get(tree.root.options, :warmstart_shadow_set, false),
+            use_extra_vertex_storage=get(tree.root.options, :warmstart_shadow_set, false),
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:callback],
+            lazy=true,
+        )
+    else 
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            callback=tree.root.options[:callback],
+            lazy=true,
+        )
+    end
 
     node.fw_time = Dates.now() - time_ref
 
