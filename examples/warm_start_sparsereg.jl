@@ -30,28 +30,30 @@ const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
 
 
-o = SCIP.Optimizer()
-MOI.set(o, MOI.Silent(), true)
-MOI.empty!(o)
-x = MOI.add_variables(o, n)
-I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
-for i in 1:n
-    MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-    if i in I
-        MOI.add_constraint(o, x[i], MOI.Integer())
+function build_lmo()
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, n)
+    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    for i in 1:n
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        if i in I
+            MOI.add_constraint(o, x[i], MOI.Integer())
+        end
     end
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
+        MOI.LessThan(bi),
+    )
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.GreaterThan(1.0),
+    )
+    return FrankWolfe.MathOptLMO(o)
 end
-MOI.add_constraint(
-    o,
-    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
-    MOI.LessThan(bi),
-)
-MOI.add_constraint(
-    o,
-    MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
-    MOI.GreaterThan(1.0),
-)
-lmo = FrankWolfe.MathOptLMO(o)
 
 function f(x)
     return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -62,12 +64,12 @@ function grad!(storage, x)
     return storage
 end
 
-_, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=10)
+_, _, result_baseline = Boscia.solve(f, grad!, build_lmo(), verbose=true, time_limit=10)
 
-_, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
-_, _, result_no_active_set = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=true)
-_, _, result_no_shadow = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=true, warmstart_shadow_set=false)
-_, _, result_no_warmstart = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=false)
+_, _, result_baseline = Boscia.solve(f, grad!, build_lmo(), verbose=true)
+_, _, result_no_active_set = Boscia.solve(f, grad!, build_lmo(), verbose=true, warmstart_active_set=false, warmstart_shadow_set=true)
+_, _, result_no_shadow = Boscia.solve(f, grad!, build_lmo(), verbose=true, warmstart_active_set=true, warmstart_shadow_set=false)
+_, _, result_no_warmstart = Boscia.solve(f, grad!, build_lmo(), verbose=true, warmstart_active_set=false, warmstart_shadow_set=false)
 
 using JSON
 open("results_portfolio.json", "w") do f
