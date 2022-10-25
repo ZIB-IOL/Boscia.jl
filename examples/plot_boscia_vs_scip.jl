@@ -10,6 +10,8 @@ function plot_boscia_vs_scip(mode)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed.csv")))
     elseif mode == "mixed_lowdim"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_lowdim.csv")))
+    elseif mode == "mixed_50"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
     else
         error("wrong option")
     end
@@ -25,6 +27,7 @@ function plot_boscia_vs_scip(mode)
     # display(df_scip)
     time_limit = 1800
     filter!(row -> !(row.termination_scip == "TIME_LIMIT"),  df_scip)
+    filter!(row -> !(row.termination_scip == "OPTIMIZE_NOT_CALLED"),  df_boscia)
     #df_boscia = filter(row -> !(row.termination_boscia == "Time limit reached"),  df_boscia)
     filter!(row -> !(row.time_boscia >= time_limit),  df_boscia)
     #df_boscia = filter(row -> !(row.termination_scip == "TIME_LIMIT" && isapprox(row.solution_boscia, row.solution_scip)),  df_boscia)
@@ -52,7 +55,7 @@ function plot_boscia_vs_scip(mode)
     push!(time_scip, 1.1 * time_limit)
     ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1])
     ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], linestyle="dashed")
-    yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
+    #yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
     ylabel("solved instances")
     xlabel("time (s)")
     ax.set_xscale("log")
@@ -72,6 +75,8 @@ function plot_boscia_vs_scip(mode)
         file = ("examples/csv/boscia_vs_scip_mixed.pdf")
     elseif mode == "mixed_lowdim"
         file = ("examples/csv/boscia_vs_scip_mixed_lowdim.pdf")
+    elseif mode == "mixed_50"
+        file = ("examples/csv/boscia_vs_scip_mixed_50.pdf")
     end
 
     savefig(file)
