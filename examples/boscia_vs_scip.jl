@@ -63,10 +63,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         return storage
     end
 
-#    open("examples/csv/boscia_vs_scip_integer_50.csv", "w") do f
-#        CSV.write(f,[], writeheader=true, header=["seed", "dimension", "time_boscia", "solution_boscia", "termination_boscia", "time_scip", "solution_scip", "termination_scip", "ncalls_scip"])
-#    end
-
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
     time_boscia = -Inf
@@ -82,7 +78,11 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         end
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
-        CSV.write(file_name, df, append=true)
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
         # display(df)
     end
 
@@ -300,7 +300,11 @@ function boscia_vs_scip_birkhoff(seed=1, dimension=4, iter=3, k=3)
         end
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
         file_name = joinpath(@__DIR__, "csv/boscia_vs_scip_birkhoff_$dimension.csv")
-        CSV.write(file_name, df, append=true)
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
     end
 
     function build_scip_optimizer()
