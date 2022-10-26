@@ -136,6 +136,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
     end
 
+    if !get(tree.root.options, :warmstart_active_set, false)
+        Base.empty!(node.active_set)
+        restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
+    end
+
     # time tracking FW 
     time_ref = Dates.now()
 
@@ -148,8 +153,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
         line_search=FrankWolfe.Adaptive(verbose=false),
-        add_dropped_vertices=true,
-        use_extra_vertex_storage=true,
+        add_dropped_vertices=get(tree.root.options, :warmstart_shadow_set, false),
+        use_extra_vertex_storage=get(tree.root.options, :warmstart_shadow_set, false),
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         lazy=true,

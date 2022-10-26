@@ -96,7 +96,7 @@ function restart_active_set(
     nvars::Int,
 )
     direction = Vector{Float64}(undef, nvars)
-    Random.rand!(direction)
+    Random.randn!(direction)
     v = compute_extreme_point(lmo, direction)
     push!(node.active_set, (1.0, v))
     return node.active_set
