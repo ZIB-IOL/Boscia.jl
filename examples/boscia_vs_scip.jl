@@ -31,7 +31,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     limit = 1800
-    # MOI.set(o, MOI.TimeLimitSec(), limit)
     x = MOI.add_variables(o, n)
      
     for i in 1:n
@@ -83,11 +82,7 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         else 
             CSV.write(file_name, df, append=true)
         end
-        # display(df)
     end
-
-    # @show x
-    # @show time_boscia
 
     function build_scip_optimizer()
         o = SCIP.Optimizer()
@@ -129,7 +124,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
         time_scip = MOI.get(o, MOI.SolveTimeSec())
-        # @show MOI.get(o, MOI.ObjectiveValue())
         vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
         @assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         solution_scip = f(vars_scip)
@@ -142,7 +136,6 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         ncalls_scip = epigraph_ch.ncalls
         df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
         CSV.write("examples/csv/boscia_vs_scip_integer_50.csv", df_temp, append=false)
-        # display(df_temp)
     end
 end
 
@@ -173,13 +166,10 @@ function enforce_epigraph(ch::GradientCutHandler)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    # @show zval, fx
     if zval < fx - 1e-6
-        # println(fx - zval)
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        # @show fval - s.upper
         @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
@@ -190,7 +180,6 @@ function enforce_epigraph(ch::GradientCutHandler)
         ch.ncalls += 1
         return SCIP.SCIP_CONSADDED
     end
-    # @show ch.ncalls
     return SCIP.SCIP_FEASIBLE
 end
 
