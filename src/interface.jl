@@ -15,6 +15,8 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
+    warmstart_active_set=true,
+    warmstart_shadow_set=true,
     kwargs...,
 )
     if verbose
@@ -112,6 +114,8 @@ function solve(
                 :max_fw_iter => max_fw_iter,
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :time_limit => time_limit,
+                :warmstart_active_set => warmstart_active_set,
+                :warmstart_shadow_set => warmstart_shadow_set,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -450,7 +454,7 @@ function postsolve(tree, result, time_ref, verbose=false)
     end
 
     MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-    SCIP.SCIPfreeTransform(tree.root.problem.lmo.lmo.o)
+    free_model(tree.root.problem.lmo.lmo.o)
     build_LMO(
         tree.root.problem.lmo,
         tree.root.problem.integer_variable_bounds,
@@ -524,4 +528,12 @@ function postsolve(tree, result, time_ref, verbose=false)
     end
 
     return x
+end
+
+function free_model(o::SCIP.Optimizer)
+    SCIP.SCIPfreeTransform(o)
+end
+
+function free_model(o::HiGHS.Optimizer)
+    
 end
