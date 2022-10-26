@@ -65,6 +65,9 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
 
     intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     time_afw = -Inf
+
+    Boscia.solve(f, grad!, lmo, verbose=true, time_limit=10)
+    
     for i in 1:iter
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
         @show x, f(x)
