@@ -40,7 +40,7 @@ function plot_boscia_vs_scip(mode)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(6.5,3))
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -58,8 +58,8 @@ function plot_boscia_vs_scip(mode)
     ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1])
     ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], linestyle="dashed")
     #yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
-    ylabel("solved instances")
-    xlabel("time (s)")
+    ylabel("Solved instances")
+    xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
     if mode == "integer" !! mode == "integer_50_tidy"
@@ -67,10 +67,9 @@ function plot_boscia_vs_scip(mode)
     else
         title("Mixed-integer portfolio problem", loc="center")
     end
-    fig.legend(loc=(0.07, 0.05), fontsize=10, ncol=2)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
+    fancybox=true, shadow=false, ncol=2)
     fig.tight_layout()
-    fig.subplots_adjust(right=0.75)  
-    PyPlot.tight_layout()
     if mode == "integer"
         file = ("examples/csv/boscia_vs_scip.pdf")
     elseif mode == "mixed"
