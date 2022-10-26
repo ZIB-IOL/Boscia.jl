@@ -17,7 +17,7 @@ function plot_baseline_vs_afw(seed, mode)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(6.5,3))
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -31,29 +31,24 @@ function plot_baseline_vs_afw(seed, mode)
         ax.plot(result_baseline["list_time"]/1000,result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
         ax.plot(result_afw["list_time"]/1000, result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
-        ylabel("lower bound")
-        xlabel("time (s)")
+        ylabel("Lower bound")
+        xlabel("Time (s)")
         #ax.set_xscale("log")
         ax.grid()
-
-        fig.legend(loc=(0.07, 0.05), fontsize=10, ncol=2)
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
+        fancybox=true, shadow=false, ncol=2)
         fig.tight_layout()
-        fig.subplots_adjust(right=0.75)  
-        PyPlot.tight_layout()
     
     else 
         ax.plot(result_baseline["list_lmo_calls_acc"],result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
         ax.plot(result_afw["list_lmo_calls_acc"], result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
-        ylabel("lower bound")
-        xlabel("number of lmo calls")
-        #ax.set_xscale("log")
+        ylabel("Lower bound")
+        xlabel("Number of lmo calls")
         ax.grid()
-
-        fig.legend(loc=(0.07, 0.05), fontsize=10, ncol=2)
-        fig.tight_layout()
-        fig.subplots_adjust(right=0.75)  
-        PyPlot.tight_layout()        
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
+        fancybox=true, shadow=false, ncol=2)
+        fig.tight_layout()        
     end 
 
     savefig("afw_" * string(seed) * "_" * mode * ".pdf")
