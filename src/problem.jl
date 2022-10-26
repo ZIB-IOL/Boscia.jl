@@ -135,7 +135,8 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
         dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
         tol = get_tol(o)
-        if dist > 20.0 * tol
+        if dist > 200.0 * tol
+            @warn "dist $dist tol $tol"
             return false
         end
     end

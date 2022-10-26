@@ -14,11 +14,12 @@ using Test
 using Plots
 
 # For bug hunting:
-seed = rand(UInt64)
+# seed = rand(UInt64)
+seed = 0x190b68d57cdf7d56
 @show seed
 Random.seed!(seed)
 
-n = 60
+n = 10#80
 const ri = rand(n)
 const ai = rand(n)
 const Ωi = rand(Float64)
@@ -61,6 +62,8 @@ function grad!(storage, x)
     return storage
 end
 
+_, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=10)
+
 _, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
 _, _, result_afw = Boscia.solve(f, grad!, lmo, verbose=true, afw=true)
 # _, _, result_no_active_set = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=true)
@@ -88,7 +91,11 @@ plot(result_baseline[:list_time],result_baseline[:list_lb], label="BL", legend=:
 plot!(result_afw[:list_time], result_afw[:list_lb], label="AFW")
 savefig("afw_time_ " * string(seed) * ".pdf")
 
-plot(result_baseline[:list_lmo_calls_acc],result_baseline[:list_lb], label="BL", legend=:bottomright)
+# plot(result_baseline[:list_time],result_baseline[:list_lb], label="BL", legend=:bottomright, style=:dash)
+# plot!(result_no_active_set[:list_time], result_no_active_set[:list_lb], label="NA")
+# plot!(result_no_shadow[:list_time], result_no_shadow[:list_lb], label="NS")
+# plot!(result_no_warmstart[:list_time], result_no_warmstart[:list_lb], label="NW")
+
 # plot!(result_no_active_set[:list_time], result_no_active_set[:list_ub], label="no-a")
 # plot!(result_no_active_set[:list_lmo_calls_acc], result_no_active_set[:list_lb], label="NA")
 # # plot!(result_no_shadow[:list_time], result_no_shadow[:list_ub], label="no-s")
