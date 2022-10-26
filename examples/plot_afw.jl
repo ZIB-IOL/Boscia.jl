@@ -12,7 +12,7 @@ function plot_baseline_vs_afw(seed, mode)
     result_baseline = json_file["result_baseline"]
     result_afw = json_file["result_afw"]
 
-    @show result_baseline["list_time"]
+    #@show result_baseline["list_time"]
 
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
@@ -28,8 +28,8 @@ function plot_baseline_vs_afw(seed, mode)
     ax = fig.add_subplot(111)
 
     if mode == "time"
-        ax.plot(result_baseline["list_time"]/1000,result_baseline["list_lb"], label="BL", color=colors[1])
-        ax.plot(result_afw["list_time"]/1000, result_afw["list_lb"], label="AFW", color=colors[end])
+        ax.plot(result_baseline["list_time"]/1000,result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
+        ax.plot(result_afw["list_time"]/1000, result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
         ylabel("lower bound")
         xlabel("time (s)")
@@ -42,8 +42,8 @@ function plot_baseline_vs_afw(seed, mode)
         PyPlot.tight_layout()
     
     else 
-        ax.plot(result_baseline["list_lmo_calls_acc"],result_baseline["list_lb"], label="BL", color=colors[1])
-        ax.plot(result_afw["list_lmo_calls_acc"], result_afw["list_lb"], label="AFW", color=colors[end])
+        ax.plot(result_baseline["list_lmo_calls_acc"],result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
+        ax.plot(result_afw["list_lmo_calls_acc"], result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
         ylabel("lower bound")
         xlabel("number of lmo calls")
