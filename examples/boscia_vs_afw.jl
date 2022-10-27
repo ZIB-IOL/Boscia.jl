@@ -79,7 +79,7 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
             status = "OPTIMAL"
         end
         df = DataFrame(seed=seed, dimension=n, time_afw=time_afw, solution_afw=result[:primal_objective], termination_afw=status)
-        file_name = joinpath(@__DIR__,"afw_integer_50.csv")
+        file_name = joinpath(@__DIR__,"afw_mixed_50.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
         else 
