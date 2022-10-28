@@ -40,7 +40,7 @@ function plot_baseline_vs_afw(seed, mode)
         ax.plot(result_afw["list_lmo_calls_acc"], result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
         ylabel("Lower bound")
-        xlabel("Number of lmo calls")
+        xlabel("Number of LMO calls")
         ax.grid()
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
         fancybox=true, shadow=false, ncol=2)
