@@ -2,12 +2,8 @@ using PyPlot
 using JSON
 
 function plot_baseline_vs_afw(seed, mode)
-    if seed == "5177894854221866464"
-        # load file
-        json_file = JSON.parsefile(joinpath(@__DIR__, "results_portfolio_afw_5177894854221866464.json"))
-    else
-        error("wrong option")
-    end
+    # load file
+    json_file = JSON.parsefile(joinpath(@__DIR__, "results_portfolio_afw_" * seed * ".json"))
 
     result_baseline = json_file["result_baseline"]
     result_afw = json_file["result_afw"]
