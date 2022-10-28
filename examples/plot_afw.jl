@@ -24,7 +24,7 @@ function plot_baseline_vs_afw(seed, mode)
     ax = fig.add_subplot(111)
 
     if mode == "time"
-        ax.plot(result_baseline["list_time"]/1000,result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
+        ax.plot(result_baseline["list_time"]/1000,result_baseline["list_lb"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.05)
         ax.plot(result_afw["list_time"]/1000, result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
         ylabel("Lower bound")
@@ -36,7 +36,7 @@ function plot_baseline_vs_afw(seed, mode)
         fig.tight_layout()
     
     else 
-        ax.plot(result_baseline["list_lmo_calls_acc"],result_baseline["list_lb"], label="BO", color=colors[1], marker=markers[1], markevery=0.05)
+        ax.plot(result_baseline["list_lmo_calls_acc"],result_baseline["list_lb"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.05)
         ax.plot(result_afw["list_lmo_calls_acc"], result_afw["list_lb"], label="AFW", color=colors[end], marker=markers[2], markevery=0.05)
 
         ylabel("Lower bound")
