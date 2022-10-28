@@ -49,18 +49,18 @@ function plot_boscia_vs_scip(mode; afw=false)
     \usepackage{libertinust1math}
     """)
     ax = fig.add_subplot(111)
-    #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_boscia"], label="Boscia", color=colors[1], marker=markers[1])
+    #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_boscia"], label="BO (ours)", color=colors[1], marker=markers[1])
     #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_scip"], label="SCIP", color=colors[3], marker=markers[2])
     time_boscia = sort(df_boscia[!,"time_boscia"])
     time_scip = sort(df_scip[!,"time_scip"])
     push!(time_boscia, 1.1 * time_limit)
     push!(time_scip, 1.1 * time_limit)
-    ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1])
+    ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1])
     ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2])
     #yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
     
     if afw && mode == "mixed_50"
-        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
         filter!(row -> !(row.time_afw >= time_limit),  df_afw)
         time_afw = sort(df_afw[!,"time_afw"])
         push!(time_afw, 1.1 * time_limit)
@@ -69,7 +69,7 @@ function plot_boscia_vs_scip(mode; afw=false)
     end
 
     if afw && mode == "integer_50_tidy"
-        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
         indices = [index for index in 1:nrow(df_afw) if isodd(index)]
         delete!(df_afw, indices)
         filter!(row -> !(row.time_afw >= time_limit),  df_afw)
@@ -83,7 +83,7 @@ function plot_boscia_vs_scip(mode; afw=false)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
-    if mode == "integer" !! mode == "integer_50_tidy"
+    if mode == "integer" || mode == "integer_50_tidy"
         title("Pure-integer portfolio problem", loc="center")
     else
         title("Mixed-integer portfolio problem", loc="center")
