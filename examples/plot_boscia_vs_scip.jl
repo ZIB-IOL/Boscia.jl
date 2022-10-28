@@ -2,7 +2,7 @@ using PyPlot
 using DataFrames
 using CSV
 
-function plot_boscia_vs_scip(mode)
+function plot_boscia_vs_scip(mode; afw=false)
     if mode == "integer"
         # load file
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_int.csv")))
@@ -56,8 +56,29 @@ function plot_boscia_vs_scip(mode)
     push!(time_boscia, 1.1 * time_limit)
     push!(time_scip, 1.1 * time_limit)
     ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1])
-    ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], linestyle="dashed")
+    ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2])
     #yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
+    
+    if afw && mode == "mixed_50"
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
+        filter!(row -> !(row.time_afw >= time_limit),  df_afw)
+        time_afw = sort(df_afw[!,"time_afw"])
+        push!(time_afw, 1.1 * time_limit)
+        ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=colors[4], marker=markers[3])
+        @show nrow(df_afw), nrow(df_boscia)
+    end
+
+    if afw && mode == "integer_50_tidy"
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
+        indices = [index for index in 1:nrow(df_afw) if isodd(index)]
+        delete!(df_afw, indices)
+        filter!(row -> !(row.time_afw >= time_limit),  df_afw)
+        time_afw = sort(df_afw[!,"time_afw"])
+        push!(time_afw, 1.1 * time_limit)
+        ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=colors[4], marker=markers[3])
+        @show nrow(df_afw), nrow(df_boscia)
+    end
+
     ylabel("Solved instances")
     xlabel("Time (s)")
     ax.set_xscale("log")
@@ -68,7 +89,11 @@ function plot_boscia_vs_scip(mode)
         title("Mixed-integer portfolio problem", loc="center")
     end
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
-    fancybox=true, shadow=false, ncol=2)
+        fancybox=true, shadow=false, ncol=2)
+    if afw
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
+        fancybox=true, shadow=false, ncol=3)
+    end
     fig.tight_layout()
     if mode == "integer"
         file = ("examples/csv/boscia_vs_scip.pdf")
