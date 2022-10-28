@@ -14,8 +14,8 @@ using Test
 using Plots
 
 # For bug hunting:
-# seed = rand(UInt64)
-seed = 0x190b68d57cdf7d56
+seed = rand(UInt64)
+#seed = 0x190b68d57cdf7d56
 @show seed
 Random.seed!(seed)
 

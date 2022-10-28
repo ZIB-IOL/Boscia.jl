@@ -10707,3 +10707,974 @@ Away FW: false
 Away FW: true
 
 (x, f(x)) = ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.054936834449931866, 0.009531515834453674, 0.00805609150033055, 0.022063316770310145, 0.01752869478871324, 0.019815303616882073, 0.03552813697199691, 0.02063798941203467, 0.03364160559753571, 0.025600839661670066, 0.037520499455620276, 0.05102898389352728, 0.012212030062782757, 0.05609782499734295, 0.05310700733004671, 0.0402010122659691, 0.06331630606296021, 0.00021241159061063266, 0.0, 0.0047696461182018856, 0.0, 0.03327326212763656, 0.06861732328287182, 0.030609041733154874, 0.06057596483314485, 0.03406775192731504, 0.06288183955850178, 0.010304016252331688, 0.036627012237066915, 0.0, 0.015290137386654247, 0.0, 0.028412677484482944, 0.044124790009448064, 0.029160227503472348, 0.02645049148141361, 0.019194951778658122, 0.012150825812961816, 0.0], -0.3745359097873563)
+┌ Warning: Keyword argument widen not supported with Plots.GRBackend().  Choose from: annotations, arrow, aspect_ratio, background_color, background_color_inside, background_color_outside, background_color_subplot, bar_width, bins, bottom_margin, camera, clims, color_palette, colorbar, colorbar_entry, colorbar_scale, colorbar_title, connections, contour_labels, discrete_values, fill_z, fillalpha, fillcolor, fillrange, fillstyle, flip, foreground_color, foreground_color_axis, foreground_color_border, foreground_color_grid, foreground_color_subplot, foreground_color_text, framestyle, grid, gridalpha, gridlinewidth, gridstyle, group, guide, guidefontcolor, guidefontfamily, guidefonthalign, guidefontrotation, guidefontsize, guidefontvalign, html_output_format, inset_subplots, label, layout, left_margin, legend_background_color, legend_font_color, legend_font_family, legend_font_halign, legend_font_pointsize, legend_font_rotation, legend_font_valign, legend_foreground_color, legend_position, legend_title, levels, lims, line_z, linealpha, linecolor, linestyle, linewidth, link, margin, marker_z, markeralpha, markercolor, markershape, markersize, markerstrokealpha, markerstrokecolor, markerstrokewidth, normalize, orientation, overwrite_figure, permute, polar, primary, projection, quiver, ribbon, right_margin, scale, series_annotations, seriesalpha, seriescolor, seriestype, show, show_empty_bins, size, smooth, subplot, subplot_index, tick_direction, tickfontcolor, tickfontfamily, tickfonthalign, tickfontrotation, tickfontsize, tickfontvalign, ticks, title, titlefontcolor, titlefontfamily, titlefonthalign, titlefontrotation, titlefontsize, titlefontvalign, top_margin, weights, window_title, x, xdiscrete_values, xerror, xflip, xforeground_color_axis, xforeground_color_border, xforeground_color_grid, xforeground_color_text, xgrid, xgridalpha, xgridlinewidth, xgridstyle, xguide, xguidefontcolor, xguidefontfamily, xguidefonthalign, xguidefontrotation, xguidefontsize, xguidefontvalign, xlims, xlink, xscale, xtick_direction, xtickfontcolor, xtickfontfamily, xtickfonthalign, xtickfontrotation, xtickfontsize, xtickfontvalign, xticks, y, ydiscrete_values, yerror, yflip, yforeground_color_axis, yforeground_color_border, yforeground_color_grid, yforeground_color_text, ygrid, ygridalpha, ygridlinewidth, ygridstyle, yguide, yguidefontcolor, yguidefontfamily, yguidefonthalign, yguidefontrotation, yguidefontsize, yguidefontvalign, ylims, ylink, yscale, ytick_direction, ytickfontcolor, ytickfontfamily, ytickfonthalign, ytickfontrotation, ytickfontsize, ytickfontvalign, yticks, z, z_order, zdiscrete_values, zerror, zflip, zforeground_color_axis, zforeground_color_border, zforeground_color_grid, zforeground_color_text, zgrid, zgridalpha, zgridlinewidth, zgridstyle, zguide, zguidefontcolor, zguidefontfamily, zguidefonthalign, zguidefontrotation, zguidefontsize, zguidefontvalign, zlims, zlink, zscale, ztick_direction, ztickfontcolor, ztickfontfamily, ztickfonthalign, ztickfontrotation, ztickfontsize, ztickfontvalign, zticks
+└ @ Plots /scratch/opt/htroppen/.julia/packages/Plots/AAjgN/src/args.jl:1637
+┌ Warning: Keyword argument xwiden not supported with Plots.GRBackend().  Choose from: annotations, arrow, aspect_ratio, background_color, background_color_inside, background_color_outside, background_color_subplot, bar_width, bins, bottom_margin, camera, clims, color_palette, colorbar, colorbar_entry, colorbar_scale, colorbar_title, connections, contour_labels, discrete_values, fill_z, fillalpha, fillcolor, fillrange, fillstyle, flip, foreground_color, foreground_color_axis, foreground_color_border, foreground_color_grid, foreground_color_subplot, foreground_color_text, framestyle, grid, gridalpha, gridlinewidth, gridstyle, group, guide, guidefontcolor, guidefontfamily, guidefonthalign, guidefontrotation, guidefontsize, guidefontvalign, html_output_format, inset_subplots, label, layout, left_margin, legend_background_color, legend_font_color, legend_font_family, legend_font_halign, legend_font_pointsize, legend_font_rotation, legend_font_valign, legend_foreground_color, legend_position, legend_title, levels, lims, line_z, linealpha, linecolor, linestyle, linewidth, link, margin, marker_z, markeralpha, markercolor, markershape, markersize, markerstrokealpha, markerstrokecolor, markerstrokewidth, normalize, orientation, overwrite_figure, permute, polar, primary, projection, quiver, ribbon, right_margin, scale, series_annotations, seriesalpha, seriescolor, seriestype, show, show_empty_bins, size, smooth, subplot, subplot_index, tick_direction, tickfontcolor, tickfontfamily, tickfonthalign, tickfontrotation, tickfontsize, tickfontvalign, ticks, title, titlefontcolor, titlefontfamily, titlefonthalign, titlefontrotation, titlefontsize, titlefontvalign, top_margin, weights, window_title, x, xdiscrete_values, xerror, xflip, xforeground_color_axis, xforeground_color_border, xforeground_color_grid, xforeground_color_text, xgrid, xgridalpha, xgridlinewidth, xgridstyle, xguide, xguidefontcolor, xguidefontfamily, xguidefonthalign, xguidefontrotation, xguidefontsize, xguidefontvalign, xlims, xlink, xscale, xtick_direction, xtickfontcolor, xtickfontfamily, xtickfonthalign, xtickfontrotation, xtickfontsize, xtickfontvalign, xticks, y, ydiscrete_values, yerror, yflip, yforeground_color_axis, yforeground_color_border, yforeground_color_grid, yforeground_color_text, ygrid, ygridalpha, ygridlinewidth, ygridstyle, yguide, yguidefontcolor, yguidefontfamily, yguidefonthalign, yguidefontrotation, yguidefontsize, yguidefontvalign, ylims, ylink, yscale, ytick_direction, ytickfontcolor, ytickfontfamily, ytickfonthalign, ytickfontrotation, ytickfontsize, ytickfontvalign, yticks, z, z_order, zdiscrete_values, zerror, zflip, zforeground_color_axis, zforeground_color_border, zforeground_color_grid, zforeground_color_text, zgrid, zgridalpha, zgridlinewidth, zgridstyle, zguide, zguidefontcolor, zguidefontfamily, zguidefonthalign, zguidefontrotation, zguidefontsize, zguidefontvalign, zlims, zlink, zscale, ztick_direction, ztickfontcolor, ztickfontfamily, ztickfonthalign, ztickfontrotation, ztickfontsize, ztickfontvalign, zticks
+└ @ Plots /scratch/opt/htroppen/.julia/packages/Plots/AAjgN/src/args.jl:1637
+┌ Warning: Keyword argument ywiden not supported with Plots.GRBackend().  Choose from: annotations, arrow, aspect_ratio, background_color, background_color_inside, background_color_outside, background_color_subplot, bar_width, bins, bottom_margin, camera, clims, color_palette, colorbar, colorbar_entry, colorbar_scale, colorbar_title, connections, contour_labels, discrete_values, fill_z, fillalpha, fillcolor, fillrange, fillstyle, flip, foreground_color, foreground_color_axis, foreground_color_border, foreground_color_grid, foreground_color_subplot, foreground_color_text, framestyle, grid, gridalpha, gridlinewidth, gridstyle, group, guide, guidefontcolor, guidefontfamily, guidefonthalign, guidefontrotation, guidefontsize, guidefontvalign, html_output_format, inset_subplots, label, layout, left_margin, legend_background_color, legend_font_color, legend_font_family, legend_font_halign, legend_font_pointsize, legend_font_rotation, legend_font_valign, legend_foreground_color, legend_position, legend_title, levels, lims, line_z, linealpha, linecolor, linestyle, linewidth, link, margin, marker_z, markeralpha, markercolor, markershape, markersize, markerstrokealpha, markerstrokecolor, markerstrokewidth, normalize, orientation, overwrite_figure, permute, polar, primary, projection, quiver, ribbon, right_margin, scale, series_annotations, seriesalpha, seriescolor, seriestype, show, show_empty_bins, size, smooth, subplot, subplot_index, tick_direction, tickfontcolor, tickfontfamily, tickfonthalign, tickfontrotation, tickfontsize, tickfontvalign, ticks, title, titlefontcolor, titlefontfamily, titlefonthalign, titlefontrotation, titlefontsize, titlefontvalign, top_margin, weights, window_title, x, xdiscrete_values, xerror, xflip, xforeground_color_axis, xforeground_color_border, xforeground_color_grid, xforeground_color_text, xgrid, xgridalpha, xgridlinewidth, xgridstyle, xguide, xguidefontcolor, xguidefontfamily, xguidefonthalign, xguidefontrotation, xguidefontsize, xguidefontvalign, xlims, xlink, xscale, xtick_direction, xtickfontcolor, xtickfontfamily, xtickfonthalign, xtickfontrotation, xtickfontsize, xtickfontvalign, xticks, y, ydiscrete_values, yerror, yflip, yforeground_color_axis, yforeground_color_border, yforeground_color_grid, yforeground_color_text, ygrid, ygridalpha, ygridlinewidth, ygridstyle, yguide, yguidefontcolor, yguidefontfamily, yguidefonthalign, yguidefontrotation, yguidefontsize, yguidefontvalign, ylims, ylink, yscale, ytick_direction, ytickfontcolor, ytickfontfamily, ytickfonthalign, ytickfontrotation, ytickfontsize, ytickfontvalign, yticks, z, z_order, zdiscrete_values, zerror, zflip, zforeground_color_axis, zforeground_color_border, zforeground_color_grid, zforeground_color_text, zgrid, zgridalpha, zgridlinewidth, zgridstyle, zguide, zguidefontcolor, zguidefontfamily, zguidefonthalign, zguidefontrotation, zguidefontsize, zguidefontvalign, zlims, zlink, zscale, ztick_direction, ztickfontcolor, ztickfontfamily, ztickfonthalign, ztickfontrotation, ztickfontsize, ztickfontvalign, zticks
+└ @ Plots /scratch/opt/htroppen/.julia/packages/Plots/AAjgN/src/args.jl:1637
+┌ Warning: Keyword argument zwiden not supported with Plots.GRBackend().  Choose from: annotations, arrow, aspect_ratio, background_color, background_color_inside, background_color_outside, background_color_subplot, bar_width, bins, bottom_margin, camera, clims, color_palette, colorbar, colorbar_entry, colorbar_scale, colorbar_title, connections, contour_labels, discrete_values, fill_z, fillalpha, fillcolor, fillrange, fillstyle, flip, foreground_color, foreground_color_axis, foreground_color_border, foreground_color_grid, foreground_color_subplot, foreground_color_text, framestyle, grid, gridalpha, gridlinewidth, gridstyle, group, guide, guidefontcolor, guidefontfamily, guidefonthalign, guidefontrotation, guidefontsize, guidefontvalign, html_output_format, inset_subplots, label, layout, left_margin, legend_background_color, legend_font_color, legend_font_family, legend_font_halign, legend_font_pointsize, legend_font_rotation, legend_font_valign, legend_foreground_color, legend_position, legend_title, levels, lims, line_z, linealpha, linecolor, linestyle, linewidth, link, margin, marker_z, markeralpha, markercolor, markershape, markersize, markerstrokealpha, markerstrokecolor, markerstrokewidth, normalize, orientation, overwrite_figure, permute, polar, primary, projection, quiver, ribbon, right_margin, scale, series_annotations, seriesalpha, seriescolor, seriestype, show, show_empty_bins, size, smooth, subplot, subplot_index, tick_direction, tickfontcolor, tickfontfamily, tickfonthalign, tickfontrotation, tickfontsize, tickfontvalign, ticks, title, titlefontcolor, titlefontfamily, titlefonthalign, titlefontrotation, titlefontsize, titlefontvalign, top_margin, weights, window_title, x, xdiscrete_values, xerror, xflip, xforeground_color_axis, xforeground_color_border, xforeground_color_grid, xforeground_color_text, xgrid, xgridalpha, xgridlinewidth, xgridstyle, xguide, xguidefontcolor, xguidefontfamily, xguidefonthalign, xguidefontrotation, xguidefontsize, xguidefontvalign, xlims, xlink, xscale, xtick_direction, xtickfontcolor, xtickfontfamily, xtickfonthalign, xtickfontrotation, xtickfontsize, xtickfontvalign, xticks, y, ydiscrete_values, yerror, yflip, yforeground_color_axis, yforeground_color_border, yforeground_color_grid, yforeground_color_text, ygrid, ygridalpha, ygridlinewidth, ygridstyle, yguide, yguidefontcolor, yguidefontfamily, yguidefonthalign, yguidefontrotation, yguidefontsize, yguidefontvalign, ylims, ylink, yscale, ytick_direction, ytickfontcolor, ytickfontfamily, ytickfonthalign, ytickfontrotation, ytickfontsize, ytickfontvalign, yticks, z, z_order, zdiscrete_values, zerror, zflip, zforeground_color_axis, zforeground_color_border, zforeground_color_grid, zforeground_color_text, zgrid, zgridalpha, zgridlinewidth, zgridstyle, zguide, zguidefontcolor, zguidefontfamily, zguidefonthalign, zguidefontrotation, zguidefontsize, zguidefontvalign, zlims, zlink, zscale, ztick_direction, ztickfontcolor, ztickfontfamily, ztickfonthalign, ztickfontrotation, ztickfontsize, ztickfontvalign, zticks
+└ @ Plots /scratch/opt/htroppen/.julia/packages/Plots/AAjgN/src/args.jl:1637
+seed = 0xa992052d0c090be0
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -4.137598e+00   1.636854e+01   2.050614e+01            Inf   4.819000e+00   6.225358e-01           2820            349            119      10001           47         29
+*          4          5  -2.244125e+00   1.547352e+01   1.771764e+01            Inf   1.064900e+01   8.451498e-01           1437             49            261      10001           49         50
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   1.547352e+01   1.547352e+01   0.000000e+00   2.044921e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   1.547352e+01   1.547352e+01   0.000000e+00   8.502266e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 15.47351635431215
+	 Dual Bound: -2.244125208765399
+	 Dual Gap (relative): Inf
+
+Search Statistics.
+	 Total number of nodes processed: 9
+	 Total number of lmo calls: 265
+	 Total time (s): 11.509
+	 LMO calls / sec: 23.025458336953687
+	 Nodes / sec: 0.781996698236163
+	 LMO calls / node: 29.444444444444443
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -1.080467e+01   1.547352e+01   2.627818e+01            Inf   1.684000e+00   1.781473e+00           1683            283            127      10001           46         25
+*          2          3  -1.080467e+01   1.365383e+01   2.445850e+01            Inf   3.202000e+00   1.561524e+00           1516            114            187      10001           46         59
+         100         51   9.843768e-01   1.365383e+01   1.266945e+01   1.287053e+01   6.755200e+01   2.235315e+00             94             12           4389        314           28         39
+         200         79   8.400381e+00   1.365383e+01   5.253450e+00   6.253824e-01   1.344860e+02   2.074565e+00           1553             36           8343      10001           35         15
+         300         89   1.121861e+01   1.365383e+01   2.435216e+00   2.170692e-01   2.452960e+02   1.585839e+00           1653             24          14656      10001           24         35
+         400         79   1.255650e+01   1.365383e+01   1.097334e+00   8.739169e-02   3.445580e+02   1.390187e+00            165             22          20317       1052           36         42
+         500         39   1.320881e+01   1.365383e+01   4.450202e-01   3.369117e-02   4.231890e+02   1.273663e+00            172             18          25778        938           37         29
+         549         18   1.352013e+01   1.365383e+01   1.337014e-01   9.889060e-03   4.606460e+02   1.230880e+00            141             55          28129        394           15          7
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   1.365383e+01   1.365383e+01   0.000000e+00   1.398941e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   1.365383e+01   1.365383e+01   0.000000e+00   4.138491e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 13.65383099970366
+	 Dual Bound: 13.520129626255077
+	 Dual Gap (relative): 0.00988906002712759
+
+Search Statistics.
+	 Total number of nodes processed: 567
+	 Total number of lmo calls: 28133
+	 Total time (s): 460.651
+	 LMO calls / sec: 61.0722651204491
+	 Nodes / sec: 1.2308667516189045
+	 LMO calls / node: 49.617283950617285
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: true
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -1.762516e+00   1.365383e+01   1.541635e+01            Inf   1.736000e+00   1.728111e+00           1734            225            106      10001           52          0
+         100         53   8.976023e-01   1.365383e+01   1.275623e+01   1.421145e+01   4.044910e+02   3.782532e-01           2766             47         168873      10001         1611          0
+         200         83   8.493077e+00   1.365383e+01   5.160754e+00   6.076425e-01   7.032780e+02   4.024013e-01           2524             12         319092      10001          186          0
+         300         85   1.105466e+01   1.365383e+01   2.599166e+00   2.351194e-01   7.988240e+02   4.819585e-01           1510             26         323907      10001           28          0
+         400         73   1.247794e+01   1.365383e+01   1.175891e+00   9.423760e-02   8.851910e+02   5.343480e-01           1525             24         328495      10001           44          0
+         500         31   1.327487e+01   1.365383e+01   3.789591e-01   2.854710e-02   9.479610e+02   5.601496e-01           1634             25         332557      10001           59          0
+         539         14   1.352500e+01   1.365383e+01   1.288318e-01   9.525459e-03   9.740030e+02   5.677601e-01            102             45         333940        249           15          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Away-step Frank-Wolfe Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0 MOMENTUM: nothing AWAYSTEPS: true
+  Last             1   1.365383e+01   1.365383e+01   0.000000e+00   1.349494e-03   7.410185e+02              1
+----------------------------------------------------------------------------------------------------------------
+    PP             1   1.365383e+01   1.365383e+01   0.000000e+00   3.779864e-02   2.645598e+01              1
+----------------------------------------------------------------------------------------------------------------
+[ Info: In memory_mode memory iterates are written back into x0!
+[ Info: In memory_mode memory iterates are written back into x0!
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+[ Info: In memory_mode memory iterates are written back into x0!
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 13.65383099970366
+	 Dual Bound: 13.524999175839884
+	 Dual Gap (relative): 0.009525458906785852
+
+Search Statistics.
+	 Total number of nodes processed: 553
+	 Total number of lmo calls: 333944
+	 Total time (s): 974.042
+	 LMO calls / sec: 342.84353241441335
+	 Nodes / sec: 0.5677373254952045
+	 LMO calls / node: 603.877034358047
+
+
+seed = 0xe995535b49acbdc9
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -1.148505e+02   2.783518e+01   1.426857e+02            Inf   4.748000e+00   6.318450e-01           2777            291             98      10001           46         13
+*          2          3  -1.148505e+02   2.728539e+01   1.421359e+02            Inf   7.689000e+00   6.502796e-01           1579             97            146      10001           43         35
+*          4          5  -1.148505e+02   2.506735e+01   1.399178e+02            Inf   1.074900e+01   8.372872e-01           1497             69            279      10001           48         50
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   2.506735e+01   2.506735e+01   0.000000e+00   2.204385e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   2.506735e+01   2.506735e+01   0.000000e+00   8.481738e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 25.067345132733834
+	 Dual Bound: -114.85048454381042
+	 Dual Gap (relative): Inf
+
+Search Statistics.
+	 Total number of nodes processed: 9
+	 Total number of lmo calls: 283
+	 Total time (s): 11.606
+	 LMO calls / sec: 24.3839393417198
+	 Nodes / sec: 0.7754609684645873
+	 LMO calls / node: 31.444444444444443
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -6.130544e+00   2.506735e+01   3.119789e+01            Inf   1.698000e+00   1.766784e+00           1697            265            124      10001           52         26
+*          2          3  -6.130544e+00   2.465244e+01   3.078298e+01            Inf   3.176000e+00   1.574307e+00           1477             61            157      10001           46         41
+*          4          5  -6.130544e+00   1.865311e+01   2.478365e+01            Inf   6.255000e+00   1.438849e+00           1497             61            299      10001           51         56
+*         13         14  -8.625069e-01   1.804480e+01   1.890730e+01            Inf   2.036800e+01   1.325609e+00           1658            170            983      10001           41         26
+         100         43   1.645128e+00   1.804480e+01   1.639967e+01   9.968627e+00   6.500100e+01   2.199966e+00             79             11           4349        306           27         52
+         200         83   1.063835e+01   1.804480e+01   7.406445e+00   6.962022e-01   1.394240e+02   2.029780e+00           1559             17           8371      10001           33         44
+         300        103   1.378986e+01   1.804480e+01   4.254934e+00   3.085552e-01   2.627970e+02   1.533503e+00           1638             11          14764      10001           30         44
+         400         87   1.576742e+01   1.804480e+01   2.277375e+00   1.444355e-01   3.670090e+02   1.326943e+00           1560             28          20877      10001           33         58
+         500         47   1.722770e+01   1.804480e+01   8.170995e-01   4.742941e-02   4.579830e+02   1.194367e+00             78             12          26843        362           32         24
+         551         18   1.786878e+01   1.804480e+01   1.760140e-01   9.850365e-03   4.938050e+02   1.152277e+00            700            132          29540       3745           35         28
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   1.804480e+01   1.804480e+01   0.000000e+00   1.613302e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   1.804480e+01   1.804480e+01   0.000000e+00   4.189584e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 18.044797747904365
+	 Dual Bound: 17.868783714263202
+	 Dual Gap (relative): 0.009850364549472124
+
+Search Statistics.
+	 Total number of nodes processed: 569
+	 Total number of lmo calls: 29544
+	 Total time (s): 493.811
+	 LMO calls / sec: 59.82855788955694
+	 Nodes / sec: 1.1522627077971128
+	 LMO calls / node: 51.92267135325132
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: true
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -2.420525e+01   1.804480e+01   4.225004e+01            Inf   1.693000e+00   1.772002e+00           1692            194             92      10001           51          0
+         100         41   1.731958e+00   1.804480e+01   1.631284e+01   9.418724e+00   4.181400e+02   3.372076e-01          15547           9145         189854      10001         1135          0
+         200         73   1.035109e+01   1.804480e+01   7.693709e+00   7.432753e-01   7.487800e+02   3.645931e-01           1484             41         354471      10001           43          0
+         300         91   1.393589e+01   1.804480e+01   4.108907e+00   2.948435e-01   8.707530e+02   4.490366e-01           1614             30         362460      10001           32          0
+         400         73   1.607513e+01   1.804480e+01   1.969671e+00   1.225291e-01   9.681250e+02   4.885733e-01           1429             28         367305      10001           39          0
+         500         47   1.739625e+01   1.804480e+01   6.485474e-01   3.728087e-02   1.054899e+03   5.185331e-01           1670             17         371744      10001           74          0
+         543         16   1.790487e+01   1.804480e+01   1.399236e-01   7.814835e-03   1.081516e+03   5.168671e-01           1253            126         373611       7903           47          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Away-step Frank-Wolfe Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0 MOMENTUM: nothing AWAYSTEPS: true
+  Last             1   1.804480e+01   1.804480e+01   0.000000e+00   1.483781e-03   6.739539e+02              1
+----------------------------------------------------------------------------------------------------------------
+    PP             1   1.804480e+01   1.804480e+01   0.000000e+00   2.862681e-02   3.493229e+01              1
+----------------------------------------------------------------------------------------------------------------
+[ Info: In memory_mode memory iterates are written back into x0!
+[ Info: In memory_mode memory iterates are written back into x0!
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+[ Info: In memory_mode memory iterates are written back into x0!
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 18.044797747904365
+	 Dual Bound: 17.904874108547887
+	 Dual Gap (relative): 0.007814835139761084
+
+Search Statistics.
+	 Total number of nodes processed: 559
+	 Total number of lmo calls: 373615
+	 Total time (s): 1081.546
+	 LMO calls / sec: 345.4453162417502
+	 Nodes / sec: 0.5168527274845452
+	 LMO calls / node: 668.3631484794275
+
+
+seed = 0x2adb95efbcec3b89
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -3.339094e+00   1.480113e+01   1.814022e+01            Inf   4.910000e+00   6.109980e-01           2930            396            125      10001           52         11
+*          2          3  -3.339094e+00   1.084420e+01   1.418329e+01            Inf   7.842000e+00   6.375925e-01           1577             59            157      10001           50         30
+           4          5  -2.909143e+00   1.084420e+01   1.375334e+01            Inf   1.101300e+01   8.172160e-01           1514             42            301      10001           53         37
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   1.084420e+01   1.084420e+01   0.000000e+00   2.206319e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   1.084420e+01   1.084420e+01   0.000000e+00   8.453229e-01   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 10.844198734876324
+	 Dual Bound: -2.9091431817845406
+	 Dual Gap (relative): Inf
+
+Search Statistics.
+	 Total number of nodes processed: 9
+	 Total number of lmo calls: 305
+	 Total time (s): 11.868
+	 LMO calls / sec: 25.699359622514322
+	 Nodes / sec: 0.7583417593528817
+	 LMO calls / node: 33.888888888888886
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: false
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -3.363621e+00   1.084420e+01   1.420782e+01            Inf   1.794000e+00   1.672241e+00           1793            310            135      10001           54         24
+         100         37   6.790889e-01   1.084420e+01   1.016511e+01   1.496875e+01   6.323000e+01   2.166693e+00             87             10           4181        370           29         43
+         200         83   5.617574e+00   1.084420e+01   5.226624e+00   9.304059e-01   1.454200e+02   1.946087e+00           1578             13           8534      10001           39         30
+         300        107   8.252509e+00   1.084420e+01   2.591689e+00   3.140486e-01   2.575970e+02   1.579987e+00           1588             35          14781      10001           39         13
+         400         95   9.638182e+00   1.084420e+01   1.206017e+00   1.251291e-01   3.536010e+02   1.399883e+00           1595             15          20927      10001           37         24
+         500         39   1.046928e+01   1.084420e+01   3.749138e-01   3.581083e-02   4.172490e+02   1.291795e+00           1580             15          26617      10001           32         26
+         541         16   1.073931e+01   1.084420e+01   1.048908e-01   9.767001e-03   4.394640e+02   1.267453e+00            351            136          28623       1210           35         24
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   1.084420e+01   1.084420e+01   0.000000e+00   1.427181e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   1.084420e+01   1.084420e+01   0.000000e+00   4.109347e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 10.844198734876324
+	 Dual Bound: 10.739307901022901
+	 Dual Gap (relative): 0.009767001264898293
+
+Search Statistics.
+	 Total number of nodes processed: 557
+	 Total number of lmo calls: 28627
+	 Total time (s): 439.469
+	 LMO calls / sec: 65.13997574345403
+	 Nodes / sec: 1.2674386589270232
+	 LMO calls / node: 51.394973070017954
+
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+Away FW: true
+	 Total number of varibales: 80
+	 Number of integer variables: 80
+	 Number of binary variables: 0
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -3.058514e+00   1.084420e+01   1.390271e+01            Inf   1.714000e+00   1.750292e+00           1713            201             87      10001           55          0
+         100         41   6.303876e-01   1.084420e+01   1.021381e+01   1.620243e+01   3.246310e+02   4.343393e-01           3130             47         125971      10001         2198          0
+         200         77   5.882329e+00   1.084420e+01   4.961869e+00   8.435211e-01   5.960810e+02   4.647019e-01          12365           6963         234227      10001          277          0
+         300        101   8.187715e+00   1.084420e+01   2.656484e+00   3.244475e-01   7.163520e+02   5.597807e-01           1499             43         249082      10001           43          0
+         400         85   9.601218e+00   1.084420e+01   1.242981e+00   1.294608e-01   8.049240e+02   6.025414e-01           1572             29         253666      10001           41          0
+         500         41   1.034889e+01   1.084420e+01   4.953053e-01   4.786071e-02   8.774270e+02   6.165755e-01            109             20         258114        651           33          0
+         555         12   1.074589e+01   1.084420e+01   9.831109e-02   9.148717e-03   9.108470e+02   6.224975e-01            286             83         260145       1278           35          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Away-step Frank-Wolfe Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0 MOMENTUM: nothing AWAYSTEPS: true
+  Last             1   1.084420e+01   1.084420e+01   0.000000e+00   1.421565e-03   7.034501e+02              1
+----------------------------------------------------------------------------------------------------------------
+    PP             1   1.084420e+01   1.084420e+01   0.000000e+00   2.843849e-02   3.516361e+01              1
+----------------------------------------------------------------------------------------------------------------
+[ Info: In memory_mode memory iterates are written back into x0!
+[ Info: In memory_mode memory iterates are written back into x0!
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+┌ Warning: dist 1.0 tol 1.0e-6
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/problem.jl:139
+[ Info: In memory_mode memory iterates are written back into x0!
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 10.844198734876324
+	 Dual Bound: 10.745887647714383
+	 Dual Gap (relative): 0.009148717200933238
+
+Search Statistics.
+	 Total number of nodes processed: 567
+	 Total number of lmo calls: 260149
+	 Total time (s): 910.877
+	 LMO calls / sec: 285.6027762255497
+	 Nodes / sec: 0.6224770193999849
+	 LMO calls / node: 458.81657848324517
+
+
