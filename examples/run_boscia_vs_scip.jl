@@ -1,6 +1,6 @@
 include("boscia_vs_scip.jl")
 
-for dimension in [20:5:50;]
+for dimension in [35:5:45;]
     for seed in 1:7
         @show seed, dimension
         boscia_vs_scip(seed, dimension, 2)
