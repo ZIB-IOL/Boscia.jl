@@ -29,7 +29,7 @@ function plot_boscia_vs_scip(mode; afw=false)
     # display(df_scip)
     time_limit = 1800
     filter!(row -> !(row.termination_scip == "TIME_LIMIT"),  df_scip)
-    filter!(row -> !(row.termination_scip == "OPTIMIZE_NOT_CALLED"),  df_boscia)
+    #filter!(row -> !(row.termination_scip == "OPTIMIZE_NOT_CALLED"),  df_boscia)
     #df_boscia = filter(row -> !(row.termination_boscia == "Time limit reached"),  df_boscia)
     filter!(row -> !(row.time_boscia >= time_limit),  df_boscia)
     #df_boscia = filter(row -> !(row.termination_scip == "TIME_LIMIT" && isapprox(row.solution_boscia, row.solution_scip)),  df_boscia)
