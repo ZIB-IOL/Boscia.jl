@@ -358,3 +358,136 @@ function boscia_vs_scip_birkhoff(seed=1, dimension=4, iter=3, k=3)
         CSV.write(joinpath(@__DIR__, "csv/boscia_vs_scip_birkhoff_$dimension.csv"), df_temp, append=false)
     end
 end
+
+function boscia_vs_scip_grouped(seed=1, iter=3; n=50, p=5n, k=n ÷ 2)
+    limit = 1800
+    Random.seed!(seed)
+    n = 20;
+    p = 5 * n
+    k = n ÷ 5
+    lambda_0 = rand()
+    lambda_2 = 10.0 * rand()
+    A = rand(n, p)
+    y = rand(n)
+    M = 2 * var(A)
+
+    function build_lmo()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, 2p)
+        for i in p+1:2p
+            MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
+            MOI.add_constraint(o, x[i], MOI.ZeroOne())
+        end
+        for i in 1:p
+            MOI.add_constraint(
+                o,
+                MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M], [x[i], x[i+p]]), 0.0),
+                MOI.GreaterThan(0.0),
+            )
+            MOI.add_constraint(
+                o,
+                MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M], [x[i], x[i+p]]), 0.0),
+                MOI.LessThan(0.0),
+            )
+        end
+        MOI.add_constraint(
+            o,
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
+            MOI.LessThan(1.0 * k),
+        )
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+    function f(x)
+        xv = @view(x[1:p])
+        return norm(y - A * xv)^2 + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(xv)^2
+    end
+
+    function grad!(storage, x)
+        xv = @view(x[1:p])
+        storage[1:p] .= 2 * (transpose(A) * A * xv - transpose(A) * y + lambda_2 * xv)
+        storage[p+1:2p] .= lambda_0
+        return storage
+    end
+
+
+    function build_scip_optimizer()      
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, 2p)
+        for i in p+1:2p
+            MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
+            MOI.add_constraint(o, x[i], MOI.ZeroOne())
+        end
+        for i in 1:p
+            MOI.add_constraint(
+                o,
+                MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M], [x[i], x[i+p]]), 0.0),
+                MOI.GreaterThan(0.0),
+            )
+            MOI.add_constraint(
+                o,
+                MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M], [x[i], x[i+p]]), 0.0),
+                MOI.LessThan(0.0),
+            )
+        end
+        MOI.add_constraint(
+            o,
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
+            MOI.LessThan(1.0 * k),
+        )
+        z = MOI.add_variable(o)
+        
+        epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
+        SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+        
+        MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
+        return o, epigraph_ch, x
+    end
+
+    intial_status = String(string(MOI.get(SCIP.Optimizer(), MOI.TerminationStatus())))
+    # SCIP
+    time_boscia = -Inf
+    for i in 1:iter
+        lmo = build_lmo()
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+        @show x, f(x)
+        @test f(x) <= f(result[:raw_solution]) + 1e-5
+        time_boscia=result[:total_time_in_sec]
+        status = result[:status]
+        if occursin("Optimal", result[:status])
+            status = "OPTIMAL"
+        end
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        file_name = joinpath(@__DIR__, "csv/boscia_vs_scip_sparsereg_$n.csv")
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else
+            CSV.write(file_name, df, append=true)
+        end
+    end
+
+    for i in 1:iter
+        o, epigraph_ch, x = build_scip_optimizer()
+        MOI.set(o, MOI.TimeLimitSec(), limit)
+        MOI.optimize!(o)
+        time_scip = MOI.get(o, MOI.SolveTimeSec())
+        # @show MOI.get(o, MOI.ObjectiveValue())
+        vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
+        solution_scip = f(vars_scip)
+        @show solution_scip
+        termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
+        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_sparsereg_$n.csv"), types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
+        df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
+        df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
+        df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
+        ncalls_scip = epigraph_ch.ncalls
+        df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
+        CSV.write(joinpath(@__DIR__, "csv/boscia_vs_scip_sparsereg_$n.csv"), df_temp, append=false)
+    end
+end
