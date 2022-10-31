@@ -12,8 +12,8 @@ function plot_boscia_vs_scip(mode; afw=false)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_lowdim.csv")))
     elseif mode == "mixed_50"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
-    elseif mode == "integer_50_tidy"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50_tidy.csv")))
+    elseif mode == "integer_50"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
     else
         error("wrong option")
     end
@@ -68,7 +68,7 @@ function plot_boscia_vs_scip(mode; afw=false)
         @show nrow(df_afw), nrow(df_boscia)
     end
 
-    if afw && mode == "integer_50_tidy"
+    if afw && mode == "integer_50"
         df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
         indices = [index for index in 1:nrow(df_afw) if isodd(index)]
         delete!(df_afw, indices)
@@ -83,7 +83,7 @@ function plot_boscia_vs_scip(mode; afw=false)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
-    if mode == "integer" || mode == "integer_50_tidy"
+    if mode == "integer" || mode == "integer_50"
         title("Pure-integer portfolio problem", loc="center")
     else
         title("Mixed-integer portfolio problem", loc="center")
@@ -103,7 +103,7 @@ function plot_boscia_vs_scip(mode; afw=false)
         file = ("examples/csv/boscia_vs_scip_mixed_lowdim.pdf")
     elseif mode == "mixed_50"
         file = ("examples/csv/boscia_vs_scip_mixed_50.pdf")
-    elseif mode == "integer_50_tidy"
+    elseif mode == "integer_50"
         file = ("examples/csv/boscia_vs_scip_integer_50.pdf")
     end
 
