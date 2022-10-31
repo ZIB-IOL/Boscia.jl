@@ -14,8 +14,8 @@ using Test
 using Plots
 
 # For bug hunting:
-# seed = rand(UInt64)
-seed = 0x190b68d57cdf7d56
+seed = rand(UInt64)
+#seed = 0x190b68d57cdf7d56
 @show seed
 Random.seed!(seed)
 
@@ -71,11 +71,17 @@ _, _, result_no_active_set = Boscia.solve(f, grad!, build_lmo(), verbose=true, w
 _, _, result_no_shadow = Boscia.solve(f, grad!, build_lmo(), verbose=true, warmstart_active_set=true, warmstart_shadow_set=false)
 _, _, result_no_warmstart = Boscia.solve(f, grad!, build_lmo(), verbose=true, warmstart_active_set=false, warmstart_shadow_set=false)
 
+_, _, result_afw = Boscia.solve(f, grad!, lmo, verbose=true, afw=true)
+# _, _, result_no_active_set = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=true)
+# _, _, result_no_shadow = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=true, warmstart_shadow_set=false)
+# _, _, result_no_warmstart = Boscia.solve(f, grad!, lmo, verbose=true, warmstart_active_set=false, warmstart_shadow_set=false)
+
 using JSON
-open("results_portfolio.json", "w") do f
+open("results_portfolio_afw_" * string(seed) * ".json", "w") do f
     write(
         f,
-        JSON.json((; result_baseline, result_no_warmstart, result_no_active_set, result_no_shadow))
+        # JSON.json((; result_baseline, result_no_warmstart, result_no_active_set, result_no_shadow))
+        JSON.json((; result_baseline, result_afw))
     )
 end
 

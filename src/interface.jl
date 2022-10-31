@@ -17,6 +17,7 @@ function solve(
     min_node_fw_epsilon=1e-6,
     warmstart_active_set=true,
     warmstart_shadow_set=true,
+    afw=false,
     kwargs...,
 )
     if verbose
@@ -28,6 +29,8 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
     end
+
+    println("Away FW: " * string(afw))
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
@@ -116,6 +119,7 @@ function solve(
                 :time_limit => time_limit,
                 :warmstart_active_set => warmstart_active_set,
                 :warmstart_shadow_set => warmstart_shadow_set,
+                :afw => afw
             ),
         ),
         branch_strategy=branching_strategy,
@@ -466,16 +470,29 @@ function postsolve(tree, result, time_ref, verbose=false)
     v = compute_extreme_point(tree.root.problem.lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     verbose && println("Postprocessing")
-    x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
-        tree.root.problem.f,
-        tree.root.problem.g,
-        tree.root.problem.lmo,
-        active_set,
-        line_search=FrankWolfe.Adaptive(verbose=false),
-        lazy=true,
-        verbose=verbose,
-        max_iteration=10000,
-    )
+    if !tree.root.options[:afw]
+        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            active_set,
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            lazy=true,
+            verbose=verbose,
+            max_iteration=10000,
+        )
+    else 
+        x, _, primal, dual_gap, _, _ = FrankWolfe.away_frank_wolfe(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            active_set,
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            lazy=true,
+            verbose=verbose,
+            max_iteration=10000,
+        )
+    end
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
