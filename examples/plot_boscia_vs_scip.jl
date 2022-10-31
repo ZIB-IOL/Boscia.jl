@@ -80,6 +80,7 @@ function plot_boscia_vs_scip(mode; afw=false)
     end
 
     ylabel("Solved instances")
+    locator_params(axis="y", nbins=4)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
