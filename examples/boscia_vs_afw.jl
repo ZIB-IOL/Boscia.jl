@@ -69,7 +69,8 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
     
     for i in 1:iter
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
+        #x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=false)
         @show x, f(x)
         @test dot(ai, x) <= bi + 1e-6
         @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -79,7 +80,7 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
             status = "OPTIMAL"
         end
         df = DataFrame(seed=seed, dimension=n, time_afw=time_afw, solution_afw=result[:primal_objective], termination_afw=status)
-        file_name = joinpath(@__DIR__,"afw_mixed_50.csv")
+        file_name = joinpath(@__DIR__,"no_warm_start_as_ss_mixed_50.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
         else 
