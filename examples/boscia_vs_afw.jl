@@ -10,7 +10,7 @@ const MOI = MathOptInterface
 using CSV
 using DataFrames
 
-function boscia_vs_afw(seed=1, dimension=5, iter=3)
+function boscia_vs_afw(seed=1, dimension=5, iter=3; mode, bo_mode)
 
     Random.seed!(seed)
     n = dimension
@@ -24,8 +24,11 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
     @assert isposdef(Mi)
 
     # integer set
-    #I = 1:(n÷2)
-    I = collect(1:n)
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = 1:(n÷2)
+    end
     
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -70,7 +73,13 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
     
     for i in 1:iter
         #x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=false)
+        if bo_mode == "as_ss"
+            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=true)
+        elseif bo_mode == "as"
+            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
+        elseif bo_mode == "ss"
+            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
+        end            
         @show x, f(x)
         @test dot(ai, x) <= bi + 1e-6
         @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -80,7 +89,7 @@ function boscia_vs_afw(seed=1, dimension=5, iter=3)
             status = "OPTIMAL"
         end
         df = DataFrame(seed=seed, dimension=n, time_afw=time_afw, solution_afw=result[:primal_objective], termination_afw=status)
-        file_name = joinpath(@__DIR__,"no_warm_start_as_ss_integer_50.csv")
+        file_name = joinpath(@__DIR__,"no_warm_start_" * bo_mode * "_" * mode * "_50.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
         else 
