@@ -69,8 +69,45 @@ gdf = combine(
     )
 
 # display(gdf)
-# boscia # no ws # no as # no ss # afw # scip
-# dim # time # solved 
+rename!(gdf,
+    :time_boscia_mean => :timeBoscia, 
+    :termination_boscia_sum => :terminationBoscia,
+    :time_scip_mean => :timeScip, 
+    :termination_scip_sum => :terminationScip,
+    :time_no_ws_mean => :timeNoWs, 
+    :termination_no_ws_sum => :terminationNoWs,
+    :time_no_as_mean => :timeNoAs, 
+    :termination_no_as_sum => :terminationNoAs,
+    :time_no_ss_mean => :timeNoSs, 
+    :termination_no_ss_sum => :terminationNoSs,
+    :time_afw_mean => :timeAfw, 
+    :termination_afw_sum => :terminationAfw,
+    )
+
+# parse to int
+gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
+gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
+gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
+gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
+gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
+gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
+
+# solved instances in percentage
+no_experiments = 7
+gdf[!,:terminationBoscia] = gdf[!,:terminationBoscia]/no_experiments*100
+gdf[!,:terminationScip] = gdf[!,:terminationScip]/no_experiments*100
+gdf[!,:terminationNoWs] = gdf[!,:terminationNoWs]/no_experiments*100
+gdf[!,:terminationNoAs] = gdf[!,:terminationNoAs]/no_experiments*100
+gdf[!,:terminationNoSs] = gdf[!,:terminationNoSs]/no_experiments*100
+gdf[!,:terminationAfw] = gdf[!,:terminationAfw]/no_experiments*100
+
+# parse to int
+gdf[!,:terminationBoscia] = convert.(Int64,round.(gdf[!,:terminationBoscia]))
+gdf[!,:terminationScip] = convert.(Int64,round.(gdf[!,:terminationScip]))
+gdf[!,:terminationNoWs] = convert.(Int64,round.(gdf[!,:terminationNoWs]))
+gdf[!,:terminationNoAs] = convert.(Int64,round.(gdf[!,:terminationNoAs]))
+gdf[!,:terminationNoSs] = convert.(Int64,round.(gdf[!,:terminationNoSs]))
+gdf[!,:terminationAfw] = convert.(Int64,round.(gdf[!,:terminationAfw]))
 
 file_name = joinpath(@__DIR__, "csv/integer_50.csv")
 CSV.write(file_name, gdf, append=false)
