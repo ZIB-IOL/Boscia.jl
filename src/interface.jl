@@ -15,6 +15,7 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
+    use_postsolve = true,
     kwargs...,
 )
     if verbose
@@ -171,7 +172,7 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose)
+    x = postsolve(tree, result, time_ref, verbose, use_postsolve)
 
     # Check solution and polish
     x_raw = copy(x)
@@ -191,15 +192,6 @@ function solve(
         end
     end
     println() # cleaner output
-
-    # Reset LMO 
-    int_bounds = IntegerBounds()
-    build_LMO(
-        tree.root.problem.lmo,
-        tree.root.problem.integer_variable_bounds,
-        int_bounds,
-        tree.root.problem.integer_variables,
-    )
 
     return x, tree.root.problem.lmo, result
 end
@@ -439,39 +431,53 @@ function build_bnb_callback(
     end
 end
 
-function postsolve(tree, result, time_ref, verbose=false)
+function postsolve(tree, result, time_ref, verbose, use_postsolve)
     x = Bonobo.get_solution(tree)
+    primal = tree.incumbent_solution.objective
+    if use_postsolve
+        # Build solution lmo
+        fix_bounds = IntegerBounds()
+        for i in tree.root.problem.integer_variables
+            push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
+            push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+        end
 
-    # Build solution lmo
-    fix_bounds = IntegerBounds()
-    for i in tree.root.problem.integer_variables
-        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+        MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
+        free_model(tree.root.problem.lmo.lmo.o)
+        build_LMO(
+            tree.root.problem.lmo,
+            tree.root.problem.integer_variable_bounds,
+            fix_bounds,
+            tree.root.problem.integer_variables,
+        )
+        # Postprocessing
+        direction = ones(length(x))
+        v = compute_extreme_point(tree.root.problem.lmo, direction)
+        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        verbose && println("Postprocessing")
+        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            active_set,
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            lazy=true,
+            verbose=verbose,
+            max_iteration=10000,
+        )
+
+        # update tree
+        @assert primal <= tree.incumbent + 1e-5
+        if primal < tree.incumbent
+            tree.root.updated_incumbent[] = true
+            tree.incumbent = primal
+            tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+        else
+            @assert tree.lb <= primal - dual_gap
+        end
+        tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+        tree.incumbent_solution.solution = tree.solutions[1].solution = x
     end
-
-    MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-    free_model(tree.root.problem.lmo.lmo.o)
-    build_LMO(
-        tree.root.problem.lmo,
-        tree.root.problem.integer_variable_bounds,
-        fix_bounds,
-        tree.root.problem.integer_variables,
-    )
-    # Postprocessing
-    direction = ones(length(x))
-    v = compute_extreme_point(tree.root.problem.lmo, direction)
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    verbose && println("Postprocessing")
-    x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
-        tree.root.problem.f,
-        tree.root.problem.g,
-        tree.root.problem.lmo,
-        active_set,
-        line_search=FrankWolfe.Adaptive(verbose=false),
-        lazy=true,
-        verbose=verbose,
-        max_iteration=10000,
-    )
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -484,17 +490,6 @@ function postsolve(tree, result, time_ref, verbose=false)
         tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
 
-    # update tree
-    @assert primal <= tree.incumbent + 1e-5
-    if primal < tree.incumbent
-        tree.root.updated_incumbent[] = true
-        tree.incumbent = primal
-        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
-    else
-        @assert tree.lb <= primal - dual_gap
-    end
-    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
-    tree.incumbent_solution.solution = tree.solutions[1].solution = x
 
     result[:primal_objective] = primal
     result[:dual_bound] = tree_lb(tree)
@@ -522,6 +517,15 @@ function postsolve(tree, result, time_ref, verbose=false)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
     end
+
+    # Reset LMO 
+    int_bounds = IntegerBounds()
+    build_LMO(
+        tree.root.problem.lmo,
+        tree.root.problem.integer_variable_bounds,
+        int_bounds,
+        tree.root.problem.integer_variables,
+    )
 
     return x
 end
