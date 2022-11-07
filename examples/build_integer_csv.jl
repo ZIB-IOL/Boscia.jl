@@ -3,7 +3,7 @@ using DataFrames
 
 df = DataFrame()#dimension=Int64[], time_boscia=Float64[], termination_boscia=String[], time_scip=Float64[], termination_scip=String[], time_afw=Float64[], termination_afw=String[], time_no_ws=Float64[], termination_no_ws=String[], time_no_ss=Float64[], termination_no_ss=String[], time_no_as=Float64[], termination_no_as=String[])
 
-# load boscia 
+# load boscia and scip oa
 df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
 
 indices = [index for index in 1:nrow(df_bs) if isodd(index)]
@@ -17,6 +17,15 @@ df[!,:time_boscia] = df_bs[!,:time_boscia]
 df[!,:termination_boscia] = df_bs[!,:termination_boscia]
 df[!,:time_scip] = df_bs[!,:time_scip]
 df[!,:termination_scip] = df_bs[!,:termination_scip]
+
+# load afw
+df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
+delete!(df_afw, indices)
+df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
+df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
+
+df[!,:time_afw] = df_afw[!,:time_afw]
+df[!,:termination_afw] = df_afw[!,:termination_afw]
 
 display(df)
 # boscia # no ws # no as # no ss # afw # scip
