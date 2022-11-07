@@ -7,7 +7,6 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import Ipopt
-using ProfileView
 
 
 seed = rand(UInt64)
