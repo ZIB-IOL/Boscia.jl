@@ -2,7 +2,7 @@ using CSV
 using DataFrames
 using Statistics
 
-df = DataFrame() #dimension=Int64[], time_boscia=Float64[], termination_boscia=String[], time_scip=Float64[], termination_scip=String[], time_afw=Float64[], termination_afw=String[], time_no_ws=Float64[], termination_no_ws=String[], time_no_ss=Float64[], termination_no_ss=String[], time_no_as=Float64[], termination_no_as=String[])
+df = DataFrame()
 
 # load boscia and scip oa
 df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
@@ -57,12 +57,20 @@ termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination
 df[!,:time_no_as] = df_no_as[!,:time_afw]
 df[!,:termination_no_as] = termination_no_as
 
-# groupby dimension
-# gdf = combine(groupby(df, :dimension), :time_boscia => mean)
+# group by dimension
+gdf = combine(
+    groupby(df, :dimension), 
+    :time_boscia => mean, :termination_boscia => sum,
+    :time_scip => mean, :termination_scip => sum,
+    :time_no_ws => mean, :termination_no_ws => sum,
+    :time_no_as => mean, :termination_no_as => sum,
+    :time_no_ss => mean, :termination_no_ss => sum,
+    :time_afw => mean, :termination_afw => sum,
+    )
 
 # display(gdf)
 # boscia # no ws # no as # no ss # afw # scip
 # dim # time # solved 
 
 file_name = joinpath(@__DIR__, "csv/integer_50.csv")
-CSV.write(file_name, df, append=false)
+CSV.write(file_name, gdf, append=false)
