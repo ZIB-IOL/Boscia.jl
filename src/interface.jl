@@ -15,7 +15,7 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
-    use_postsolve = false,
+    use_postsolve = true,
     kwargs...,
 )
     if verbose
@@ -431,7 +431,7 @@ function build_bnb_callback(
     end
 end
 
-function postsolve(tree, result, time_ref, verbose=false, use_postsolve = true)
+function postsolve(tree, result, time_ref, verbose, use_postsolve)
     x = Bonobo.get_solution(tree)
     primal = tree.incumbent_solution.objective
     if use_postsolve
