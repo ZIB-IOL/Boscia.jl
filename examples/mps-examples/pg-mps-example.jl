@@ -7,11 +7,10 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import Ipopt
-using ProfileView
 
 
 seed = rand(UInt64)
-#seed = 0xab30b963fc4f3488
+seed = 0x814f1ffe2f6b05ea  
 @show seed
 Random.seed!(seed)
 

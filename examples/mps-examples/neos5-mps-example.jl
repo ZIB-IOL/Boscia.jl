@@ -7,16 +7,17 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import Ipopt
-using ProfileView
 
+
+# A MIPLIB instance: neos5 
+# https://miplib.zib.de/instance_details_neos5.html
+# Objective function: Minimize the distance to randomely 
 
 seed = rand(UInt64)
 #seed = 0xab30b963fc4f3488
 @show seed
 Random.seed!(seed)
 
-# Example reading a polytope from a MIPLIB instance
-# neos5
 src = MOI.FileFormats.Model(filename="neos5.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/neos5.mps"))
 
