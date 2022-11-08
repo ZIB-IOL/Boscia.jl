@@ -104,7 +104,7 @@ function solve(
         @assert !MOI.is_valid(lmo.o, cidx)
     end
 
-    direction = rand(n)
+    direction = collect(1.0:n)
     v = compute_extreme_point(lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
