@@ -132,15 +132,16 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
         val = MOIU.eval_variables(valvar, func)
         set = MOI.get(o, MOI.ConstraintSet(), c_idx)
-        @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+       # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
         dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
         scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
-        if dist > 1000.0 * scip_tol # 1e-1?
-            println(func)
-            println(set)
-            println(val)
-            println(dist)
-            println(50.0* scip_tol)
+        if dist > 50.0 * scip_tol
+            if dist < 1.0
+                @warn "Point not linear feasible. Distance to set: $(dist)"
+                return true
+            end
+            @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+            @debug("Distance to set: $(dist)")
             return false
         end
     end
