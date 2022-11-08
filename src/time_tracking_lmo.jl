@@ -26,19 +26,19 @@ end
 
 function FrankWolfe.compute_extreme_point(lmo::TimeTrackingLMO, d; kwargs...)
     lmo.ncalls += 1
-    if lmo.lmo.o isa SCIP.Optimizer
-        SCIP.SCIPfreeTransform(lmo.lmo.o)
-    end
+    cleanup_solver(o)
     v = FrankWolfe.compute_extreme_point(lmo.lmo, d; kwargs)
 
     push!(lmo.optimizing_times, MOI.get(lmo.lmo.o, MOI.SolveTimeSec()))
     numberofnodes = MOI.get(lmo.lmo.o, MOI.NodeCount())
     push!(lmo.optimizing_nodes, numberofnodes)
     push!(lmo.simplex_iterations, MOI.get(lmo.lmo.o, MOI.SimplexIterations()))
-    if lmo.lmo.o isa SCIP.Optimizer
-        SCIP.SCIPfreeTransform(lmo.lmo.o)
-    end
+
+    cleanup_solver(o)
     return v
 end
+
+cleanup_solver(o) = nothing
+cleanup_solver(o::SCIP.Optimizer) = SCIP.SCIPfreeTransform(o)
 
 MOI.optimize!(time_lmo::TimeTrackingLMO) = MOI.optimize!(time_lmo.lmo.o)
