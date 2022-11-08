@@ -148,6 +148,14 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
     return true
 end
 
+function get_tol(o::SCIP.Optimizer)
+    return MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
+end
+
+function get_tol(o::HiGHS.Optimizer)
+    return 1.0e-06
+end
+
 is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.lmo.o, v)
 is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
     is_linear_feasible(lmo.o, v)
