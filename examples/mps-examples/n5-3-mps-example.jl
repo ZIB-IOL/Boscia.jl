@@ -9,13 +9,18 @@ const MOI = MathOptInterface
 import Ipopt
 
 
+# A MIPLIB instance: n5-3
+# https://miplib.zib.de/instance_details_n5-3.html
+# Objective function: Minimize the distance to randomely picked vertices
+# Number of variables   2550
+# Number of integers       0
+# Number of binaries     150
+# Number of constraints 1062
+
 seed = rand(UInt64)
-#seed = 0x34b7fea69efe2301
 @show seed
 Random.seed!(seed)
 
-# Example reading a polytope from a MIPLIB instance
-# n5-3
 src = MOI.FileFormats.Model(filename="n5-3.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/n5-3.mps"))
 
@@ -23,7 +28,6 @@ o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
 n = MOI.get(o, MOI.NumberOfVariables())
-
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
@@ -33,7 +37,6 @@ unique!(vs)
 
 @assert !isempty(vs)
 const b_mps = randn(n)
-
 const max_norm = 200 * maximum(norm.(vs))
 
 function f(x)
@@ -52,7 +55,7 @@ function grad!(storage, x)
     end
 end
 
-@testset "MPS pk1 instance" begin
+@testset "MPS n5-3 instance" begin
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=3000)
     @test f(x) <= f(result[:raw_solution])
 end

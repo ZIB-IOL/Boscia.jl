@@ -9,13 +9,18 @@ const MOI = MathOptInterface
 import Ipopt
 
 
+# A MIPLIB instance: ran14x18-disj-8
+# https://miplib.zib.de/instance_details_ran14x18-disj-8.html
+# Objective function: Minimize the distance to randomely picked vertices
+# Number of variables   504
+# Number of integers      0
+# Number of binaries    252
+# Number of constraints 447
+
 seed = rand(UInt64)
-#seed = 0xab30b963fc4f3488
 @show seed
 Random.seed!(seed)
 
-# Example reading a polytope from a MIPLIB instance
-# ran14x18-disj-8
 src = MOI.FileFormats.Model(filename="ran14x18-disj-8.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-files/ran14x18-disj-8.mps"))
 
@@ -23,7 +28,6 @@ o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
 n = MOI.get(o, MOI.NumberOfVariables())
-
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
@@ -33,7 +37,6 @@ unique!(vs)
 
 @assert !isempty(vs)
 const b_mps = randn(n)
-
 const max_norm = maximum(norm.(vs))
 
 function f(x)
@@ -52,7 +55,7 @@ function grad!(storage, x)
     end
 end
 
-@testset "MPS pk1 instance" begin
+@testset "MPS ran14x18-disj-8 instance" begin
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=3000)
     @test f(x) <= f(result[:raw_solution])
 end

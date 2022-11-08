@@ -11,10 +11,13 @@ import Ipopt
 
 # A MIPLIB instance: neos5 
 # https://miplib.zib.de/instance_details_neos5.html
-# Objective function: Minimize the distance to randomely 
+# Objective function: Minimize the distance to randomely picked vertices
+# Number of variables   63
+# Number of integers     0
+# Number of binaries    53
+# Number of constraints 63
 
 seed = rand(UInt64)
-#seed = 0xab30b963fc4f3488
 @show seed
 Random.seed!(seed)
 
@@ -25,7 +28,6 @@ o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
 n = MOI.get(o, MOI.NumberOfVariables())
-
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
@@ -35,7 +37,6 @@ unique!(vs)
 
 @assert !isempty(vs)
 const b_mps = randn(n)
-
 const max_norm = maximum(norm.(vs))
 
 function f(x)
@@ -54,7 +55,7 @@ function grad!(storage, x)
     end
 end
 
-@testset "MPS pk1 instance" begin
+@testset "MPS neos5 instance" begin
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 1, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=3000)
     @test f(x) <= f(result[:raw_solution])
 end

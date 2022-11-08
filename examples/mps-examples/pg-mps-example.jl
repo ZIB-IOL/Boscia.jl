@@ -10,7 +10,7 @@ import Ipopt
 
 
 seed = rand(UInt64)
-seed = 0x814f1ffe2f6b05ea  
+seed = 0x814f1ffe2f6b05ea
 @show seed
 Random.seed!(seed)
 
@@ -53,7 +53,7 @@ function grad!(storage, x)
 end
 
 @testset "MPS pk1 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=3000)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=2000)
     @test f(x) <= f(result[:raw_solution])
 end
 
