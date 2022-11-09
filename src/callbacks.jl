@@ -8,14 +8,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         @assert sum(active_set.weights .< 0) == 0
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
-       #= if !is_linear_feasible(tree.root.problem.lmo, state.v)
-           # @debug("The vertex $(state.v)")
-            @warn "Vertex not linear feasible."
-        end
-        if !is_linear_feasible(tree.root.problem.lmo, state.x)
-         #   @debug("The iterate $(state.x)")
-            @warn "Iterate not linear feasible."
-        end=#
 
         push!(fw_iterations, state.t)
         if ncalls != state.lmo.ncalls

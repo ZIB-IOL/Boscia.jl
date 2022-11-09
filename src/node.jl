@@ -109,11 +109,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.integer_variables,
     )
 
-    # At the root node activate reoptimization for SCIP
-    #if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" 
-     #   MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("reoptimization/enable"), node.id == 1)
-   # end
-
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.lmo)
     if status == MOI.INFEASIBLE
