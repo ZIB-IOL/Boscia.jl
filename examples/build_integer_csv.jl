@@ -154,6 +154,38 @@ function build_csv(mode)
     gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
     gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
+
+    # geo_mean of intersection with solved instances by all solvers
+    df_intersection = select!(df, Not(:time_scip))
+    df_intersection = select!(df_intersection, Not(:termination_scip))
+
+    df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
+    
+    df_intersection = combine(
+        groupby(df_intersection, :dimension), 
+        :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+        :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+        :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+        :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+        :time_afw => geo_mean => :AfwGeoMeanIntersection,
+        renamecols=false
+        )
+        
+    # parse to int
+    df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
+    df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
+    df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
+    df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
+    df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
+
+    # add geometric mean of intersected instances to main df
+    gdf[!,:BosciaGeoMeanIntersection] = df_intersection[!,:BosciaGeoMeanIntersection]
+    gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
+    gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
+    gdf[!,:NoSsGeoMeanIntersection] = df_intersection[!,:NoSsGeoMeanIntersection]
+    gdf[!,:AfwGeoMeanIntersection] = df_intersection[!,:AfwGeoMeanIntersection] 
+    
+    # save csv
     if mode == "integer"
         file_name = joinpath(@__DIR__, "csv/integer_50.csv")
     elseif mode == "mixed" 
