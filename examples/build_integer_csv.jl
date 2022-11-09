@@ -103,7 +103,7 @@ function build_csv(mode)
         :time_no_as => geo_mean, :termination_no_as => sum,
         :time_no_ss => geo_mean, :termination_no_ss => sum,
         :time_afw => geo_mean, :termination_afw => sum,
-        nrow, renamecols=false
+        nrow => :NumInstances, renamecols=false
         )
 
     # remove underscore in headers for LaTex
@@ -130,22 +130,29 @@ function build_csv(mode)
     gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
     gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
 
-    # solved instances in percentage
-    no_experiments = 7
-    gdf[!,:terminationBoscia] = gdf[!,:terminationBoscia]/no_experiments*100
-    gdf[!,:terminationScip] = gdf[!,:terminationScip]/no_experiments*100
-    gdf[!,:terminationNoWs] = gdf[!,:terminationNoWs]/no_experiments*100
-    gdf[!,:terminationNoAs] = gdf[!,:terminationNoAs]/no_experiments*100
-    gdf[!,:terminationNoSs] = gdf[!,:terminationNoSs]/no_experiments*100
-    gdf[!,:terminationAfw] = gdf[!,:terminationAfw]/no_experiments*100
+    # absolute instances solved
+    gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
+    gdf[!,:terminationScip] .= gdf[!,:terminationScip]
+    gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
+    gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
+    gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
+    gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
+
+    # relative instances solved
+    gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
 
     # parse to int
-    gdf[!,:terminationBoscia] = convert.(Int64,round.(gdf[!,:terminationBoscia]))
-    gdf[!,:terminationScip] = convert.(Int64,round.(gdf[!,:terminationScip]))
-    gdf[!,:terminationNoWs] = convert.(Int64,round.(gdf[!,:terminationNoWs]))
-    gdf[!,:terminationNoAs] = convert.(Int64,round.(gdf[!,:terminationNoAs]))
-    gdf[!,:terminationNoSs] = convert.(Int64,round.(gdf[!,:terminationNoSs]))
-    gdf[!,:terminationAfw] = convert.(Int64,round.(gdf[!,:terminationAfw]))
+    gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
+    gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
+    gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
+    gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
+    gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
+    gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
     if mode == "integer"
         file_name = joinpath(@__DIR__, "csv/integer_50.csv")
