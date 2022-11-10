@@ -494,8 +494,8 @@ function postsolve(tree, result, time_ref, verbose=false)
         tree.root.updated_incumbent[] = true
         tree.incumbent = primal
         tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
-    else
-        @assert tree.lb <= primal - dual_gap + 1e-5
+    # else
+    #     @assert tree.lb <= primal - dual_gap + 1e-5
     end
     tree.incumbent_solution.objective = tree.solutions[1].objective = primal
     tree.incumbent_solution.solution = tree.solutions[1].solution = x
