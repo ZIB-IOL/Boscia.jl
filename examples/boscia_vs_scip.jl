@@ -10,7 +10,7 @@ const MOI = MathOptInterface
 using CSV
 using DataFrames
 
-function boscia_vs_scip(seed=1, dimension=5, iter=3)
+function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
 
     Random.seed!(seed)
     n = dimension
@@ -24,8 +24,11 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
     @assert isposdef(Mi)
 
     # integer set
-    I = 1:(n÷2)
-    #I = collect(1:n)
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = 1:(n÷2)
+    end
     
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -76,7 +79,11 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
             status = "OPTIMAL"
         end
         df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
-        file_name = "examples/csv/boscia_vs_scip_mixed_50.csv"
+        if mode == "integer"
+            file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
+        elseif mode == "mixed"
+            file_name = "examples/csv/boscia_vs_scip_mixed_50.csv"
+        end
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
         else 
@@ -129,13 +136,18 @@ function boscia_vs_scip(seed=1, dimension=5, iter=3)
         solution_scip = f(vars_scip)
         @show solution_scip
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-        df_temp = DataFrame(CSV.File("examples/csv/boscia_vs_scip_integer_50.csv", types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
+        if mode == "integer"
+            file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
+        elseif mode == "mixed"
+            file_name = "examples/csv/boscia_vs_scip_mixed_50.csv"
+        end
+        df_temp = DataFrame(CSV.File(file_name, types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
         df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
         df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
         df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
         ncalls_scip = epigraph_ch.ncalls
         df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
-        CSV.write("examples/csv/boscia_vs_scip_integer_50.csv", df_temp, append=false)
+        CSV.write(file_name, df_temp, append=false)
     end
 end
 
