@@ -69,6 +69,7 @@ function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
+        Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
         @show x, f(x)
         @test dot(ai, x) <= bi + 1e-6
