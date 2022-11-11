@@ -65,7 +65,7 @@ function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
         return storage
     end
 
-    intial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
+    initial_status = String(string(MOI.get(o, MOI.TerminationStatus())))
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
@@ -287,7 +287,7 @@ function boscia_vs_scip_birkhoff(seed=1, dimension=4, iter=3, k=3)
         return FrankWolfe.MathOptLMO(o)
     end
 
-    intial_status = String(string(MOI.get(SCIP.Optimizer(), MOI.TerminationStatus())))
+    initial_status = String(string(MOI.get(SCIP.Optimizer(), MOI.TerminationStatus())))
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
@@ -300,7 +300,7 @@ function boscia_vs_scip_birkhoff(seed=1, dimension=4, iter=3, k=3)
         if result[:status] == "Optimal (tolerance reached)"
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=initial_status, ncalls_scip=-Inf)
         file_name = joinpath(@__DIR__, "csv/boscia_vs_scip_birkhoff_$dimension.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
@@ -375,9 +375,6 @@ end
 function boscia_vs_scip_grouped(seed=1, iter=3; n=50, p=5n, k=n ÷ 2)
     limit = 1800
     Random.seed!(seed)
-    n = 20;
-    p = 5 * n
-    k = n ÷ 5
     lambda_0 = rand()
     lambda_2 = 10.0 * rand()
     A = rand(n, p)
@@ -427,7 +424,7 @@ function boscia_vs_scip_grouped(seed=1, iter=3; n=50, p=5n, k=n ÷ 2)
     end
 
 
-    function build_scip_optimizer()      
+    function build_scip_optimizer()
         o = SCIP.Optimizer()
         MOI.set(o, MOI.Silent(), true)
         MOI.empty!(o)
@@ -463,7 +460,7 @@ function boscia_vs_scip_grouped(seed=1, iter=3; n=50, p=5n, k=n ÷ 2)
         return o, epigraph_ch, x
     end
 
-    intial_status = String(string(MOI.get(SCIP.Optimizer(), MOI.TerminationStatus())))
+    initial_status = String(string(MOI.get(SCIP.Optimizer(), MOI.TerminationStatus())))
     # SCIP
     time_boscia = -Inf
     for i in 1:iter
@@ -476,7 +473,7 @@ function boscia_vs_scip_grouped(seed=1, iter=3; n=50, p=5n, k=n ÷ 2)
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=initial_status, ncalls_scip=-Inf)
         file_name = joinpath(@__DIR__, "csv/boscia_vs_scip_sparsereg_$n.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
