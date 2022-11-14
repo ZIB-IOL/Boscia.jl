@@ -79,7 +79,7 @@ function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
         if result[:status] == "Optimal (tolerance reached)"
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=intial_status, ncalls_scip=-Inf)
+        df = DataFrame(seed=seed, dimension=n, time_boscia=time_boscia, solution_boscia=result[:primal_objective], termination_boscia=status, time_scip=-Inf, solution_scip=Inf, termination_scip=initial_status, ncalls_scip=-Inf)
         if mode == "integer"
             file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
         elseif mode == "mixed"
