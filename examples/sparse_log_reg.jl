@@ -37,8 +37,16 @@ headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
 rename!(df_cleveland,headers)
 df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
 df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
+# binary labels
+df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
 display(first(df_cleveland, 5))
+y = df_cleveland[!,:diagnosis]
+observations = Matrix(select!(df_cleveland, Not(:diagnosis)))
+matrix_df = Matrix(df_cleveland)
+print(size(matrix_df))
 
 # n0 = 20;
 # p = 5 * n0;
@@ -46,6 +54,7 @@ display(first(df_cleveland, 5))
 # const lambda_0 = rand(Float64);
 # const lambda_2 = 10.0 * rand(Float64);
 # const A = rand(Float64, n0, p)
+# print(size(A))
 # const y = rand(Float64, n0)
 # const M = 2 * var(A)
 
