@@ -9,8 +9,8 @@ function build_csv(mode)
     if mode == "integer"
         # load boscia and scip oa
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
-        indices = [index for index in 1:nrow(df_bs) if isodd(index)]
-        delete!(df_bs, indices)
+        # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
+        # delete!(df_bs, indices)
 
         df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
         df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
@@ -25,7 +25,7 @@ function build_csv(mode)
 
         # load afw
         df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
-        delete!(df_afw, indices)
+        #delete!(df_afw, indices)
         df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
         termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination_afw]]
