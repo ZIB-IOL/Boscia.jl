@@ -20,7 +20,7 @@ Random.seed!(seed)
 # Sparse logistic regression
 
 # Constant parameters for the sparse regression
-# min 1/N ∑ log(1 + exp(-y_i * β @ a_i)) +  λ_0 ∑ z_i + λ_2/2 * ||β||²
+# min 1/N ∑ log(1 + exp(-y_i * β @ a_i)) + λ_0 ∑ z_i + μ/2 * ||β||²
 # s.t. -Mz_i <= β_i <= Mz_i
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
@@ -50,15 +50,15 @@ df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
 # display(df_cleveland)
 y = df_cleveland[!,:diagnosis]
 A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-print(size(A)) # (303, 13) 
-print(size(y)) # (303,)
+print(size(A))  # (303, 13) 
+print(size(y))  # (303,)
 n0 = size(A)[1] # 303
-p = size(A)[2] # 13
-k = ceil(n0 / 5) # 61
+p = size(A)[2]  # 13
+k = 5.0
 const M = 2 * var(A)
 
-const lambda_0 = rand(Float64)
-const lambda_2 = 10.0 * rand(Float64)
+const lambda_0 = rand(Float64);
+const mu = 10.0 * rand(Float64);
 
 o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
@@ -117,9 +117,9 @@ function build_objective_gradient(A, y, mu)
     (f, grad!)
 end
 
-f, grad! = build_objective_gradient(A, y, 0.1)
+f, grad! = build_objective_gradient(A, y, mu)
 
-# x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
-
+x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
+@show f(x)
 # @show result // too large to be output
 # # f(x) <= f(result[:raw_solution]) + 1e-6
