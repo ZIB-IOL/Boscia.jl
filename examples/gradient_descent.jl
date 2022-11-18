@@ -137,5 +137,5 @@ storage = similar(ones(n))
 f, grad! = build_objective_gradient(A, y, mu)
 
 x = gradient_descent(f, grad!, n)
-println(x)
-println(f(x))
+@show x
+@show f(x) 

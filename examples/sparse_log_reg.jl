@@ -120,6 +120,7 @@ end
 f, grad! = build_objective_gradient(A, y, mu)
 
 x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
-@show f(x)
+@show x
+@show f(x) 
 # @show result // too large to be output
 # # f(x) <= f(result[:raw_solution]) + 1e-6
