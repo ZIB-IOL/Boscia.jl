@@ -79,8 +79,8 @@ function process_data()
     # # display(df_cleveland)
     # y = df_cleveland[!,:diagnosis]
     # A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-    n0 = 2#10;
-    p = 2#5 * n0;
+    n0 = 10;
+    p = 5 * n0;
     A = rand(Float64, n0, p)
     y = rand(Float64, n0)
     return A, y
