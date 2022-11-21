@@ -31,34 +31,43 @@ Random.seed!(seed)
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-# load heart disease data
-file_name = "processed.cleveland.data"
-df_cleveland = DataFrame(CSV.File(file_name, header=false))
-headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
-    :oldpeak,:slope,:ca,:thal,:diagnosis]
-rename!(df_cleveland,headers)
-df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
-df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
-df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
-df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+# # load heart disease data
+# file_name = "processed.cleveland.data"
+# df_cleveland = DataFrame(CSV.File(file_name, header=false))
+# headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+#     :oldpeak,:slope,:ca,:thal,:diagnosis]
+# rename!(df_cleveland,headers)
+# df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+# df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+# df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+# df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
-# labels of -1, 1
-df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
-df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
-# print(df_cleveland[!,:diagnosis])
-# display(first(df_cleveland, 5))
-# display(df_cleveland)
-y = df_cleveland[!,:diagnosis]
-A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-print(size(A))  # (303, 13) 
-print(size(y))  # (303,)
-n0 = size(A)[1] # 303
-p = size(A)[2]  # 13
-k = 5.0
-const M = 2 * var(A)
+# # labels of -1, 1
+# df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+# df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+# # print(df_cleveland[!,:diagnosis])
+# # display(first(df_cleveland, 5))
+# # display(df_cleveland)
+# y = df_cleveland[!,:diagnosis]
+# A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+# print(size(A))  # (303, 13) 
+# print(size(y))  # (303,)
+# n0 = size(A)[1] # 303
+# p = size(A)[2]  # 13
+# k = 5.0
+# const M = 2 * var(A)
 
-const lambda_0 = rand(Float64);
+# const lambda_0 = rand(Float64);
 const mu = 10.0 * rand(Float64);
+
+n0 = 10;
+p = 5 * n0;
+k = ceil(n0 / 5);
+const lambda_0 = rand(Float64);
+const lambda_2 = 10.0 * rand(Float64);
+const A = rand(Float64, n0, p)
+const y = rand(Float64, n0)
+const M = 2 * var(A)
 
 o = SCIP.Optimizer()
 MOI.set(o, MOI.Silent(), true)
@@ -119,7 +128,7 @@ end
 
 f, grad! = build_objective_gradient(A, y, mu)
 
-x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
+x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, fw_epsilon=1e-3, print_iter=10)
 @show x
 @show f(x) 
 # @show result // too large to be output

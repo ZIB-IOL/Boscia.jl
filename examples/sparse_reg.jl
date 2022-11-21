@@ -26,8 +26,10 @@ using Test
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
+seed = 1
+Random.seed!(seed)
 
-n0 = 20;
+n0 = 10;
 p = 5 * n0;
 k = ceil(n0 / 5);
 const lambda_0 = rand(Float64);
@@ -78,7 +80,8 @@ const M = 2 * var(A)
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
-
+    @show x
+    @show f(x) 
     # @show result // too large to be output
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end

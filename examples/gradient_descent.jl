@@ -61,24 +61,28 @@ function gradient_descent(f, grad!, n)
 end
 
 function process_data()
-    file_name = "processed.cleveland.data"
-    df_cleveland = DataFrame(CSV.File(file_name, header=false))
-    headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
-        :oldpeak,:slope,:ca,:thal,:diagnosis]
-    rename!(df_cleveland,headers)
-    df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
-    df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
-    df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
-    df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+    # file_name = "processed.cleveland.data"
+    # df_cleveland = DataFrame(CSV.File(file_name, header=false))
+    # headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+    #     :oldpeak,:slope,:ca,:thal,:diagnosis]
+    # rename!(df_cleveland,headers)
+    # df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+    # df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+    # df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+    # df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
-    # labels of -1, 1
-    df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
-    df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
-    # print(df_cleveland[!,:diagnosis])
-    # display(first(df_cleveland, 5))
-    # display(df_cleveland)
-    y = df_cleveland[!,:diagnosis]
-    A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+    # # labels of -1, 1
+    # df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+    # df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+    # # print(df_cleveland[!,:diagnosis])
+    # # display(first(df_cleveland, 5))
+    # # display(df_cleveland)
+    # y = df_cleveland[!,:diagnosis]
+    # A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+    n0 = 2#10;
+    p = 2#5 * n0;
+    A = rand(Float64, n0, p)
+    y = rand(Float64, n0)
     return A, y
 end
 
