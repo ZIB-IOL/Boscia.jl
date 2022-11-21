@@ -10,7 +10,7 @@ const MOI = MathOptInterface
 using CSV
 using DataFrames
 
-function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
+function boscia_vs_scip(mode, seed=1, dimension=5, iter=3; scip_oa=true)
 
     Random.seed!(seed)
     n = dimension
@@ -125,30 +125,32 @@ function boscia_vs_scip(mode, seed=1, dimension=5, iter=3)
         return o, epigraph_ch, x
     end
 
-    for i in 1:iter
-        o, epigraph_ch, x = build_scip_optimizer()
-        MOI.set(o, MOI.TimeLimitSec(), limit)
-        # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
-        # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
-        MOI.optimize!(o)
-        time_scip = MOI.get(o, MOI.SolveTimeSec())
-        vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
-        @assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
-        solution_scip = f(vars_scip)
-        @show solution_scip
-        termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-        if mode == "integer"
-            file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
-        elseif mode == "mixed"
-            file_name = "examples/csv/boscia_vs_scip_mixed_50.csv"
+    if scip_oa
+        for i in 1:iter
+            o, epigraph_ch, x = build_scip_optimizer()
+            MOI.set(o, MOI.TimeLimitSec(), limit)
+            # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
+            # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
+            MOI.optimize!(o)
+            time_scip = MOI.get(o, MOI.SolveTimeSec())
+            vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
+            @assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+            solution_scip = f(vars_scip)
+            @show solution_scip
+            termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
+            if mode == "integer"
+                file_name = "examples/csv/boscia_vs_scip_integer_50.csv"
+            elseif mode == "mixed"
+                file_name = "examples/csv/boscia_vs_scip_mixed_50.csv"
+            end
+            df_temp = DataFrame(CSV.File(file_name, types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
+            df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
+            df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
+            df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
+            ncalls_scip = epigraph_ch.ncalls
+            df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
+            CSV.write(file_name, df_temp, append=false)
         end
-        df_temp = DataFrame(CSV.File(file_name, types=Dict(:seed=>Int64, :dimension=>Int64, :time_boscia=>Float64, :solution_boscia=>Float64, :termination_boscia=>String, :time_scip=>Float64, :solution_scip=>Float64, :termination_scip=>String, :ncalls_scip=>Float64)))
-        df_temp[nrow(df_temp)-iter+i, :time_scip] = time_scip
-        df_temp[nrow(df_temp)-iter+i, :solution_scip] = solution_scip
-        df_temp[nrow(df_temp)-iter+i, :termination_scip] = termination_scip
-        ncalls_scip = epigraph_ch.ncalls
-        df_temp[nrow(df_temp)-iter+i, :ncalls_scip] = ncalls_scip
-        CSV.write(file_name, df_temp, append=false)
     end
 end
 

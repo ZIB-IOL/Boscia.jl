@@ -10,9 +10,9 @@ include("boscia_vs_scip.jl")
 #boscia_vs_scip("mixed", 8, 70, 1)
 #boscia_vs_scip("mixed", 9, 70, 1)
 #boscia_vs_scip("mixed", 10, 70, 1)
-for dimension in [80:5:80;]
-    for seed in 7:10
+for dimension in [85:5:100;]
+    for seed in 1:10
         @show seed, dimension
-        boscia_vs_scip("mixed", seed, dimension, 1)
+        boscia_vs_scip("mixed", seed, dimension, 1; scip_oa=false)
     end
 end
