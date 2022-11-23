@@ -513,7 +513,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
         )
 
         # update tree
-        @assert primal <= tree.incumbent + 1e-5
+        @assert primal <= tree.incumbent + 1e-2
         if primal < tree.incumbent
             tree.root.updated_incumbent[] = true
             tree.incumbent = primal
