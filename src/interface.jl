@@ -22,6 +22,7 @@ max_fw_iter           - maximum number of iterations ina FrankWolfe run.
 min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
                         lower bound.
 min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
+min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
 """
 function solve(
     f,
@@ -40,6 +41,7 @@ function solve(
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
     use_postsolve = true,
+    min_fw_iterations = 5,
     kwargs...,
 )
     if verbose
@@ -190,7 +192,7 @@ function solve(
         node_level,
     )
 
-    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
+    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
@@ -511,7 +513,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
         )
 
         # update tree
-        @assert primal <= tree.incumbent + 1e-5
+        @assert primal <= tree.incumbent + 1e-2
         if primal < tree.incumbent
             tree.root.updated_incumbent[] = true
             tree.incumbent = primal

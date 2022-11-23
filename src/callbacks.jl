@@ -1,5 +1,5 @@
 # FW callback
-function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations)
+function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations, min_fw_iterations)
     vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
@@ -28,7 +28,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
         end
 
-        if (state.primal - state.dual_gap > tree.incumbent)
+        if (state.primal - state.dual_gap > tree.incumbent + 1e-2) && tree.num_nodes != 1 && state.t > min_fw_iterations
             return false
         end
 
@@ -62,7 +62,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
         end
 
-        if check_rounding_value && state.tt == FrankWolfe.last
+        if check_rounding_value && state.tt == FrankWolfe.pp
             # round values
             x_rounded = copy(state.x)
             for idx in tree.branching_indices
