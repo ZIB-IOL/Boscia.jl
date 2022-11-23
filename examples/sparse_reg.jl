@@ -10,6 +10,8 @@ const MOI = MathOptInterface
 using Dates
 using Printf
 using Test
+using DataFrames
+using CSV
 
 # Sparse regression
 
@@ -26,17 +28,40 @@ using Test
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-seed = 1
+seed = 3
 Random.seed!(seed)
 
-n0 = 10;
-p = 5 * n0;
-k = ceil(n0 / 5);
+# n0 = 10;
+# p = 5 * n0;
+# k = ceil(n0 / 5);
+# const lambda_0 = rand(Float64);
+# const lambda_2 = 10.0 * rand(Float64);
+# const A = rand(Float64, n0, p)
+# const y = rand(Float64, n0)
+# const M = 2 * var(A)
+
+# load heart disease data
+file_name = "processed.cleveland.data"
+df_cleveland = DataFrame(CSV.File(file_name, header=false))
+headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+    :oldpeak,:slope,:ca,:thal,:diagnosis]
+rename!(df_cleveland,headers)
+df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+
+# labels of -1, 1
+df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+y = df_cleveland[!,:diagnosis]
+A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+n0 = size(A)[1] # 303
+p = size(A)[2]  # 13
+k = 13.0
+const M = 2 * var(A)
 const lambda_0 = rand(Float64);
 const lambda_2 = 10.0 * rand(Float64);
-const A = rand(Float64, n0, p)
-const y = rand(Float64, n0)
-const M = 2 * var(A)
 
 # "Sparse Regression" 
 @testset "Sparse regression" begin
@@ -79,9 +104,9 @@ const M = 2 * var(A)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, print_iter=10)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, fw_epsilon=1e-3, print_iter=10)
     @show x
     @show f(x) 
     # @show result // too large to be output
-    @test f(x) <= f(result[:raw_solution]) + 1e-6
+    # @test f(x) <= f(result[:raw_solution]) + 1e-6
 end

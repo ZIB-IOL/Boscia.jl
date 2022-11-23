@@ -2,6 +2,7 @@ using LinearAlgebra
 using DataFrames
 using CSV
 using Random
+using Statistics
 
 seed = 1
 Random.seed!(seed)
@@ -10,21 +11,23 @@ function gradient_descent(f, grad!, n)
     # get start point
     x = ones(n)
     x = reshape(x, length(x), 1)'
+    # use point close to boscia solution
+    x = [0.001953696947132268, 0.0, 0.17881937712867915, 0.0, 0.0, 0.0, 0.0, -0.010336480880873024, 0.0, 1, 0.0, 0.0, 0.13133731607041985, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0]
     storage = similar(x)
 
     alpha = 1
     alpha_max = 100
     theta = .0001
-    verbose = false
+    verbose = true
     iterations = 0
     current_phi = f(x)
     current_J = grad!(storage, x)
     delta = - current_J / LinearAlgebra.norm(current_J) # direction
 
     while ((LinearAlgebra.norm(alpha*delta)) >= theta) 
-        if iterations%5==0 && verbose
+        if iterations%100000==0 && verbose
             println("Iteration: ", iterations)
-            println("Current cost: ", current_phi[0])
+            println("Current cost: ", current_phi)
         end
         iterations += 1
 
@@ -53,7 +56,7 @@ function gradient_descent(f, grad!, n)
 
     if verbose
         println("-------------------------------------------")
-        println("Solution: ", x, " with cost: ", current_phi[0])
+        println("Solution: ", x, " with cost: ", current_phi)
         println("Found in ", iterations, " iterations")
     end 
 
@@ -61,28 +64,28 @@ function gradient_descent(f, grad!, n)
 end
 
 function process_data()
-    # file_name = "processed.cleveland.data"
-    # df_cleveland = DataFrame(CSV.File(file_name, header=false))
-    # headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
-    #     :oldpeak,:slope,:ca,:thal,:diagnosis]
-    # rename!(df_cleveland,headers)
-    # df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
-    # df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
-    # df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
-    # df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+    file_name = "processed.cleveland.data"
+    df_cleveland = DataFrame(CSV.File(file_name, header=false))
+    headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+        :oldpeak,:slope,:ca,:thal,:diagnosis]
+    rename!(df_cleveland,headers)
+    df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+    df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+    df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+    df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
-    # # labels of -1, 1
-    # df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
-    # df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
-    # # print(df_cleveland[!,:diagnosis])
-    # # display(first(df_cleveland, 5))
-    # # display(df_cleveland)
-    # y = df_cleveland[!,:diagnosis]
-    # A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-    n0 = 10;
-    p = 5 * n0;
-    A = rand(Float64, n0, p)
-    y = rand(Float64, n0)
+    # labels of -1, 1
+    df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+    df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+    # print(df_cleveland[!,:diagnosis])
+    # display(first(df_cleveland, 5))
+    # display(df_cleveland)
+    y = df_cleveland[!,:diagnosis]
+    A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+    # n0 = 10;
+    # p = 5 * n0;
+    # A = rand(Float64, n0, p)
+    # y = rand(Float64, n0)
     return A, y
 end
 
@@ -134,11 +137,31 @@ end
 #     (2 * x * C' * C)
 # end
 
+# sparse reg
+function f(x)
+    xv = @view(x[1:p])
+    return norm(y - A * xv)^2 + lambda_2 * norm(xv)^2
+end
+
+function grad!(storage, x)
+    storage[1:p] .= 2 * (transpose(A) * A * x[1:p] - transpose(A) * y + lambda_2 * x[1:p])
+    #storage[p+1:2p] .= lambda_0
+    return storage
+end
+
 A,y = process_data()
-mu = 10.0 * rand(Float64)
+
+#f, grad! = build_objective_gradient(A, y, mu)
+#mu = 10.0 * rand(Float64)
+
+n0 = size(A)[1] # 303
+p = size(A)[2]  # 13
+k = 5.0
+const M = 2 * var(A)
+const lambda_0 = rand(Float64);
+const lambda_2 = 10.0 * rand(Float64);
 n = size(A)[2]
 storage = similar(ones(n))
-f, grad! = build_objective_gradient(A, y, mu)
 
 x = gradient_descent(f, grad!, n)
 @show x
