@@ -139,10 +139,6 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
             scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
         end
         if dist > 50.0 * scip_tol
-           #= if dist < 5e-2
-                @warn "Point not linear feasible. Distance to set: $(dist)"
-                return true
-            end=#
             @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
             @debug("Distance to set: $(dist)")
             return false
