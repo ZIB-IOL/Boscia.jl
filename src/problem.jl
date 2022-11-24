@@ -89,12 +89,37 @@ function is_integer_feasible(
 end
 
 function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
+    indicator_feasible = indicator_present(tree) ? is_indicator_feasible(tree.root.lmo.lmo.o, x) : true
     return is_integer_feasible(
         tree.root.problem.integer_variables,
         x;
         atol=tree.options.atol,
         rtol=tree.options.rtol,
-    )
+    ) && indicator_feasible
+end
+
+"""
+Check if indicator constraints are being met
+"""
+function is_indicator_feasible(o::MOI.ModelLike, x, atol = 1e-6, rtol=1e-6)
+    valvar(f) = x[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if S <: MOI.Indicator
+            cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+            for c_idx in cons_list
+                func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+                val = MOIU.eval_variables(valvar, func)
+                set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+               # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+                dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
+                if dist > atol
+                    @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+                    @debug("Distance to set: $(dist)")
+                    return false
+                end
+            end
+        end
+    end
 end
 
 
@@ -158,3 +183,21 @@ end
 is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.lmo.o, v)
 is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
     is_linear_feasible(lmo.o, v)
+
+
+"""
+Are indicator constraints present
+"""
+function indicator_present(o::MOI.ModelLike)
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if S <: MOI.Indicator
+            return true
+        end
+        return false
+    end
+end
+
+indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.lmo.o)
+indicator_present(lmo::FrankWolfe.LinearMinimizationOracle) = indicator_present(lmo.o)
+indicator_present(tree::Bonobo.BnBTree) = indicator_present(tree.root.lmo.lmo.o)
+
