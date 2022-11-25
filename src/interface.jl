@@ -1,11 +1,36 @@
-
+"""
+    solve
+   
+f                     - objective function oracle. 
+g                     - oracle for the gradient of the objective. 
+lmo                   - a MIP solver instance (SCIP) encoding the feasible region.    
+traverse_strategy     - encodes how to choose the next node for evaluation. 
+                        By default the node with the best lower bound is picked.
+branching_strategy    - by default we branch on the entry which is the farthest 
+                        away from being an integer.
+fw_epsilon            - the tolerance for FrankWolfe in the root node.
+verbose               - if true, a log and solution statistics are printed.
+dual_gap              - if this absolute dual gap is reached, the algorithm stops.
+rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
+time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
+                        it is possible that no feasible solution has been found yet.     
+print_iter            - encodes after how manz proccessed nodes the current node and solution status 
+                        is printed. Will always print if a new integral solution has been found. 
+dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
+                        fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
+max_fw_iter           - maximum number of iterations ina FrankWolfe run.
+min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
+                        lower bound.
+min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
+min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
+"""
 function solve(
     f,
     grad!,
     lmo;
     traverse_strategy=Bonobo.BFS(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    fw_epsilon=1e-5,
+    fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
@@ -15,9 +40,11 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
-    warmstart_active_set=true,
     warmstart_shadow_set=true,
+    warmstart_active_set=true,
     afw=false,
+    use_postsolve = true,
+    min_fw_iterations = 5,
     kwargs...,
 )
     if verbose
@@ -28,6 +55,7 @@ function solve(
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
+        @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
     end
 
     println("Away FW: " * string(afw))
@@ -52,11 +80,11 @@ function solve(
     end
 
     if num_bin == 0 && num_int == 0
-        error("No integer or binary variables! Please use an IP solver!")
+        error("No integer or binary variables detected! Please use an IP solver!")
     end
 
     if verbose
-        println("\t Total number of varibales: ", n)
+        println("\t Total number of variables: ", n)
         println("\t Number of integer variables: ", num_int)
         println("\t Number of binary variables: $(num_bin)\n")
     end
@@ -84,7 +112,7 @@ function solve(
         @assert !MOI.is_valid(lmo.o, cidx)
     end
 
-    direction = ones(n)
+    direction = collect(1.0:n)
     v = compute_extreme_point(lmo, direction)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
@@ -172,14 +200,14 @@ function solve(
         node_level,
     )
 
-    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations)
+    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose)
+    x = postsolve(tree, result, time_ref, verbose, use_postsolve)
 
     # Check solution and polish
     x_raw = copy(x)
@@ -199,15 +227,6 @@ function solve(
         end
     end
     println() # cleaner output
-
-    # Reset LMO 
-    int_bounds = IntegerBounds()
-    build_LMO(
-        tree.root.problem.lmo,
-        tree.root.problem.integer_variable_bounds,
-        int_bounds,
-        tree.root.problem.integer_variables,
-    )
 
     return x, tree.root.problem.lmo, result
 end
@@ -447,52 +466,16 @@ function build_bnb_callback(
     end
 end
 
-function postsolve(tree, result, time_ref, verbose=false)
+"""
+    postsolve(tree, result, time_ref, verbose)
+
+Runs the post solve both for a cleaner solutiona and to optimize 
+for the continuous variables if present.
+Prints solution statistics if verbose is true.        
+"""
+function postsolve(tree, result, time_ref, verbose, use_postsolve)
     x = Bonobo.get_solution(tree)
-
-    # Build solution lmo
-    fix_bounds = IntegerBounds()
-    for i in tree.root.problem.integer_variables
-        push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-        push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
-    end
-
-    MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-    free_model(tree.root.problem.lmo.lmo.o)
-    build_LMO(
-        tree.root.problem.lmo,
-        tree.root.problem.integer_variable_bounds,
-        fix_bounds,
-        tree.root.problem.integer_variables,
-    )
-    # Postprocessing
-    direction = ones(length(x))
-    v = compute_extreme_point(tree.root.problem.lmo, direction)
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    verbose && println("Postprocessing")
-    if !tree.root.options[:afw]
-        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
-            lazy=true,
-            verbose=verbose,
-            max_iteration=10000,
-        )
-    else 
-        x, _, primal, dual_gap, _, _ = FrankWolfe.away_frank_wolfe(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
-            lazy=true,
-            verbose=verbose,
-            max_iteration=10000,
-        )
-    end
+    primal = tree.incumbent_solution.objective
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -505,17 +488,51 @@ function postsolve(tree, result, time_ref, verbose=false)
         tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
 
-    # update tree
-    # @assert primal <= tree.incumbent + 1e-5
-    if primal < tree.incumbent
-        tree.root.updated_incumbent[] = true
-        tree.incumbent = primal
-        tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
-    # else
-    #     @assert tree.lb <= primal - dual_gap
+    if use_postsolve
+        # Build solution lmo
+        fix_bounds = IntegerBounds()
+        for i in tree.root.problem.integer_variables
+            push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
+            push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+        end
+
+        MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
+        free_model(tree.root.problem.lmo.lmo.o)
+        build_LMO(
+            tree.root.problem.lmo,
+            tree.root.problem.integer_variable_bounds,
+            fix_bounds,
+            tree.root.problem.integer_variables,
+        )
+        # Postprocessing
+        direction = ones(length(x))
+        v = compute_extreme_point(tree.root.problem.lmo, direction)
+        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        verbose && println("Postprocessing")
+        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            active_set,
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            lazy=true,
+            verbose=verbose,
+            max_iteration=10000,
+        )
+
+        # update tree
+        @assert primal <= tree.incumbent + 1e-2
+        if primal < tree.incumbent
+            tree.root.updated_incumbent[] = true
+            tree.incumbent = primal
+            tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+        else
+            @assert tree.lb <= primal - dual_gap
+        end
+        tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+        tree.incumbent_solution.solution = tree.solutions[1].solution = x
     end
-    tree.incumbent_solution.objective = tree.solutions[1].objective = primal
-    tree.incumbent_solution.solution = tree.solutions[1].solution = x
+
 
     result[:primal_objective] = primal
     result[:dual_bound] = tree_lb(tree)
@@ -543,6 +560,15 @@ function postsolve(tree, result, time_ref, verbose=false)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
     end
+
+    # Reset LMO 
+    int_bounds = IntegerBounds()
+    build_LMO(
+        tree.root.problem.lmo,
+        tree.root.problem.integer_variable_bounds,
+        int_bounds,
+        tree.root.problem.integer_variables,
+    )
 
     return x
 end

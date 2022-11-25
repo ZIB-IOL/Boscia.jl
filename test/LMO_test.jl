@@ -53,5 +53,5 @@ const MOD = MathOptSetDistances
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 5.0], ones(n - 5)))
     @test Boscia.is_linear_feasible(o, vcat([5.0, 2.0, 1.5, 0.0, 5.0], ones(n - 5))) == false
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n - 5))) == false
-    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 4.5, 0.0, 5.0], ones(n - 5))) == false
+    @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 5.5, 0.0, 5.0], ones(n - 5))) == false
 end

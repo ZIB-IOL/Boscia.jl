@@ -125,6 +125,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     end
 
+
     if isempty(node.active_set)
         consI_list = MOI.get(
             tree.root.problem.lmo.lmo.o,
