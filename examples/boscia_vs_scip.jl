@@ -159,8 +159,8 @@ mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
     f::F
     grad!::G
     storage::XT
-    epivar::MOI.VariableIndex
-    vars::Vector{MOI.VariableIndex}
+    epivar::MOI.VariableIndex # z
+    vars::Vector{MOI.VariableIndex} # all variables 
     ncalls::Int
 end
 

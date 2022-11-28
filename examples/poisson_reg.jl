@@ -49,7 +49,7 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
     end
     Ns = 0.10
 
-    k = 10
+    k = n/2
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -129,13 +129,13 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=result[:primal_objective], termination=status)
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
-            file_name = joinpath(@__DIR__, bo_mode * "_poisson.csv")
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
         elseif bo_mode == "boscia"
-            file_name = joinpath(@__DIR__, bo_mode * "_poisson.csv")
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
         else 
-            file_name = joinpath(@__DIR__,"no_warm_start_" * bo_mode * "_poisson.csv")
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson.csv")
         end
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
@@ -146,119 +146,120 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
     end
 end
 
-# TODO: which variables to pass to scip oa
-# function poisson_scip(seed=1, n=20, iter = 1;)
-#     function build_scip_optimizer()
-#         Random.seed!(seed)
-#         p = n
-
-#         # underlying true weights
-#         ws = rand(Float64, p)
-#         # set 50 entries to 0
-#         for _ in 1:20
-#             ws[rand(1:p)] = 0
-#         end
-#         bs = rand(Float64)
-#         Xs = randn(Float64, n, p)
-#         ys = map(1:n) do idx
-#             a = dot(Xs[idx, :], ws) + bs
-#             return rand(Distributions.Poisson(exp(a)))
-#         end
-#         Ns = 0.10
-
-#         k = 10
-#         o = SCIP.Optimizer()
-#         MOI.set(o, MOI.Silent(), true)
-#         MOI.empty!(o)
-#         w = MOI.add_variables(o, p)
-#         z = MOI.add_variables(o, p)
-#         b = MOI.add_variable(o)
-#         for i in 1:p
-#             MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
-#             MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
-#             MOI.add_constraint(o, z[i], MOI.ZeroOne())
-#         end
-#         for i in 1:p
-#             MOI.add_constraint(o, Ns * z[i] + w[i], MOI.GreaterThan(0.0))
-#             MOI.add_constraint(o, -Ns * z[i] + w[i], MOI.LessThan(0.0))
-#             # Indicator: z[i] = 1 => -N <= w[i] <= N
-#             #=gl = MOI.VectorAffineFunction(
-#                 [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
-#                     MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, w[i])),],
-#                 [0.0, 0.0], )
-#             gg = MOI.VectorAffineFunction(
-#                 [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
-#                     MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, w[i])),],
-#                 [0.0, 0.0], )
-#             MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
-#             MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) =#
-#         end
-#         MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
-#         MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
-#         MOI.add_constraint(o, b, MOI.LessThan(Ns))
-#         MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
-#         lmo = FrankWolfe.MathOptLMO(o)
-
-#         α = 1.3
-#         function f(θ)
-#             w = @view(θ[1:p])
-#             b = θ[end]
-#             s = sum(1:n) do i
-#                 a = dot(w, Xs[:, i]) + b
-#                 return 1 / n * (exp(a) - ys[i] * a)
-#             end
-#             return s + α * norm(w)^2
-#         end
-#         function grad!(storage, θ)
-#             w = @view(θ[1:p])
-#             b = θ[end]
-#             storage[1:p] .= 2α .* w
-#             storage[p+1:2p] .= 0
-#             storage[end] = 0
-#             for i in 1:n
-#                 xi = @view(Xs[:, i])
-#                 a = dot(w, xi) + b
-#                 storage[1:p] .+= 1 / n * xi * exp(a)
-#                 storage[1:p] .-= 1 / n * ys[i] * xi
-#                 storage[end] += 1 / n * (exp(a) - ys[i])
-#             end
-#             storage ./= norm(storage)
-#             return storage
-#         end
+function poisson_scip(seed=1, n=20, iter = 1;)
+    limit = 1800
+    Random.seed!(seed)
+    p = n
+    Ns = 0.10
+    k = n/2
+    α = 1.3
+    function build_function()
+        # underlying true weights
+        ws = rand(Float64, p)
+        # set 50 entries to 0
+        for _ in 1:20
+            ws[rand(1:p)] = 0
+        end
+        bs = rand(Float64)
+        Xs = randn(Float64, n, p)
+        ys = map(1:n) do idx
+            a = dot(Xs[idx, :], ws) + bs
+            return rand(Distributions.Poisson(exp(a)))
+        end
+        function f(θ)
+            w = @view(θ[1:p])
+            b = θ[end]
+            s = sum(1:n) do i
+                a = dot(w, Xs[:, i]) + b
+                return 1 / n * (exp(a) - ys[i] * a)
+            end
+            return s + α * norm(w)^2
+        end
+        function grad!(storage, θ)
+            w = @view(θ[1:p])
+            b = θ[end]
+            storage[1:p] .= 2α .* w
+            storage[p+1:2p] .= 0
+            storage[end] = 0
+            for i in 1:n
+                xi = @view(Xs[:, i])
+                a = dot(w, xi) + b
+                storage[1:p] .+= 1 / n * xi * exp(a)
+                storage[1:p] .-= 1 / n * ys[i] * xi
+                storage[end] += 1 / n * (exp(a) - ys[i])
+            end
+            storage ./= norm(storage)
+            return storage
+        end
+        return f, grad!
+    end
+    f, grad! = build_function()
+    function build_scip_optimizer()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        w = MOI.add_variables(o, p)
+        z = MOI.add_variables(o, p)
+        b = MOI.add_variable(o)
+        for i in 1:p
+            MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+            MOI.add_constraint(o, z[i], MOI.ZeroOne())
+        end
+        for i in 1:p
+            MOI.add_constraint(o, Ns * z[i] + w[i], MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, -Ns * z[i] + w[i], MOI.LessThan(0.0))
+            # Indicator: z[i] = 1 => -N <= w[i] <= N
+            #=gl = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, w[i])),],
+                [0.0, 0.0], )
+            gg = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, w[i])),],
+                [0.0, 0.0], )
+            MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
+            MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) =#
+        end
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
+        MOI.add_constraint(o, b, MOI.LessThan(Ns))
+        MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
+        lmo = FrankWolfe.MathOptLMO(o)
         
-#         z = MOI.add_variable(o)
+        z_i = MOI.add_variable(o)
         
-#         epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z, x, 0)
-#         SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+        epigraph_ch = GradientCutHandler(o, f, grad!, zeros(p+p+1), z_i, vcat(w,z,b), 0)
+        SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
         
-#         MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)    
-#         # println("SCIP MODEL")
-#         # print(o)
-#         return o, epigraph_ch, x
-#     end
+        MOI.set(o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
+        # println("SCIP MODEL")
+        # print(o)
+        return o, epigraph_ch, vcat(w,z,b)
+    end
 
-#     for i in 1:iter
-#         o, epigraph_ch, x = build_scip_optimizer()
-#         MOI.set(o, MOI.TimeLimitSec(), limit)
-#         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
-#         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
-#         MOI.optimize!(o)
-#         time_scip = MOI.get(o, MOI.SolveTimeSec())
-#         vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
-#         @assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
-#         solution_scip = f(vars_scip)
-#         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-#         ncalls_scip = epigraph_ch.ncalls
+    for i in 1:iter
+        o, epigraph_ch, x = build_scip_optimizer()
+        MOI.set(o, MOI.TimeLimitSec(), limit)
+        # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
+        # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
+        MOI.optimize!(o)
+        time_scip = MOI.get(o, MOI.SolveTimeSec())
+        vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_scip = f(vars_scip)
+        termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
+        ncalls_scip = epigraph_ch.ncalls
 
-#         df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
-#         file_name = joinpath(@__DIR__,"scip_oa_poisson.csv")
-#         if !isfile(file_name)
-#             CSV.write(file_name, df, append=true, writeheader=true)
-#         else 
-#             CSV.write(file_name, df, append=true)
-#         end
-#     end
-# end
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        file_name = joinpath(@__DIR__,"csv/scip_oa_poisson.csv")
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
+    end
+end
 
-poisson(bo_mode="afw")
-# poisson_scip()
+poisson(1, 30, bo_mode="afw")
+poisson_scip(1, 30)
