@@ -14,10 +14,6 @@ include("boscia_vs_scip.jl")
 # Poisson sparse regression
 
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
-# s.t. -N z_i <= w_i <= N z_i
-# b ∈ [-N, N]
-# ∑ z_i <= k 
-# z_i ∈ {0,1} for i = 1,..,p
 
 # y_i    - data points, poisson distributed 
 # X_i, b - coefficient for the linear estimation of the expected value of y_i
@@ -56,12 +52,14 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
     w = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     b = MOI.add_variable(o)
+    # z_i ∈ {0,1} for i = 1,..,p
     for i in 1:p
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
     for i in 1:p
+        # s.t. -N z_i <= w_i <= N z_i
         MOI.add_constraint(o, Ns * z[i] + w[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, -Ns * z[i] + w[i], MOI.LessThan(0.0))
         # Indicator: z[i] = 1 => -N <= w[i] <= N
@@ -76,8 +74,10 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(Ns)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-Ns))) =#
     end
+    # ∑ z_i <= k 
     MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
+    # b ∈ [-N, N]
     MOI.add_constraint(o, b, MOI.LessThan(Ns))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
     lmo = FrankWolfe.MathOptLMO(o)
