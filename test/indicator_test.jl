@@ -44,9 +44,20 @@ const MOIU = MOI.Utilities
     end
     @test Boscia.indicator_present(lmo.o) == true
 
+    function ind_rounding(x)
+        round.(x[n+1:2n])
+        for i in 1:n
+            if isapprox(x[n+i], 1.0)
+                x[i] = 0.0
+            end
+        end 
+    end
+
     x = [0.5, 1.0, 0.75, 0.0, 0.9, 1.0, 1.0, 1.0, 0.0, 0.0]
     y = [0.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
 
     @test Boscia.is_indicator_feasible(o, x) == false
     @test Boscia.is_indicator_feasible(o, y) == true
+    ind_rounding(x)
+    @test Boscia.is_indicator_feasible(o, x) == true 
 end
