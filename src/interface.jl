@@ -509,16 +509,28 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
         v = compute_extreme_point(tree.root.problem.lmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         verbose && println("Postprocessing")
-        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
-            lazy=true,
-            verbose=verbose,
-            max_iteration=10000,
-        )
+        if !tree.root.options[:afw]
+            x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+                tree.root.problem.f,
+                tree.root.problem.g,
+                tree.root.problem.lmo,
+                active_set,
+                line_search=FrankWolfe.Adaptive(verbose=false),
+                lazy=true,
+                verbose=verbose,
+                max_iteration=10000,
+            )
+        else 
+            x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+                tree.root.problem.f,
+                tree.root.problem.g,
+                tree.root.problem.lmo,
+                active_set,
+                line_search=FrankWolfe.Adaptive(verbose=false),
+                lazy=true,
+                max_iteration=10000,
+            )
+        end
 
         # update tree
         @assert primal <= tree.incumbent + 1e-2
