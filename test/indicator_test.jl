@@ -18,7 +18,6 @@ const MOIU = MOI.Utilities
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     z = MOI.add_variables(o, n)
-    b = MOI.add_variable(o)
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(-1.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
@@ -28,7 +27,8 @@ const MOIU = MOI.Utilities
         MOI.add_constraint(o, z[i], MOI.ZeroOne()) 
     end 
     lmo = FrankWolfe.MathOptLMO(o)
-    @test Boscia.indicator_present(lmo) == false
+
+    @test Boscia.indicator_present(lmo.o) == false
 
     for i in 1:n
         gl = MOI.VectorAffineFunction(
@@ -42,11 +42,11 @@ const MOIU = MOI.Utilities
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
         MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
     end
-    @test Boscia.indicator_present(o) == true
+    @test Boscia.indicator_present(lmo.o) == true
 
     x = [0.5, 1.0, 0.75, 0.0, 0.9, 1.0, 1.0, 1.0, 0.0, 0.0]
     y = [0.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
 
-    @test Boscia.is_indicator_feasible(lmo, x) == false
-    @test Boscia.is_indicator_feasible(lmo, y) == true
+    @test Boscia.is_indicator_feasible(o, x) == false
+    @test Boscia.is_indicator_feasible(o, y) == true
 end

@@ -101,7 +101,7 @@ end
 """
 Check if indicator constraints are being met
 """
-function is_indicator_feasible(o::MOI.ModelLike, x, atol = 1e-6, rtol=1e-6)
+function is_indicator_feasible(o, x, atol = 1e-6, rtol=1e-6)
     valvar(f) = x[f.value]
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
         if S <: MOI.Indicator
@@ -120,6 +120,7 @@ function is_indicator_feasible(o::MOI.ModelLike, x, atol = 1e-6, rtol=1e-6)
             end
         end
     end
+    return true
 end
 
 
@@ -188,13 +189,13 @@ is_linear_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) 
 """
 Are indicator constraints present
 """
-function indicator_present(o::MOI.ModelLike)
-    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+function indicator_present(o)
+    for (_, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
         if S <: MOI.Indicator
             return true
         end
-        return false
     end
+    return false
 end
 
 indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.lmo.o)
