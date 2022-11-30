@@ -1,4 +1,4 @@
-include("sparse_reg_reg.jl")
+include("sparse_reg.jl")
 
 for dimension in [1:1:30;]
     for seed in 1:10
