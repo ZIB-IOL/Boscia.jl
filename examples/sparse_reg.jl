@@ -1,4 +1,5 @@
 using Statistics
+using Distributions
 using Boscia
 using FrankWolfe
 using Random
@@ -6,7 +7,7 @@ using LinearAlgebra
 using SCIP
 import Bonobo
 import MathOptInterface
-const MOI = MathOptInterface
+MOI = MathOptInterface
 using Dates
 using Printf
 using Test
@@ -28,40 +29,59 @@ using CSV
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-seed = 3
+seed = 1
 Random.seed!(seed)
+
+samples = 10
+data_1 = rand(MvNormal(ones(2), [0.3,0.3]),samples)
+y_1 = zeros(samples)
+
+data_2 = rand(MvNormal([2,2], [0.3,0.3]),samples)
+y_2 = ones(samples)
+
+A = hcat(data_1, data_2)'
+y = vcat(y_1, y_2)
+
+n0 = 2
+p = 2
+k = 2.0 #ceil(n0/2)
+
+mu = 10.0 * rand(Float64);
+M = 2 * var(A)
+lambda_0 = 0#rand(Float64);
+lambda_2 = 0#10.0 * rand(Float64);
 
 # n0 = 10;
 # p = 5 * n0;
 # k = ceil(n0 / 5);
-# const lambda_0 = rand(Float64);
-# const lambda_2 = 10.0 * rand(Float64);
-# const A = rand(Float64, n0, p)
-# const y = rand(Float64, n0)
-# const M = 2 * var(A)
+# lambda_0 = rand(Float64);
+# lambda_2 = 10.0 * rand(Float64);
+# A = rand(Float64, n0, p)
+# y = rand(Float64, n0)
+# M = 2 * var(A)
 
 # load heart disease data
-file_name = "processed.cleveland.data"
-df_cleveland = DataFrame(CSV.File(file_name, header=false))
-headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
-    :oldpeak,:slope,:ca,:thal,:diagnosis]
-rename!(df_cleveland,headers)
-df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
-df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
-df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
-df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+# file_name = "processed.cleveland.data"
+# df_cleveland = DataFrame(CSV.File(file_name, header=false))
+# headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+#     :oldpeak,:slope,:ca,:thal,:diagnosis]
+# rename!(df_cleveland,headers)
+# df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+# df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+# df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+# df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
-# labels of -1, 1
-df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
-df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
-y = df_cleveland[!,:diagnosis]
-A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-n0 = size(A)[1] # 303
-p = size(A)[2]  # 13
-k = 13.0
-const M = 2 * var(A)
-const lambda_0 = rand(Float64);
-const lambda_2 = 10.0 * rand(Float64);
+# # labels of -1, 1
+# df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+# df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+# y = df_cleveland[!,:diagnosis]
+# A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+# n0 = size(A)[1] # 303
+# p = size(A)[2]  # 13
+# k = 13.0
+# M = 2 * var(A)
+# lambda_0 = rand(Float64);
+# lambda_2 = 10.0 * rand(Float64);
 
 # "Sparse Regression" 
 @testset "Sparse regression" begin
