@@ -1,6 +1,6 @@
 include("poisson_reg.jl")
 
-for dimension in [20:5:100;]
+for dimension in [100:20:1000;]
     for seed in 1:10
         @show seed, dimension
         poisson(seed, dimension, 1; bo_mode="boscia")
@@ -35,7 +35,7 @@ end
 #     end
 # end
 
-for dimension in [20:5:100;]
+for dimension in [100:20:1000;]
     for seed in 1:10
         @show seed, dimension
         poisson_scip(seed, dimension, 1)

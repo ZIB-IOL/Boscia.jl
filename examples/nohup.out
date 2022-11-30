@@ -516,3 +516,685 @@ Away FW: false
 Away FW: false
 
 (x, f(x)) = ([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.38619747227700496, 1.3085469454063987, 0.7719821189947499, 0.28390915769670283, 1.043947021895851, 0.0, 0.3249469269587369, 0.9452389479549477, 0.8224130065857702, 1.269169514401683, 0.8737797932256742, 1.0899220320154734, 0.0, 0.4689797288565681, 1.1809905772344587, 0.21339427577374162, 0.9465700018772444, 0.6001580781430005, 0.026906858371911396, 1.1856561061736304, 0.5664956303263674, 1.0247047966927005, 0.14538247102375115, 0.5285579251436049, 0.2931104819192385, 0.8690312784702873, 1.144934380458156, 1.1499781870189056, 0.1182283162886541, 1.243053527184394, 0.12277533115829074, 0.6724970901361975, 0.8386495341551885, 0.7100253514346756, 0.6576898404907858, 0.5404375622933997, 1.3264418497451502, 0.11252762008496732, 0.633947801351211, 1.4580854953824898, 0.0, 0.5528566804634083, 1.6033271710524386, 0.9404887520147931, 1.5988395211104731, 1.6767681305692277, 0.5875603741729073, 0.08972954738878394, 0.2612789017236512, 0.8154422308874425], -9.433091029919714)
+Away FW: true
+
+(seed, dimension) = (1, 20)
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: false
+
+(seed, dimension) = (4, 20)
+Away FW: false
+
+(seed, dimension) = (5, 20)
+Away FW: false
+
+(seed, dimension) = (6, 20)
+Away FW: false
+
+(seed, dimension) = (7, 20)
+Away FW: false
+
+(seed, dimension) = (8, 20)
+Away FW: false
+
+(seed, dimension) = (9, 20)
+Away FW: false
+
+(seed, dimension) = (10, 20)
+Away FW: false
+
+(seed, dimension) = (1, 25)
+Away FW: false
+
+(seed, dimension) = (2, 25)
+Away FW: false
+
+(seed, dimension) = (3, 25)
+Away FW: false
+
+(seed, dimension) = (4, 25)
+Away FW: false
+
+(seed, dimension) = (5, 25)
+Away FW: false
+
+(seed, dimension) = (6, 25)
+Away FW: false
+
+(seed, dimension) = (7, 25)
+Away FW: false
+
+(seed, dimension) = (8, 25)
+Away FW: false
+
+(seed, dimension) = (9, 25)
+Away FW: false
+
+(seed, dimension) = (10, 25)
+Away FW: false
+
+(seed, dimension) = (1, 30)
+Away FW: false
+
+(seed, dimension) = (2, 30)
+Away FW: false
+
+(seed, dimension) = (3, 30)
+Away FW: false
+
+(seed, dimension) = (4, 30)
+Away FW: false
+
+(seed, dimension) = (5, 30)
+Away FW: false
+
+(seed, dimension) = (6, 30)
+Away FW: false
+
+(seed, dimension) = (7, 30)
+Away FW: false
+
+(seed, dimension) = (8, 30)
+Away FW: false
+
+(seed, dimension) = (9, 30)
+Away FW: false
+
+(seed, dimension) = (10, 30)
+Away FW: false
+
+(seed, dimension) = (1, 35)
+Away FW: false
+
+(seed, dimension) = (2, 35)
+Away FW: false
+
+(seed, dimension) = (3, 35)
+Away FW: false
+
+(seed, dimension) = (4, 35)
+Away FW: false
+
+(seed, dimension) = (5, 35)
+Away FW: false
+
+(seed, dimension) = (6, 35)
+Away FW: false
+
+(seed, dimension) = (7, 35)
+Away FW: false
+
+(seed, dimension) = (8, 35)
+Away FW: false
+
+(seed, dimension) = (9, 35)
+Away FW: false
+
+(seed, dimension) = (10, 35)
+Away FW: false
+
+(seed, dimension) = (1, 40)
+Away FW: false
+
+(seed, dimension) = (2, 40)
+Away FW: false
+
+(seed, dimension) = (3, 40)
+Away FW: false
+
+(seed, dimension) = (4, 40)
+Away FW: false
+
+(seed, dimension) = (5, 40)
+Away FW: false
+
+(seed, dimension) = (6, 40)
+Away FW: false
+
+(seed, dimension) = (7, 40)
+Away FW: false
+
+(seed, dimension) = (8, 40)
+Away FW: false
+
+(seed, dimension) = (9, 40)
+Away FW: false
+
+(seed, dimension) = (10, 40)
+Away FW: false
+
+(seed, dimension) = (1, 45)
+Away FW: false
+
+(seed, dimension) = (2, 45)
+Away FW: false
+
+(seed, dimension) = (3, 45)
+Away FW: false
+
+(seed, dimension) = (4, 45)
+Away FW: false
+
+(seed, dimension) = (5, 45)
+Away FW: false
+
+(seed, dimension) = (6, 45)
+Away FW: false
+
+(seed, dimension) = (7, 45)
+Away FW: false
+
+(seed, dimension) = (8, 45)
+Away FW: false
+
+(seed, dimension) = (9, 45)
+Away FW: false
+
+(seed, dimension) = (10, 45)
+Away FW: false
+
+(seed, dimension) = (1, 50)
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: false
+
+(seed, dimension) = (4, 50)
+Away FW: false
+
+(seed, dimension) = (5, 50)
+Away FW: false
+
+(seed, dimension) = (6, 50)
+Away FW: false
+
+(seed, dimension) = (7, 50)
+Away FW: false
+
+(seed, dimension) = (8, 50)
+Away FW: false
+
+(seed, dimension) = (9, 50)
+Away FW: false
+
+(seed, dimension) = (10, 50)
+Away FW: false
+
+(seed, dimension) = (1, 55)
+Away FW: false
+
+(seed, dimension) = (2, 55)
+Away FW: false
+
+(seed, dimension) = (3, 55)
+Away FW: false
+
+(seed, dimension) = (4, 55)
+Away FW: false
+
+(seed, dimension) = (5, 55)
+Away FW: false
+
+(seed, dimension) = (6, 55)
+Away FW: false
+
+(seed, dimension) = (7, 55)
+Away FW: false
+
+(seed, dimension) = (8, 55)
+Away FW: false
+
+(seed, dimension) = (9, 55)
+Away FW: false
+
+(seed, dimension) = (10, 55)
+Away FW: false
+
+(seed, dimension) = (1, 60)
+Away FW: false
+
+(seed, dimension) = (2, 60)
+Away FW: false
+
+(seed, dimension) = (3, 60)
+Away FW: false
+
+(seed, dimension) = (4, 60)
+Away FW: false
+
+(seed, dimension) = (5, 60)
+Away FW: false
+
+(seed, dimension) = (6, 60)
+Away FW: false
+
+(seed, dimension) = (7, 60)
+Away FW: false
+
+(seed, dimension) = (8, 60)
+Away FW: false
+
+(seed, dimension) = (9, 60)
+Away FW: false
+
+(seed, dimension) = (10, 60)
+Away FW: false
+
+(seed, dimension) = (1, 65)
+Away FW: false
+
+(seed, dimension) = (2, 65)
+Away FW: false
+
+(seed, dimension) = (3, 65)
+Away FW: false
+
+(seed, dimension) = (4, 65)
+Away FW: false
+
+(seed, dimension) = (5, 65)
+Away FW: false
+
+(seed, dimension) = (6, 65)
+Away FW: false
+
+(seed, dimension) = (7, 65)
+Away FW: false
+
+(seed, dimension) = (8, 65)
+Away FW: false
+
+(seed, dimension) = (9, 65)
+Away FW: false
+
+(seed, dimension) = (10, 65)
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: false
+
+(seed, dimension) = (4, 70)
+Away FW: false
+
+(seed, dimension) = (5, 70)
+Away FW: false
+
+(seed, dimension) = (6, 70)
+Away FW: false
+
+(seed, dimension) = (7, 70)
+Away FW: false
+
+(seed, dimension) = (8, 70)
+Away FW: false
+
+(seed, dimension) = (9, 70)
+Away FW: false
+
+(seed, dimension) = (10, 70)
+Away FW: false
+
+(seed, dimension) = (1, 75)
+Away FW: false
+
+(seed, dimension) = (2, 75)
+Away FW: false
+
+(seed, dimension) = (3, 75)
+Away FW: false
+
+(seed, dimension) = (4, 75)
+Away FW: false
+
+(seed, dimension) = (5, 75)
+Away FW: false
+
+(seed, dimension) = (6, 75)
+Away FW: false
+
+(seed, dimension) = (7, 75)
+Away FW: false
+
+(seed, dimension) = (8, 75)
+Away FW: false
+
+(seed, dimension) = (9, 75)
+Away FW: false
+
+(seed, dimension) = (10, 75)
+Away FW: false
+
+(seed, dimension) = (1, 80)
+Away FW: false
+
+(seed, dimension) = (2, 80)
+Away FW: false
+
+(seed, dimension) = (3, 80)
+Away FW: false
+
+(seed, dimension) = (4, 80)
+Away FW: false
+
+(seed, dimension) = (5, 80)
+Away FW: false
+
+(seed, dimension) = (6, 80)
+Away FW: false
+
+(seed, dimension) = (7, 80)
+Away FW: false
+
+(seed, dimension) = (8, 80)
+Away FW: false
+
+(seed, dimension) = (9, 80)
+Away FW: false
+
+(seed, dimension) = (10, 80)
+Away FW: false
+
+(seed, dimension) = (1, 85)
+Away FW: false
+
+(seed, dimension) = (2, 85)
+Away FW: false
+
+(seed, dimension) = (3, 85)
+Away FW: false
+
+(seed, dimension) = (4, 85)
+Away FW: false
+
+(seed, dimension) = (5, 85)
+Away FW: false
+
+(seed, dimension) = (6, 85)
+Away FW: false
+
+(seed, dimension) = (7, 85)
+Away FW: false
+
+(seed, dimension) = (8, 85)
+Away FW: false
+
+(seed, dimension) = (9, 85)
+Away FW: false
+
+(seed, dimension) = (10, 85)
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: false
+
+(seed, dimension) = (4, 90)
+Away FW: false
+
+(seed, dimension) = (5, 90)
+Away FW: false
+
+(seed, dimension) = (6, 90)
+Away FW: false
+
+(seed, dimension) = (7, 90)
+Away FW: false
+
+(seed, dimension) = (8, 90)
+Away FW: false
+
+(seed, dimension) = (9, 90)
+Away FW: false
+
+(seed, dimension) = (10, 90)
+Away FW: false
+
+(seed, dimension) = (1, 95)
+Away FW: false
+
+(seed, dimension) = (2, 95)
+Away FW: false
+
+(seed, dimension) = (3, 95)
+Away FW: false
+
+(seed, dimension) = (4, 95)
+Away FW: false
+
+(seed, dimension) = (5, 95)
+Away FW: false
+
+(seed, dimension) = (6, 95)
+Away FW: false
+
+(seed, dimension) = (7, 95)
+Away FW: false
+
+(seed, dimension) = (8, 95)
+Away FW: false
+
+(seed, dimension) = (9, 95)
+Away FW: false
+
+(seed, dimension) = (10, 95)
+Away FW: false
+
+(seed, dimension) = (1, 100)
+Away FW: false
+
+(seed, dimension) = (2, 100)
+Away FW: false
+
+(seed, dimension) = (3, 100)
+Away FW: false
+
+(seed, dimension) = (4, 100)
+Away FW: false
+
+(seed, dimension) = (5, 100)
+Away FW: false
+
+(seed, dimension) = (6, 100)
+Away FW: false
+
+(seed, dimension) = (7, 100)
+Away FW: false
+
+(seed, dimension) = (8, 100)
+Away FW: false
+
+(seed, dimension) = (9, 100)
+Away FW: false
+
+(seed, dimension) = (10, 100)
+Away FW: false
+
+(seed, dimension) = (1, 20)
+(seed, dimension) = (2, 20)
+(seed, dimension) = (3, 20)
+(seed, dimension) = (4, 20)
+(seed, dimension) = (5, 20)
+(seed, dimension) = (6, 20)
+(seed, dimension) = (7, 20)
+(seed, dimension) = (8, 20)
+(seed, dimension) = (9, 20)
+(seed, dimension) = (10, 20)
+(seed, dimension) = (1, 25)
+(seed, dimension) = (2, 25)
+(seed, dimension) = (3, 25)
+(seed, dimension) = (4, 25)
+(seed, dimension) = (5, 25)
+(seed, dimension) = (6, 25)
+(seed, dimension) = (7, 25)
+(seed, dimension) = (8, 25)
+(seed, dimension) = (9, 25)
+(seed, dimension) = (10, 25)
+(seed, dimension) = (1, 30)
+(seed, dimension) = (2, 30)
+(seed, dimension) = (3, 30)
+(seed, dimension) = (4, 30)
+(seed, dimension) = (5, 30)
+(seed, dimension) = (6, 30)
+(seed, dimension) = (7, 30)
+(seed, dimension) = (8, 30)
+(seed, dimension) = (9, 30)
+(seed, dimension) = (10, 30)
+(seed, dimension) = (1, 35)
+(seed, dimension) = (2, 35)
+(seed, dimension) = (3, 35)
+(seed, dimension) = (4, 35)
+(seed, dimension) = (5, 35)
+(seed, dimension) = (6, 35)
+(seed, dimension) = (7, 35)
+(seed, dimension) = (8, 35)
+(seed, dimension) = (9, 35)
+(seed, dimension) = (10, 35)
+(seed, dimension) = (1, 40)
+(seed, dimension) = (2, 40)
+(seed, dimension) = (3, 40)
+(seed, dimension) = (4, 40)
+(seed, dimension) = (5, 40)
+(seed, dimension) = (6, 40)
+(seed, dimension) = (7, 40)
+(seed, dimension) = (8, 40)
+(seed, dimension) = (9, 40)
+(seed, dimension) = (10, 40)
+(seed, dimension) = (1, 45)
+(seed, dimension) = (2, 45)
+(seed, dimension) = (3, 45)
+(seed, dimension) = (4, 45)
+(seed, dimension) = (5, 45)
+(seed, dimension) = (6, 45)
+(seed, dimension) = (7, 45)
+(seed, dimension) = (8, 45)
+(seed, dimension) = (9, 45)
+(seed, dimension) = (10, 45)
+(seed, dimension) = (1, 50)
+(seed, dimension) = (2, 50)
+(seed, dimension) = (3, 50)
+(seed, dimension) = (4, 50)
+(seed, dimension) = (5, 50)
+(seed, dimension) = (6, 50)
+(seed, dimension) = (7, 50)
+(seed, dimension) = (8, 50)
+(seed, dimension) = (9, 50)
+(seed, dimension) = (10, 50)
+(seed, dimension) = (1, 55)
+(seed, dimension) = (2, 55)
+(seed, dimension) = (3, 55)
+(seed, dimension) = (4, 55)
+(seed, dimension) = (5, 55)
+(seed, dimension) = (6, 55)
+(seed, dimension) = (7, 55)
+(seed, dimension) = (8, 55)
+(seed, dimension) = (9, 55)
+(seed, dimension) = (10, 55)
+(seed, dimension) = (1, 60)
+(seed, dimension) = (2, 60)
+(seed, dimension) = (3, 60)
+(seed, dimension) = (4, 60)
+(seed, dimension) = (5, 60)
+(seed, dimension) = (6, 60)
+(seed, dimension) = (7, 60)
+(seed, dimension) = (8, 60)
+(seed, dimension) = (9, 60)
+(seed, dimension) = (10, 60)
+(seed, dimension) = (1, 65)
+(seed, dimension) = (2, 65)
+(seed, dimension) = (3, 65)
+(seed, dimension) = (4, 65)
+(seed, dimension) = (5, 65)
+(seed, dimension) = (6, 65)
+(seed, dimension) = (7, 65)
+(seed, dimension) = (8, 65)
+(seed, dimension) = (9, 65)
+(seed, dimension) = (10, 65)
+(seed, dimension) = (1, 70)
+(seed, dimension) = (2, 70)
+(seed, dimension) = (3, 70)
+(seed, dimension) = (4, 70)
+(seed, dimension) = (5, 70)
+(seed, dimension) = (6, 70)
+(seed, dimension) = (7, 70)
+(seed, dimension) = (8, 70)
+(seed, dimension) = (9, 70)
+(seed, dimension) = (10, 70)
+(seed, dimension) = (1, 75)
+(seed, dimension) = (2, 75)
+(seed, dimension) = (3, 75)
+(seed, dimension) = (4, 75)
+(seed, dimension) = (5, 75)
+(seed, dimension) = (6, 75)
+(seed, dimension) = (7, 75)
+(seed, dimension) = (8, 75)
+(seed, dimension) = (9, 75)
+(seed, dimension) = (10, 75)
+(seed, dimension) = (1, 80)
+(seed, dimension) = (2, 80)
+(seed, dimension) = (3, 80)
+(seed, dimension) = (4, 80)
+(seed, dimension) = (5, 80)
+(seed, dimension) = (6, 80)
+(seed, dimension) = (7, 80)
+(seed, dimension) = (8, 80)
+(seed, dimension) = (9, 80)
+(seed, dimension) = (10, 80)
+(seed, dimension) = (1, 85)
+(seed, dimension) = (2, 85)
+(seed, dimension) = (3, 85)
+(seed, dimension) = (4, 85)
+(seed, dimension) = (5, 85)
+(seed, dimension) = (6, 85)
+(seed, dimension) = (7, 85)
+(seed, dimension) = (8, 85)
+(seed, dimension) = (9, 85)
+(seed, dimension) = (10, 85)
+(seed, dimension) = (1, 90)
+(seed, dimension) = (2, 90)
+(seed, dimension) = (3, 90)
+(seed, dimension) = (4, 90)
+(seed, dimension) = (5, 90)
+(seed, dimension) = (6, 90)
+(seed, dimension) = (7, 90)
+(seed, dimension) = (8, 90)
+(seed, dimension) = (9, 90)
+(seed, dimension) = (10, 90)
+(seed, dimension) = (1, 95)
+(seed, dimension) = (2, 95)
+(seed, dimension) = (3, 95)
+(seed, dimension) = (4, 95)
+(seed, dimension) = (5, 95)
+(seed, dimension) = (6, 95)
+(seed, dimension) = (7, 95)
+(seed, dimension) = (8, 95)
+(seed, dimension) = (9, 95)
+(seed, dimension) = (10, 95)
+(seed, dimension) = (1, 100)
+(seed, dimension) = (2, 100)
+(seed, dimension) = (3, 100)
+(seed, dimension) = (4, 100)
+(seed, dimension) = (5, 100)
+(seed, dimension) = (6, 100)
+(seed, dimension) = (7, 100)
+(seed, dimension) = (8, 100)
+(seed, dimension) = (9, 100)
+(seed, dimension) = (10, 100)

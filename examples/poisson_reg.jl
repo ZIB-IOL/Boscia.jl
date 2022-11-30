@@ -261,5 +261,5 @@ function poisson_scip(seed=1, n=20, iter = 1;)
     end
 end
 
-poisson(1, 30, bo_mode="afw")
-poisson_scip(1, 30)
+# poisson(1, 30, bo_mode="afw")
+# poisson_scip(1, 30)
