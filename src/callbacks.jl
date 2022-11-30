@@ -69,7 +69,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 x_rounded[idx] = round(state.x[idx])
             end
             # check linear feasibility
-            if is_linear_feasible(tree.root.problem.lmo, x_rounded)
+            if is_linear_feasible(tree.root.problem.lmo, x_rounded) && is_integer_feasible(tree, x_rounded)
                 # evaluate f(rounded)
                 val = tree.root.problem.f(x_rounded)
                 if val < tree.incumbent
