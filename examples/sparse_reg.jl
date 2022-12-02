@@ -105,7 +105,6 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
     limit = 1800
 
     Random.seed!(seed)
-    n = 20;
     p = 5 * n;
     k = ceil(n / 5);
     lambda_0 = rand(Float64);
