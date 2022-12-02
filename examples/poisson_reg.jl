@@ -25,7 +25,7 @@ include("boscia_vs_scip.jl")
 # It is assumed that y_i is poisson distributed and that the log 
 # of its expected value can be computed linearly.
 
-function poisson(seed=1, n=20, iter = 1; bo_mode)
+function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
     limit = 1800
 
     Random.seed!(seed)
@@ -43,7 +43,6 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
         a = dot(Xs[idx, :], ws) + bs
         return rand(Distributions.Poisson(exp(a)))
     end
-    Ns = 0.10
 
     k = n/2
     o = SCIP.Optimizer()
@@ -129,7 +128,7 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
         elseif bo_mode == "boscia"
@@ -146,11 +145,10 @@ function poisson(seed=1, n=20, iter = 1; bo_mode)
     end
 end
 
-function poisson_scip(seed=1, n=20, iter = 1;)
+function poisson_scip(seed=1, n=20, Ns=0.1,iter = 1;)
     limit = 1800
     Random.seed!(seed)
     p = n
-    Ns = 0.10
     k = n/2
     α = 1.3
     function build_function()
@@ -244,14 +242,23 @@ function poisson_scip(seed=1, n=20, iter = 1;)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
-        time_scip = MOI.get(o, MOI.SolveTimeSec())
-        vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
-        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
-        solution_scip = f(vars_scip)
         termination_scip = String(string(MOI.get(o, MOI.TerminationStatus())))
-        ncalls_scip = epigraph_ch.ncalls
+        if termination_scip != "INFEASIBLE"
+            time_scip = MOI.get(o, MOI.SolveTimeSec())
+            vars_scip = MOI.get(o, MOI.VariablePrimal(), x)
+            #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+            solution_scip = f(vars_scip)
+            ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        else
+            time_scip = MOI.get(o, MOI.SolveTimeSec())
+            #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+            ncalls_scip = epigraph_ch.ncalls
+ 
+            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
+
+        end
         file_name = joinpath(@__DIR__,"csv/scip_oa_poisson.csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
