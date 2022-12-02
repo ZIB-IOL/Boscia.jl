@@ -33651,3 +33651,838 @@ Away FW: false
 Away FW: false
 
 (seed, dimension) = (8, 380)
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+Away FW: true
+	 Total number of variables: 10
+	 Number of integer variables: 0
+	 Number of binary variables: 5
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2   9.452262e-01   9.998093e-01   5.458309e-02   5.774606e-02   6.491000e+00   4.621784e-01           5843           4175           9997      10001            1          0
+           3          2   9.996378e-01   9.998093e-01   1.715535e-04   1.716157e-04   8.072000e+00   6.194252e-01              4              3          10031          6           22          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: 0.9998093268871527
+	 Dual Bound: 0.999637773379395
+	 Dual Gap (relative): 0.00017161567152250968
+
+Search Statistics.
+	 Total number of nodes processed: 5
+	 Total number of lmo calls: 10035
+	 Total time (s): 8.079
+	 LMO calls / sec: 1242.1091719272185
+	 Nodes / sec: 0.6188884762965713
+	 LMO calls / node: 2007.0
+
+
+(seed, dimension) = (1, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 18)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 19)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 20)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 21)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 22)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 23)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 24)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 25)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 26)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 27)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 28)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 29)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (2, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (3, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (4, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (5, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (6, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (7, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (8, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (9, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (10, 30)
+Away FW: false
+
+Away FW: false
+
+(seed, dimension) = (1, 18)
+(seed, dimension) = (2, 18)
+(seed, dimension) = (3, 18)
+(seed, dimension) = (4, 18)
+(seed, dimension) = (5, 18)
+(seed, dimension) = (6, 18)
+(seed, dimension) = (7, 18)
+(seed, dimension) = (8, 18)
+(seed, dimension) = (9, 18)
+(seed, dimension) = (10, 18)
+(seed, dimension) = (1, 19)
+(seed, dimension) = (2, 19)
+(seed, dimension) = (3, 19)
+(seed, dimension) = (4, 19)
+(seed, dimension) = (5, 19)
+(seed, dimension) = (6, 19)
+(seed, dimension) = (7, 19)
+(seed, dimension) = (8, 19)
+(seed, dimension) = (9, 19)
+(seed, dimension) = (10, 19)
+(seed, dimension) = (1, 20)
+(seed, dimension) = (2, 20)
+(seed, dimension) = (3, 20)
+(seed, dimension) = (4, 20)
+(seed, dimension) = (5, 20)
+(seed, dimension) = (6, 20)
+(seed, dimension) = (7, 20)
+(seed, dimension) = (8, 20)
+(seed, dimension) = (9, 20)
+(seed, dimension) = (10, 20)
+(seed, dimension) = (1, 21)
+(seed, dimension) = (2, 21)
+(seed, dimension) = (3, 21)
+(seed, dimension) = (4, 21)
+(seed, dimension) = (5, 21)
+(seed, dimension) = (6, 21)
+(seed, dimension) = (7, 21)
+(seed, dimension) = (8, 21)
+(seed, dimension) = (9, 21)
+(seed, dimension) = (10, 21)
+(seed, dimension) = (1, 22)
+(seed, dimension) = (2, 22)
+(seed, dimension) = (3, 22)
+(seed, dimension) = (4, 22)
+(seed, dimension) = (5, 22)
+(seed, dimension) = (6, 22)
+(seed, dimension) = (7, 22)
+(seed, dimension) = (8, 22)
+(seed, dimension) = (9, 22)
+(seed, dimension) = (10, 22)
+(seed, dimension) = (1, 23)
+(seed, dimension) = (2, 23)
+(seed, dimension) = (3, 23)
+(seed, dimension) = (4, 23)
+(seed, dimension) = (5, 23)
+(seed, dimension) = (6, 23)
+(seed, dimension) = (7, 23)
+(seed, dimension) = (8, 23)
+(seed, dimension) = (9, 23)
+(seed, dimension) = (10, 23)
+(seed, dimension) = (1, 24)
+(seed, dimension) = (2, 24)
+(seed, dimension) = (3, 24)
+(seed, dimension) = (4, 24)
+(seed, dimension) = (5, 24)
+(seed, dimension) = (6, 24)
+(seed, dimension) = (7, 24)
+(seed, dimension) = (8, 24)
+(seed, dimension) = (9, 24)
+(seed, dimension) = (10, 24)
+(seed, dimension) = (1, 25)
+(seed, dimension) = (2, 25)
+(seed, dimension) = (3, 25)
+(seed, dimension) = (4, 25)
+(seed, dimension) = (5, 25)
+(seed, dimension) = (6, 25)
+(seed, dimension) = (7, 25)
+(seed, dimension) = (8, 25)
+(seed, dimension) = (9, 25)
+(seed, dimension) = (10, 25)
+(seed, dimension) = (1, 26)
+(seed, dimension) = (2, 26)
+(seed, dimension) = (3, 26)
+(seed, dimension) = (4, 26)
+(seed, dimension) = (5, 26)
+(seed, dimension) = (6, 26)
+(seed, dimension) = (7, 26)
+(seed, dimension) = (8, 26)
+(seed, dimension) = (9, 26)
+(seed, dimension) = (10, 26)
+(seed, dimension) = (1, 27)
+(seed, dimension) = (2, 27)
+(seed, dimension) = (3, 27)
+(seed, dimension) = (4, 27)
+(seed, dimension) = (5, 27)
+(seed, dimension) = (6, 27)
+(seed, dimension) = (7, 27)
+(seed, dimension) = (8, 27)
+(seed, dimension) = (9, 27)
+(seed, dimension) = (10, 27)
+(seed, dimension) = (1, 28)
+(seed, dimension) = (2, 28)
+(seed, dimension) = (3, 28)
+(seed, dimension) = (4, 28)
+(seed, dimension) = (5, 28)
+(seed, dimension) = (6, 28)
+(seed, dimension) = (7, 28)
+(seed, dimension) = (8, 28)
+(seed, dimension) = (9, 28)
+(seed, dimension) = (10, 28)
+(seed, dimension) = (1, 29)
+(seed, dimension) = (2, 29)
+(seed, dimension) = (3, 29)
+(seed, dimension) = (4, 29)
+(seed, dimension) = (5, 29)
+(seed, dimension) = (6, 29)
+(seed, dimension) = (7, 29)
+(seed, dimension) = (8, 29)
+(seed, dimension) = (9, 29)
+(seed, dimension) = (10, 29)
+(seed, dimension) = (1, 30)
+(seed, dimension) = (2, 30)
+(seed, dimension) = (3, 30)
+(seed, dimension) = (4, 30)
+(seed, dimension) = (5, 30)
+(seed, dimension) = (6, 30)
+(seed, dimension) = (7, 30)
+(seed, dimension) = (8, 30)
+(seed, dimension) = (9, 30)
+(seed, dimension) = (10, 30)

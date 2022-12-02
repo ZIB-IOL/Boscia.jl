@@ -6,7 +6,7 @@ using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-MOI = MathOptInterface
+#MOI = MathOptInterface
 using CSV
 using DataFrames
 include("boscia_vs_scip.jl")
