@@ -67,7 +67,11 @@ function build_csv(mode)
         # delete!(df_bs, indices)
         filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_bs)
         filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_bs)
+        filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_bs)
+        filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_bs)
+        filter!(row -> !(row.dimension > 100),  df_bs)
 
+        time_scip = [row == -Inf ? 1800.0 : row for row in df_bs[!,:time_scip]]
         df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
         df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_boscia]]
@@ -76,7 +80,7 @@ function build_csv(mode)
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time_boscia]
         df[!,:termination_boscia] = termination_boscia
-        df[!,:time_scip] = df_bs[!,:time_scip]
+        df[!,:time_scip] = time_scip #df_bs[!,:time_scip]
         df[!,:termination_scip] = termination_scip
 
         # load afw
@@ -84,6 +88,7 @@ function build_csv(mode)
         #delete!(df_afw, indices)
         filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_afw)
         filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_afw)
+        filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_afw)
 
         df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
@@ -97,6 +102,8 @@ function build_csv(mode)
         
         filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ws)
         filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ws)
+        filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ws)
+        filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ws)
         
         df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Time limit reached" => "TIME_LIMIT")
@@ -110,7 +117,9 @@ function build_csv(mode)
         
         filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ss)
         filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ss)
-                
+        filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ss)
+        filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ss)
+
         df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Time limit reached" => "TIME_LIMIT")
         termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination_afw]]
@@ -123,6 +132,8 @@ function build_csv(mode)
         
         filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_as)
         filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_as)
+        filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_as)
+        filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)
 
         df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
