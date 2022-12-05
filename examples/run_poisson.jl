@@ -1,10 +1,18 @@
 include("poisson_reg.jl")
 
+bo_mode="boscia"
 for dimension in [50:20:200;]
     for seed in 1:10
-        for ns in [0.1,1,10,100,1000]
+        for ns in [0.1,1,5,10]
             @show seed, dimension
-            poisson(seed, dimension, ns, 1; bo_mode="boscia")
+            try 
+                poisson(seed, dimension, ns, 1; bo_mode=bo_mode)
+            catch e 
+                println(e)
+                open("poisson_errors.txt","a") do io
+                    println(io, seed, " ", dimension, " ", ns, " ", bo_mode, " : ", e)
+                end
+            end
         end
     end
 end
@@ -37,11 +45,19 @@ end
 #     end
 # end
 
+bo_mode="scip_oa"
 for dimension in [50:20:200;]
     for seed in 1:10
-        for ns in [0.1,1,10,100,1000]
+        for ns in [0.1,1,5,10]
             @show seed, dimension
-            poisson_scip(seed, dimension, ns, 1)
+            try 
+                poisson_scip(seed, dimension, ns, 1)            
+            catch e 
+                println(e)
+                open("poisson_errors.txt","a") do io
+                    println(io, seed, " ", dimension, " ", ns, " ", bo_mode, " : ", e)
+                end
+            end
         end
     end
 end 
