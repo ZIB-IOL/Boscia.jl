@@ -29,62 +29,68 @@ using CSV
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-seed = 1
-Random.seed!(seed)
+function sparse_reg(seed=1, k=13.0; data="heart_disease")
+    Random.seed!(seed)
 
-samples = 10
-data_1 = rand(MvNormal(ones(2), [0.3,0.3]),samples)
-y_1 = zeros(samples)
+    # separate points clouds
+    # samples = 10
+    # data_1 = rand(MvNormal(ones(2), [0.3,0.3]),samples)
+    # y_1 = zeros(samples)
 
-data_2 = rand(MvNormal([2,2], [0.3,0.3]),samples)
-y_2 = ones(samples)
+    # data_2 = rand(MvNormal([2,2], [0.3,0.3]),samples)
+    # y_2 = ones(samples)
 
-A = hcat(data_1, data_2)'
-y = vcat(y_1, y_2)
+    # A = hcat(data_1, data_2)'
+    # y = vcat(y_1, y_2)
 
-n0 = 2
-p = 2
-k = 2.0 #ceil(n0/2)
+    # n0 = 2
+    # p = 2
+    # k = 2.0 #ceil(n0/2)
 
-mu = 10.0 * rand(Float64);
-M = 2 * var(A)
-lambda_0 = 0#rand(Float64);
-lambda_2 = 0#10.0 * rand(Float64);
+    # mu = 10.0 * rand(Float64);
+    # M = 2 * var(A)
+    # lambda_0 = 0#rand(Float64);
+    # lambda_2 = 0#10.0 * rand(Float64);
 
-# n0 = 10;
-# p = 5 * n0;
-# k = ceil(n0 / 5);
-# lambda_0 = rand(Float64);
-# lambda_2 = 10.0 * rand(Float64);
-# A = rand(Float64, n0, p)
-# y = rand(Float64, n0)
-# M = 2 * var(A)
+    if data == "random"
+        n0 = 10;
+        p = 5 * n0;
+        # k = ceil(n0 / 5);        
+        lambda_0 = 0
+        lambda_2 = 0
+        # lambda_0 = rand(Float64);
+        # lambda_2 = 10.0 * rand(Float64);
+        A = rand(Float64, n0, p)
+        y = rand(Float64, n0)
+        M = 2 * var(A)
 
-# load heart disease data
-# file_name = "processed.cleveland.data"
-# df_cleveland = DataFrame(CSV.File(file_name, header=false))
-# headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
-#     :oldpeak,:slope,:ca,:thal,:diagnosis]
-# rename!(df_cleveland,headers)
-# df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
-# df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
-# df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
-# df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
+    # load heart disease data
+    elseif data=="heart_disease"
+        file_name = "processed.cleveland.data"
+        df_cleveland = DataFrame(CSV.File(file_name, header=false))
+        headers = [:age,:sex,:cp,:trestbps,:chol,:fbs,:restecg,:thalach,:exang,
+            :oldpeak,:slope,:ca,:thal,:diagnosis]
+        rename!(df_cleveland,headers)
+        df_cleveland.thal .= replace.(df_cleveland.thal, "?" => -9.0)
+        df_cleveland.ca .= replace.(df_cleveland.ca, "?" => -9.0)
+        df_cleveland[!,:ca] = parse.(Float64,df_cleveland[!,:ca])
+        df_cleveland[!,:thal] = parse.(Float64,df_cleveland[!,:thal])
 
-# # labels of -1, 1
-# df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
-# df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
-# y = df_cleveland[!,:diagnosis]
-# A = Matrix(select!(df_cleveland, Not(:diagnosis)))
-# n0 = size(A)[1] # 303
-# p = size(A)[2]  # 13
-# k = 13.0
-# M = 2 * var(A)
-# lambda_0 = rand(Float64);
-# lambda_2 = 10.0 * rand(Float64);
+        # labels of -1, 1
+        df_cleveland[df_cleveland.diagnosis .> 0,:diagnosis] .= 1
+        df_cleveland[df_cleveland.diagnosis .== 0,:diagnosis] .= -1
+        y = df_cleveland[!,:diagnosis]
+        A = Matrix(select!(df_cleveland, Not(:diagnosis)))
+        n0 = size(A)[1] # 303
+        p = size(A)[2]  # 13
+        # k = 12.0 #13.0
+        M = 2 * var(A)
+        lambda_0 = 0
+        lambda_2 = 0
+        # lambda_0 = rand(Float64);
+        # lambda_2 = 10.0 * rand(Float64);
+    end
 
-# "Sparse Regression" 
-@testset "Sparse regression" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -119,14 +125,25 @@ lambda_2 = 0#10.0 * rand(Float64);
     end
 
     function grad!(storage, x)
-        storage[1:p] .= 2 * (transpose(A) * A * x[1:p] - transpose(A) * y + lambda_2 * x[1:p])
-        storage[p+1:2p] .= lambda_0
+        storage[1:p] .= 2 * (transpose(A) * A * x[1:p] - transpose(A) * y) #+ lambda_2 * x[1:p])
+        #storage[p+1:2p] .= lambda_0
         return storage
     end
+
+    # print(o)
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, fw_epsilon=1e-3, print_iter=10)
     @show x
     @show f(x) 
     # @show result // too large to be output
-    # @test f(x) <= f(result[:raw_solution]) + 1e-6
+    # f(x) <= f(result[:raw_solution]) + 1e-6
+    return f,x
 end
+
+f,x_3 = sparse_reg(1, 3.0, data="random")
+_,x_2 = sparse_reg(1, 2.0, data="random")
+@assert f(x_3)<=f(x_2)
+
+f,x_3 = sparse_reg(1, 13.0, data="heart_disease")
+_,x_2 = sparse_reg(1, 12.0, data="heart_disease")
+@assert f(x_3)<=f(x_2)
