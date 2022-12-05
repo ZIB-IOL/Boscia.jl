@@ -155,6 +155,7 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
             MOI.LessThan(k),
         )        
         z_i = MOI.add_variable(o)
+        # MOI.add_constraint(o, z_i, MOI.GreaterThan(0.0))
         
         epigraph_ch = GradientCutHandler(o, f, grad!, zeros(length(x)), z_i, x, 0)
         SCIP.include_conshdlr(o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
@@ -168,6 +169,7 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
     for i in 1:iter
         o, epigraph_ch, x = build_scip_optimizer()
         MOI.set(o, MOI.TimeLimitSec(), limit)
+        MOI.set(o, MOI.Silent(), false)
         # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
         # MOI.set(o, MOI.RelativeGapTolerance(), 1.000000e-02)
         MOI.optimize!(o)
@@ -188,5 +190,6 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
     end
 end
 
-sparse_reg(1, 1, bo_mode="afw")
-sparse_reg_scip(1, 1)
+# sparse_reg(1, 1, bo_mode="afw")
+sparse_reg(10, 2, bo_mode="boscia")
+sparse_reg_scip(10, 2)

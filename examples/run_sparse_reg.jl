@@ -1,43 +1,91 @@
 include("sparse_reg.jl")
 
-#for dimension in [18:1:30;]
-#    for seed in 1:10
-#        @show seed, dimension
-#        sparse_reg(seed, dimension, 1; bo_mode="boscia")
-#    end
-#end
-
-# for dimension in [1:1:30;]
+# bo_mode="boscia"
+# for dimension in [15:1:30;]
 #     for seed in 1:10
 #         @show seed, dimension
-#         sparse_reg(seed, dimension, 1; bo_mode="as")
+#         try 
+#             sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
+#         catch e
+#             println(e)
+#             open("sparse_reg_errors.txt","a") do io
+#                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+#             end
+#         end
 #     end
 # end
 
-# for dimension in [1:1:30;]
-#     for seed in 1:10
-#         @show seed, dimension
-#         sparse_reg(seed, dimension, 1; bo_mode="ss")
-#     end
-# end
-
-# for dimension in [1:1:30;]
-#     for seed in 1:10
-#         @show seed, dimension
-#         sparse_reg(seed, dimension, 1; bo_mode="as_ss")
-#     end
-# end
-
-# for dimension in [1:1:30;]
-#     for seed in 1:10
-#         @show seed, dimension
-#         sparse_reg(seed, dimension, 1; bo_mode="afw")
-#     end
-# end
-
-for dimension in [18:1:30;]
+bo_mode = "as"
+for dimension in [15:1:30;]
     for seed in 1:10
         @show seed, dimension
-        sparse_reg_scip(seed, dimension, 1)
+        try 
+            sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "ss"
+for dimension in [15:1:30;]
+    for seed in 1:10
+        @show seed, dimension
+        try 
+            sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "as_ss"
+for dimension in [15:1:30;]
+    for seed in 1:10
+        @show seed, dimension
+        try 
+            sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "afw"
+for dimension in [15:1:30;]
+    for seed in 1:10
+        @show seed, dimension
+        try 
+            sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "scip_oa"
+for dimension in [15:1:30;]
+    for seed in 1:10
+        @show seed, dimension
+        try 
+            sparse_reg_scip(seed, dimension, 1)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
     end
 end
