@@ -42,7 +42,7 @@ function log_reg(data_1, data_2, y_1, y_2)
     p = 2
     k = 2.0 #ceil(n0/2)
 
-    mu = 0.0 #10.0 * rand(Float64);
+    mu = 0 # 10.0 * rand(Float64);
     M = 2 * var(A)
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -108,7 +108,7 @@ function log_reg(data_1, data_2, y_1, y_2)
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, fw_epsilon=1e-3, print_iter=10)
     xv = @view(x[1:p])
     predictions = [p > 0.5 ? 1 : -1 for p in A*xv]
-    println(predictions == y)
+    @show (predictions, y)
     return x, f(x)
 end 
 
