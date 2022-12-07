@@ -4,10 +4,12 @@ const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using LinearAlgebra
 using Boscia
-
+using FrankWolfe
 using JSON
+using SparseArrays
+using HiGHS
 
-instances = JSON.parsefile(joinpath(@__DIR__, "../filtered_instances.json"))
+all_instances = JSON.parsefile(joinpath(@__DIR__, "../filtered_instances.json"))
 
 idx = findfirst(d -> occursin("2880.lp", d["path"]), instances)
 instance_info = instances[idx]
@@ -25,14 +27,14 @@ function build_and_solve_scip(instance_info; timelimit=3600)
     MOI.add_constraint(o_temp, f - z, MOI.LessThan(0.0))
     MOI.set(o_temp, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z)
     MOI.set(o_temp, MOI.ObjectiveSense(), MOI.MIN_SENSE)
-    o = SCIP.Optimizer()
+    o = HiGHS.Optimizer()
     MOI.copy_to(o, o_temp)
     MOI.set(o, MOI.TimeLimitSec(), timelimit)
     MOI.optimize!(o)
     runtime = MOI.get(o, MOI.SolveTimeSec())
     status = MOI.get(o, MOI.TerminationStatus())
     primal_bound = MOI.get(o, MOI.ObjectiveValue())
-    dual_bound = MOI.get(o, MOI.DualObjectiveValue())
+    dual_bound = MOI.get(o, MOI.ObjectiveBound())
     return (; runtime, status, primal_bound, dual_bound)
 end
 
@@ -46,7 +48,7 @@ function solve_boscia(instance_info; timelimit=3600)
     if instance_info["added_binary"]
         MOI.add_constraint.(o_temp, MOI.get(o_temp, MOI.ListOfVariableIndices()), MOI.ZeroOne())
     end
-    Q = zeros(length(varindex_list), length(varindex_list))
+    Q = spzeros(length(varindex_list), length(varindex_list))
     q = zeros(length(varindex_list))
     f = MOI.get(o_temp, MOI.ObjectiveFunction{MOI.ScalarQuadraticFunction{Float64}}())
     for term in f.quadratic_terms
@@ -81,7 +83,7 @@ function solve_boscia(instance_info; timelimit=3600)
     MOI.copy_to(o, o_temp)
     MOI.set(o, MOI.Silent(), true)
     lmo = FrankWolfe.MathOptLMO(o)
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=timelimit)
+    x, _, result = Boscia.solve(objective, grad!, lmo, verbose=true, time_limit=timelimit)
     runtime = result[:total_time_in_sec]
     status = result[:status]
     primal_bound = result[:primal_objective]
