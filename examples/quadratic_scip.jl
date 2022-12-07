@@ -11,8 +11,8 @@ using HiGHS
 
 all_instances = JSON.parsefile(joinpath(@__DIR__, "../filtered_instances.json"))
 
-idx = findfirst(d -> occursin("2880.lp", d["path"]), instances)
-instance_info = instances[idx]
+idx = findfirst(d -> occursin("2880.lp", d["path"]), all_instances)
+instance_info = all_instances[idx]
 
 function build_and_solve_scip(instance_info; timelimit=3600)
     path = instance_info["path"]
