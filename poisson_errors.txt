@@ -1,0 +1,1 @@
+1 50 5.0 scip_oa : MathOptInterface.ResultIndexBoundsError{MathOptInterface.VariablePrimal}(MathOptInterface.VariablePrimal(1), 0)
