@@ -21,7 +21,7 @@ function find_best_solution(f::Function, o::SCIP.Optimizer, vars::Vector{MOI.Var
 end
 
 function find_best_solution(f::Function, o::MOI.AbstractOptimizer, vars::Vector{MOI.VariableIndex})
-    nsols = MOI.get(o, ResultCount())
+    nsols = MOI.get(o, MOI.ResultCount())
     @assert nsols > 0
     best_val = Inf
     best_v = nothing
