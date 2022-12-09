@@ -168,33 +168,54 @@ function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CO
     @assert length(constraints) == 0
     values = SCIP.sol_values(ch.o, ch.vars, sol)
     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
+    #println(constraints)
+    # println("check solution")
+    # @show values 
     if zval < ch.f(values) - 1e-6
         return SCIP.SCIP_INFEASIBLE
     end
+    println("check - FEASIBLE")
     return SCIP.SCIP_FEASIBLE
 end
 
 function enforce_epigraph(ch::GradientCutHandler)
+    @show ch.ncalls
     values = SCIP.sol_values(ch.o, ch.vars)
     zval = SCIP.sol_values(ch.o, [ch.epivar])[1]
     fx = ch.f(values)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
-    # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
+    # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂) 
+    #  @show ch.storage
+    # @show values
+    # println("zval ", zval)
+    # println("fx ", fx)
     if zval < fx - 1e-6
-        f = dot(ch.storage, ch.vars) - ch.epivar
+        @show zval, fx
+        # dot(∇f(x̂), x) - z
+        z = ch.epivar
+        f = dot(ch.storage, ch.vars) - z
+        # dot(∇f(x̂), x̂) - f(x̂)
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
+        # @show fval, s.upper
         @assert fval > s.upper - 1e-11
         MOI.add_constraint(
             ch.o,
-            dot(ch.storage, ch.vars) - ch.epivar,
-            MOI.LessThan(dot(ch.storage, values) - fx),
+            f, #dot(ch.storage, ch.vars) - ch.epivar,
+            s, #MOI.LessThan(dot(ch.storage, values) - fx),
         )
-        # print(ch.o) # KeyError: key Ptr{Nothing} @0x000000001421e2b0 not found
+        # println("ch.o ",ch.o) # KeyError: key Ptr{Nothing} @0x000000001421e2b0 not found
         ch.ncalls += 1
+
+        # test if true optimum is cut off
+        # x_opt = [-0.004747533876983567,0,-0.004747533876983567,-0.004747533876983567,0, 1,0,1,1,0]
+        # z_opt = ch.f(x_opt)
+        # @assert dot(ch.storage, x_opt) - dot(ch.storage, values) + fx <= z_opt
         return SCIP.SCIP_CONSADDED
     end
+    # @show zval, fx # in the end fx and zval should be similar
+    println("enforce epigraph - FEASIBLE")
     return SCIP.SCIP_FEASIBLE
 end
 
