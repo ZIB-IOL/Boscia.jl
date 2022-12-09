@@ -141,6 +141,55 @@ function build_csv(mode)
 
         df[!,:time_no_as] = df_no_as[!,:time_afw]
         df[!,:termination_no_as] = termination_no_as
+    
+    elseif mode == "poisson"
+        # TODO: order data in csvs
+
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_poisson.csv")))
+        filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+
+        df[!,:dimension] = df_bs[!,:dimension]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:termination_boscia] = termination_boscia
+
+        # load afw
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_poisson.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination]]
+
+        df[!,:time_afw] = df_afw[!,:time]
+        df[!,:termination_afw] = termination_afw
+
+        # load without as, without ss
+        # TODO: why filter! not needed
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_poisson.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
+
+        df[!,:time_afw] = df_no_ws[!,:time]
+        df[!,:termination_afw] = termination_no_ws
+
+        # load without as
+        # TODO: why filter! not needed
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_poisson.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
+
+        df[!,:time_afw] = df_no_as[!,:time]
+        df[!,:termination_afw] = termination_no_as
+
+        # # load without ss
+        # TODO: why filter! not needed
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_poisson.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
+
+        df[!,:time_afw] = df_no_ss[!,:time]
+        df[!,:termination_afw] = termination_no_ss
     end
 
     function geo_mean(group)
