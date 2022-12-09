@@ -8,6 +8,7 @@ using FrankWolfe
 using JSON
 using SparseArrays
 using HiGHS
+using Arpack
 
 all_instances = JSON.parsefile(joinpath(@__DIR__, "../filtered_instances.json"))
 
@@ -38,7 +39,7 @@ function build_and_solve_scip(instance_info; timelimit=3600)
     return (; runtime, status, primal_bound, dual_bound)
 end
 
-function solve_boscia(instance_info; timelimit=3600)
+function solve_boscia(instance_info; timelimit=3600, o=SCIP.Optimizer())
     path = instance_info["path"]
     o_temp = MOIU.Model{Float64}()
     MathOptInterface.read_from_file(o_temp, path)
@@ -63,7 +64,16 @@ function solve_boscia(instance_info; timelimit=3600)
     bin_vars = MOI.VariableIndex.(getproperty.(bin_cons, :value))
     bin_mask = BitVector((vidx ∈ bin_vars for vidx in v_indices))
 
-    λmin = eigmin(Q)
+    if isdiag(Q)
+        λmin = minimum(diag(Q))
+    else
+        Q_eigvals = Arpack.eigs(Q, nev=1, which=:SR, check=1)
+        if isempty(Q_eigvals[1])
+            λmin = 0.0
+        else
+            λmin::Float64 = Q_eigvals[1][1]
+        end
+    end
     diag_term = Diagonal((abs(λmin) + 1e-6) * bin_mask)
 
     Q .+= diag_term
@@ -79,11 +89,15 @@ function solve_boscia(instance_info; timelimit=3600)
         mul!(storage, Q, x, 1.0, 1.0)
         return storage
     end
-    o = SCIP.Optimizer()
+    # o = HiGHS.Optimizer()
     MOI.copy_to(o, o_temp)
     MOI.set(o, MOI.Silent(), true)
+    # only for HiGHS
+    if o isa HiGHS.Optimizer
+        MOI.add_constraint.(o, MOI.get(o, MOI.ListOfVariableIndices()), MOI.ZeroOne())
+    end
     lmo = FrankWolfe.MathOptLMO(o)
-    x, _, result = Boscia.solve(objective, grad!, lmo, verbose=true, time_limit=timelimit)
+    x, _, result = Boscia.solve(objective, grad!, lmo, verbose=true, time_limit=timelimit, print_iter=1)
     runtime = result[:total_time_in_sec]
     status = result[:status]
     primal_bound = result[:primal_objective]
