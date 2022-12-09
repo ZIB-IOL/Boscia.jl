@@ -88,7 +88,7 @@ end
 bo_mode="scip_oa"
 for dimension in [50:20:100;]
     for seed in 1:10
-        for ns in [0.1,1,5,10]
+        for ns in [0.1,1,10]
             @show seed, dimension
             try 
                 poisson_scip(seed, dimension, ns, 1)            
