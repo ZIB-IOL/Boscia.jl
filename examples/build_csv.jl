@@ -152,7 +152,6 @@ function build_csv(mode)
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
 
-        df[!,:solution_boscia] = df_bs[!,:solution]
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
@@ -209,6 +208,7 @@ function build_csv(mode)
 
         # # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
+
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
         time_scip = []
         for row in eachrow(df_scip)
@@ -222,12 +222,25 @@ function build_csv(mode)
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :Ns, :p])
+        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :dimension, :k, :Ns, :p])
 
+        # delete duplicates
+        df_scip = unique(df_scip, [:dimension, :k, :Ns, :seed])
+
+        # sort!(df, [:dimension, :k, :Ns, :p])
+        # print(first(df,20))
+        # sort!(df_scip, [:dimension, :k, :Ns, :p])
+        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :Ns, :p])
-
-        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
-        print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+        # print(sort(df, [:dimension, :k, :Ns, :p]))
+        # df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
+        # print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+        # df_temp = combine(
+        #     groupby(df, [:dimension, :k, :Ns]), 
+        #     nrow => :NumInstances, renamecols=false
+        #     )
+        # #print(sort(df, [:dimension, :k, :Ns, :p]))
+        # print(df_temp)
     end
 
     function geo_mean(group)
