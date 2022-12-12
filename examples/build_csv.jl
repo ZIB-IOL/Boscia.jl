@@ -239,7 +239,7 @@ function build_csv(mode)
         #     groupby(df, [:dimension, :k, :Ns]), 
         #     nrow => :NumInstances, renamecols=false
         #     )
-        # #print(sort(df, [:dimension, :k, :Ns, :p]))
+        sort!(df, [:dimension, :k, :Ns])
         # print(df_temp)
 
     elseif mode == "sparse_reg"
