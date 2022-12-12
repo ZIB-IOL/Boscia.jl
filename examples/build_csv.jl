@@ -208,6 +208,10 @@ function build_csv(mode)
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
         # add killed instance 
         push!(df_scip,[7, 70, 70, 35.0, 10.0, 1800, Inf, "KILLED", 0])
+        push!(df_scip,[1, 50, 50, 25.0, 5.0, 1800, Inf, "KILLED", 0])
+        push!(df_scip,[2, 50, 50, 25.0, 5.0, 1800, Inf, "KILLED", 0])
+        push!(df_scip,[3, 50, 50, 25.0, 5.0, 1800, Inf, "KILLED", 0])
+
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
 
         time_scip = []
@@ -239,7 +243,8 @@ function build_csv(mode)
         #     groupby(df, [:dimension, :k, :Ns]), 
         #     nrow => :NumInstances, renamecols=false
         #     )
-        sort!(df, [:dimension, :k, :Ns])
+        # sort!(df, [:dimension, :k, :Ns])
+        # print(df)
         # print(df_temp)
 
     elseif mode == "sparse_reg"
