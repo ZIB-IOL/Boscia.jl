@@ -208,8 +208,10 @@ function build_csv(mode)
 
         # # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
-
+        # add killed instance 
+        push!(df_scip,[7, 70, 70, 35.0, 10.0, 1800, Inf, "KILLED", 0])
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
         time_scip = []
         for row in eachrow(df_scip)
             if row.solution == Inf 
