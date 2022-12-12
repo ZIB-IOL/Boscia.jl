@@ -331,14 +331,14 @@ function build_csv(mode)
         # delete duplicates
         df_scip = unique(df_scip, [:dimension, :k, :seed])
 
-        # sort!(df, [:dimension, :k, :Ns, :p])
         # print(first(df,20))
         # sort!(df_scip, [:dimension, :k, :Ns, :p])
         # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p])
-        # print(sort(df, [:dimension, :k, :Ns, :p]))
+        print(sort(df, [:dimension, :p, :k]))
         df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
         print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+        sort!(df, [:dimension, :p, :k])
 
     end
 
