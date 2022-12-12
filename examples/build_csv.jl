@@ -143,8 +143,6 @@ function build_csv(mode)
         df[!,:termination_no_as] = termination_no_as
     
     elseif mode == "poisson"
-        # TODO: order data in csvs
-
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_poisson.csv")))
         # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
@@ -243,6 +241,100 @@ function build_csv(mode)
         #     )
         # #print(sort(df, [:dimension, :k, :Ns, :p]))
         # print(df_temp)
+
+    elseif mode == "sparse_reg"
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_reg.csv")))
+        # delete duplicates
+        df_bs = unique(df_bs, [:dimension, :k, :p, :seed])
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+
+        df[!,:dimension] = df_bs[!,:dimension]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+        df[!,:p] = df_bs[!,:p]
+        df[!,:k] = df_bs[!,:k]
+
+        df[!,:termination_boscia] = termination_boscia
+        df[!, :solution_boscia] = df_bs[!, :solution]
+
+        # load afw
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_sparse_reg.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination]]
+
+        df_afw[!,:time_afw] = df_afw[!,:time]
+        df_afw[!,:termination_afw] = termination_afw
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_afw, on = [:seed, :dimension, :k, :p])
+
+        # # load without as, without ss
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_sparse_reg.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
+
+        df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
+        df_no_ws[!,:termination_no_ws] = termination_no_ws
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :p])
+        # print(first(df,5))
+
+        # # load without as
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_sparse_reg.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
+
+        df_no_as[!,:time_no_as] = df_no_as[!,:time]
+        df_no_as[!,:termination_no_as] = termination_no_as
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_no_as, on = [:seed, :dimension, :k, :p])
+
+        # # load without ss
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_sparse_reg.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
+
+        df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
+        df_no_ss[!,:termination_no_ss] = termination_no_ss
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
+
+        # # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_reg.csv")))
+        termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
+        time_scip = []
+        for row in eachrow(df_scip)
+            if row.solution == Inf 
+                append!(time_scip,1800) 
+            else 
+                append!(time_scip,row.time)
+            end
+        end
+
+        df_scip[!,:time_scip] = time_scip
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p])
+
+        # delete duplicates
+        df_scip = unique(df_scip, [:dimension, :k, :seed])
+
+        # sort!(df, [:dimension, :k, :Ns, :p])
+        # print(first(df,20))
+        # sort!(df_scip, [:dimension, :k, :Ns, :p])
+        # print(first(df_scip,20))
+        df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p])
+        # print(sort(df, [:dimension, :k, :Ns, :p]))
+        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
+        print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+
     end
 
     function geo_mean(group)
@@ -257,7 +349,7 @@ function build_csv(mode)
     end
 
     # group by dimension
-    if mode != "poisson"
+    if mode != "poisson" && mode != "sparse_reg"
         gdf = combine(
             groupby(df, :dimension), 
             :time_boscia => geo_mean, :termination_boscia => sum,
@@ -268,9 +360,20 @@ function build_csv(mode)
             :time_afw => geo_mean, :termination_afw => sum,
             nrow => :NumInstances, renamecols=false
             )
-    else
+    elseif mode == "poisson"
         gdf = combine(
             groupby(df, [:dimension, :k, :Ns]), 
+            :time_boscia => geo_mean, :termination_boscia => sum,
+            :time_scip => geo_mean, :termination_scip => sum,
+            :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :time_no_as => geo_mean, :termination_no_as => sum,
+            :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :time_afw => geo_mean, :termination_afw => sum,
+            nrow => :NumInstances, renamecols=false
+            )
+    elseif mode == "sparse_reg"
+        gdf = combine(
+            groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
@@ -337,7 +440,7 @@ function build_csv(mode)
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
     
-    if mode != "poisson"
+    if mode != "poisson" && mode != "sparse_reg"
         df_intersection = combine(
             groupby(df_intersection, :dimension), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -347,9 +450,19 @@ function build_csv(mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-    else 
+    elseif mode == "poisson"
         df_intersection = combine(
             groupby(df_intersection, [:dimension, :k, :Ns]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    elseif mode == "sparse_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
             :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
             :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
@@ -366,8 +479,13 @@ function build_csv(mode)
     df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
     df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
 
-    gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
-
+    if mode != "poisson" && mode != "sparse_reg"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension])
+    elseif mode == "poisson"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+    elseif mode == "sparse_reg"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+    end
     # add geometric mean of intersected instances to main df
     # gdf[!,:BosciaGeoMeanIntersection] = df_intersection[!,:BosciaGeoMeanIntersection]
     # gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
@@ -382,6 +500,8 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/mixed_50.csv")
     elseif mode == "poisson" 
         file_name = joinpath(@__DIR__, "csv/poisson.csv")
+    elseif mode == "sparse_reg" 
+        file_name = joinpath(@__DIR__, "csv/sparse_reg.csv")   
     end        
     CSV.write(file_name, gdf, append=false)
 end
