@@ -152,6 +152,7 @@ function build_csv(mode)
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
 
+        df[!,:solution_boscia] = df_bs[!,:solution]
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
@@ -220,12 +221,13 @@ function build_csv(mode)
 
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
-        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :dimension, :k, :Ns, :p])
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :Ns, :p])
 
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :Ns, :p])
 
-        print(df[!, [:time_scip, :termination_scip]])
-        # print(filter(row -> (row.termination_scip == 0),  df))
+        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
+        print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
     end
 
     function geo_mean(group)
