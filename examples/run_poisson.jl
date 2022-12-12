@@ -86,7 +86,7 @@ include("poisson_reg.jl")
 #end
 
 bo_mode="scip_oa"
-for dimension in [50:20:100;]
+for dimension in [70:20:100;]
     for seed in 1:10
         for ns in [5.0]# [0.1,1,10]
             @show seed, dimension
