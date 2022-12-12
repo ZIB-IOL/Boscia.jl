@@ -168,7 +168,7 @@ function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CO
     @assert length(constraints) == 0
     values = SCIP.sol_values(ch.o, ch.vars, sol)
     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
-    if zval < ch.f(values) - 1e-6
+    if zval < ch.f(values) - 1e-8
         return SCIP.SCIP_INFEASIBLE
     end
     return SCIP.SCIP_FEASIBLE
@@ -181,7 +181,7 @@ function enforce_epigraph(ch::GradientCutHandler)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    if zval < fx - 1e-6
+    if zval < fx - 1e-8
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
