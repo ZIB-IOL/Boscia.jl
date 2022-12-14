@@ -154,95 +154,95 @@ function boscia_vs_scip(mode, seed=1, dimension=5, iter=3; scip_oa=true)
     end
 end
 
-mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
-    o::SCIP.Optimizer
-    f::F
-    grad!::G
-    storage::XT
-    epivar::MOI.VariableIndex # z
-    vars::Vector{MOI.VariableIndex} # all variables 
-    ncalls::Int
-end
+# mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
+#     o::SCIP.Optimizer
+#     f::F
+#     grad!::G
+#     storage::XT
+#     epivar::MOI.VariableIndex # z
+#     vars::Vector{MOI.VariableIndex} # all variables 
+#     ncalls::Int
+# end
 
-function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool)
-    @assert length(constraints) == 0
-    values = SCIP.sol_values(ch.o, ch.vars, sol)
-    zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
-    #println(constraints)
-    # println("check solution")
-    # @show values 
-    if zval < ch.f(values) - 1e-6
-        return SCIP.SCIP_INFEASIBLE
-    end
-    println("check - FEASIBLE")
-    return SCIP.SCIP_FEASIBLE
-end
+# function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool)
+#     @assert length(constraints) == 0
+#     values = SCIP.sol_values(ch.o, ch.vars, sol)
+#     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
+#     #println(constraints)
+#     # println("check solution")
+#     # @show values 
+#     if zval < ch.f(values) - 1e-6
+#         return SCIP.SCIP_INFEASIBLE
+#     end
+#     println("check - FEASIBLE")
+#     return SCIP.SCIP_FEASIBLE
+# end
 
-function enforce_epigraph(ch::GradientCutHandler)
-    @show ch.ncalls
-    values = SCIP.sol_values(ch.o, ch.vars)
-    zval = SCIP.sol_values(ch.o, [ch.epivar])[1]
-    fx = ch.f(values)
-    ch.grad!(ch.storage, values)
-    # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
-    # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂) 
-    #  @show ch.storage
-    # @show values
-    # println("zval ", zval)
-    # println("fx ", fx)
-    if zval < fx - 1e-6
-        @show zval, fx
-        # dot(∇f(x̂), x) - z
-        z = ch.epivar
-        f = dot(ch.storage, ch.vars) - z
-        # dot(∇f(x̂), x̂) - f(x̂)
-        s = MOI.LessThan(dot(ch.storage, values) - fx)
-        fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
-        # @show fval, s.upper
-        @assert fval > s.upper - 1e-11
-        MOI.add_constraint(
-            ch.o,
-            f, #dot(ch.storage, ch.vars) - ch.epivar,
-            s, #MOI.LessThan(dot(ch.storage, values) - fx),
-        )
-        # println("ch.o ",ch.o) # KeyError: key Ptr{Nothing} @0x000000001421e2b0 not found
-        ch.ncalls += 1
+# function enforce_epigraph(ch::GradientCutHandler)
+#     @show ch.ncalls
+#     values = SCIP.sol_values(ch.o, ch.vars)
+#     zval = SCIP.sol_values(ch.o, [ch.epivar])[1]
+#     fx = ch.f(values)
+#     ch.grad!(ch.storage, values)
+#     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
+#     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂) 
+#     #  @show ch.storage
+#     # @show values
+#     # println("zval ", zval)
+#     # println("fx ", fx)
+#     if zval < fx - 1e-6
+#         @show zval, fx
+#         # dot(∇f(x̂), x) - z
+#         z = ch.epivar
+#         f = dot(ch.storage, ch.vars) - z
+#         # dot(∇f(x̂), x̂) - f(x̂)
+#         s = MOI.LessThan(dot(ch.storage, values) - fx)
+#         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
+#         # @show fval, s.upper
+#         @assert fval > s.upper - 1e-11
+#         MOI.add_constraint(
+#             ch.o,
+#             f, #dot(ch.storage, ch.vars) - ch.epivar,
+#             s, #MOI.LessThan(dot(ch.storage, values) - fx),
+#         )
+#         # println("ch.o ",ch.o) # KeyError: key Ptr{Nothing} @0x000000001421e2b0 not found
+#         ch.ncalls += 1
 
-        # test if true optimum is cut off
-        # x_opt = [-0.004747533876983567,0,-0.004747533876983567,-0.004747533876983567,0, 1,0,1,1,0]
-        # z_opt = ch.f(x_opt)
-        # @assert dot(ch.storage, x_opt) - dot(ch.storage, values) + fx <= z_opt
-        return SCIP.SCIP_CONSADDED
-    end
-    # @show zval, fx # in the end fx and zval should be similar
-    println("enforce epigraph - FEASIBLE")
-    return SCIP.SCIP_FEASIBLE
-end
+#         # test if true optimum is cut off
+#         # x_opt = [-0.004747533876983567,0,-0.004747533876983567,-0.004747533876983567,0, 1,0,1,1,0]
+#         # z_opt = ch.f(x_opt)
+#         # @assert dot(ch.storage, x_opt) - dot(ch.storage, values) + fx <= z_opt
+#         return SCIP.SCIP_CONSADDED
+#     end
+#     # @show zval, fx # in the end fx and zval should be similar
+#     println("enforce epigraph - FEASIBLE")
+#     return SCIP.SCIP_FEASIBLE
+# end
 
-function SCIP.enforce_lp_sol(ch::GradientCutHandler, constraints, nusefulconss, solinfeasible)
-    @assert length(constraints) == 0
-    return enforce_epigraph(ch)
-end
+# function SCIP.enforce_lp_sol(ch::GradientCutHandler, constraints, nusefulconss, solinfeasible)
+#     @assert length(constraints) == 0
+#     return enforce_epigraph(ch)
+# end
 
-function SCIP.enforce_pseudo_sol(
-        ch::GradientCutHandler, constraints, nusefulconss,
-        solinfeasible, objinfeasible,
-    )
-    @assert length(constraints) == 0
-    return enforce_epigraph(ch)
-end
+# function SCIP.enforce_pseudo_sol(
+#         ch::GradientCutHandler, constraints, nusefulconss,
+#         solinfeasible, objinfeasible,
+#     )
+#     @assert length(constraints) == 0
+#     return enforce_epigraph(ch)
+# end
 
-function SCIP.lock(ch::GradientCutHandler, constraint, locktype, nlockspos, nlocksneg)
-    z::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, ch.epivar)
-    if z != C_NULL
-        SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, z, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos, nlocksneg)
-    end
-    for x in ch.vars
-        xi::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, x)
-        xi == C_NULL && continue
-        SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, xi, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos + nlocksneg, nlockspos + nlocksneg)
-    end
-end
+# function SCIP.lock(ch::GradientCutHandler, constraint, locktype, nlockspos, nlocksneg)
+#     z::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, ch.epivar)
+#     if z != C_NULL
+#         SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, z, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos, nlocksneg)
+#     end
+#     for x in ch.vars
+#         xi::Ptr{SCIP.SCIP_VAR} = SCIP.var(ch.o, x)
+#         xi == C_NULL && continue
+#         SCIP.@SCIP_CALL SCIP.SCIPaddVarLocksType(ch.o, xi, SCIP.SCIP_LOCKTYPE_MODEL, nlockspos + nlocksneg, nlockspos + nlocksneg)
+#     end
+# end
 
 function boscia_vs_scip_birkhoff(seed=1, dimension=4, iter=3, k=3)
     limit = 1800
