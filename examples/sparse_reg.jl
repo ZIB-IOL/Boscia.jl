@@ -6,7 +6,7 @@ using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-#MOI = MathOptInterface
+MOI = MathOptInterface
 using CSV
 using DataFrames
 include("scip_oa.jl")
@@ -157,4 +157,3 @@ function build_function(seed, n)
 
     return f, grad!, p, k, M
 end
-

@@ -76,7 +76,7 @@ include("sparse_reg.jl")
 #end
 
 bo_mode = "scip_oa"
-for dimension in [15:1:30;]
+for dimension in [16:1:30;]
     for seed in 1:10
         for tol in [1e-7, 1e-9, 1e-11]
             @show seed, dimension
