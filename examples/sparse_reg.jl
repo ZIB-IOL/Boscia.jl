@@ -191,5 +191,5 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
 end
 
 # sparse_reg(1, 1, bo_mode="afw")
-sparse_reg(10, 2, bo_mode="boscia")
-sparse_reg_scip(10, 2)
+# sparse_reg(10, 2, bo_mode="boscia")
+# sparse_reg_scip(10, 2)
