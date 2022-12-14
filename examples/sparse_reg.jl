@@ -56,7 +56,7 @@ function sparse_reg(seed=1, n=20, iter = 1; bo_mode)
     end
 end
 
-function sparse_reg_scip(seed=1, n=20, iter = 1;)
+function sparse_reg_scip(seed=1, n=20, iter = 1; tol=1e-6)
     limit = 1800
 
     f, grad!, p, k, M = build_function(seed, n)
@@ -76,7 +76,7 @@ function sparse_reg_scip(seed=1, n=20, iter = 1;)
         ncalls_scip = epigraph_ch.ncalls
 
         df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
-        file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_reg.csv")
+        file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_reg_ " * str(tol) * ".csv")
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
         else 

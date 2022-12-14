@@ -10,24 +10,24 @@ mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
     ncalls::Int
 end
 
-function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool)
+function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool; tol=1e-6)
     @assert length(constraints) == 0
     values = SCIP.sol_values(ch.o, ch.vars, sol)
     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
-    if zval < ch.f(values) - 1e-6
+    if zval < ch.f(values) - tol
         return SCIP.SCIP_INFEASIBLE
     end
     return SCIP.SCIP_FEASIBLE
 end
 
-function enforce_epigraph(ch::GradientCutHandler)
+function enforce_epigraph(ch::GradientCutHandler, tol=1e-6)
     values = SCIP.sol_values(ch.o, ch.vars)
     zval = SCIP.sol_values(ch.o, [ch.epivar])[1]
     fx = ch.f(values)
     ch.grad!(ch.storage, values)
     # f(x̂) + dot(∇f(x̂), x-x̂) - z ≤ 0 <=>
     # dot(∇f(x̂), x) - z ≤ dot(∇f(x̂), x̂) - f(x̂)
-    if zval < fx - 1e-6
+    if zval < fx - tol
         f = dot(ch.storage, ch.vars) - ch.epivar
         s = MOI.LessThan(dot(ch.storage, values) - fx)
         fval = MOI.Utilities.eval_variables(vi -> SCIP.sol_values(ch.o, [vi])[1],  f)
