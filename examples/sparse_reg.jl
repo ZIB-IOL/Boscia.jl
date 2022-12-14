@@ -9,14 +9,14 @@ import MathOptInterface
 #MOI = MathOptInterface
 using CSV
 using DataFrames
-include("boscia_vs_scip.jl")
+include("scip_oa.jl")
 
 function sparse_reg(seed=1, n=20, iter = 1; bo_mode)
     limit = 1800
 
     f, grad!, p, k, M = build_function(seed, n)
     o = SCIP.Optimizer()
-    lmo = build_optimizer(o, p, k, M)
+    lmo, _ = build_optimizer(o, p, k, M)
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
 
     for i in 1:iter
@@ -120,13 +120,14 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     MOI.set(o, MOI.TimeLimitSec(), limit)
     MOI.set(o, MOI.Silent(), true)
     lmo, x = build_optimizer(o, p, k, M)
-    o_check = SCIP.Optimizer()
-    lmo_check, _ = build_optimizer(o_check, p, k, M)
     z_i = MOI.add_variable(lmo.o)
     epigraph_ch = GradientCutHandler(lmo.o, f, grad!, zeros(length(x)), z_i, x, 0)
     SCIP.include_conshdlr(lmo.o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
     MOI.set(lmo.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
     
+    # lmo to verify feasibility of solution after optimization
+    o_check = SCIP.Optimizer()
+    lmo_check, _ = build_optimizer(o_check, p, k, M)
     z_i = MOI.add_variable(lmo_check.o)
     MOI.set(lmo_check.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
     
@@ -153,7 +154,7 @@ function build_function(seed, n)
         storage[p+1:2p] .= lambda_0
         return storage
     end
-    
+
     return f, grad!, p, k, M
 end
 
