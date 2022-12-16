@@ -201,9 +201,9 @@ function build_function(seed, n)
             # @show storage
             for i in eachindex(y)
                 dtemp = dot(A[i,:], xv)
-                @view(storage[1:p]) += invn * A[i,:] * (dℓ(dtemp) - y[i] / 2)
+                @. storage[1:p] += invn * A[i,:] * (dℓ(dtemp) - y[i] / 2)
             end
-            @view(storage[1:p]) += mu * xv
+            @. storage[1:p] += mu * xv
             storage
         end
         return f, grad!
