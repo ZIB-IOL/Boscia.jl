@@ -731,8 +731,12 @@ end
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
 
-for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
-    if endswith(file, "jl")
-        include(file)
+@testset "Test examples" begin
+    for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
+        if endswith(file, "jl")
+            @eval Module() begin
+                Base.include(@__MODULE__, $file)
+            end
+        end
     end
 end
