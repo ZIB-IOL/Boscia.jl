@@ -1,10 +1,10 @@
 include("sparse_log_reg.jl")
 
 bo_mode="boscia"
-for dimension in [1:5:30;]
+for dimension in [1]#:5:30;]
     for seed in 1:3
         @show seed, dimension
-        for ns in [0.1,1,5.0,10]
+        for ns in [0.1]#,1,5.0,10]
             k = dimension/5
             try 
                 sparse_log_regression(seed, dimension, 1; bo_mode=bo_mode)
@@ -95,10 +95,10 @@ end
 # end
 
 bo_mode = "scip_oa"
-for dimension in [1:5:30;]
-    for seed in 1:3
+for dimension in [1]#:5:30;]
+    for seed in 1:1
         @show seed, dimension
-        for ns in [0.1,1,5.0,10]
+        for ns in [0.1]#,1,5.0,10]
             k = dimension/5
             try 
                 sparse_log_reg_scip(seed, dimension, 1)
