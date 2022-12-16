@@ -5,14 +5,13 @@ for dimension in [1:5:30;]
     for seed in 1:3
         @show seed, dimension
         for ns in [0.1,1,5.0,10]
-            for k in [ceil(dimension/5)]
-                try 
-                    sparse_log_regression(seed, dimension, 1; bo_mode=bo_mode)
-                catch e
-                    println(e)
-                    open("sparse_log_reg_errors.txt","a") do io
-                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
-                    end
+            k = dimension/5
+            try 
+                sparse_log_regression(seed, dimension, 1; bo_mode=bo_mode)
+            catch e
+                println(e)
+                open("sparse_log_reg_errors.txt","a") do io
+                    println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
                 end
             end
         end
@@ -100,14 +99,13 @@ for dimension in [1:5:30;]
     for seed in 1:3
         @show seed, dimension
         for ns in [0.1,1,5.0,10]
-            for k in [ceil(dimension/5)]
-                try 
-                    sparse_log_reg_scip(seed, dimension, 1)
-                catch e
-                    println(e)
-                    open("sparse_log_reg_errors.txt","a") do io
-                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
-                    end
+            k = dimension/5
+            try 
+                sparse_log_reg_scip(seed, dimension, 1)
+            catch e
+                println(e)
+                open("sparse_log_reg_errors.txt","a") do io
+                    println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
                 end
             end
         end
