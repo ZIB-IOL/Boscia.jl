@@ -29,7 +29,7 @@ include("scip_oa.jl")
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0; data="random", bo_mode="boscia") 
+function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0; bo_mode="boscia") 
     limit = 1800
 
     f, grad!, p = build_function(seed, dimension)
@@ -168,7 +168,7 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     return lmo, epigraph_ch, x, lmo_check
 end
 
-function build_function(seed, n)
+function build_function(seed, dimension)
     Random.seed!(seed)
     n0 = dimension
     p = 5 * n0;
@@ -196,7 +196,7 @@ function build_function(seed, n)
             err_term + pen_term
         end
         function grad!(storage, x)
-            storage .= zeros(length(x))
+            storage .= 0 # zeros(length(x))
             xv = @view(x[1:p])
             # @show storage
             for i in eachindex(y)
