@@ -9,6 +9,7 @@ import MathOptInterface
 MOI = MathOptInterface
 using CSV
 using DataFrames
+using Ipopt
 include("scip_oa.jl")
 
 function sparse_reg(seed=1, n=20, iter = 1; bo_mode)
@@ -157,3 +158,5 @@ function build_function(seed, n)
 
     return f, grad!, p, k, M
 end
+
+

@@ -91,3 +91,14 @@ for dimension in [16:1:30;]
         end
     end
 end
+
+bo_mode = "ipopt"
+for dimension in [15:1:30;]
+    for seed in 1:10
+        @show seed, dimension
+        try
+            sparse_reg_ipopt(seed, dimension, 1)
+        catch
+        end
+    end
+end
