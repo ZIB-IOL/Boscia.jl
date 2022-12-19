@@ -35,8 +35,8 @@ function sparse_regression(seed=1, dimension=10; bo_mode="boscia")
     f, grad!, n0, m0, τ, M = build_objective_gradient(seed, dimension)
     o = SCIP.Optimizer()
     lmo, _ = build_twotailed_optimizer(o, τ, M)
-    # println("BOSCIA MODEL")
-    # print(lmo.o)
+    println("BOSCIA MODEL")
+    print(lmo.o)
 
     # "Sparse Regression" 
 
@@ -176,6 +176,7 @@ end
 function build_objective_gradient(seed, m0)
     Random.seed!(seed)
     n0 = Int(round(m0 / 10))
+    @assert n0 > 0
     λ = rand()
     μ = 10.0 * rand()
     A = rand(m0, n0)
