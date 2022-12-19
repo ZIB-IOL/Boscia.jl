@@ -247,6 +247,10 @@ function build_csv(mode)
         # print(df)
         # print(df_temp)
 
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
+
     elseif mode == "sparse_reg"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_reg.csv")))
