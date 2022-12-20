@@ -1,7 +1,7 @@
 include("tailed_cardinality.jl")
 
 bo_mode="boscia"
-for dimension in [21:1:50;]
+for dimension in [100:100:1000;]
     for seed in 1:3
         @show seed, dimension
         try 
@@ -76,7 +76,7 @@ end
 #end
 
 bo_mode = "scip_oa"
-for dimension in [21:1:50;]
+for dimension in [100:100:1000;]
     for seed in 1:3
         @show seed, dimension
         try 
