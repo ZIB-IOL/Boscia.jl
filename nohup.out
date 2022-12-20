@@ -54287,3 +54287,6692 @@ L 0.0s|     2 |     3 |   187 |   3.0 |    rens|   1 | 281 | 284 | 284 |   1 |  
 (seed, dimension) = (1, 20)
 (seed, dimension) = (2, 20)
 (seed, dimension) = (3, 20)
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+(seed, dimension) = (1, 10)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -5.241264781624112
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -5.241264781624112
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 10)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -5.528097042907093
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -5.528097042907093
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 10)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -2.34404304087615
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -2.34404304087615
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 11)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -4.507875796717021
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -4.507875796717021
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 11)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -0.5631536743600858
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -0.5631536743600858
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 11)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -5.997047265994871
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -5.997047265994871
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 12)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -0.4669586637602081
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -0.4669586637602081
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 12)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -0.3680261434426355
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -0.3680261434426355
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 12)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -4.229623614169826
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -4.229623614169826
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 13)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -0.5138110092269508
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -0.5138110092269508
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 13)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -5.828307339802604
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -5.828307339802604
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 13)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -1.246473029130247
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -1.246473029130247
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 14)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -2.7801014755415925
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -2.7801014755415925
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 14)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -2.3559029046867335
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -2.3559029046867335
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 14)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[3] - 1.0 v[1] >= -2.215148182127792
+ 0.0 + 1.0 v[3] + 1.0 v[1] >= -2.215148182127792
+
+VariableIndex-in-ZeroOne
+ v[2] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[3] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[2]│
+ │0.0 + 1.0 v[3]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[3] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 15)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.1498479397006767
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.1498479397006767
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.4495436496277785
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.4495436496277785
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 15)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -5.260412616288274
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -5.260412616288274
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -5.1040573032559005
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -5.1040573032559005
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 15)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -1.289423999419086
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -1.289423999419086
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -4.885600420559982
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -4.885600420559982
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 16)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -2.6453845402386666
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -2.6453845402386666
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.4280358321941202
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.4280358321941202
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 16)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.5476127425020465
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.5476127425020465
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.3644521899942683
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.3644521899942683
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 16)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -2.5973462298215346
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -2.5973462298215346
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -5.120654606502319
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -5.120654606502319
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 17)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -5.722820538905146
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -5.722820538905146
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -0.5711135543847736
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -0.5711135543847736
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 17)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -4.762594638154981
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -4.762594638154981
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.2693128020116142
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.2693128020116142
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 17)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.7951972495456108
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.7951972495456108
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -3.4377387224596805
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -3.4377387224596805
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 18)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.08124199546466349
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.08124199546466349
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.8203928732338928
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.8203928732338928
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (2, 18)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.2732294010520242
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.2732294010520242
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.123772099082592
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.123772099082592
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 18)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.8625426169016692
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.8625426169016692
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -4.253130626552773
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -4.253130626552773
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 19)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.5792220412964855
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.5792220412964855
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -3.833609038161726
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -3.833609038161726
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 19)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.20326470342899228
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.20326470342899228
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -5.11706445214457
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -5.11706445214457
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 19)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -5.194541001174177
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -5.194541001174177
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.4602317164344938
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.4602317164344938
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 20)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.291810873119586
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.291810873119586
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.5779521940253898
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.5779521940253898
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 20)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.06051486277261198
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.06051486277261198
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.1154829694888515
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.1154829694888515
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 20)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -1.9785281327007582
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -1.9785281327007582
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -4.429779903588418
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -4.429779903588418
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 10)
+OPTIMAL
+(seed, dimension) = (2, 10)
+OPTIMAL
+(seed, dimension) = (3, 10)
+OPTIMAL
+(seed, dimension) = (1, 11)
+OPTIMAL
+(seed, dimension) = (2, 11)
+OPTIMAL
+(seed, dimension) = (3, 11)
+OPTIMAL
+(seed, dimension) = (1, 12)
+OPTIMAL
+(seed, dimension) = (2, 12)
+OPTIMAL
+(seed, dimension) = (3, 12)
+OPTIMAL
+(seed, dimension) = (1, 13)
+OPTIMAL
+(seed, dimension) = (2, 13)
+OPTIMAL
+(seed, dimension) = (3, 13)
+OPTIMAL
+(seed, dimension) = (1, 14)
+OPTIMAL
+(seed, dimension) = (2, 14)
+OPTIMAL
+(seed, dimension) = (3, 14)
+OPTIMAL
+(seed, dimension) = (1, 15)
+OPTIMAL
+(seed, dimension) = (2, 15)
+OPTIMAL
+(seed, dimension) = (3, 15)
+OPTIMAL
+(seed, dimension) = (1, 16)
+OPTIMAL
+(seed, dimension) = (2, 16)
+OPTIMAL
+(seed, dimension) = (3, 16)
+OPTIMAL
+(seed, dimension) = (1, 17)
+OPTIMAL
+(seed, dimension) = (2, 17)
+OPTIMAL
+(seed, dimension) = (3, 17)
+OPTIMAL
+(seed, dimension) = (1, 18)
+OPTIMAL
+(seed, dimension) = (2, 18)
+OPTIMAL
+(seed, dimension) = (3, 18)
+OPTIMAL
+(seed, dimension) = (1, 19)
+OPTIMAL
+(seed, dimension) = (2, 19)
+OPTIMAL
+(seed, dimension) = (3, 19)
+OPTIMAL
+(seed, dimension) = (1, 20)
+OPTIMAL
+(seed, dimension) = (2, 20)
+OPTIMAL
+(seed, dimension) = (3, 20)
+OPTIMAL
+(seed, dimension) = (1, 21)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -2.7901159117722982
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -2.7901159117722982
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.6531160119796127
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.6531160119796127
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 21)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.6936161482966647
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.6936161482966647
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.4008191968384396
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.4008191968384396
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 21)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -5.769193591195684
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -5.769193591195684
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.1446987863531262
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.1446987863531262
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 22)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -5.711168373542922
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -5.711168373542922
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.732423951840195
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.732423951840195
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 22)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -4.849216515656957
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -4.849216515656957
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -4.818192382686684
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -4.818192382686684
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 22)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -1.9683542977330988
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -1.9683542977330988
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -1.88327690605521
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -1.88327690605521
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 23)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -1.167406838687549
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -1.167406838687549
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.359160985938544
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.359160985938544
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 23)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -4.204299071961727
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -4.204299071961727
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.1381787992457575
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.1381787992457575
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 23)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -0.7583918225283792
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -0.7583918225283792
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -5.537333907446909
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -5.537333907446909
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 24)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.3020052837483442
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.3020052837483442
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -3.4846898079159785
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -3.4846898079159785
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 24)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.959809089418332
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.959809089418332
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -5.94473688717809
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -5.94473688717809
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 24)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -4.923688907250986
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -4.923688907250986
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -3.641251225349041
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -3.641251225349041
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 25)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -3.117147943451165
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -3.117147943451165
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -3.0891778266326613
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -3.0891778266326613
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 25)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -2.491859688578585
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -2.491859688578585
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.9853983938821735
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.9853983938821735
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 25)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[5] - 1.0 v[1] >= -2.3209421727748625
+ 0.0 + 1.0 v[5] + 1.0 v[1] >= -2.3209421727748625
+ 0.0 + 1.0 v[6] - 1.0 v[2] >= -2.489002343025193
+ 0.0 + 1.0 v[6] + 1.0 v[2] >= -2.489002343025193
+
+VariableIndex-in-ZeroOne
+ v[3] ∈ {0, 1}
+ v[4] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[5] <= 20.0
+ v[6] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[6]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[3]│
+ │0.0 + 1.0 v[5]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[5] >= 0.0
+ v[6] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 26)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.268649287663466
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.268649287663466
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.582886359532122
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.582886359532122
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.377744432203961
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.377744432203961
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 26)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -3.008350562354844
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -3.008350562354844
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -2.2908076840220835
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -2.2908076840220835
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.399155716912329
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.399155716912329
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 26)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -3.123214876779339
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -3.123214876779339
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.451985716263624
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.451985716263624
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -4.396509747079036
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -4.396509747079036
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 27)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.8367933141162167
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.8367933141162167
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.283151363872966
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.283151363872966
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -0.08461980438962824
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -0.08461980438962824
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (2, 27)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.00140099488032
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.00140099488032
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -4.354323277323977
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -4.354323277323977
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -0.6370003298559257
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -0.6370003298559257
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 27)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -0.26938680893566147
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -0.26938680893566147
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.5160922540731825
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.5160922540731825
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -1.285151233064743
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -1.285151233064743
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 28)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -1.3491046079534268
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -1.3491046079534268
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -1.727145147426866
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -1.727145147426866
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -0.6241959144429146
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -0.6241959144429146
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 28)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -4.468093991731461
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -4.468093991731461
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -1.1283075824264057
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -1.1283075824264057
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -0.014359185310452993
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -0.014359185310452993
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 28)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -1.2754155350795995
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -1.2754155350795995
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.490413534358021
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.490413534358021
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -4.683955973925463
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -4.683955973925463
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 29)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.500084453857304
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.500084453857304
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.1283242915473255
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.1283242915473255
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.450991671782624
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.450991671782624
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 29)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.854034807364394
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.854034807364394
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -4.6724907816540675
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -4.6724907816540675
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -1.3708160151786521
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -1.3708160151786521
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 29)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -1.0563940151461697
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -1.0563940151461697
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -1.8439569056993355
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -1.8439569056993355
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -2.6370568793775067
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -2.6370568793775067
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 30)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -4.022523495368985
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -4.022523495368985
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -4.532491343680072
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -4.532491343680072
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -3.894337590877084
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -3.894337590877084
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 30)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -1.5388047414920534
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -1.5388047414920534
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -0.8858417115470854
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -0.8858417115470854
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -4.947821028288071
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -4.947821028288071
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 30)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.7151847524967168
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.7151847524967168
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -1.9790766063962377
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -1.9790766063962377
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.921337198612552
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.921337198612552
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 31)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.437263874005668
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.437263874005668
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -1.6524938929535846
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -1.6524938929535846
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.219553798304087
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.219553798304087
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 31)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -4.136997824488976
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -4.136997824488976
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.326523513708048
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.326523513708048
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -0.07296132734070904
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -0.07296132734070904
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 31)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.0469708904358526
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.0469708904358526
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -2.8298922122677324
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -2.8298922122677324
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.8674608582839625
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.8674608582839625
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 32)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.820642150387538
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.820642150387538
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.2389401300094836
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.2389401300094836
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -1.406025792482732
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -1.406025792482732
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 32)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.965863335571338
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.965863335571338
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.3559289310700517
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.3559289310700517
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -3.4790327958357383
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -3.4790327958357383
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 32)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -3.72217358788984
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -3.72217358788984
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.115612143196253
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.115612143196253
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -1.6982138653168608
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -1.6982138653168608
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 33)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -3.512605032801771
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -3.512605032801771
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.3005863974532192
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.3005863974532192
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -2.839381594539799
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -2.839381594539799
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 33)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -4.323366385467879
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -4.323366385467879
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -2.115802517841012
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -2.115802517841012
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -2.443102897753418
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -2.443102897753418
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 33)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -1.237892112020757
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -1.237892112020757
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -5.988103127071723
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -5.988103127071723
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.108045985438342
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.108045985438342
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 34)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -5.241827830559039
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -5.241827830559039
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -2.8753304863701454
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -2.8753304863701454
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -2.158093088904475
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -2.158093088904475
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 34)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -2.693498338069521
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -2.693498338069521
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.896048777054859
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.896048777054859
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -1.9448039337688416
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -1.9448039337688416
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 34)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[7] - 1.0 v[1] >= -0.029022397706418346
+ 0.0 + 1.0 v[7] + 1.0 v[1] >= -0.029022397706418346
+ 0.0 + 1.0 v[8] - 1.0 v[2] >= -3.4795555982216144
+ 0.0 + 1.0 v[8] + 1.0 v[2] >= -3.4795555982216144
+ 0.0 + 1.0 v[9] - 1.0 v[3] >= -5.122978026671973
+ 0.0 + 1.0 v[9] + 1.0 v[3] >= -5.122978026671973
+
+VariableIndex-in-ZeroOne
+ v[4] ∈ {0, 1}
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[7] <= 20.0
+ v[8] <= 20.0
+ v[9] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[8]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[6]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[4]│
+ │0.0 + 1.0 v[7]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[7] >= 0.0
+ v[8] >= 0.0
+ v[9] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (1, 35)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -2.6649043871330664
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -2.6649043871330664
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.9659713950657882
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.9659713950657882
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -3.2969190513605744
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -3.2969190513605744
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.686320631664535
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.686320631664535
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 35)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.975654488233627
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.975654488233627
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.0293131088687746
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.0293131088687746
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.975656014678795
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.975656014678795
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -5.148947338290373
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -5.148947338290373
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 35)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.133329183339565
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.133329183339565
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.021773195456296968
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.021773195456296968
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.657316476391765
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.657316476391765
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -5.995672544206478
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -5.995672544206478
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (1, 36)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.071072067306081
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.071072067306081
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.316288145834809
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.316288145834809
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.576977376374085
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.576977376374085
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.2384129071897725
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.2384129071897725
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 36)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.2512963803870467
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.2512963803870467
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.1805781235992
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.1805781235992
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.933348832153454
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.933348832153454
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.6049875292969147
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.6049875292969147
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 36)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.4419601748121385
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.4419601748121385
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.8630515156458465
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.8630515156458465
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.379931296409291
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.379931296409291
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -4.481106180083052
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -4.481106180083052
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 37)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.4310953041706655
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.4310953041706655
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.591546190442089
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.591546190442089
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.199391355300384
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.199391355300384
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.7694051434596627
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.7694051434596627
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 37)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -2.869321798696543
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -2.869321798696543
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -4.6080319573632025
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -4.6080319573632025
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.434560468756672
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.434560468756672
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.451990453156487
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.451990453156487
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 37)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -0.6152124693578518
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -0.6152124693578518
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.4078014602566506
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.4078014602566506
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.602568778641434
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.602568778641434
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.5289156091602503
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.5289156091602503
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 38)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -5.565125758618118
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -5.565125758618118
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.8988737427020244
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.8988737427020244
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -3.6737772238175403
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -3.6737772238175403
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -4.656566349492111
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -4.656566349492111
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 38)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.8362646817456465
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.8362646817456465
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.188893878360939
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.188893878360939
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -2.5860930713686336
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -2.5860930713686336
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.264456224700345
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.264456224700345
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 38)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.088754575289572
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.088754575289572
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -1.6839112572295196
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -1.6839112572295196
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.8534248935071234
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.8534248935071234
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.349674933487612
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.349674933487612
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 39)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.723866728181072
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.723866728181072
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -1.5519743074759766
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -1.5519743074759766
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -3.182373021463447
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -3.182373021463447
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.863131535379113
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.863131535379113
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 39)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -0.8780453131456363
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -0.8780453131456363
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.8702287262395365
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.8702287262395365
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -2.451134018290563
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -2.451134018290563
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.325963016785106
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.325963016785106
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 39)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -0.24753158737624137
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -0.24753158737624137
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -1.1763833428506905
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -1.1763833428506905
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.501912891490566
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.501912891490566
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -4.714009335965791
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -4.714009335965791
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 40)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.423073271737129
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.423073271737129
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.3114030771521055
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.3114030771521055
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.540985939882443
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.540985939882443
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -4.877121730645323
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -4.877121730645323
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 40)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -0.86121965232052
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -0.86121965232052
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.08533077819691
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.08533077819691
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.3272064580607226
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.3272064580607226
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.1299068972256467
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.1299068972256467
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 40)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -2.5490750665703548
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -2.5490750665703548
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.2826534883617486
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.2826534883617486
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -0.3643857415513141
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -0.3643857415513141
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.6400187396553454
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.6400187396553454
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 41)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.2323284759712338
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.2323284759712338
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.5288623130981818
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.5288623130981818
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.046719981069719
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.046719981069719
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.0276532112495724
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.0276532112495724
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 41)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.2596758720548675
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.2596758720548675
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.033022451985018186
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.033022451985018186
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.9771782772617126
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.9771782772617126
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -0.6336183718898263
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -0.6336183718898263
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 41)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.308381536172032
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.308381536172032
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -1.1758213386157488
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -1.1758213386157488
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -0.7680856198637382
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -0.7680856198637382
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.3231578819650354
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.3231578819650354
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 42)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -2.588758344754013
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -2.588758344754013
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.590534613684365
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.590534613684365
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.384372669525932
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.384372669525932
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.318948490762198
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.318948490762198
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 42)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.685724016582611
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.685724016582611
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -2.612063569359775
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -2.612063569359775
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.9729641746291953
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.9729641746291953
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.7844215597921376
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.7844215597921376
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 42)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.9012706130830872
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.9012706130830872
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.42128977032096504
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.42128977032096504
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.706805773995404
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.706805773995404
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.3374247619520774
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.3374247619520774
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 43)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -1.3220861903952632
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -1.3220861903952632
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.31605863192703
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.31605863192703
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.710233257182086
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.710233257182086
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -5.704314853151855
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -5.704314853151855
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 43)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.588272121587472
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.588272121587472
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -2.415760597815127
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -2.415760597815127
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.98780751139433
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.98780751139433
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -2.6174809128581504
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -2.6174809128581504
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 43)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.233753353678415
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.233753353678415
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -0.7041566004481861
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -0.7041566004481861
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -2.1750390793512913
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -2.1750390793512913
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.7422206306518824
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.7422206306518824
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 44)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.0181531686160126
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.0181531686160126
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -1.8078988137925185
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -1.8078988137925185
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.1085982373019476
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.1085982373019476
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -0.7719244611279601
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -0.7719244611279601
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 44)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.3151364340070066
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.3151364340070066
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.840036699269577
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.840036699269577
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -2.0758023646357184
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -2.0758023646357184
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -0.5039230382811053
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -0.5039230382811053
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 44)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -4.745366418040756
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -4.745366418040756
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -4.550350111214984
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -4.550350111214984
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -5.945366358574313
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -5.945366358574313
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.4506460557713527
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.4506460557713527
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 45)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.598737916855125
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.598737916855125
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -3.384691405202206
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -3.384691405202206
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -2.820404673633712
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -2.820404673633712
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.5724702329297093
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.5724702329297093
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 45)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -0.5545263234370936
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -0.5545263234370936
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.017673341357048
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.017673341357048
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -1.9537322127185273
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -1.9537322127185273
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -1.6815101043310885
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -1.6815101043310885
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 45)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[9] - 1.0 v[1] >= -3.3119778075016426
+ 0.0 + 1.0 v[9] + 1.0 v[1] >= -3.3119778075016426
+ 0.0 + 1.0 v[10] - 1.0 v[2] >= -5.9511965125892985
+ 0.0 + 1.0 v[10] + 1.0 v[2] >= -5.9511965125892985
+ 0.0 + 1.0 v[11] - 1.0 v[3] >= -4.8678523047235585
+ 0.0 + 1.0 v[11] + 1.0 v[3] >= -4.8678523047235585
+ 0.0 + 1.0 v[12] - 1.0 v[4] >= -3.2903538945635313
+ 0.0 + 1.0 v[12] + 1.0 v[4] >= -3.2903538945635313
+
+VariableIndex-in-ZeroOne
+ v[5] ∈ {0, 1}
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[9] <= 20.0
+ v[10] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[10]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌              ┐
+ │0.0 + 1.0 v[5]│
+ │0.0 + 1.0 v[9]│
+ └              ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[9] >= 0.0
+ v[10] >= 0.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 46)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -0.07143849909116584
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -0.07143849909116584
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -0.06070657512869149
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -0.06070657512869149
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -4.832616781728113
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -4.832616781728113
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -3.643831540736622
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -3.643831540736622
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -1.4424954557343446
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -1.4424954557343446
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (2, 46)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -2.4451142379144732
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -2.4451142379144732
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -1.3581859416170619
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -1.3581859416170619
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -0.8846407082342993
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -0.8846407082342993
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -4.777466405419634
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -4.777466405419634
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -1.5464411102772773
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -1.5464411102772773
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 46)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -1.1998839595711313
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -1.1998839595711313
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -1.728476893076261
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -1.728476893076261
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -5.338316514915423
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -5.338316514915423
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -4.277744324785339
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -4.277744324785339
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -4.8459488927513465
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -4.8459488927513465
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 47)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -3.05271679695661
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -3.05271679695661
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -1.0846721686757066
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -1.0846721686757066
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -5.158241518155975
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -5.158241518155975
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -2.1370904478301087
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -2.1370904478301087
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -1.2797055383190377
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -1.2797055383190377
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 47)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -2.141070154907618
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -2.141070154907618
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -4.251173069825294
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -4.251173069825294
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -0.2098312809473839
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -0.2098312809473839
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -5.773985785013135
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -5.773985785013135
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -0.07071343863465662
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -0.07071343863465662
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (3, 47)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -0.07239673961124637
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -0.07239673961124637
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -1.5873303472659832
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -1.5873303472659832
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -4.829401964238393
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -4.829401964238393
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -3.4697928130830773
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -3.4697928130830773
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -3.681149836345187
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -3.681149836345187
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (1, 48)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -5.37545885906621
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -5.37545885906621
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -5.941913471162788
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -5.941913471162788
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -1.621324097461215
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -1.621324097461215
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -2.4656748875519705
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -2.4656748875519705
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -0.17865987773092584
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -0.17865987773092584
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (2, 48)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -1.3293254523045261
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -1.3293254523045261
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -4.588567707752353
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -4.588567707752353
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -1.0177736200734473
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -1.0177736200734473
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -2.9768202891904383
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -2.9768202891904383
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -5.747613898638601
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -5.747613898638601
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 48)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -4.876452155116919
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -4.876452155116919
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -0.47946539629116414
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -0.47946539629116414
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -4.122478715351372
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -4.122478715351372
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -5.373208831774278
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -5.373208831774278
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -5.847610926166594
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -5.847610926166594
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (1, 49)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -2.228942639959285
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -2.228942639959285
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -0.6221439913357676
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -0.6221439913357676
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -0.6875836334556271
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -0.6875836334556271
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -1.737111497489515
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -1.737111497489515
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -4.468411818098413
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -4.468411818098413
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ [ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 49)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -5.058164682437834
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -5.058164682437834
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -2.6422862265053113
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -2.6422862265053113
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -0.7305548044632437
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -0.7305548044632437
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -3.09654276332645
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -3.09654276332645
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -0.4478757058155245
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -0.4478757058155245
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("tree.lb <= primal - dual_gap")
+(seed, dimension) = (3, 49)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -3.63748861099173
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -3.63748861099173
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -5.960130204203427
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -5.960130204203427
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -2.6178977147368667
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -2.6178977147368667
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -0.0459166340735222
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -0.0459166340735222
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -3.795749578664055
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -3.795749578664055
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+AssertionError("primal <= tree.incumbent + 0.01")
+(seed, dimension) = (1, 50)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -3.709934276147055
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -3.709934276147055
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -3.4367341082357457
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -3.4367341082357457
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -5.470535345269301
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -5.470535345269301
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -5.7821399208106685
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -5.7821399208106685
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -5.9577877230507035
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -5.9577877230507035
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 50)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -4.343819222581505
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -4.343819222581505
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -2.440070899472283
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -2.440070899472283
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -4.310197062190877
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -4.310197062190877
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -1.1988393700972555
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -1.1988393700972555
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -1.1973825876325388
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -1.1973825876325388
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 50)
+BOSCIA MODEL
+Minimize ScalarAffineFunction{Float64}:
+ 0.0
+
+Subject to:
+
+ScalarAffineFunction{Float64}-in-GreaterThan{Float64}
+ 0.0 + 1.0 v[11] - 1.0 v[1] >= -4.098611582690436
+ 0.0 + 1.0 v[11] + 1.0 v[1] >= -4.098611582690436
+ 0.0 + 1.0 v[12] - 1.0 v[2] >= -4.6277390747736025
+ 0.0 + 1.0 v[12] + 1.0 v[2] >= -4.6277390747736025
+ 0.0 + 1.0 v[13] - 1.0 v[3] >= -0.4925566108120458
+ 0.0 + 1.0 v[13] + 1.0 v[3] >= -0.4925566108120458
+ 0.0 + 1.0 v[14] - 1.0 v[4] >= -2.6009908121407026
+ 0.0 + 1.0 v[14] + 1.0 v[4] >= -2.6009908121407026
+ 0.0 + 1.0 v[15] - 1.0 v[5] >= -1.132985135115156
+ 0.0 + 1.0 v[15] + 1.0 v[5] >= -1.132985135115156
+
+VariableIndex-in-ZeroOne
+ v[6] ∈ {0, 1}
+ v[7] ∈ {0, 1}
+ v[8] ∈ {0, 1}
+ v[9] ∈ {0, 1}
+ v[10] ∈ {0, 1}
+
+VariableIndex-in-LessThan{Float64}
+ v[1] <= 20.0
+ v[2] <= 20.0
+ v[3] <= 20.0
+ v[4] <= 20.0
+ v[5] <= 20.0
+ v[11] <= 20.0
+ v[12] <= 20.0
+ v[13] <= 20.0
+ v[14] <= 20.0
+ v[15] <= 20.0
+
+VectorAffineFunction{Float64}-in-Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}
+ ┌               ┐
+ │0.0 + 1.0 v[7] │
+ │0.0 + 1.0 v[12]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[8] │
+ │0.0 + 1.0 v[13]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[9] │
+ │0.0 + 1.0 v[14]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[10]│
+ │0.0 + 1.0 v[15]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+ ┌               ┐
+ │0.0 + 1.0 v[6] │
+ │0.0 + 1.0 v[11]│
+ └               ┘ ∈ Indicator{ACTIVATE_ON_ONE, LessThan{Float64}}(LessThan{Float64}(0.0))
+
+VariableIndex-in-GreaterThan{Float64}
+ v[1] >= -20.0
+ v[2] >= -20.0
+ v[3] >= -20.0
+ v[4] >= -20.0
+ v[5] >= -20.0
+ v[11] >= 0.0
+ v[12] >= 0.0
+ v[13] >= 0.0
+ v[14] >= 0.0
+ v[15] >= 0.0
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 21)
+OPTIMAL
+(seed, dimension) = (2, 21)
+OPTIMAL
+(seed, dimension) = (3, 21)
+OPTIMAL
+(seed, dimension) = (1, 22)
+OPTIMAL
+(seed, dimension) = (2, 22)
+OPTIMAL
+(seed, dimension) = (3, 22)
+OPTIMAL
+(seed, dimension) = (1, 23)
+OPTIMAL
+(seed, dimension) = (2, 23)
+OPTIMAL
+(seed, dimension) = (3, 23)
+OPTIMAL
+(seed, dimension) = (1, 24)
+OPTIMAL
+(seed, dimension) = (2, 24)
+OPTIMAL
+(seed, dimension) = (3, 24)
+OPTIMAL
+(seed, dimension) = (1, 25)
+OPTIMAL
+(seed, dimension) = (2, 25)
+OPTIMAL
+(seed, dimension) = (3, 25)
+OPTIMAL
+(seed, dimension) = (1, 26)
+OPTIMAL
+(seed, dimension) = (2, 26)
+OPTIMAL
+(seed, dimension) = (3, 26)
+OPTIMAL
+(seed, dimension) = (1, 27)
+OPTIMAL
+(seed, dimension) = (2, 27)
+OPTIMAL
+(seed, dimension) = (3, 27)
+OPTIMAL
+(seed, dimension) = (1, 28)
+OPTIMAL
+(seed, dimension) = (2, 28)
+OPTIMAL
+(seed, dimension) = (3, 28)
+OPTIMAL
+(seed, dimension) = (1, 29)
+OPTIMAL
+(seed, dimension) = (2, 29)
+OPTIMAL
+(seed, dimension) = (3, 29)
+OPTIMAL
+(seed, dimension) = (1, 30)
+OPTIMAL
+(seed, dimension) = (2, 30)
+OPTIMAL
+(seed, dimension) = (3, 30)
+OPTIMAL
+(seed, dimension) = (1, 31)
+OPTIMAL
+(seed, dimension) = (2, 31)
+OPTIMAL
+(seed, dimension) = (3, 31)
+OPTIMAL
+(seed, dimension) = (1, 32)
+OPTIMAL
+(seed, dimension) = (2, 32)
+OPTIMAL
+(seed, dimension) = (3, 32)
+OPTIMAL
+(seed, dimension) = (1, 33)
+OPTIMAL
+(seed, dimension) = (2, 33)
+OPTIMAL
+(seed, dimension) = (3, 33)
+OPTIMAL
+(seed, dimension) = (1, 34)
+OPTIMAL
+(seed, dimension) = (2, 34)
+OPTIMAL
+(seed, dimension) = (3, 34)
+OPTIMAL
+(seed, dimension) = (1, 35)
+OPTIMAL
+(seed, dimension) = (2, 35)
+OPTIMAL
+(seed, dimension) = (3, 35)
+OPTIMAL
+(seed, dimension) = (1, 36)
+OPTIMAL
+(seed, dimension) = (2, 36)
+OPTIMAL
+(seed, dimension) = (3, 36)
+OPTIMAL
+(seed, dimension) = (1, 37)
+OPTIMAL
+(seed, dimension) = (2, 37)
+OPTIMAL
+(seed, dimension) = (3, 37)
+OPTIMAL
+(seed, dimension) = (1, 38)
+OPTIMAL
+(seed, dimension) = (2, 38)
+OPTIMAL
+(seed, dimension) = (3, 38)
+OPTIMAL
+(seed, dimension) = (1, 39)
+OPTIMAL
+(seed, dimension) = (2, 39)
+OPTIMAL
+(seed, dimension) = (3, 39)
+OPTIMAL
+(seed, dimension) = (1, 40)
+OPTIMAL
+(seed, dimension) = (2, 40)
+OPTIMAL
+(seed, dimension) = (3, 40)
+OPTIMAL
+(seed, dimension) = (1, 41)
+OPTIMAL
+(seed, dimension) = (2, 41)
+OPTIMAL
+(seed, dimension) = (3, 41)
+OPTIMAL
+(seed, dimension) = (1, 42)
+OPTIMAL
+(seed, dimension) = (2, 42)
+OPTIMAL
+(seed, dimension) = (3, 42)
+OPTIMAL
+(seed, dimension) = (1, 43)
+OPTIMAL
+(seed, dimension) = (2, 43)
+OPTIMAL
+(seed, dimension) = (3, 43)
+OPTIMAL
+(seed, dimension) = (1, 44)
+OPTIMAL
+(seed, dimension) = (2, 44)
+OPTIMAL
+(seed, dimension) = (3, 44)
+OPTIMAL
+(seed, dimension) = (1, 45)
+OPTIMAL
+(seed, dimension) = (2, 45)
+OPTIMAL
+(seed, dimension) = (3, 45)
+OPTIMAL
+(seed, dimension) = (1, 46)
+OPTIMAL
+(seed, dimension) = (2, 46)
+OPTIMAL
+(seed, dimension) = (3, 46)
+OPTIMAL
+(seed, dimension) = (1, 47)
+OPTIMAL
+(seed, dimension) = (2, 47)
+OPTIMAL
+(seed, dimension) = (3, 47)
+OPTIMAL
+(seed, dimension) = (1, 48)
+OPTIMAL
+(seed, dimension) = (2, 48)
+OPTIMAL
+(seed, dimension) = (3, 48)
+OPTIMAL
+(seed, dimension) = (1, 49)
+OPTIMAL
+(seed, dimension) = (2, 49)
+OPTIMAL
+(seed, dimension) = (3, 49)
+OPTIMAL
+(seed, dimension) = (1, 50)
+OPTIMAL
+(seed, dimension) = (2, 50)
+OPTIMAL
+(seed, dimension) = (3, 50)
+OPTIMAL
