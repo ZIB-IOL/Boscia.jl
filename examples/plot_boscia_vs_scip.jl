@@ -2,13 +2,15 @@ using PyPlot
 using DataFrames
 using CSV
 
-function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
+function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, afw=false, ss=false, as=false, as_ss=false)
     if mode == "mixed_50"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
     elseif mode == "integer_50"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
     elseif mode == "poisson"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/poisson_non_grouped.csv")))
+    elseif mode == "sparse_reg"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")))
     else
         error("wrong option")
     end
@@ -16,7 +18,7 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
     time_limit = 1800
 
     # display(df)
-    if mode == "poisson"
+    if mode == "poisson" || mode == "sparse_reg"
         df_boscia = copy(df)
         filter!(row -> !(row.termination_boscia == 0),  df_boscia)
         df_scip = copy(df)
@@ -60,13 +62,20 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
     time_scip = sort(df_scip[!,"time_scip"])
     push!(time_boscia, 1.1 * time_limit)
     push!(time_scip, 1.1 * time_limit)
-    if mode == "poisson"
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
-        ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
-        #yticks(0:2:nrow(df_boscia)+1, 0:2:nrow(df_boscia)+1)
-    else 
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1])
-        ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2])
+    if boscia 
+        if mode == "poisson" || mode == "sparse_reg"
+            ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
+        else 
+            ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1])
+        end
+    end
+
+    if scip_oa 
+        if mode == "poisson" || mode == "sparse_reg"
+            ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
+        else 
+            ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2])
+        end
     end
 
     if afw 
@@ -82,7 +91,7 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
             time_afw = sort(df_afw[!,"time_afw"])
             push!(time_afw, 1.1 * time_limit)
             ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=colors[4], marker=markers[3])
-        elseif mode == "poisson"
+        elseif mode == "poisson" || mode == "sparse_reg"
             df_afw = copy(df)
             filter!(row -> !(row.termination_afw == 0),  df_afw)
             time_afw = sort(df_afw[!,"time_afw"])
@@ -104,7 +113,7 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
             time_ss = sort(df_ss[!,"time_afw"])
             push!(time_ss, 1.1 * time_limit)
             ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=colors[5], marker=markers[4])
-        elseif mode == "poisson"
+        elseif mode == "poisson" || mode == "sparse_reg"
             df_ss = copy(df)
             filter!(row -> !(row.termination_no_ss == 0), df_ss)
             time_ss = sort(df_ss[!,"time_no_ss"])
@@ -126,7 +135,7 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
             time_afw = sort(df_afw[!,"time_afw"])
             push!(time_afw, 1.1 * time_limit)
             ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="no active set", color=colors[6], marker=markers[5])
-        elseif mode == "poisson"
+        elseif mode == "poisson" || mode == "sparse_reg"
             df_as = copy(df)
             filter!(row -> !(row.termination_no_as == 0), df_as)
             time_as = sort(df_as[!,"time_no_as"])
@@ -148,7 +157,7 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
             time_afw = sort(df_afw[!,"time_afw"])
             push!(time_afw, 1.1 * time_limit)
             ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="no warm start", color=colors[7], marker=markers[6])
-        elseif mode == "poisson"
+        elseif mode == "poisson" || mode == "sparse_reg"
             df_as_ss = copy(df)
             filter!(row -> !(row.termination_no_ws == 0), df_as_ss)
             time_as_ss = sort(df_as_ss[!,"time_no_ws"])
@@ -166,6 +175,8 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
         title("Pure-integer portfolio problem", loc="center")
     elseif mode == "poisson"
         title("Poisson regression", loc="center")
+    elseif mode == "sparse_reg"
+        title("Sparse regression", loc="center")
     else
         title("Mixed-integer portfolio problem", loc="center")
     end
@@ -183,6 +194,8 @@ function plot_boscia_vs_scip(mode; afw=false, ss=false, as=false, as_ss=false)
         file = ("examples/csv/boscia_vs_scip_integer_50.pdf")
     elseif mode == "poisson"
         file = ("csv/poisson.pdf")
+    elseif mode == "sparse_reg"
+        file = ("csv/sparse_reg.pdf")
     end
 
     savefig(file)

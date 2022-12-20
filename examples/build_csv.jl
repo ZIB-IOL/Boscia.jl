@@ -344,6 +344,9 @@ function build_csv(mode)
         print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
         sort!(df, [:dimension, :p, :k])
 
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
     end
 
     function geo_mean(group)
