@@ -41,8 +41,8 @@ function solve(
     max_fw_iter=10000,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
-    use_postsolve = true,
-    min_fw_iterations = 5,
+    use_postsolve=true,
+    min_fw_iterations=5,
     max_iteration_post=10000,
     kwargs...,
 )
@@ -204,7 +204,6 @@ function solve(
     x = postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
 
     # Check solution and polish
-    x_raw = copy(x)
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
