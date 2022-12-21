@@ -1,7 +1,5 @@
 include("portfolio.jl")
 
-include("boscia_vs_afw.jl")
-
 mode = "mixed"
 
 bo_mode="boscia"
