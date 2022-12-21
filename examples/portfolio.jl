@@ -39,11 +39,11 @@ function portfolio(seed=1, dimension=5; mode, bo_mode)
     end
     df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_portfolio.csv")
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
     elseif bo_mode == "boscia"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_portfolio.csv")
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
     else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_portfolio.csv")
+        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_" * mode * "_portfolio.csv")
     end
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
