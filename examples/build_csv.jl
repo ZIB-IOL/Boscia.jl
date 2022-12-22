@@ -347,6 +347,52 @@ function build_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
+    
+    elseif mode == "tailed_cardinality"
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_tailed_cardinality.csv")))
+        # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = df_bs[!,:termination] #[row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+        df[!,:n0] = df_bs[!,:n0]
+        df[!,:m0] = df_bs[!,:m0]
+        df[!,:M] = df_bs[!,:M]
+        df[!,:solution_boscia] = df_bs[!,:solution]
+
+        df[!,:termination_boscia] = termination_boscia
+
+        # # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality.csv")))
+
+        termination_scip = df_scip[!,:termination] #[row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
+        time_scip = []
+        for row in eachrow(df_scip)
+            if row.solution == Inf 
+                append!(time_scip,1800) 
+            else 
+                append!(time_scip,row.time)
+            end
+        end
+
+        df_scip[!,:time_scip] = time_scip
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :n0, :m0, :M])
+
+        # sort!(df, [:dimension, :k, :Ns, :p])
+        # print(first(df,20))
+        # sort!(df_scip, [:dimension, :k, :Ns, :p])
+        # print(first(df_scip,20))
+        df = innerjoin(df, df_scip, on = [:seed, :n0, :m0, :M])
+
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
     end
 
     function geo_mean(group)
