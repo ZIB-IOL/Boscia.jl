@@ -60976,3 +60976,418 @@ OPTIMAL
 OPTIMAL
 (seed, dimension) = (3, 50)
 OPTIMAL
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: tree.lb > primal - dual_gap
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:544
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+[ Info: Polish solution
+[ Info: Polish solution
+(seed, dimension) = (1, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 100)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 100)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 100)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 110)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 110)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 110)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 120)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 120)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 120)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 130)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 130)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 130)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 140)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 140)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 140)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 150)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 150)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 150)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 160)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 160)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 160)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 170)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 170)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 170)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 180)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 180)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 180)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 190)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 190)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 190)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 200)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 200)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 200)
+Away FW: true
+
+Away FW: false
+
