@@ -542,14 +542,18 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
             else
                 if tree.lb > primal - dual_gap
                     @warn "tree.lb > primal - dual_gap"
-                    status_string = "tree.lb>primal-dual_gap"
+                    if status_string != "Time limit reached"
+                        status_string = "tree.lb>primal-dual_gap"
+                    end
                 end
             end
             tree.incumbent_solution.objective = tree.solutions[1].objective = primal
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
         else 
             @warn "primal > tree.incumbent + 1e-2"
-            status_string = "primal>tree.incumbent+1e-2"
+            if status_string != "Time limit reached"
+                status_string = "primal>tree.incumbent+1e-2"
+            end
         end
     end
 
