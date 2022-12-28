@@ -4,6 +4,7 @@ using FrankWolfe
 using Random
 using LinearAlgebra
 using SCIP
+using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 using Dates
@@ -32,7 +33,7 @@ include("scip_oa.jl")
 
 function sparse_regression(seed=1, dimension=10; bo_mode="boscia") 
     limit = 1800
-    f, grad!, n0, m0, τ, M = build_objective_gradient(seed, dimension)
+    f, grad!, τ, M = build_objective_gradient(seed, dimension)
     o = SCIP.Optimizer()
     lmo, _ = build_twotailed_optimizer(o, τ, M)
     # println("BOSCIA MODEL")
@@ -59,13 +60,13 @@ function sparse_regression(seed=1, dimension=10; bo_mode="boscia")
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, n0=n0, m0=m0, M=M, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, dimension=dimension, M=M, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality_poisson.csv")
     elseif bo_mode == "boscia"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality_poisson.csv")
     else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_tailed_cardinality.csv")
+        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_tailed_cardinality_poisson.csv")
     end
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -84,7 +85,7 @@ end
 
 function sparse_reg_scip(seed=1, dimension=10)
     limit = 1800
-    f, grad!, n0, m0, τ, M = build_objective_gradient(seed, dimension)
+    f, grad!, τ, M = build_objective_gradient(seed, dimension)
     lmo, epigraph_ch, (x, z, s), lmo_check = build_scip_optimizer(τ, M, limit, f, grad!)
     MOI.set(lmo.o, MOI.TimeLimitSec(), limit)
     # MOI.set(o, MOI.AbsoluteGapTolerance(), 1.000000e-06) #AbsoluteGapTolerance not defined
@@ -104,16 +105,16 @@ function sparse_reg_scip(seed=1, dimension=10)
         solution_scip = f(vars_scip)
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, n0=n0, m0=m0, M=M, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, M=M, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     else
         time_scip = MOI.get(lmo.o, MOI.SolveTimeSec())
         #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, n0=n0, m0=m0, M=M, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, M=M, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
 
     end
-    file_name = joinpath(@__DIR__,"csv/scip_oa_tailed_cardinality.csv")
+    file_name = joinpath(@__DIR__,"csv/scip_oa_tailed_cardinality_poisson.csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
@@ -173,30 +174,51 @@ function build_scip_optimizer(τ, M, limit, f, grad!)
     return lmo, epigraph_ch, (x, z, s), lmo_check
 end
 
-function build_objective_gradient(seed, m0)
+function build_objective_gradient(seed, n)
     Random.seed!(seed)
-    n0 = Int(round(m0 / 10))
-    @assert n0 > 0
-    λ = rand()
-    μ = 10.0 * rand()
-    A = rand(m0, n0)
-    y = rand(m0)
-    τ = 6 * rand(n0)
-    n = length(τ)
+    p = n
+    τ = 6 * rand(p)
     M = 20.0
-    function f(x)
-        xv = @view(x[1:n])
-        zv = @view(x[n+1:2n])
-        return norm(y - A * xv)^2 - λ * sum(zv) + μ * norm(xv)^2
+
+    # underlying true weights
+    ws = rand(Float64, p)
+    # set 50 entries to 0
+    for _ in 1:20
+        ws[rand(1:p)] = 0
+    end
+    bs = rand(Float64)
+    Xs = randn(Float64, n, p)
+    ys = map(1:n) do idx
+        a = dot(Xs[idx, :], ws) + bs
+        return rand(Distributions.Poisson(exp(a)))
     end
 
-    function grad!(storage, x)
-        xv = @view(x[1:n])
-        storage .= 0
-        @view(storage[1:n]) .= 2 * (transpose(A) * A * xv - transpose(A) * y + μ * xv)
-        @view(storage[n+1:2n]) .= -λ
+    α = 1.3
+    function f(θ)
+        w = @view(θ[1:p])
+        b = θ[end]
+        s = sum(1:n) do i
+            a = dot(w, Xs[:, i]) + b
+            return 1 / n * (exp(a) - ys[i] * a)
+        end
+        return s + α * norm(w)^2
+    end
+    function grad!(storage, θ)
+        w = @view(θ[1:p])
+        b = θ[end]
+        storage[1:p] .= 2α .* w
+        storage[p+1:2p] .= 0
+        storage[end] = 0
+        for i in 1:n
+            xi = @view(Xs[:, i])
+            a = dot(w, xi) + b
+            storage[1:p] .+= 1 / n * xi * exp(a)
+            storage[1:p] .-= 1 / n * ys[i] * xi
+            storage[end] += 1 / n * (exp(a) - ys[i])
+        end
+        storage ./= norm(storage)
         return storage
     end
-    return (f, grad!, n0, m0, τ, M)
-end
 
+    return f, grad!, τ, M
+end

@@ -29,8 +29,8 @@ using Test
 # Tractable Continuous Approximations for Constraint Selection via Cardinality Minimization, Ahn, Gangammanavar†1, Troxell
 Random.seed!(42)
 
-const m0 = 100;
-const n0 = 10
+const m0 = 1000;
+const n0 = 100
 const λ = rand()
 const μ = 10.0 * rand()
 const A = rand(m0, n0)

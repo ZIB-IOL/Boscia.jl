@@ -18,11 +18,12 @@ print_iter            - encodes after how manz proccessed nodes the current node
                         is printed. Will always print if a new integral solution has been found. 
 dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
                         fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
-max_fw_iter           - maximum number of iterations ina FrankWolfe run.
+max_fw_iter           - maximum number of iterations in a FrankWolfe run.
 min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
                         lower bound.
 min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
 min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
+max_iteration_post    - maximum number of iterations in a FrankWolfe run during postsolve
 """
 function solve(
     f,
@@ -43,8 +44,9 @@ function solve(
     warmstart_shadow_set=true,
     warmstart_active_set=true,
     afw=false,
-    use_postsolve = true,
-    min_fw_iterations = 5,
+    use_postsolve=true,
+    min_fw_iterations=5,
+    max_iteration_post=10000,
     kwargs...,
 )
     if verbose
@@ -207,10 +209,9 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose, use_postsolve)
+    x = postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
 
     # Check solution and polish
-    x_raw = copy(x)
     x_polished = x
     if !is_linear_feasible(tree.root.problem.lmo, x)
         error("Reported solution not linear feasbile!")
@@ -473,7 +474,7 @@ Runs the post solve both for a cleaner solutiona and to optimize
 for the continuous variables if present.
 Prints solution statistics if verbose is true.        
 """
-function postsolve(tree, result, time_ref, verbose, use_postsolve)
+function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
     x = Bonobo.get_solution(tree)
     primal = tree.incumbent_solution.objective
 
@@ -518,7 +519,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
                 line_search=FrankWolfe.Adaptive(verbose=false),
                 lazy=true,
                 verbose=verbose,
-                max_iteration=10000,
+                max_iteration=max_iteration_post,
             )
         else 
             x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
@@ -528,21 +529,32 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
                 active_set,
                 line_search=FrankWolfe.Adaptive(verbose=false),
                 lazy=true,
-                max_iteration=10000,
+                max_iteration=max_iteration_post,
             )
         end
 
         # update tree
-        @assert primal <= tree.incumbent + 1e-2
-        if primal < tree.incumbent
-            tree.root.updated_incumbent[] = true
-            tree.incumbent = primal
-            tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
-        else
-            @assert tree.lb <= primal - dual_gap
+        if primal <= tree.incumbent + 1e-2
+            if primal < tree.incumbent
+                tree.root.updated_incumbent[] = true
+                tree.incumbent = primal
+                tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+            else
+                if tree.lb > primal - dual_gap
+                    @warn "tree.lb > primal - dual_gap"
+                    if status_string != "Time limit reached"
+                        status_string = "tree.lb>primal-dual_gap"
+                    end
+                end
+            end
+            tree.incumbent_solution.objective = tree.solutions[1].objective = primal
+            tree.incumbent_solution.solution = tree.solutions[1].solution = x
+        else 
+            @warn "primal > tree.incumbent + 1e-2"
+            if status_string != "Time limit reached"
+                status_string = "primal>tree.incumbent+1e-2"
+            end
         end
-        tree.incumbent_solution.objective = tree.solutions[1].objective = primal
-        tree.incumbent_solution.solution = tree.solutions[1].solution = x
     end
 
 
@@ -585,10 +597,11 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve)
     return x
 end
 
+# cleanup internal SCIP model
 function free_model(o::SCIP.Optimizer)
     SCIP.SCIPfreeTransform(o)
 end
 
-function free_model(o::HiGHS.Optimizer)
-    
+# no-op by default
+function free_model(o::MOI.AbstractOptimizer)   
 end
