@@ -147,7 +147,13 @@ function build_csv(mode)
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mixed_portfolio.csv")))
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+        for row in eachrow(df_bs)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        
+        termination_boscia = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_bs[!,:termination]]
 
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time]
@@ -158,7 +164,13 @@ function build_csv(mode)
         # load afw
         df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_portfolio.csv")))
         df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination]]
+        for row in eachrow(df_afw)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        
+        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_afw[!,:termination]]
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
@@ -169,7 +181,13 @@ function build_csv(mode)
         # load without as, without ss
         df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mixed_portfolio.csv")))
         df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
+        for row in eachrow(df_no_ws)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+
+        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ws[!,:termination]]
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
@@ -180,7 +198,12 @@ function build_csv(mode)
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_portfolio.csv")))
         df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
+        for row in eachrow(df_no_as)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_as[!,:termination]]
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
@@ -191,7 +214,12 @@ function build_csv(mode)
         # load without ss
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_mixed_portfolio.csv")))
         df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
+        for row in eachrow(df_no_ss)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ss[!,:termination]]
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
@@ -200,7 +228,7 @@ function build_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension])
 
         # load scip oa
-        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mixed_portfolio.csv")))
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mixed_portfolio.csv"))) 
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
 
         time_scip = []
