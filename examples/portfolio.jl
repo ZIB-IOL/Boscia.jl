@@ -68,7 +68,7 @@ function portfolio_scip(seed=1, dimension=5; mode)
     ncalls_scip = epigraph_ch.ncalls
 
     df = DataFrame(seed=seed, dimension=n, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
-    file_name = joinpath(@__DIR__,"csv/scip_oa_portfolio.csv")
+    file_name = joinpath(@__DIR__,"csv/scip_oa_portfolio_" * mode * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
