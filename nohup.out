@@ -1,0 +1,516 @@
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+┌ Warning: primal > tree.incumbent + 1e-2
+└ @ Boscia /nfs/homeoptimi/htroppen/git/Boscia.jl/src/interface.jl:553
+(seed, dimension) = (1, 30)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 30)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 30)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 40)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 40)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 40)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 60)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 80)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 100)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 100)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 100)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 110)
+Away FW: true
+BoundsError([1.0], (-1,))
+(seed, dimension) = (2, 110)
+Away FW: true
+
+Away FW: false
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 110)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 120)
+Away FW: true
+BoundsError([1.0], (-1,))
+(seed, dimension) = (2, 120)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 120)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 130)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 130)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 130)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 140)
+Away FW: true
+BoundsError([1.0], (-1,))
+(seed, dimension) = (2, 140)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 140)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 150)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 150)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 150)
+Away FW: true
+BoundsError([NaN, NaN], (-1,))
+(seed, dimension) = (1, 160)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 160)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 160)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 170)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 170)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 170)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 180)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 180)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 180)
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 190)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 190)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 190)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 200)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (2, 200)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (3, 200)
+Away FW: true
+AssertionError("isfinite(best_val)")
+(seed, dimension) = (1, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 1)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 2)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 3)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 4)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 5)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 6)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 7)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 8)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 9)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (2, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (3, 10)
+UndefVarError(:sparse_reg)
+(seed, dimension) = (1, 30)
+INFEASIBLE
+(seed, dimension) = (2, 30)
+INFEASIBLE
+(seed, dimension) = (3, 30)
+INFEASIBLE
+(seed, dimension) = (1, 130)
+AssertionError("fval > s.upper - 1.0e-11")
+(seed, dimension) = (2, 130)
+AssertionError("fval > s.upper - 1.0e-11")
+(seed, dimension) = (3, 130)
+AssertionError("fval > s.upper - 1.0e-11")
