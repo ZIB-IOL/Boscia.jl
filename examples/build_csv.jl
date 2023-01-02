@@ -60,7 +60,7 @@ function build_csv(mode)
         df[!,:time_no_as] = df_no_as[!,:time_afw]
         df[!,:termination_no_as] = termination_no_as
     
-    elseif mode == "mixed"
+    elseif mode == "mixed_obsolete"
         # load boscia and scip oa
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
         # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
@@ -141,6 +141,89 @@ function build_csv(mode)
 
         df[!,:time_no_as] = df_no_as[!,:time_afw]
         df[!,:termination_no_as] = termination_no_as
+    
+    elseif mode == "mixed_portfolio"
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mixed_portfolio.csv")))
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+
+        df[!,:dimension] = df_bs[!,:dimension]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+
+        df[!,:termination_boscia] = termination_boscia
+    
+        # load afw
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_portfolio.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination]]
+
+        df_afw[!,:time_afw] = df_afw[!,:time]
+        df_afw[!,:termination_afw] = termination_afw
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :dimension])
+
+        df = innerjoin(df, df_afw, on = [:seed, :dimension])
+
+        # load without as, without ss
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mixed_portfolio.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
+
+        df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
+        df_no_ws[!,:termination_no_ws] = termination_no_ws
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :seed, :dimension])
+
+        df = innerjoin(df, df_no_ws, on = [:seed, :dimension])
+
+        # load without as
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_portfolio.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
+
+        df_no_as[!,:time_no_as] = df_no_as[!,:time]
+        df_no_as[!,:termination_no_as] = termination_no_as
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :seed, :dimension])
+
+        df = innerjoin(df, df_no_as, on = [:seed, :dimension])
+
+        # load without ss
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_mixed_portfolio.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
+
+        df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
+        df_no_ss[!,:termination_no_ss] = termination_no_ss
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :dimension])
+
+        df = innerjoin(df, df_no_ss, on = [:seed, :dimension])
+
+        # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mixed_portfolio.csv")))
+        termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
+        time_scip = []
+        for row in eachrow(df_scip)
+            if row.solution == Inf 
+                append!(time_scip,1800) 
+            else 
+                append!(time_scip,row.time)
+            end
+        end
+
+        df_scip[!,:time_scip] = time_scip
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :dimension])
+
+        df = innerjoin(df, df_scip, on = [:seed, :dimension])
+
+        sort!(df, [:dimension])
+
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/mixed_portfolio_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
     
     elseif mode == "poisson"
         # load boscia 
@@ -502,6 +585,8 @@ function build_csv(mode)
         :termination_afw => :terminationAfw,
         )
 
+    size_df = (size(gdf))
+
     # parse to int
     gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
     gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
@@ -534,8 +619,7 @@ function build_csv(mode)
     gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
     gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
-
-    # geo_mean of intersection with solved instances by all solvers
+    # geo_mean of intersection with solved instances by all solvers except for scip oa
     df_intersection = select!(df, Not(:time_scip))
     df_intersection = select!(df_intersection, Not(:termination_scip))
 
@@ -581,13 +665,20 @@ function build_csv(mode)
     df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
     df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
 
+    size_df_after = size(gdf)
+
     if mode != "poisson" && mode != "sparse_reg"
-        gdf = innerjoin(gdf, df_intersection, on =[:dimension])
+        if size_df == size_df_after
+            gdf = innerjoin(gdf, df_intersection, on =[:dimension])
+        else
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
+        end
     elseif mode == "poisson"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
     end
+
     # add geometric mean of intersected instances to main df
     # gdf[!,:BosciaGeoMeanIntersection] = df_intersection[!,:BosciaGeoMeanIntersection]
     # gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
@@ -600,6 +691,8 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/integer_50.csv")
     elseif mode == "mixed" 
         file_name = joinpath(@__DIR__, "csv/mixed_50.csv")
+    elseif mode == "mixed_portfolio"
+        file_name = joinpath(@__DIR__, "csv/mixed_portfolio.csv")
     elseif mode == "poisson" 
         file_name = joinpath(@__DIR__, "csv/poisson.csv")
     elseif mode == "sparse_reg" 
