@@ -170,7 +170,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_afw, on = [:seed, :dimension, :k, :Ns, :p])
 
-        # # load without as, without ss
+        # load without as, without ss
         df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_poisson.csv")))
         df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
@@ -182,7 +182,7 @@ function build_csv(mode)
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :Ns, :p])
         # print(first(df,5))
 
-        # # load without as
+        # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_poisson.csv")))
         df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
@@ -193,7 +193,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_no_as, on = [:seed, :dimension, :k, :Ns, :p])
 
-        # # load without ss
+        # load without ss
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_poisson.csv")))
         df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
@@ -204,7 +204,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :Ns, :p])
 
-        # # load scip oa
+        # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
         # add killed instance 
         push!(df_scip,[7, 70, 70, 35.0, 10.0, 1800, Inf, "KILLED", 0])
@@ -280,7 +280,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_afw, on = [:seed, :dimension, :k, :p])
 
-        # # load without as, without ss
+        # load without as, without ss
         df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_sparse_reg.csv")))
         df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
@@ -292,7 +292,7 @@ function build_csv(mode)
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :p])
         # print(first(df,5))
 
-        # # load without as
+        # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_sparse_reg.csv")))
         df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
@@ -303,7 +303,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_no_as, on = [:seed, :dimension, :k, :p])
 
-        # # load without ss
+        # load without ss
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_sparse_reg.csv")))
         df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
@@ -314,7 +314,7 @@ function build_csv(mode)
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
 
-        # # load scip oa
+        # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_reg.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
 
@@ -348,6 +348,50 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     
+    elseif mode == "sparse_log_reg"  
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_log_regression.csv")))
+        # delete duplicates
+        df_bs = unique(df_bs, [:dimension, :k, :p, :seed, :M])
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+
+        df[!,:dimension] = df_bs[!,:dimension]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+        df[!,:p] = df_bs[!,:p]
+        df[!,:k] = df_bs[!,:k]
+        df[!,:M] = df_bs[!,:M]
+
+        df[!,:termination_boscia] = termination_boscia
+        df[!, :solution_boscia] = df_bs[!, :solution]  
+
+        # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_log_regression.csv")))
+        termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
+        df_scip[!,:time_scip] = df_scip[!,:time]
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p, :M])
+
+        # delete duplicates
+        df_scip = unique(df_scip, [:dimension, :p, :k, :seed, :M])
+
+        # print(first(df,20))
+        # sort!(df_scip, [:dimension, :k, :Ns, :p])
+        # print(first(df_scip,20))
+        df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p, :M])
+        # print(sort(df, [:dimension, :p, :k]))
+        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
+        print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+        # sort!(df, [:dimension, :p, :k])
+
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
+
     elseif mode == "tailed_cardinality"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_tailed_cardinality.csv")))
@@ -365,7 +409,7 @@ function build_csv(mode)
 
         df[!,:termination_boscia] = termination_boscia
 
-        # # load scip oa
+        # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality.csv")))
 
         termination_scip = df_scip[!,:termination] #[row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]

@@ -1,0 +1,4 @@
+seed,dimension,M,time,solution,termination,calls
+1,30,20.0,0.13594299999999998,Inf,INFEASIBLE,2
+2,30,20.0,0.010968,Inf,INFEASIBLE,2
+3,30,20.0,0.011776,Inf,INFEASIBLE,2
