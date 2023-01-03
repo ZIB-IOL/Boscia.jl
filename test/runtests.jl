@@ -146,6 +146,7 @@ end
 end
 
 include("LMO_test.jl")
+include("indicator_test.jl")
 
 # diff needs to defined outside of test to avoid a "unsupported const declaration
 # on a local variable"-error

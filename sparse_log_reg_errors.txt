@@ -296,3 +296,7 @@
 3 16 boscia : InterruptException()
 1 1 scip_oa : InterruptException()
 1 1 boscia : AssertionError("tree.lb <= primal - dual_gap")
+1 1 boscia : AssertionError("tree.lb <= primal - dual_gap")
+1 1 boscia : AssertionError("tree.lb <= primal - dual_gap")
+1 1 boscia : AssertionError("tree.lb <= primal - dual_gap")
+1 1 boscia : AssertionError("tree.lb <= primal - dual_gap")
