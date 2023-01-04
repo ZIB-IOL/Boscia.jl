@@ -75,7 +75,7 @@ include("sparse_reg.jl")
 #    end
 #end
 
-bo_mode = "scip_oa"
+#=bo_mode = "scip_oa"
 for dimension in [16:1:30;]
     for seed in 1:10
         for tol in [1e-7, 1e-9, 1e-11]
@@ -90,11 +90,11 @@ for dimension in [16:1:30;]
             end
         end
     end
-end
+end=#
 
 bo_mode = "ipopt"
-for dimension in [15:1:30;]
-    for seed in 1:10
+for dimension in [15] #[15:1:30;]
+    for seed in [1]#1:10
         @show seed, dimension
         try
             sparse_reg_ipopt(seed, dimension, 1)

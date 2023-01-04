@@ -11,6 +11,7 @@ using CSV
 using DataFrames
 using Ipopt
 include("scip_oa.jl")
+include("BnB_Ipopt.jl")
 
 function sparse_reg(seed=1, n=20, iter = 1; bo_mode)
     limit = 1800
@@ -159,4 +160,86 @@ function build_function(seed, n)
     return f, grad!, p, k, M
 end
 
+# BnB tree with Ipopt
+function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
+    # build tree
+    bnb_model, expr = build_bnb_ipopt_model(seed, n)
+    list_lb = []
+    list_ub = []
+    list_time = []
+    list_number_nodes = []
+    callback = build_callback(list_lb, list_ub, list_time, list_number_nodes)
+    data = @timed BB.optimize!(bnb_model, callback=callback)
+    time_ref = Dates.now()
+    push!(list_lb, bnb_model.lb)
+    push!(list_ub, bnb_model.incumbent)
+    push!(list_time, float(Dates.value(Dates.now()-time_ref)))
+    push!(list_number_nodes, bnb_model.num_nodes)
+    total_time_in_sec= list_time[end]
+    status = ""
+    if bnb_model.root.solving_stage == Boscia.TIME_LIMIT_REACHED
+        status = "Time limit reached"
+    else
+        status = "Optimal"
+    end    
 
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=bnb_model.incumbent, termination=status)
+    file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_ " * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+# build tree 
+function build_bnb_ipopt_model(seed, n)
+    Random.seed!(seed)
+    time_limit = 1800
+
+    p = 5 * n;
+    k = ceil(n / 5);
+    lambda_0 = rand(Float64);
+    lambda_2 = 10.0 * rand(Float64);
+    A = rand(Float64, n, p)
+    y = rand(Float64, n)
+    M = 2 * var(A)
+
+    m = Model(Ipopt.Optimizer)
+    set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        @constraint(m, 1 >= x[i] >= 0)
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, A*x[1:p])
+    expr2 = @expression(m, dot(x[1:p], x[1:p]))
+    expr = @expression(m, sum((y[i] - expr1[i])^2 for i in 1:n) + lambda_0*sum(x[i] for i in p+1:integral) + lambda_2*expr2)
+    @objective(m, Min, expr)
+
+    model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
+    bnb_model = BB.initialize(;
+    traverse_strategy = BB.BFS(),
+    Node = MIPNode,
+    root = model,
+    sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,
+    rtol = 1e-2,
+    )
+    BB.set_root!(bnb_model, (
+    lbs = fill(-Inf, length(x)),#zeros(length(x)),
+    ubs = fill(Inf, length(x)),
+    status = MOI.OPTIMIZE_NOT_CALLED)
+    )
+    return bnb_model, expr
+
+end

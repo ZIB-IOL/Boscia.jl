@@ -164,5 +164,3 @@ function build_callback(list_lb, list_ub, list_time, list_number_nodes)
         end
     end
 end
-
-# build tree 
