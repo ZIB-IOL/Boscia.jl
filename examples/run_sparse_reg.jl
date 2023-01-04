@@ -98,8 +98,11 @@ for dimension in [15] #[15:1:30;]
         @show seed, dimension
         try
             sparse_reg_ipopt(seed, dimension, 1)
-        catch 
+        catch e
             println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
         end
     end
 end
