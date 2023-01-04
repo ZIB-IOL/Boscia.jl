@@ -94,11 +94,12 @@ end=#
 
 bo_mode = "ipopt"
 for dimension in [15] #[15:1:30;]
-    for seed in [1]#1:10
+    for seed in 1:10
         @show seed, dimension
         try
             sparse_reg_ipopt(seed, dimension, 1)
-        catch
+        catch 
+            println(e)
         end
     end
 end

@@ -2,8 +2,9 @@ using Boscia
 using FrankWolfe
 using Ipopt, JuMP
 import MathOptInterface
-const MOI = MathOptInterface
+#const MOI = MathOptInterface
 using Bonobo
+using Dates
 const BB = Bonobo
 
 """ Bonobo Tree structure for Ipopt """
@@ -23,7 +24,7 @@ mutable struct MIPNode <: AbstractNode
     std::BnBNodeInfo
     lbs::Vector{Float64}
     ubs::Vector{Float64}
-    status::MOI.TerminationStatus
+    status::MOI.TerminationStatusCode
 end
 
 # get the branching indices 

@@ -6,7 +6,7 @@ using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-MOI = MathOptInterface
+const MOI = MathOptInterface
 using CSV
 using DataFrames
 using Ipopt
@@ -163,7 +163,7 @@ end
 # BnB tree with Ipopt
 function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
     # build tree
-    bnb_model, expr = build_bnb_ipopt_model(seed, n)
+    bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n)
     list_lb = []
     list_ub = []
     list_time = []
@@ -183,7 +183,7 @@ function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
         status = "Optimal"
     end    
 
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=bnb_model.incumbent, termination=status)
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_ " * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -224,7 +224,7 @@ function build_bnb_ipopt_model(seed, n)
 
     expr1 = @expression(m, A*x[1:p])
     expr2 = @expression(m, dot(x[1:p], x[1:p]))
-    expr = @expression(m, sum((y[i] - expr1[i])^2 for i in 1:n) + lambda_0*sum(x[i] for i in p+1:integral) + lambda_2*expr2)
+    expr = @expression(m, sum((y[i] - expr1[i])^2 for i in 1:n) + lambda_0*sum(x[i] for i in p+1:2p) + lambda_2*expr2)
     @objective(m, Min, expr)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
@@ -240,6 +240,6 @@ function build_bnb_ipopt_model(seed, n)
     ubs = fill(Inf, length(x)),
     status = MOI.OPTIMIZE_NOT_CALLED)
     )
-    return bnb_model, expr
+    return bnb_model, expr, p, k
 
 end
