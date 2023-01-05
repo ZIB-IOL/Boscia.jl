@@ -105,7 +105,11 @@ function build_node_model(tree::BnBTree{MIPNode, IpoptOptimizationProblem}, node
             if isfinite(node.lbs[vidx])
                 JuMP.set_lower_bound(vars[vidx], node.lbs[vidx])
             elseif node.lbs[vidx] == -Inf 
-                JuMP.set_lower_bound(vars[vidx], model.lbs[vidx])
+                if model.lbs[vidx] != -Inf
+                    JuMP.set_lower_bound(vars[vidx], model.lbs[vidx])
+                elseif JuMP.has_lower_bound(vars[vidx])
+                    JuMP.delete_lower_bound(vars[vidx])
+                end
             elseif node.lbs[vidx] == Inf
                 error("Invalid lower bound for variable $vidx: $(node.lbs[vidx])")
             end
@@ -113,7 +117,11 @@ function build_node_model(tree::BnBTree{MIPNode, IpoptOptimizationProblem}, node
             if isfinite(node.ubs[vidx])
                 JuMP.set_upper_bound(vars[vidx], node.ubs[vidx])
             elseif node.ubs[vidx] == Inf 
-                JuMP.set_upper_bound(vars[vidx], model.ubs[vidx])
+                if model.ubs[vidx] != Inf
+                    JuMP.set_upper_bound(vars[vidx], model.ubs[vidx])
+                elseif JuMP.has_upper_bound(vars[vidx])
+                    JuMP.delete_upper_bound(vars[vidx])
+                end
             elseif node.ubs[vidx] == -Inf
                 error("Invalid upper bound for variable $vidx: $(node.ubs[vidx])")
             end
