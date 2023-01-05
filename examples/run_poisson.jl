@@ -104,7 +104,7 @@ end =#
 
 bo_mode="ipopt"
 for dimension in [20]#[50:20:100;]
-    for seed in [1]#1:10
+    for seed in 1:10#1:10
         for ns in [0.1]#[0.1,1,5,10]
             @show seed, dimension
             try 

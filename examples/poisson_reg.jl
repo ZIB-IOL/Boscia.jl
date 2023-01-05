@@ -290,8 +290,15 @@ function build_bnb_ipopt_model(seed, n, Ns)
     @constraint(m, sum(x[p+1:2p]) >= 1.0)
 
     expr1 = @expression(m, α*sum(x[i]^2 for i in 1:p))
-    expr2 = @expression(m, exp(dot(x[1:p], Xs(:, i)) + x[end]) for i in 1:p)
-    expr = @NLexpression(m, sum(1/n * (exp(dot(x[1:p], Xs(:, i)) + x[end]) - ys[i]*(dot(x[1:p], Xs[:, i] + x[end]))) for i in 1:p) + expr1)
+    exprs = []
+    for i in 1:p
+        push!(exprs, @expression(m, dot(x[1:p], Xs[:, i]) + x[end]))
+    end
+    expr = @NLexpression(m, 1/n * sum(exp(exprs[i]) - ys[i] * exprs[i] for i in 1:p ) + expr1)
+
+    #expr1 = @expression(m, α*sum(x[i]^2 for i in 1:p))
+    #expr2 = @expression(m, exp(dot(x[1:p], Xs(:, i)) + x[end]) for i in 1:p)
+    #expr = @NLexpression(m, sum(1/n * (exp(dot(x[1:p], Xs(:, i)) + x[end]) - ys[i]*(dot(x[1:p], Xs[:, i] + x[end]))) for i in 1:p) + expr1)
     @NLobjective(m, Min, expr)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
