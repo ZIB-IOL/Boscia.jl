@@ -173,7 +173,7 @@ function build_function(seed, dimension)
     n0 = dimension
     p = 5 * n0;
     #k = 5.0#ceil(n0 / 5);
-    A = rand(Float64, n0, p)
+    A = randn(Float64, n0, p)
     y = Random.bitrand(n0)
     y = [i == 0 ? -1 : 1 for i in y]
     # y = rand(Float64, n0)

@@ -534,6 +534,8 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         end
 
         # update tree
+        # RESTRUCTURE
+        # warning to postsolve
         if primal <= tree.incumbent + 1e-2
             if primal < tree.incumbent
                 tree.root.updated_incumbent[] = true
