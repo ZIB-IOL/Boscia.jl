@@ -10,7 +10,7 @@ mutable struct GradientCutHandler{F, G, XT} <: SCIP.AbstractConstraintHandler
     ncalls::Int
 end
 
-function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool; tol=1e-6)
+function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CONS}}, sol::Ptr{SCIP.SCIP_SOL}, checkintegrality::Bool, checklprows::Bool, printreason::Bool, completely::Bool; tol=1e-11)
     @assert length(constraints) == 0
     values = SCIP.sol_values(ch.o, ch.vars, sol)
     zval = SCIP.sol_values(ch.o, [ch.epivar], sol)[1]
@@ -20,7 +20,7 @@ function SCIP.check(ch::GradientCutHandler, constraints::Vector{Ptr{SCIP.SCIP_CO
     return SCIP.SCIP_FEASIBLE
 end
 
-function enforce_epigraph(ch::GradientCutHandler, tol=1e-6)
+function enforce_epigraph(ch::GradientCutHandler, tol=1e-11)
     values = SCIP.sol_values(ch.o, ch.vars)
     zval = SCIP.sol_values(ch.o, [ch.epivar])[1]
     fx = ch.f(values)
