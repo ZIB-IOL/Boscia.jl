@@ -131,7 +131,7 @@ const M = 2 * var(A)
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set) end
+        return function fw_callback(state, active_set, args...) end
     end
 
     fw_callback = build_FW_callback(tree)
@@ -284,7 +284,7 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set) end
+        return function fw_callback(state, active_set, args...) end
     end
 
     fw_callback = build_FW_callback(tree)
