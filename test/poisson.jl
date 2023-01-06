@@ -153,7 +153,7 @@ N = 5.0
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -304,7 +304,7 @@ end
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -484,7 +484,7 @@ push!(groups, ((k-1)*group_size+1):pg)
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -646,7 +646,7 @@ end
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end

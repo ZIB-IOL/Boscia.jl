@@ -103,7 +103,7 @@ include("interface_test.jl")
     node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -228,7 +228,7 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
         ),
     )
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -320,7 +320,7 @@ end
         ),
     )
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -402,7 +402,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
      end
 
      function build_FW_callback(tree)
-         return function fw_callback(state, active_set)
+         return function fw_callback(state, active_set, args...)
              # print("Primal: $(state.primal)\n")
              # print("Length of active set: $(length(active_set.weights))\n")
          end
@@ -506,7 +506,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -610,7 +610,7 @@ end
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end
@@ -718,7 +718,7 @@ end
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end

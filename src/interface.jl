@@ -559,7 +559,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
     end
 
-    # Reset LMO 
+    # Reset LMO
     int_bounds = IntegerBounds()
     build_LMO(
         tree.root.problem.lmo,
