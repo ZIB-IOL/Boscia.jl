@@ -514,23 +514,22 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         )
 
         # update tree
-        if primal <= tree.incumbent + 1e-2
-            if primal < tree.incumbent
-                tree.root.updated_incumbent[] = true
-                tree.incumbent = primal
-                tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
-            else
-                if tree.lb > primal - dual_gap
-                    @warn "tree.lb > primal - dual_gap"
-                end
-            end
+        if primal < tree.incumbent
+            tree.root.updated_incumbent[] = true
+            tree.incumbent = primal
+            tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
             tree.incumbent_solution.objective = tree.solutions[1].objective = primal
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
         else 
-            @warn "primal > tree.incumbent + 1e-2"
+            if primal < tree.incumbent && tree.lb > primal - dual_gap
+                @warn "tree.lb > primal - dual_gap"
+            else 
+                @warn "primal >= tree.incumbent + 1e-2"
+            end
+            @warn "postsolve did not improve the solution"
+            primal = tree.incumbent_solution.objective = tree.solutions[1].objective
+            x = tree.incumbent_solution.solution = tree.solutions[1].solution
         end
-    end
-
 
     result[:primal_objective] = primal
     result[:dual_bound] = tree_lb(tree)
