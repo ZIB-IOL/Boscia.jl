@@ -111,7 +111,7 @@ const M1 = (A1 + A1') / 2
     )
 
     function build_FW_callback(tree)
-        return function fw_callback(state, active_set)
+        return function fw_callback(state, active_set, args...)
             # print("Primal: $(state.primal)\n")
             # print("Length of active set: $(length(active_set.weights))\n")
         end

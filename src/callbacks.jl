@@ -3,7 +3,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
-    return function fw_callback(state, active_set)
+    return function fw_callback(state, active_set, args...)
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         @assert is_linear_feasible(tree.root.problem.lmo, state.v)
