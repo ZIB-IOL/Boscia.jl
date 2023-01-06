@@ -20,7 +20,7 @@ for dimension in [50:10:200;]
    for seed in 1:3
        @show seed, dimension
        try 
-           sparse_reg(seed, dimension; bo_mode=bo_mode)
+           sparse_regression(seed, dimension; bo_mode=bo_mode)
        catch e
            println(e)
            open("tailed_cardinality_errors.txt","a") do io
@@ -35,7 +35,7 @@ for dimension in [50:10:200;]
    for seed in 1:3
        @show seed, dimension
        try 
-           sparse_reg(seed, dimension; bo_mode=bo_mode)
+           sparse_regression(seed, dimension; bo_mode=bo_mode)
        catch e
            println(e)
            open("tailed_cardinality_errors.txt","a") do io
@@ -50,7 +50,7 @@ for dimension in [50:10:200;]
    for seed in 1:3
        @show seed, dimension
        try 
-           sparse_reg(seed, dimension; bo_mode=bo_mode)
+           sparse_regression(seed, dimension; bo_mode=bo_mode)
        catch e
            println(e)
            open("tailed_cardinality_errors.txt","a") do io
@@ -65,7 +65,7 @@ for dimension in [50:10:200;]
    for seed in 1:3
        @show seed, dimension
        try 
-           sparse_reg(seed, dimension; bo_mode=bo_mode)
+           sparse_regression(seed, dimension; bo_mode=bo_mode)
        catch e
            println(e)
            open("tailed_cardinality_errors.txt","a") do io
