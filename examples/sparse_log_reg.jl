@@ -176,7 +176,9 @@ function build_function(seed, dimension)
     A = randn(Float64, n0, p)
     y = Random.bitrand(n0)
     y = [i == 0 ? -1 : 1 for i in y]
-    # y = rand(Float64, n0)
+    for (i,val) in enumerate(y)
+        A[i,:] = 0.5 * A[i,:] * y[i]
+    end
     #M = 2 * var(A)
     mu = 10.0 * rand(Float64);
     function build_objective_gradient(A, y, mu)
