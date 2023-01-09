@@ -427,6 +427,7 @@ function build_csv(mode)
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_reg.csv")))
+
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
 
         time_scip = []
@@ -443,17 +444,14 @@ function build_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p])
 
-        # delete duplicates
-        df_scip = unique(df_scip, [:dimension, :k, :seed])
-
         # print(first(df,20))
         # sort!(df_scip, [:dimension, :k, :Ns, :p])
         # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p])
-        print(sort(df, [:dimension, :p, :k]))
+        #print(sort(df, [:dimension, :p, :k]))
         df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
-        print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
-        sort!(df, [:dimension, :p, :k])
+        # print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
+        #sort!(df, [:dimension, :p, :k])
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
@@ -704,7 +702,7 @@ function build_csv(mode)
     elseif mode == "poisson"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
-        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
     end
 
     # add geometric mean of intersected instances to main df
