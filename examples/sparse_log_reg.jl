@@ -218,7 +218,7 @@ end
 
 
 # BnB tree with Ipopt
-function sparse_log_reg_ipopt(seed = 1, n = 20, Ns, k)
+function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5)
     # build tree
     bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n, Ns, k)
     list_lb = []
@@ -240,8 +240,8 @@ function sparse_log_reg_ipopt(seed = 1, n = 20, Ns, k)
         status = "Optimal"
     end    
 
-    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
-    file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_ " * ".csv")
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    file_name = joinpath(@__DIR__,"csv/ipopt_sparse_log_reg_ " * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
@@ -256,7 +256,7 @@ function build_bnb_ipopt_model(seed, n, M, k)
 
     p = 5 * n;
     A = randn(Float64, n, p)
-    y = Random.bitrand(n0)
+    y = Random.bitrand(n)
     y = [i == 0 ? -1 : 1 for i in y]
     for (i,val) in enumerate(y)
         A[i,:] = 0.5 * A[i,:] * y[i]
@@ -281,12 +281,16 @@ function build_bnb_ipopt_model(seed, n, M, k)
     @constraint(m, sum(x[p+1:2p]) <= k)
 
     expr1 = @expression(m, mu/2*sum(x[i]^2 for i in 1:p))
-    exprs = []
-    for i in 1:p
-        push!(exprs, @expression(m, dot(x[1:p], A[i, :])))
+    lexprs = []
+    for i in 1:n
+        push!(lexprs, @expression(m, dot(x[1:p], A[i, :])))
     end
-    expr = @NLexpression(m, 1/n * sum(log(exp(expr[i]/2) + exp(-expr[i]/2)) - y[i] * exprs[i]* 1/2 for i in 1:p ) + expr1)
-    @objective(m, Min, expr)
+    exprs = []
+    for i in 1:n
+        push!(exprs, @NLexpression(m, exp(lexprs[i]/2) + exp(-lexprs[i]/2)))
+    end 
+    expr = @NLexpression(m, 1/n * sum(log(exprs[i]) - y[i] * lexprs[i] * 1/2 for i in 1:n ) + expr1)
+    @NLobjective(m, Min, expr)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
     bnb_model = BB.initialize(;
