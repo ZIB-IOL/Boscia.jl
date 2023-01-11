@@ -26,13 +26,12 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     limit = 1800
 
     o = SCIP.Optimizer()
-    lmo, f, grad! = build_problem(o, example, num_v, seed)
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
-    # println("BOSCIA MODEL")
-    # print(o)
-
-    # x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
-
+    o = SCIP.Optimizer()
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
     elseif bo_mode == "as_ss"
@@ -67,14 +66,33 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     return f(x), x
 end
 
+function mip_lib_scip(seed=1, num_v=5; example)
+    limit = 1800
+    lmo, epigraph_ch, x, f, lmo_check = build_example_scip(example, num_v, seed, limit)
 
-function build_example(example, num_v, seed)
+    MOI.optimize!(lmo.o)
+    time_scip = MOI.get(lmo.o, MOI.SolveTimeSec())
+    vars_scip = MOI.get(lmo.o, MOI.VariablePrimal(), x)
+    @assert Boscia.is_linear_feasible(lmo_check.o, vars_scip)
+    solution_scip = f(vars_scip)
+    termination_scip = String(string(MOI.get(lmo.o, MOI.TerminationStatus())))
+    ncalls_scip = epigraph_ch.ncalls
+    
+    df = DataFrame(seed=seed, num_v=num_v, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+    file_name = joinpath(@__DIR__,"csv/scip_oa_mip_lib_" * example * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_example(o, example, num_v, seed)
     Random.seed!(seed)
     file_name = string(example, ".mps")
     src = MOI.FileFormats.Model(filename=file_name)
-    MOI.read_from_file(src, joinpath(@__DIR__, string("mps-files/", file_name)))
+    MOI.read_from_file(src, joinpath(@__DIR__, string("mps-examples/mps-files/", file_name)))
 
-    o = SCIP.Optimizer()
     MOI.copy_to(o, src)
     MOI.set(o, MOI.Silent(), true)
     n = MOI.get(o, MOI.NumberOfVariables())
@@ -106,6 +124,25 @@ function build_example(example, num_v, seed)
     end
 
     return lmo, f, grad!
+end
+
+function build_example_scip(example, num_v, seed, limit)
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.TimeLimitSec(), limit)
+    MOI.set(o, MOI.Silent(), true)
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    x = MOI.get(lmo.o, MOI.ListOfVariableIndices())
+    z_i = MOI.add_variable(lmo.o)
+    epigraph_ch = GradientCutHandler(lmo.o, f, grad!, zeros(length(x)), z_i, x, 0)
+    SCIP.include_conshdlr(lmo.o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+    MOI.set(lmo.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
+    
+    o_check = SCIP.Optimizer()
+    lmo_check, _, _ = build_example(o_check, example, num_v, seed)
+    z_i = MOI.add_variable(lmo_check.o)
+    MOI.set(lmo_check.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
+    
+    return lmo, epigraph_ch, x, f, lmo_check
 end
 
 # num_v = 0
