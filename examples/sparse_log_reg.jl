@@ -177,7 +177,7 @@ function build_function(seed, dimension)
     y = Random.bitrand(n0)
     y = [i == 0 ? -1 : 1 for i in y]
     for (i,val) in enumerate(y)
-        A[i,:] = 0.5 * A[i,:] * y[i]
+        A[i,:] = 1.5 * A[i,:] * y[i]
     end
     #M = 2 * var(A)
     mu = 10.0 * rand(Float64);

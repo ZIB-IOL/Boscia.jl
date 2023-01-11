@@ -95,6 +95,7 @@ for dimension in [10:2:20;]
     for seed in 1:10
         @show seed, dimension
         for ns in [0.1,1,5.0,10]
+            k = dimension/5
             try 
                 sparse_log_reg_scip(seed, dimension, ns, k)
             catch e
