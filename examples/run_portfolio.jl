@@ -94,7 +94,7 @@ end =#
 
 
 bo_mode = "ipopt"
-for dimension in [20] #[20:5:120;]
+for dimension in [20:5:120;] #[20:5:120;]
     for seed in 1:10#1:10
         @show seed, dimension
         try 
