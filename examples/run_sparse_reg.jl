@@ -80,7 +80,7 @@ for dimension in [15:1:30;]
     for seed in 1:10
         @show seed, dimension
         try 
-            sparse_reg_scip(seed, dimension, 1; tol=1e-11)
+            sparse_reg_scip(seed, dimension, 1; tol=1e-9)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
