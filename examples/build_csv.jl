@@ -426,7 +426,7 @@ function build_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
 
         # load ipopt 
-        df_ipopt = DatatFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_sparse_reg_.csv")))
+        df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_sparse_reg.csv")))
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
 
@@ -598,6 +598,7 @@ function build_csv(mode)
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
+            :time_ipopt => geo_mean, :termination_ipopt => sum,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
             :time_no_as => geo_mean, :termination_no_as => sum,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
@@ -612,6 +613,8 @@ function build_csv(mode)
         :termination_boscia => :terminationBoscia,
         :time_scip => :timeScip, 
         :termination_scip => :terminationScip,
+        :time_ipopt => :timeIpopt,
+        :termination_ipopt => :terminationIpopt,
         :time_no_ws => :timeNoWs, 
         :termination_no_ws => :terminationNoWs,
         :time_no_as => :timeNoAs, 
@@ -627,6 +630,7 @@ function build_csv(mode)
     # parse to int
     gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
     gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
+    gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
     gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
     gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
     gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
@@ -635,6 +639,7 @@ function build_csv(mode)
     # absolute instances solved
     gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
     gdf[!,:terminationScip] .= gdf[!,:terminationScip]
+    gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
     gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
     gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
     gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
@@ -643,6 +648,7 @@ function build_csv(mode)
     # relative instances solved
     gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
     gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
     gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
     gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
     gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
@@ -651,14 +657,15 @@ function build_csv(mode)
     # parse to int
     gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
     gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
+    gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
     gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
     gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
     gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
     gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
     # geo_mean of intersection with solved instances by all solvers except for scip oa
-    df_intersection = select!(df, Not(:time_scip))
-    df_intersection = select!(df_intersection, Not(:termination_scip))
+    df_intersection = select!(df, Not(:time_scip), Not(:time_ipopt))
+    df_intersection = select!(df_intersection, Not(:termination_scip), Not(:termination_ipopt))
 
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
