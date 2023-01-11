@@ -195,6 +195,17 @@ function build_csv(mode)
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension])
 
+        # load ipopt 
+        df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_portfolio_mixed.csv")))
+        df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
+        
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :termination_ipopt] = termination_ipopt
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :seed, :dimension])
+        
+        df = innerjoin(df, df_ipopt, on = [:seed, :dimension])   
+
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_portfolio.csv")))
         df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
@@ -314,6 +325,18 @@ function build_csv(mode)
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :dimension, :k, :Ns, :p])
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :Ns, :p])
+
+        # load ipopt 
+        df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_poisson_reg.csv")))
+        df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
+        
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :termination_ipopt] = termination_ipopt
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :seed, :dimension, :k, :Ns, :p])
+        
+        df = innerjoin(df, df_ipopt, on = [:seed, :dimension, :k, :Ns, :p])
+        
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
