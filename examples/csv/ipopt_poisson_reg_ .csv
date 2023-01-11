@@ -84,3 +84,12 @@ seed,dimension,p,k,time,num_nodes,solution,termination
 1,90,90,45.0,0.0,8353,Inf,Time limit reached
 1,90,90,45.0,0.0,7959,Inf,Time limit reached
 2,90,90,45.0,0.0,3,-14084.189911060435,Optimal
+2,90,90,45.0,0.0,5875,Inf,Time limit reached
+2,90,90,45.0,0.0,8427,Inf,Time limit reached
+2,90,90,45.0,0.0,7947,Inf,Time limit reached
+3,90,90,45.0,0.0,1,-4063.3156590159915,Optimal
+3,90,90,45.0,0.0,7753,Inf,Time limit reached
+3,90,90,45.0,0.0,9031,Inf,Time limit reached
+3,90,90,45.0,0.0,357,-9591.071386984599,Optimal
+4,90,90,45.0,0.0,1,-10504.733675322186,Optimal
+4,90,90,45.0,0.0,7509,Inf,Time limit reached
