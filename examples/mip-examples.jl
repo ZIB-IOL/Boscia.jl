@@ -8,6 +8,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 using DataFrames
 using CSV
+include("scip_oa.jl")
 
 # MIPLIB instances
 # Objective function: Minimize the distance to randomely picked vertices
@@ -25,9 +26,9 @@ using CSV
 function mip_lib(seed=1, num_v=5; example, bo_mode)
     limit = 1800
 
-    o = SCIP.Optimizer()
-    lmo, f, grad! = build_example(o, example, num_v, seed)
-    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
+    # o = SCIP.Optimizer()
+    # lmo, f, grad! = build_example(o, example, num_v, seed)
+    # Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
@@ -46,9 +47,9 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
 
     total_time_in_sec=result[:total_time_in_sec]
     status = result[:status]
-    if occursin("Optimal", result[:status])
-        status = "OPTIMAL"
-    end
+    # if occursin("Optimal", result[:status])
+    #     status = "OPTIMAL"
+    # end
     df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
