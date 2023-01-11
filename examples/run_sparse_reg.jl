@@ -75,12 +75,12 @@ include("sparse_reg.jl")
 #    end
 #end
 
-#=bo_mode = "scip_oa"
-for dimension in [16:1:30;]
+bo_mode = "scip_oa"
+for dimension in [15:1:30;]
     for seed in 1:10
         @show seed, dimension
         try 
-            sparse_reg_scip(seed, dimension, 1)
+            sparse_reg_scip(seed, dimension, 1; tol=1e-9)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
@@ -88,7 +88,7 @@ for dimension in [16:1:30;]
             end
         end
     end
-end=#
+end
 
 bo_mode = "ipopt"
 for dimension in [28:1:30;]#[28:1:30;] #[15:1:30;]
