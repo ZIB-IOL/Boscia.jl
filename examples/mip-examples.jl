@@ -75,6 +75,21 @@ function mip_lib_scip(seed=1, num_v=5; example)
     time_scip = MOI.get(lmo.o, MOI.SolveTimeSec())
     vars_scip = MOI.get(lmo.o, MOI.VariablePrimal(), x)
     @assert Boscia.is_linear_feasible(lmo_check.o, vars_scip)
+    
+    integer_variables = Vector{Int}()
+    num_int = 0
+    num_bin = 0
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        push!(integer_variables, cidx.value)
+        num_int += 1
+    end
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
+        push!(integer_variables, cidx.value)
+        num_bin += 1
+    end
+
+    @assert Boscia.is_integer_feasible(integer_variables, vars_scip)
+    
     solution_scip = f(vars_scip)
     termination_scip = String(string(MOI.get(lmo.o, MOI.TerminationStatus())))
     ncalls_scip = epigraph_ch.ncalls
@@ -86,6 +101,8 @@ function mip_lib_scip(seed=1, num_v=5; example)
     else 
         CSV.write(file_name, df, append=true)
     end
+
+    return f(vars_scip), vars_scip
 end
 
 function build_example(o, example, num_v, seed)

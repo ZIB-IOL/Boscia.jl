@@ -8,3 +8,4 @@ seed,num_v,time,solution,dual_gap,rel_dual_gap,termination,ncalls
 1,6,0.156,39996.88473133878,0.0,0.0,primal>=tree.incumbent,2
 2,6,0.239,15.546173413382657,0.0,0.0,Optimal (tree empty),4
 3,6,0.159,-1954.7428158639998,0.0,0.0,primal>=tree.incumbent,4
+2,6,2.382,15.546173413382657,0.0,0.0,Optimal (tree empty),4
