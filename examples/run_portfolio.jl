@@ -1,6 +1,6 @@
 include("portfolio.jl")
 
-mode = "mixed"
+mode = "integer"
 #=
 bo_mode="boscia"
 for dimension in [20:5:120;]

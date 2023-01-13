@@ -14,6 +14,7 @@ using DataFrames
 using CSV
 using Random
 include("scip_oa.jl")
+include("BnB_Ipopt.jl")
 
 # Sparse logistic regression
 
@@ -214,5 +215,99 @@ function build_function(seed, dimension, var_A)
     f, grad! = build_objective_gradient(A, y, mu)
 
     return f, grad!, p
+end
+
+
+
+# BnB tree with Ipopt
+function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5)
+    # build tree
+    bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n, Ns, k)
+    list_lb = []
+    list_ub = []
+    list_time = []
+    list_number_nodes = []
+    callback = build_callback(list_lb, list_ub, list_time, list_number_nodes)
+    data = @timed BB.optimize!(bnb_model, callback=callback)
+    time_ref = Dates.now()
+    push!(list_lb, bnb_model.lb)
+    push!(list_ub, bnb_model.incumbent)
+    push!(list_time, float(Dates.value(Dates.now()-time_ref)))
+    push!(list_number_nodes, bnb_model.num_nodes)
+    total_time_in_sec= list_time[end]
+    status = ""
+    if bnb_model.root.solving_stage == Boscia.TIME_LIMIT_REACHED
+        status = "Time limit reached"
+    else
+        status = "Optimal"
+    end    
+
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    file_name = joinpath(@__DIR__,"csv/ipopt_sparse_log_reg_ " * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+# build tree 
+function build_bnb_ipopt_model(seed, n, M, k)
+    Random.seed!(seed)
+    time_limit = 1800
+
+    p = 5 * n;
+    A = randn(Float64, n, p)
+    y = Random.bitrand(n)
+    y = [i == 0 ? -1 : 1 for i in y]
+    for (i,val) in enumerate(y)
+        A[i,:] = 0.5 * A[i,:] * y[i]
+    end
+    mu = 10.0 * rand(Float64);
+
+    m = Model(Ipopt.Optimizer)
+    set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        @constraint(m, 1 >= x[i] >= 0)
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, mu/2*sum(x[i]^2 for i in 1:p))
+    lexprs = []
+    for i in 1:n
+        push!(lexprs, @expression(m, dot(x[1:p], A[i, :])))
+    end
+    exprs = []
+    for i in 1:n
+        push!(exprs, @NLexpression(m, exp(lexprs[i]/2) + exp(-lexprs[i]/2)))
+    end 
+    expr = @NLexpression(m, 1/n * sum(log(exprs[i]) - y[i] * lexprs[i] * 1/2 for i in 1:n ) + expr1)
+    @NLobjective(m, Min, expr)
+
+    model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
+    bnb_model = BB.initialize(;
+    traverse_strategy = BB.BFS(),
+    Node = MIPNode,
+    root = model,
+    sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,
+    rtol = 1e-2,
+    )
+    BB.set_root!(bnb_model, (
+    lbs = fill(-Inf, length(x)),#zeros(length(x)),
+    ubs = fill(Inf, length(x)),
+    status = MOI.OPTIMIZE_NOT_CALLED)
+    )
+    return bnb_model, expr, p, k
+
 end
 
