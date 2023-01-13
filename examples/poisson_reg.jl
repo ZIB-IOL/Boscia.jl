@@ -236,7 +236,7 @@ function poisson_ipopt(seed = 1, n = 20, Ns = 1.0, iter = 1)
         status = "Optimal"
     end    
 
-    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    df = DataFrame(seed=seed, dimension=n, p=p, Ns=Ns, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_poisson_reg_ " * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
