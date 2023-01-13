@@ -29,10 +29,10 @@ include("scip_oa.jl")
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0; bo_mode="boscia") 
+function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mode="boscia") 
     limit = 1800
 
-    f, grad!, p = build_function(seed, dimension)
+    f, grad!, p = build_function(seed, dimension, var_A)
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, M)
     # println("BOSCIA MODEL")
@@ -57,7 +57,7 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0; bo_mode="boscia
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, dimension=dimension, p=p, k=k, M=M, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
     elseif bo_mode == "boscia"
@@ -80,9 +80,9 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0; bo_mode="boscia
     return f(x), x
 end
 
-function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0)
+function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
     limit = 1800
-    f, grad!, p  = build_function(seed, dimension)
+    f, grad!, p  = build_function(seed, dimension, var_A)
     lmo, epigraph_ch, x, lmo_check = build_scip_optimizer(p, k, M, limit, f, grad!)
 
     MOI.set(lmo.o, MOI.TimeLimitSec(), limit)
@@ -99,13 +99,13 @@ function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0)
         solution_scip = f(vars_scip)
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=dimension, p=p, k=k, M=M, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     else
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=dimension, p=p, k=k, M=M, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
 
     end
     file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_log_regression.csv")
@@ -168,7 +168,7 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     return lmo, epigraph_ch, x, lmo_check
 end
 
-function build_function(seed, dimension)
+function build_function(seed, dimension, var_A)
     Random.seed!(seed)
     n0 = dimension
     p = 5 * n0;
@@ -177,7 +177,7 @@ function build_function(seed, dimension)
     y = Random.bitrand(n0)
     y = [i == 0 ? -1 : 1 for i in y]
     for (i,val) in enumerate(y)
-        A[i,:] = 1.5 * A[i,:] * y[i]
+        A[i,:] = var_A * A[i,:] * y[i]
     end
     #M = 2 * var(A)
     mu = 10.0 * rand(Float64);
