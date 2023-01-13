@@ -50,7 +50,7 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     # if occursin("Optimal", result[:status])
     #     status = "OPTIMAL"
     # end
-    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, x=[x], solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
     elseif bo_mode == "boscia"
@@ -59,9 +59,9 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
         file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
     end
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
+        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
     else 
-        CSV.write(file_name, df, append=true)
+        CSV.write(file_name, df, append=true, delim=";")
     end
 
     return f(x), x
@@ -94,12 +94,12 @@ function mip_lib_scip(seed=1, num_v=5; example)
     termination_scip = String(string(MOI.get(lmo.o, MOI.TerminationStatus())))
     ncalls_scip = epigraph_ch.ncalls
     
-    df = DataFrame(seed=seed, num_v=num_v, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+    df = DataFrame(seed=seed, num_v=num_v, time=time_scip, x=[vars_scip], solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     file_name = joinpath(@__DIR__,"csv/scip_oa_mip_lib_" * example * ".csv")
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
+        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
     else 
-        CSV.write(file_name, df, append=true)
+        CSV.write(file_name, df, append=true, delim=";")
     end
 
     return f(vars_scip), vars_scip

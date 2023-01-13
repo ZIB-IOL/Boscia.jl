@@ -100,13 +100,13 @@ function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
         solution_scip = f(vars_scip)
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, x=[x], solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, x=[vars_scip], solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     else
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, solution=Inf, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, x=[Inf], solution=Inf, termination=termination_scip, calls=ncalls_scip)
 
     end
     file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_log_regression.csv")
