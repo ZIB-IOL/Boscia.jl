@@ -57,7 +57,7 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mo
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, x=[x], solution=result[:primal_objective], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
     elseif bo_mode == "boscia"
@@ -66,9 +66,9 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mo
         file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_log_regression.csv")
     end
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
+        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
     else 
-        CSV.write(file_name, df, append=true)
+        CSV.write(file_name, df, append=true, delim=";")
     end
     # @show x
     # @show f(x) 
@@ -99,7 +99,7 @@ function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
         solution_scip = f(vars_scip)
         ncalls_scip = epigraph_ch.ncalls
 
-        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_scip, x=[x], solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     else
         time_scip = MOI.get(o, MOI.SolveTimeSec())
         #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
@@ -110,9 +110,9 @@ function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
     end
     file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_log_regression.csv")
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
+        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
     else 
-        CSV.write(file_name, df, append=true)
+        CSV.write(file_name, df, append=true, delim=";")
     end
     return f(vars_scip), vars_scip
 end
