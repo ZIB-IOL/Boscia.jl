@@ -76,7 +76,7 @@ include("sparse_reg.jl")
 #end
 
 bo_mode = "scip_oa"
-for dimension in [15:1:30;]
+for dimension in [28:1:30;]
     for seed in 1:10
         @show seed, dimension
         try 
@@ -90,8 +90,10 @@ for dimension in [15:1:30;]
     end
 end
 
-#=bo_mode = "ipopt"
-for dimension in [18] #[15:1:30;]
+bo_mode = "ipopt"
+for dimension in [28:1:30;]#[28:1:30;] #[15:1:30;]
+    println("DIMENSION: $(dimension)")
+    println("")
     for seed in 1:10 #1:10
         @show seed, dimension
         try
@@ -103,4 +105,6 @@ for dimension in [18] #[15:1:30;]
             end
         end
     end
-end=#
+    println("")
+    println("")
+end
