@@ -1,0 +1,620 @@
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: primal >= tree.incumbent
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:551
+┌ Warning: postsolve did not improve the solution
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:556
