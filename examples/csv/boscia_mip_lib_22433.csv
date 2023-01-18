@@ -9,3 +9,12 @@ seed,num_v,time,solution,dual_gap,rel_dual_gap,termination,ncalls
 2,6,0.239,15.546173413382657,0.0,0.0,Optimal (tree empty),4
 3,6,0.159,-1954.7428158639998,0.0,0.0,primal>=tree.incumbent,4
 2,6,2.382,15.546173413382657,0.0,0.0,Optimal (tree empty),4
+1,4,2.442,-27714.45667499001,0.0,0.0,Optimal (tree empty),4
+2,4,0.134,-21802.71791047176,0.0,0.0,Optimal (tree empty),4
+3,4,0.081,-30515.946757134872,0.0,0.0,Optimal (tree empty),4
+1,5,0.082,21623.423281369985,0.0,0.0,Optimal (tree empty),2
+2,5,0.091,16468.50280248257,0.0,0.0,Optimal (tree empty),2
+3,5,0.146,-3678.8275747955977,0.0,0.0,Optimal (tree empty),4
+1,6,0.085,39998.42586221504,0.0,0.0,Optimal (tree empty),2
+2,6,1.71,20.173034089495893,0.0,0.0,Optimal (tree empty),13
+3,6,0.18,-1950.2408047735182,0.0,0.0,Optimal (tree empty),4

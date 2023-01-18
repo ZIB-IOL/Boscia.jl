@@ -26,13 +26,13 @@ include("scip_oa.jl")
 function mip_lib(seed=1, num_v=5; example, bo_mode)
     limit = 1800
 
-    # o = SCIP.Optimizer()
-    # lmo, f, grad! = build_example(o, example, num_v, seed)
-    # Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
+    o = SCIP.Optimizer()
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
-    
+
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
     elseif bo_mode == "as_ss"
@@ -42,7 +42,7 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
@@ -123,7 +123,8 @@ function build_example(o, example, num_v, seed)
 
     @assert !isempty(vs)
     b_mps = randn(n)
-    max_norm = maximum(norm.(vs))
+    max_norm = maximum(norm.(vs))/4
+    #max_norm = norm(b_mps) * 2
 
     function f(x)
         r = dot(b_mps, x)
