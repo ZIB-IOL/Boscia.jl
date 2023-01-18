@@ -503,6 +503,31 @@ function build_csv(mode)
 
         df = innerjoin(df, df_scip_tol, on = [:seed, :dimension, :k, :p])
 
+        # check if solution optimal
+        optimal_scip = []
+        optimal_ipopt = []
+        optimal_boscia = []
+        for row in eachrow(df)
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_boscia, 1)
+            else 
+                append!(optimal_boscia, 0)
+            end
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_ipopt, 1)
+            else 
+                append!(optimal_ipopt, 0)
+            end
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_scip, 1)
+            else 
+                append!(optimal_scip, 0)
+            end
+        end
+        df[!,:optimal_scip] = optimal_scip
+        df[!,:optimal_ipopt] = optimal_ipopt
+        df[!,:optimal_boscia] = optimal_boscia
+
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -644,6 +669,8 @@ function build_csv(mode)
             :time_no_as => geo_mean, :termination_no_as => sum,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
             :time_afw => geo_mean, :termination_afw => sum,
+            :optimal_boscia => sum, :optimal_ipopt => sum,
+            :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_log_reg"
@@ -673,7 +700,10 @@ function build_csv(mode)
             :time_afw => :timeAfw, 
             :termination_afw => :terminationAfw,
             :time_scip_tol => :timeScipTol, 
-            :termination_scip_tol => :terminationScipTol
+            :termination_scip_tol => :terminationScipTol,
+            :optimal_boscia => :optimalBoscia,
+            :optimal_ipopt => :optimalIpopt,
+            :optimal_scip => :optimalScip
             )
 
         size_df = (size(gdf))
