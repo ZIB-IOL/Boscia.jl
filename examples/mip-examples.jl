@@ -26,9 +26,9 @@ include("scip_oa.jl")
 function mip_lib(seed=1, num_v=5; example, bo_mode)
     limit = 1800
 
-    # o = SCIP.Optimizer()
-    # lmo, f, grad! = build_example(o, example, num_v, seed)
-    # Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
+    o = SCIP.Optimizer()
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
