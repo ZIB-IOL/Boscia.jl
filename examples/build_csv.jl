@@ -198,7 +198,7 @@ function build_csv(mode)
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
-
+        df[!,:solution_boscia] = df_bs[!,:solution]
         df[!,:termination_boscia] = termination_boscia
     
         # load afw
@@ -242,7 +242,8 @@ function build_csv(mode)
         
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
         df_ipopt[!, :termination_ipopt] = termination_ipopt
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :seed, :dimension])
+        df_ipopt[!,:solution_ipopt] = df_ipopt[!,:solution]
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension])
         
         df = innerjoin(df, df_ipopt, on = [:seed, :dimension])   
 
@@ -294,11 +295,36 @@ function build_csv(mode)
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :dimension])
+        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :solution_scip, :dimension])
 
         df = innerjoin(df, df_scip, on = [:seed, :dimension])
 
         sort!(df, [:dimension])
+
+        # check if solution optimal
+        optimal_scip = []
+        optimal_ipopt = []
+        optimal_boscia = []
+        for row in eachrow(df)
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_boscia, 1)
+            else 
+                append!(optimal_boscia, 0)
+            end
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_ipopt, 1)
+            else 
+                append!(optimal_ipopt, 0)
+            end
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+                append!(optimal_scip, 1)
+            else 
+                append!(optimal_scip, 0)
+            end
+        end
+        df[!,:optimal_scip] = optimal_scip
+        df[!,:optimal_ipopt] = optimal_ipopt
+        df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mixed_portfolio_non_grouped.csv")
