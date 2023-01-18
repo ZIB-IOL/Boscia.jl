@@ -103,13 +103,13 @@ for dimension in [70:20:100;]
 end =#
 
 bo_mode="ipopt"
-for dimension in [20]#[50:20:100;]
+for dimension in [50:20:100;]#[50:20:100;]
     for seed in 1:10#1:10
-        for ns in [0.1]#[0.1,1,5,10]
+        for ns in [0.1,1,5,10]
             @show seed, dimension
             try 
                 poisson_ipopt(seed, dimension, ns, 1)            
-            catch 
+            catch e
                 println(e)
                 open("poisson_errors.txt","a") do io
                     println(io, seed, " ", dimension, " ", ns, " ", bo_mode, " : ", e)

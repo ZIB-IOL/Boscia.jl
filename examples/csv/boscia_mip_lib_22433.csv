@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 seed,num_v,time,solution,dual_gap,rel_dual_gap,termination,ncalls
 1,4,1.226,-27719.08006761879,0.0,0.0,primal>=tree.incumbent,4
 2,4,0.144,-21805.72033777454,0.0,0.0,primal>=tree.incumbent,4
@@ -18,3 +19,16 @@ seed,num_v,time,solution,dual_gap,rel_dual_gap,termination,ncalls
 1,6,0.085,39998.42586221504,0.0,0.0,Optimal (tree empty),2
 2,6,1.71,20.173034089495893,0.0,0.0,Optimal (tree empty),13
 3,6,0.18,-1950.2408047735182,0.0,0.0,Optimal (tree empty),4
+=======
+seed;num_v;time;solution;dual_gap;rel_dual_gap;termination;ncalls
+1;4;1.226;-27719.08006761879;0.0;0.0;primal>=tree.incumbent;4
+2;4;0.144;-21805.72033777454;0.0;0.0;primal>=tree.incumbent;4
+3;4;0.111;-30520.602225215585;0.0;0.0;primal>=tree.incumbent;4
+1;5;0.151;21621.882150493726;0.0;0.0;primal>=tree.incumbent;2
+2;5;0.162;16463.960978327195;0.0;0.0;Optimal (tree empty);2
+3;5;0.15;-3683.328198538862;0.0;0.0;primal>=tree.incumbent;4
+1;6;0.156;39996.88473133878;0.0;0.0;primal>=tree.incumbent;2
+2;6;0.239;15.546173413382657;0.0;0.0;Optimal (tree empty);4
+3;6;0.159;-1954.7428158639998;0.0;0.0;primal>=tree.incumbent;4
+2;6;2.382;15.546173413382657;0.0;0.0;Optimal (tree empty);4
+>>>>>>> 8c24e05e56000a05cf02a36eee1f2d78f6dad4e4

@@ -236,7 +236,7 @@ function poisson_ipopt(seed = 1, n = 20, Ns = 1.0, iter = 1)
         status = "Optimal"
     end    
 
-    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    df = DataFrame(seed=seed, dimension=n, p=p, Ns=Ns, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_poisson_reg_ " * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -295,10 +295,6 @@ function build_bnb_ipopt_model(seed, n, Ns)
         push!(exprs, @expression(m, dot(x[1:p], Xs[:, i]) + x[end]))
     end
     expr = @NLexpression(m, 1/n * sum(exp(exprs[i]) - ys[i] * exprs[i] for i in 1:p ) + expr1)
-
-    #expr1 = @expression(m, α*sum(x[i]^2 for i in 1:p))
-    #expr2 = @expression(m, exp(dot(x[1:p], Xs(:, i)) + x[end]) for i in 1:p)
-    #expr = @NLexpression(m, sum(1/n * (exp(dot(x[1:p], Xs(:, i)) + x[end]) - ys[i]*(dot(x[1:p], Xs[:, i] + x[end]))) for i in 1:p) + expr1)
     @NLobjective(m, Min, expr)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
