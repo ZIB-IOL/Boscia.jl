@@ -392,7 +392,7 @@ function build_csv(mode)
         df_bs = unique(df_bs, [:dimension, :k, :p, :seed])
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+        termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
 
         df[!,:dimension] = df_bs[!,:dimension]
         df[!,:time_boscia] = df_bs[!,:time]
@@ -406,7 +406,7 @@ function build_csv(mode)
         # load afw
         df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_sparse_reg.csv")))
         df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination]]
+        termination_afw = [row == "TIME_LIMIT" ? 0 : 1 for row in df_afw[!,:termination]]
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
@@ -417,7 +417,7 @@ function build_csv(mode)
         # load without as, without ss
         df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_sparse_reg.csv")))
         df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination]]
+        termination_no_ws = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ws[!,:termination]]
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
@@ -429,7 +429,7 @@ function build_csv(mode)
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_sparse_reg.csv")))
         df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination]]
+        termination_no_as = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_as[!,:termination]]
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
@@ -440,7 +440,7 @@ function build_csv(mode)
         # load without ss
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_sparse_reg.csv")))
         df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination]]
+        termination_no_ss = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ss[!,:termination]]
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
@@ -455,7 +455,9 @@ function build_csv(mode)
 
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
         df_ipopt[!, :termination_ipopt] = termination_ipopt
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :seed, :dimension, :k, :p])
+        df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
+
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :dimension, :k, :p])
 
@@ -478,14 +480,28 @@ function build_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p])
 
-        # print(first(df,20))
-        # sort!(df_scip, [:dimension, :k, :Ns, :p])
-        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p])
-        #print(sort(df, [:dimension, :p, :k]))
-        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
-        # print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
-        #sort!(df, [:dimension, :p, :k])
+
+        # load scip oa tol 1e-9
+        df_scip_tol = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_reg_ 1.0e-9.csv")))
+
+        termination_scip_tol = [row == "OPTIMAL" ? 1 : 0 for row in df_scip_tol[!,:termination]]
+
+        time_scip_tol = []
+        for row in eachrow(df_scip_tol)
+            if row.solution == Inf 
+                append!(time_scip_tol,1800) 
+            else 
+                append!(time_scip_tol,row.time)
+            end
+        end
+
+        df_scip_tol[!,:time_scip_tol] = time_scip_tol
+        df_scip_tol[!,:termination_scip_tol] = termination_scip_tol
+        df_scip_tol[!,:solution_scip_tol] = df_scip_tol[!,:solution]
+        df_scip_tol = select(df_scip_tol, [:solution_scip_tol, :termination_scip_tol, :time_scip_tol, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_scip_tol, on = [:seed, :dimension, :k, :p])
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
@@ -622,6 +638,7 @@ function build_csv(mode)
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
+            :time_scip_tol => geo_mean, :termination_scip_tol => sum,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
             :time_no_as => geo_mean, :termination_no_as => sum,
@@ -655,6 +672,8 @@ function build_csv(mode)
             :termination_no_ss => :terminationNoSs,
             :time_afw => :timeAfw, 
             :termination_afw => :terminationAfw,
+            :time_scip_tol => :timeScipTol, 
+            :termination_scip_tol => :terminationScipTol
             )
 
         size_df = (size(gdf))
@@ -662,6 +681,7 @@ function build_csv(mode)
         # parse to int
         gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
         gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
+        gdf[!,:timeScipTol] = convert.(Int64,round.(gdf[!,:timeScipTol]))
         gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
         gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
         gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
@@ -671,6 +691,7 @@ function build_csv(mode)
         # absolute instances solved
         gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
         gdf[!,:terminationScip] .= gdf[!,:terminationScip]
+        gdf[!,:terminationScipTol] .= gdf[!,:terminationScipTol]
         gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
         gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
         gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
@@ -680,6 +701,7 @@ function build_csv(mode)
         # relative instances solved
         gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
         gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
+        gdf[!,:terminationScipTolRel] = gdf[!,:terminationScipTol]./gdf[!,:NumInstances]*100
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
         gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
         gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
@@ -689,19 +711,19 @@ function build_csv(mode)
         # parse to int
         gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
         gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
+        gdf[!,:terminationScipTolRel] = convert.(Int64,round.(gdf[!,:terminationScipTolRel]))
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
         gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
         gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
         gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
         gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
-        # geo_mean of intersection with solved instances by all solvers except for scip oa
-        df_intersection = select!(df, Not(:time_scip), Not(:time_ipopt))
-        df_intersection = select!(df_intersection, Not(:termination_scip), Not(:termination_ipopt))
+        # geo_mean of intersection with solved instances by all solvers except for scip oa and ipopt
+        df_intersection = select(df, Not([:time_scip, :time_ipopt, :time_scip_tol, :termination_scip, :termination_ipopt, :termination_scip_tol, :solution_boscia, :solution_ipopt, :solution_scip, :solution_scip_tol]))
 
         # deletes entire row if scip solves solution but boscia does not
         df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
-        
+
         if mode != "poisson" && mode != "sparse_reg"
             df_intersection = combine(
                 groupby(df_intersection, :dimension), 
@@ -743,17 +765,6 @@ function build_csv(mode)
 
         size_df_after = size(gdf)
 
-        if mode != "poisson" && mode != "sparse_reg"
-            if size_df == size_df_after
-                gdf = innerjoin(gdf, df_intersection, on =[:dimension])
-            else
-                gdf = outerjoin(gdf, df_intersection, on =[:dimension])
-            end
-        elseif mode == "poisson"
-            gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
-        elseif mode == "sparse_reg"
-            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
-        end
         if mode != "poisson" && mode != "sparse_reg"
             if size_df == size_df_after
                 gdf = innerjoin(gdf, df_intersection, on =[:dimension])
