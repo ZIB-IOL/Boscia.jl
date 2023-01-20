@@ -707,6 +707,51 @@ function build_csv(mode)
 
         df[!,:termination_boscia] = termination_boscia
 
+        # load afw
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_tailed_cardinality.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_afw = [row == "TIME_LIMIT" ? 0 : 1 for row in df_afw[!,:termination]]
+
+        df_afw[!,:time_afw] = df_afw[!,:time]
+        df_afw[!,:termination_afw] = termination_afw
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :dimension, :k, :p, :seed, :M, :var_A])
+
+        df = innerjoin(df, df_afw, on = [:dimension, :k, :p, :seed, :M, :var_A])
+
+        # load without as, without ss
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_tailed_cardinality.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ws = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ws[!,:termination]]
+
+        df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
+        df_no_ws[!,:termination_no_ws] = termination_no_ws
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :dimension, :k, :p, :seed, :M, :var_A])
+
+        df = innerjoin(df, df_no_ws, on = [:dimension, :k, :p, :seed, :M, :var_A])
+        # print(first(df,5))
+
+        # load without as
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_tailed_cardinality.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_as = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_as[!,:termination]]
+
+        df_no_as[!,:time_no_as] = df_no_as[!,:time]
+        df_no_as[!,:termination_no_as] = termination_no_as
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :dimension, :k, :p, :seed, :M, :var_A])
+
+        df = innerjoin(df, df_no_as, on = [:dimension, :k, :p, :seed, :M, :var_A])
+
+        # load without ss
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_tailed_cardinality.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ss = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ss[!,:termination]]
+
+        df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
+        df_no_ss[!,:termination_no_ss] = termination_no_ss
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :dimension, :k, :p, :seed, :M, :var_A])
+
+        df = innerjoin(df, df_no_ss, on = [:dimension, :k, :p, :seed, :M, :var_A])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality.csv")))
 
@@ -796,6 +841,10 @@ function build_csv(mode)
             groupby(df, [:dimension, :p, :k, :M, :var_A]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
+            :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :time_no_as => geo_mean, :termination_no_as => sum,
+            :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :time_afw => geo_mean, :termination_afw => sum,
             nrow => :NumInstances, renamecols=false
             )
     end
