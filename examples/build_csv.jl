@@ -696,7 +696,7 @@ function build_csv(mode)
         # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
-        termination_boscia = df_bs[!,:termination] #[row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination]]
+        termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
 
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
@@ -714,9 +714,9 @@ function build_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
-        df_afw = select(df_afw, [:termination_afw, :time_afw, :dimension, :k, :p, :seed, :M, :var_A])
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :n0, :m0, :M])
 
-        df = innerjoin(df, df_afw, on = [:dimension, :k, :p, :seed, :M, :var_A])
+        df = innerjoin(df, df_afw, on = [:seed, :n0, :m0, :M])
 
         # load without as, without ss
         df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_tailed_cardinality.csv")))
@@ -725,9 +725,9 @@ function build_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
-        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :dimension, :k, :p, :seed, :M, :var_A])
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :seed, :n0, :m0, :M])
 
-        df = innerjoin(df, df_no_ws, on = [:dimension, :k, :p, :seed, :M, :var_A])
+        df = innerjoin(df, df_no_ws, on = [:seed, :n0, :m0, :M])
         # print(first(df,5))
 
         # load without as
@@ -737,9 +737,9 @@ function build_csv(mode)
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
-        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :dimension, :k, :p, :seed, :M, :var_A])
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :seed, :n0, :m0, :M])
 
-        df = innerjoin(df, df_no_as, on = [:dimension, :k, :p, :seed, :M, :var_A])
+        df = innerjoin(df, df_no_as, on = [:seed, :n0, :m0, :M])
 
         # load without ss
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_tailed_cardinality.csv")))
@@ -748,14 +748,14 @@ function build_csv(mode)
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
-        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :dimension, :k, :p, :seed, :M, :var_A])
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :n0, :m0, :M])
 
-        df = innerjoin(df, df_no_ss, on = [:dimension, :k, :p, :seed, :M, :var_A])
+        df = innerjoin(df, df_no_ss, on = [:seed, :n0, :m0, :M])
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality.csv")))
 
-        termination_scip = df_scip[!,:termination] #[row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+        termination_scip = [row == "TIME_LIMIT" ? 0 : 1 for row in df_scip[!,:termination]]
 
         time_scip = []
         for row in eachrow(df_scip)
@@ -796,7 +796,7 @@ function build_csv(mode)
     end
 
     # group by dimension
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg"
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality"
         gdf = combine(
             groupby(df, :dimension), 
             :time_boscia => geo_mean, :termination_boscia => sum,
@@ -847,10 +847,21 @@ function build_csv(mode)
             :time_afw => geo_mean, :termination_afw => sum,
             nrow => :NumInstances, renamecols=false
             )
+    elseif mode == "tailed_cardinality"
+        gdf = combine(
+            groupby(df, [:n0, :m0, :M]), 
+            :time_boscia => geo_mean, :termination_boscia => sum,
+            :time_scip => geo_mean, :termination_scip => sum,
+            :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :time_no_as => geo_mean, :termination_no_as => sum,
+            :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :time_afw => geo_mean, :termination_afw => sum,
+            nrow => :NumInstances, renamecols=false
+            )
     end
 
     # remove underscore in headers for LaTex
-    if mode != "sparse_log_reg"
+    if mode != "sparse_log_reg" && mode != "tailed_cardinality"
         if mode != "sparse_reg"
 
             rename!(gdf,
