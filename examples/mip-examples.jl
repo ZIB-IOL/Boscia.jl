@@ -32,7 +32,7 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
-    
+
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
     elseif bo_mode == "as_ss"
@@ -42,7 +42,7 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
@@ -50,7 +50,7 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     # if occursin("Optimal", result[:status])
     #     status = "OPTIMAL"
     # end
-    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, x=[x], solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
     elseif bo_mode == "boscia"
@@ -59,9 +59,9 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
         file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
     end
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
+        CSV.write(file_name, df, append=true, writeheader=true)
     else 
-        CSV.write(file_name, df, append=true, delim=";")
+        CSV.write(file_name, df, append=true)
     end
 
     return f(x), x
@@ -94,12 +94,12 @@ function mip_lib_scip(seed=1, num_v=5; example)
     termination_scip = String(string(MOI.get(lmo.o, MOI.TerminationStatus())))
     ncalls_scip = epigraph_ch.ncalls
     
-    df = DataFrame(seed=seed, num_v=num_v, time=time_scip, x=[vars_scip], solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+    df = DataFrame(seed=seed, num_v=num_v, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
     file_name = joinpath(@__DIR__,"csv/scip_oa_mip_lib_" * example * ".csv")
     if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true, delim=";")
+        CSV.write(file_name, df, append=true, writeheader=true)
     else 
-        CSV.write(file_name, df, append=true, delim=";")
+        CSV.write(file_name, df, append=true)
     end
 
     return f(vars_scip), vars_scip
@@ -123,7 +123,8 @@ function build_example(o, example, num_v, seed)
 
     @assert !isempty(vs)
     b_mps = randn(n)
-    max_norm = maximum(norm.(vs))
+    max_norm = maximum(norm.(vs))/4
+    #max_norm = norm(b_mps) * 2
 
     function f(x)
         r = dot(b_mps, x)

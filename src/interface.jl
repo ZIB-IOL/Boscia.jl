@@ -482,6 +482,9 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
     if isempty(tree.nodes)
         status_string = "Optimal (tree empty)"
         tree.root.problem.solving_stage = OPT_TREE_EMPTY
+        if !isapprox(tree_lb(tree), tree.incumbent, atol =1e-6, rtol =1e-2)
+            @warn "Tree empty but primal not equal to the incumbent."
+        end
     elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
         status_string = "Time limit reached"
     else
@@ -543,15 +546,15 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         else 
             if primal < tree.incumbent && tree.lb > primal - dual_gap
                 @warn "tree.lb > primal - dual_gap"
-                if status_string != "Time limit reached"
-                    status_string = "tree.lb>primal-dual_gap"
-                end
+               # if status_string != "Time limit reached"
+                #    status_string = "tree.lb>primal-dual_gap"
+                #end
                 
             else 
                 @warn "primal >= tree.incumbent"
-                if status_string != "Time limit reached"
-                    status_string = "primal>=tree.incumbent"
-                end
+                #if status_string != "Time limit reached"
+                #    status_string = "primal>=tree.incumbent"
+                #end
             end
             @warn "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
