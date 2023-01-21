@@ -123,7 +123,7 @@ function build_example(o, example, num_v, seed)
 
     @assert !isempty(vs)
     b_mps = randn(n)
-    max_norm = maximum(norm.(vs))/4
+    max_norm = maximum(norm.(vs))
     #max_norm = norm(b_mps) * 2
 
     function f(x)
