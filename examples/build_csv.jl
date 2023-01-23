@@ -857,8 +857,115 @@ function build_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")
         CSV.write(file_name, df, append=false)
+    
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_tailed_cardinality_sparse_log_reg.csv")))
+        # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
+
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
+
+        df[!,:dimension] = df_bs[!,:dimension]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+        df[!,:M] = df_bs[!,:M]
+        df[!,:var_A] = df_bs[!,:var_A]
+        df[!,:termination_boscia] = termination_boscia
+        df[!, :solution_boscia] = df_bs[!, :solution]  
+        
+        # load afw
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_tailed_cardinality_sparse_log_reg.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_afw = [row == "TIME_LIMIT" ? 0 : 1 for row in df_afw[!,:termination]]
+
+        df_afw[!,:time_afw] = df_afw[!,:time]
+        df_afw[!,:termination_afw] = termination_afw
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :dimension, :M, :var_A])
+
+        df = innerjoin(df, df_afw, on = [:seed, :dimension, :M, :var_A])
+
+        # load without as, without ss
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_tailed_cardinality_sparse_log_reg.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ws = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ws[!,:termination]]
+
+        df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
+        df_no_ws[!,:termination_no_ws] = termination_no_ws
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :seed, :dimension, :M, :var_A])
+
+        df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :M, :var_A])
+        # print(first(df,5))
+
+        # load without as
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_tailed_cardinality_sparse_log_reg.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_as = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_as[!,:termination]]
+
+        df_no_as[!,:time_no_as] = df_no_as[!,:time]
+        df_no_as[!,:termination_no_as] = termination_no_as
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :seed, :dimension, :M, :var_A])
+
+        df = innerjoin(df, df_no_as, on = [:seed, :dimension, :M, :var_A])
+
+        # load without ss
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_tailed_cardinality_sparse_log_reg.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ss = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ss[!,:termination]]
+
+        df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
+        df_no_ss[!,:termination_no_ss] = termination_no_ss
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :dimension, :M, :var_A])
+
+        df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :M, :var_A])
+
+        # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality_sparse_log_reg.csv")))
+
+        termination_scip = [row == "TIME_LIMIT" ? 0 : 1 for row in df_scip[!,:termination]]
+
+        time_scip = []
+        for row in eachrow(df_scip)
+            if row.solution == Inf 
+                append!(time_scip,1800) 
+            else 
+                append!(time_scip,row.time)
+            end
+        end
+
+        df_scip[!,:time_scip] = time_scip
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :dimension, :M, :var_A])
+
+        # sort!(df, [:dimension, :k, :Ns, :p])
+        # print(first(df,20))
+        # sort!(df_scip, [:dimension, :k, :Ns, :p])
+        # print(first(df_scip,20))
+        df = innerjoin(df, df_scip, on = [:seed, :dimension, :M, :var_A])
+
+        # check if solution optimal
+        optimal_scip = []
+        optimal_boscia = []
+        for row in eachrow(df)
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_boscia, 1)
+            else 
+                append!(optimal_boscia, 0)
+            end
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_scip, 1)
+            else 
+                append!(optimal_scip, 0)
+            end
+        end
+        df[!,:optimal_scip] = optimal_scip
+        df[!,:optimal_boscia] = optimal_boscia
+
+        # save csv 
+        file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
     end
-    # TODO: tailed cardinality sparse log reg
 
 
     function geo_mean(group)
@@ -873,7 +980,7 @@ function build_csv(mode)
     end
 
     # group by dimension
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality"
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf = combine(
             groupby(df, :dimension), 
             :time_boscia => geo_mean, :termination_boscia => sum,
@@ -943,178 +1050,201 @@ function build_csv(mode)
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
             )
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        gdf = combine(
+            groupby(df, [:dimension, :M, :var_A]), 
+            :time_boscia => geo_mean, :termination_boscia => sum,
+            :time_scip => geo_mean, :termination_scip => sum,
+            :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :time_no_as => geo_mean, :termination_no_as => sum,
+            :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :time_afw => geo_mean, :termination_afw => sum,
+            :optimal_boscia => sum,
+            :optimal_scip => sum,
+            nrow => :NumInstances, renamecols=false
+            )
     end
 
     # remove underscore in headers for LaTex
-    if mode == "tailed_cardinality"
+    rename!(gdf,
+    :time_boscia => :timeBoscia, 
+    :termination_boscia => :terminationBoscia,
+    :time_scip => :timeScip, 
+    :termination_scip => :terminationScip,
+    :time_no_ws => :timeNoWs, 
+    :termination_no_ws => :terminationNoWs,
+    :time_no_as => :timeNoAs, 
+    :termination_no_as => :terminationNoAs,
+    :time_no_ss => :timeNoSs, 
+    :termination_no_ss => :terminationNoSs,
+    :time_afw => :timeAfw, 
+    :termination_afw => :terminationAfw,
+    :optimal_boscia => :optimalBoscia,
+    :optimal_scip => :optimalScip
+    )
 
-        rename!(gdf,
-        :time_boscia => :timeBoscia, 
-        :termination_boscia => :terminationBoscia,
-        :time_scip => :timeScip, 
-        :termination_scip => :terminationScip,
-        :time_no_ws => :timeNoWs, 
-        :termination_no_ws => :terminationNoWs,
-        :time_no_as => :timeNoAs, 
-        :termination_no_as => :terminationNoAs,
-        :time_no_ss => :timeNoSs, 
-        :termination_no_ss => :terminationNoSs,
-        :time_afw => :timeAfw, 
-        :termination_afw => :terminationAfw,
-        :optimal_boscia => :optimalBoscia,
-        :optimal_scip => :optimalScip
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        rename!(gdf, 
+        :time_ipopt => :timeIpopt,
+        :termination_ipopt => :terminationIpopt,
+        :optimal_ipopt => :optimalIpopt,
         )
+    end
+    
+    # parse to int
+    gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
+    gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
+    gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
+    gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
+    gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
+    gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
+    
+    if mode == "sparse_reg" 
+        rename!(gdf, :time_scip_tol => :timeScipTol)
+        gdf[!,:timeScipTol] = convert.(Int64,round.(gdf[!,:timeScipTol]))
+    end
 
-        if mode != "tailed_cardinality"
-            rename!(gdf, 
-            :time_ipopt => :timeIpopt,
-            :termination_ipopt => :terminationIpopt,
-            :optimal_ipopt => :optimalIpopt,
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
+    end
+
+    # absolute instances solved
+    gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
+    gdf[!,:terminationScip] .= gdf[!,:terminationScip]
+    gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
+    gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
+    gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
+    gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
+
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
+    end
+
+    # relative instances solved
+    gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
+
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
+    end
+
+    # parse to int
+    gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
+    gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
+    gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
+    gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
+    gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
+    gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
+
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
+    end
+
+    # geo_mean of intersection with solved instances by all solvers except for scip oa and ipopt
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        df_intersection = select(df, Not([:time_scip, :time_ipopt, :termination_scip, :termination_ipopt, :solution_boscia, :solution_ipopt, :solution_scip]))
+    else 
+        df_intersection = select(df, Not([:time_scip, :termination_scip, :solution_boscia, :solution_scip]))
+    end
+
+    size_df = (size(gdf))
+
+    # deletes entire row if scip solves solution but boscia does not
+    df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
+
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" &&  mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, :dimension), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
             )
-        end
+    elseif mode == "poisson"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :k, :Ns]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    elseif mode == "sparse_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    elseif mode == "sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k, :M, :var_A]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    elseif mode == "tailed_cardinality"
+        df_intersection = combine(
+            groupby(df_intersection, [:n0, :m0, :M]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :M, :var_A]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            renamecols=false
+            )
+    end
         
-        # parse to int
-        gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
-        gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
-        gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
-        gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
-        gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
-        gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
-        
-        if mode == "sparse_reg"
-            rename!(gdf, :time_scip_tol => :timeScipTol)
-            gdf[!,:timeScipTol] = convert.(Int64,round.(gdf[!,:timeScipTol]))
+    # parse to int
+    df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
+    df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
+    df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
+    df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
+    df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
+
+    size_df_after = size(gdf)
+
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        if size_df == size_df_after
+            gdf = innerjoin(gdf, df_intersection, on =[:dimension])
+        else
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
         end
+    elseif mode == "poisson"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+    elseif mode == "sparse_reg"
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+    elseif mode == "sparse_log_reg"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
+    elseif mode == "tailed_cardinality"
+        gdf = innerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
+    elseif mode == "tailed_cardinality"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
+    end
 
-        if mode != "tailed_cardinality"
-            gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
-        end
-
-        # absolute instances solved
-        gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
-        gdf[!,:terminationScip] .= gdf[!,:terminationScip]
-        gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
-        gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
-        gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
-        gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
-
-        if mode != "tailed_cardinality"
-            gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
-        end
-
-        # relative instances solved
-        gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
-
-        if mode != "tailed_cardinality"
-            gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
-        end
-
-        # parse to int
-        gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
-        gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
-        gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
-        gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
-        gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
-        gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
-
-        if mode != "tailed_cardinality"
-            gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
-        end
-
-        # geo_mean of intersection with solved instances by all solvers except for scip oa and ipopt
-        if mode != "tailed_cardinality"
-            df_intersection = select(df, Not([:time_scip, :time_ipopt, :termination_scip, :termination_ipopt, :solution_boscia, :solution_ipopt, :solution_scip]))
-        else 
-            df_intersection = select(df, Not([:time_scip, :termination_scip, :solution_boscia, :solution_scip]))
-        end
-
-        size_df = (size(gdf))
-
-        # deletes entire row if scip solves solution but boscia does not
-        df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
-
-        if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" &&  mode != "tailed_cardinality"
-            df_intersection = combine(
-                groupby(df_intersection, :dimension), 
-                :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-                :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-                :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-                :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-                :time_afw => geo_mean => :AfwGeoMeanIntersection,
-                renamecols=false
-                )
-        elseif mode == "poisson"
-            df_intersection = combine(
-                groupby(df_intersection, [:dimension, :k, :Ns]), 
-                :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-                :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-                :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-                :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-                :time_afw => geo_mean => :AfwGeoMeanIntersection,
-                renamecols=false
-                )
-        elseif mode == "sparse_reg"
-            df_intersection = combine(
-                groupby(df_intersection, [:dimension, :p, :k]), 
-                :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-                :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-                :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-                :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-                :time_afw => geo_mean => :AfwGeoMeanIntersection,
-                renamecols=false
-                )
-        elseif mode == "sparse_log_reg"
-            df_intersection = combine(
-                groupby(df_intersection, [:dimension, :p, :k, :M, :var_A]), 
-                :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-                :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-                :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-                :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-                :time_afw => geo_mean => :AfwGeoMeanIntersection,
-                renamecols=false
-                )
-        elseif mode == "tailed_cardinality"
-            df_intersection = combine(
-                groupby(df_intersection, [:n0, :m0, :M]), 
-                :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-                :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-                :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-                :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-                :time_afw => geo_mean => :AfwGeoMeanIntersection,
-                renamecols=false
-                )
-        end
-            
-        # parse to int
-        df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
-        df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
-        df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
-        df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
-        df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
-
-        size_df_after = size(gdf)
-
-        if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality"
-            if size_df == size_df_after
-                gdf = innerjoin(gdf, df_intersection, on =[:dimension])
-            else
-                gdf = outerjoin(gdf, df_intersection, on =[:dimension])
-            end
-        elseif mode == "poisson"
-            gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
-        elseif mode == "sparse_reg"
-            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
-        elseif mode == "sparse_log_reg"
-            gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
-        elseif mode == "tailed_cardinality"
-            gdf = innerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
-        end
-    end 
     # add geometric mean of intersected instances to main df
     # gdf[!,:BosciaGeoMeanIntersection] = df_intersection[!,:BosciaGeoMeanIntersection]
     # gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
@@ -1137,6 +1267,8 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg.csv") 
     elseif mode == "tailed_cardinality"
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality.csv") 
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg.csv") 
     else
         println("Specify file name!!")
     end        
