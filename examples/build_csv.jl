@@ -76,17 +76,17 @@ function build_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -306,17 +306,17 @@ function build_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -454,17 +454,17 @@ function build_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -601,17 +601,17 @@ function build_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -725,17 +725,17 @@ function build_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -840,12 +840,12 @@ function build_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -948,12 +948,12 @@ function build_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1241,8 +1241,8 @@ function build_csv(mode)
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
     elseif mode == "tailed_cardinality"
         gdf = innerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
-    elseif mode == "tailed_cardinality"
-        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M, :var_A])
     end
 
     # add geometric mean of intersected instances to main df
