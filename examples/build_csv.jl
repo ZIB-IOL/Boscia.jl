@@ -240,7 +240,7 @@ function build_csv(mode)
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
         
-        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!,:solution_ipopt] = df_ipopt[!,:solution]
         df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension])
@@ -398,13 +398,12 @@ function build_csv(mode)
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "TIME_LIMIT" ? 0 : 1 for row in df_ipopt[!, :termination]]
         
-        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!,:solution_ipopt] = df_ipopt[!,:solution]
         df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension, :k, :Ns, :p])
         
         df = innerjoin(df, df_ipopt, on = [:seed, :dimension, :k, :Ns, :p])
-        
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
@@ -430,24 +429,13 @@ function build_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :solution_scip, :dimension, :k, :Ns, :p])
 
-        # delete duplicates
-        df_scip = unique(df_scip, [:dimension, :k, :Ns, :seed])
+        # # delete duplicates
+        # df_scip = unique(df_scip, [:dimension, :k, :Ns, :seed])
 
-        # sort!(df, [:dimension, :k, :Ns, :p])
-        # print(first(df,20))
-        # sort!(df_scip, [:dimension, :k, :Ns, :p])
-        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :Ns, :p])
-        # print(sort(df, [:dimension, :k, :Ns, :p]))
-        # df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
-        # print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
-        # df_temp = combine(
-        #     groupby(df, [:dimension, :k, :Ns]), 
-        #     nrow => :NumInstances, renamecols=false
-        #     )
-        # sort!(df, [:dimension, :k, :Ns])
-        # print(df)
-        # print(df_temp)
+
+        sort!(df, [:dimension, :k, :Ns])
+
 
         # check if solution optimal
         optimal_scip = []
@@ -546,7 +534,7 @@ function build_csv(mode)
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
 
-        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
 
@@ -695,7 +683,7 @@ function build_csv(mode)
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "TIME_LIMIT" ? 0 : 1 for row in df_ipopt[!, :termination]]
 
-        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
 
@@ -712,12 +700,6 @@ function build_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p, :M, :var_A])
 
-        # delete duplicates
-        df_scip = unique(df_scip, [:dimension, :p, :k, :seed, :M, :var_A])
-
-        # print(first(df,20))
-        # sort!(df_scip, [:dimension, :k, :Ns, :p])
-        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
         # check if solution optimal
@@ -744,6 +726,8 @@ function build_csv(mode)
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+
+        rename!(df, :var_A => :varA)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")
@@ -962,11 +946,24 @@ function build_csv(mode)
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_boscia] = optimal_boscia
 
+        rename!(df, :var_A => :varA)
+
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     end
 
+    # set time below 1800
+    df[df.time_boscia.>1800, :time_boscia] .= 1800
+    df[df.time_afw.>1800, :time_afw] .= 1800
+    df[df.time_no_as.>1800, :time_no_as] .= 1800
+    df[df.time_no_ss.>1800, :time_no_ss] .= 1800
+    df[df.time_no_ws.>1800, :time_no_ws] .= 1800
+    df[df.time_scip.>1800, :time_scip] .= 1800
+
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        df[df.time_ipopt.>1800, :time_ipopt] .= 1800
+    end
 
     function geo_mean(group)
         prod = 1.0
@@ -1025,7 +1022,7 @@ function build_csv(mode)
             )
     elseif mode == "sparse_log_reg"
         gdf = combine(
-            groupby(df, [:dimension, :p, :k, :M, :var_A]), 
+            groupby(df, [:dimension, :p, :k, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
@@ -1052,7 +1049,7 @@ function build_csv(mode)
             )
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = combine(
-            groupby(df, [:dimension, :M, :var_A]), 
+            groupby(df, [:dimension, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
             :time_scip => geo_mean, :termination_scip => sum,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
@@ -1067,20 +1064,20 @@ function build_csv(mode)
 
     # remove underscore in headers for LaTex
     rename!(gdf,
-    :time_boscia => :timeBoscia, 
-    :termination_boscia => :terminationBoscia,
-    :time_scip => :timeScip, 
-    :termination_scip => :terminationScip,
-    :time_no_ws => :timeNoWs, 
-    :termination_no_ws => :terminationNoWs,
-    :time_no_as => :timeNoAs, 
-    :termination_no_as => :terminationNoAs,
-    :time_no_ss => :timeNoSs, 
-    :termination_no_ss => :terminationNoSs,
-    :time_afw => :timeAfw, 
-    :termination_afw => :terminationAfw,
-    :optimal_boscia => :optimalBoscia,
-    :optimal_scip => :optimalScip
+        :time_boscia => :timeBoscia, 
+        :termination_boscia => :terminationBoscia,
+        :time_scip => :timeScip, 
+        :termination_scip => :terminationScip,
+        :time_no_ws => :timeNoWs, 
+        :termination_no_ws => :terminationNoWs,
+        :time_no_as => :timeNoAs, 
+        :termination_no_as => :terminationNoAs,
+        :time_no_ss => :timeNoSs, 
+        :termination_no_ss => :terminationNoSs,
+        :time_afw => :timeAfw, 
+        :termination_afw => :terminationAfw,
+        :optimal_boscia => :optimalBoscia,
+        :optimal_scip => :optimalScip
     )
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
@@ -1188,7 +1185,7 @@ function build_csv(mode)
             )
     elseif mode == "sparse_log_reg"
         df_intersection = combine(
-            groupby(df_intersection, [:dimension, :p, :k, :M, :var_A]), 
+            groupby(df_intersection, [:dimension, :p, :k, :M, :varA]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
             :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
             :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
@@ -1208,7 +1205,7 @@ function build_csv(mode)
             )
     elseif mode == "tailed_cardinality_sparse_log_reg"
         df_intersection = combine(
-            groupby(df_intersection, [:dimension, :M, :var_A]), 
+            groupby(df_intersection, [:dimension, :M,:varA]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
             :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
             :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
@@ -1237,12 +1234,15 @@ function build_csv(mode)
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
         gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+        gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
     elseif mode == "sparse_log_reg"
-        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :var_A])
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :varA])
+        sort!(gdf, [:dimension, :p, :M, :varA])
     elseif mode == "tailed_cardinality"
+        gdf[!,:M] = convert.(Int64,round.(gdf[!,:M]))
         gdf = innerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
     elseif mode == "tailed_cardinality_sparse_log_reg"
-        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M, :var_A])
+        gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
     end
 
     # add geometric mean of intersected instances to main df

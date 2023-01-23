@@ -1,4 +1,4 @@
-dimension,time_boscia,seed,M,var_A,termination_boscia,solution_boscia,termination_afw,time_afw,termination_no_ws,time_no_ws,termination_no_as,time_no_as,termination_no_ss,time_no_ss,termination_scip,solution_scip,time_scip,optimal_scip,optimal_boscia
+dimension,time_boscia,seed,M,varA,termination_boscia,solution_boscia,termination_afw,time_afw,termination_no_ws,time_no_ws,termination_no_as,time_no_as,termination_no_ss,time_no_ss,termination_scip,solution_scip,time_scip,optimal_scip,optimal_boscia
 10,0.753,1,0.1,1,1,0.4839787794388131,1,24.717,1,0.446,1,0.453,1,0.313,1,0.4839792224020128,17.202905,1,1
 10,0.348,1,0.1,5,1,0.11922551715862784,1,43.752,1,941.362,1,950.498,1,0.351,1,0.1192259073501298,22.044521,1,1
 10,0.741,1,1.0,1,1,0.4833375449435047,1,24.48,1,4.843,1,4.921,1,0.78,1,0.48333801772506246,36.949886,1,1
