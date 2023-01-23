@@ -680,10 +680,25 @@ function build_csv(mode)
         # sort!(df_scip, [:dimension, :k, :Ns, :p])
         # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p, :M, :var_A])
-        # print(sort(df, [:dimension, :p, :k]))
-        df_sol = df[!, [:time_scip, :termination_scip, :solution_scip, :time_boscia, :termination_boscia, :solution_boscia]]
-        # print(filter(row -> (row.termination_scip == 1 && row.termination_boscia == 1),  df_sol))
-        # sort!(df, [:dimension, :p, :k])
+
+
+        # check if solution optimal
+        optimal_scip = []
+        optimal_boscia = []
+        for row in eachrow(df)
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_boscia, 1)
+            else 
+                append!(optimal_boscia, 0)
+            end
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_scip, 1)
+            else 
+                append!(optimal_scip, 0)
+            end
+        end
+        df[!,:optimal_scip] = optimal_scip
+        df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")
@@ -776,6 +791,24 @@ function build_csv(mode)
         # sort!(df_scip, [:dimension, :k, :Ns, :p])
         # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :n0, :m0, :M])
+
+        # check if solution optimal
+        optimal_scip = []
+        optimal_boscia = []
+        for row in eachrow(df)
+            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_boscia, 1)
+            else 
+                append!(optimal_boscia, 0)
+            end
+            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4) 
+                append!(optimal_scip, 1)
+            else 
+                append!(optimal_scip, 0)
+            end
+        end
+        df[!,:optimal_scip] = optimal_scip
+        df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")
