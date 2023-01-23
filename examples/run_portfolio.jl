@@ -1,7 +1,7 @@
 include("portfolio.jl")
 
-mode = "integer"
-
+mode = "mixed"
+#=
 bo_mode="boscia"
 for dimension in [20:5:120;]
     for seed in 1:10
@@ -90,20 +90,20 @@ for dimension in [20:5:120;]
             end
         end
     end
-end 
+end =#
 
 
-# bo_mode = "ipopt"
-# for dimension in [20:5:120;] #[20:5:120;]
-#     for seed in 1:10#1:10
-#         @show seed, dimension
-#         try 
-#             portfolio_ipopt(seed, dimension; mode=mode)
-#         catch e
-#             println(e)
-#             open("portfolio_" * mode * "_errors.txt","a") do io
-#                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
-#             end
-#         end
-#     end
-# end
+bo_mode = "ipopt"
+for dimension in [20:5:120;] #[20:5:120;]
+    for seed in 1:10#1:10
+        @show seed, dimension
+        try 
+            portfolio_ipopt(seed, dimension; mode=mode)
+        catch e
+            println(e)
+            open("portfolio_" * mode * "_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
