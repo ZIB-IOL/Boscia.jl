@@ -510,6 +510,18 @@ function build_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
 
+        # load ipopt 
+        df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_sparse_log_reg.csv")))
+        df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
+        
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]
+        df_ipopt[!, :termination_ipopt] = termination_ipopt
+        df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
+        df_ipopt = select(df_ipopt, [:solution_ipopt, :termination_ipopt, :time_ipopt, :seed, :dimension, :k, :p, :M])
+        
+        df = innerjoin(df, df_ipopt, on = [:dimension, :p, :k, :seed, :M])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_log_regression.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
