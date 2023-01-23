@@ -1071,6 +1071,10 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/sparse_reg.csv")   
     elseif mode == "sparse_log_reg"
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg.csv") 
+    elseif mode == "tailed_cardinality"
+        file_name = joinpath(@__DIR__, "csv/tailed_cardinality.csv") 
+    else
+        println("Specify file name!!")
     end        
     CSV.write(file_name, gdf, append=false)
 end
