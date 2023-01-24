@@ -77,10 +77,10 @@ for num_v in [4:1:8;]
            end
        end
    end
-end
+end=#
 
 bo_mode = "boscia"
-for num_v in [4:1:8;]#[4:1:8;]
+for num_v in [7:1:8;]#[4:1:8;]
     for seed in 1:3#1:3
         @show seed, num_v
         try
@@ -93,7 +93,7 @@ for num_v in [4:1:8;]#[4:1:8;]
         end
     end
 end
-=#
+
 #=
 bo_mode = "ipopt"
 for num_v in [4:1:8;]#[4:1:8;]
@@ -112,6 +112,7 @@ end
 
 =#
 
+#=
 bo_mode = "boscia"
 num_v = 6
 seed = 1
@@ -129,3 +130,4 @@ for num_v in [7]
         #mip_lib_scip(seed, num_v; example=example)
     end
 end 
+=#
