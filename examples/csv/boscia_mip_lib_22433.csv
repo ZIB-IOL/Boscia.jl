@@ -1,42 +1,16 @@
-seed,num_v,time,solution,dual_gap,rel_dual_gap,termination,ncalls
-1,4,1.226,-27719.08006761879,0.0,0.0,primal>=tree.incumbent,4
-2,4,0.144,-21805.72033777454,0.0,0.0,primal>=tree.incumbent,4
-3,4,0.111,-30520.602225215585,0.0,0.0,primal>=tree.incumbent,4
-1,5,0.151,21621.882150493726,0.0,0.0,primal>=tree.incumbent,2
-2,5,0.162,16463.960978327195,0.0,0.0,Optimal (tree empty),2
-3,5,0.15,-3683.328198538862,0.0,0.0,primal>=tree.incumbent,4
-1,6,0.156,39996.88473133878,0.0,0.0,primal>=tree.incumbent,2
-2,6,0.239,15.546173413382657,0.0,0.0,Optimal (tree empty),4
-3,6,0.159,-1954.7428158639998,0.0,0.0,primal>=tree.incumbent,4
-2,6,2.382,15.546173413382657,0.0,0.0,Optimal (tree empty),4
-1,4,2.442,-27714.45667499001,0.0,0.0,Optimal (tree empty),4
-2,4,0.134,-21802.71791047176,0.0,0.0,Optimal (tree empty),4
-3,4,0.081,-30515.946757134872,0.0,0.0,Optimal (tree empty),4
-1,5,0.082,21623.423281369985,0.0,0.0,Optimal (tree empty),2
-2,5,0.091,16468.50280248257,0.0,0.0,Optimal (tree empty),2
-3,5,0.146,-3678.8275747955977,0.0,0.0,Optimal (tree empty),4
-1,6,0.085,39998.42586221504,0.0,0.0,Optimal (tree empty),2
-2,6,1.71,20.173034089495893,0.0,0.0,Optimal (tree empty),13
-3,6,0.18,-1950.2408047735182,0.0,0.0,Optimal (tree empty),4
-1,4,3.0,11109.5,0.0,0.0,Optimal (tree empty),15
-2,4,0.793,11493.499999999673,0.0,0.0,Optimal (tree empty),20
-3,4,0.032,0.0,0.0,0.0,Optimal (tree empty),2
-1,4,2.638,11109.5,0.0,0.0,Optimal (tree empty),15
-1,4,2.661,11109.5,0.0,0.0,Optimal (tree empty),15
-1,4,2.54,0.5137102920861044,0.0,0.0,Optimal (tree empty),11
-1,4,1.89,-27719.08006761879,0.0,0.0,Optimal (tree empty),4
-1,4,1.887,-27719.08006761879,0.0,0.0,Optimal (tree empty),4
-2,4,0.095,-21805.72033777454,0.0,0.0,Optimal (tree empty),4
-3,4,0.083,-30520.602225215585,0.0,0.0,Optimal (tree empty),4
-1,5,0.083,21621.882150493726,0.0,0.0,Optimal (tree empty),2
-2,5,0.087,16463.960978327195,0.0,0.0,Optimal (tree empty),2
-3,5,0.092,-3683.328198538862,0.0,0.0,Optimal (tree empty),4
-1,6,0.097,39996.88473133878,0.0,0.0,Optimal (tree empty),2
-2,6,0.168,15.546173413382657,0.0,0.0,Optimal (tree empty),4
-3,6,0.183,-1954.7428158639998,0.0,0.0,Optimal (tree empty),4
-1,7,0.104,13872.362100414519,0.0,0.0,Optimal (tree empty),2
-2,7,0.102,-63078.905641212856,0.0,0.0,Optimal (tree empty),4
-3,7,0.089,7945.133483098373,0.0,0.0,Optimal (tree empty),2
-1,8,0.099,41964.88332034584,0.0,0.0,Optimal (tree empty),2
-2,8,0.103,15406.993207279134,0.0,0.0,Optimal (tree empty),2
-3,8,0.11,-14473.62674369461,0.0,0.0,Optimal (tree empty),4
+seed,num_v,time,solution,dual_gap,rel_dual_gap,number_nodes,termination,ncalls
+1,4,2.994,-8728.550761759516,0.0,0.0,1,Optimal (tree empty),4
+2,4,0.164,-10639.628112737708,0.0,0.0,1,Optimal (tree empty),6
+3,4,0.089,-8733.371498838405,0.0,0.0,1,Optimal (tree empty),4
+1,5,0.098,-12164.174506409388,0.0,0.0,1,Optimal (tree empty),4
+2,5,0.107,12342.863873538061,0.0,0.0,1,Optimal (tree empty),2
+3,5,0.09,-25842.90294910671,0.0,0.0,1,Optimal (tree empty),4
+1,6,0.098,-19055.5550940589,0.0,0.0,1,Optimal (tree empty),4
+2,6,0.107,-21660.201383877356,0.0,0.0,1,Optimal (tree empty),4
+3,6,0.11,12605.054860879736,0.0,0.0,1,Optimal (tree empty),2
+1,7,0.096,-18525.8088696645,0.0,0.0,1,Optimal (tree empty),4
+2,7,0.109,-5114.645054518984,0.0,0.0,1,Optimal (tree empty),4
+3,7,0.093,-40220.7475551962,0.0,0.0,1,Optimal (tree empty),4
+1,8,0.099,-10736.706325443743,0.0,0.0,1,Optimal (tree empty),4
+2,8,0.109,-12843.37879915211,0.0,0.0,1,Optimal (tree empty),4
+3,8,0.107,24729.915103547384,0.0,0.0,1,Optimal (tree empty),2
