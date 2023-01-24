@@ -1,6 +1,6 @@
 include("mip-examples.jl")
 
-example="neos5"
+example="ran14x18-disj-8"
 #=
 bo_mode="boscia"
 for num_v in [4:1:8;]
@@ -105,15 +105,15 @@ for num_v in [4:1:8;]#[4:1:8;]
             end
         end
     end
-end
-
+end =#
+#=
 bo_mode = "ipopt"
 for num_v in [4:1:8;]#[4:1:8;]
     for seed in 1:3#1:3
         @show seed, num_v
         try
             mip_lib_ipopt(seed, num_v; example=example)
-        catch e 
+        catch 
             println(e)
             open("mip_lib_" * example * "_errors.txt","a") do io
                 println(io, seed, " ", num_v, " ", bo_mode, " : ", e)
@@ -121,16 +121,17 @@ for num_v in [4:1:8;]#[4:1:8;]
         end
     end
 end
-
 =#
+
 
 bo_mode = "boscia"
 num_v = 4
 seed = 1
 
-for num_v in [4:1:8;]
+for num_v in [4]
      for seed in 1:3
         mip_lib(seed, num_v; example =example, bo_mode=bo_mode)
         mip_lib_scip(seed, num_v; example=example)
     end
 end
+
