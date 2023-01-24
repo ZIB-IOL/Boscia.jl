@@ -43,15 +43,16 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter = 1)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
     status = result[:status]
+    number_nodes = result[:number_nodes]
     # if occursin("Optimal", result[:status])
     #     status = "OPTIMAL"
     # end
-    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
     elseif bo_mode == "boscia"
