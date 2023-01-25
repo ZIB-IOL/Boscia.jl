@@ -1,7 +1,7 @@
 include("mip-examples.jl")
 
 example="neos5"
-#=
+
 bo_mode = "as"
 for num_v in [4:1:8;]
     for seed in 1:3
@@ -61,7 +61,7 @@ for num_v in [4:1:8;]
         end
     end
 end
-=#
+
 
 #=
 bo_mode = "scip_oa"
@@ -78,10 +78,10 @@ for num_v in [4:1:8;]
        end
    end
 end=#
-
+#=
 bo_mode = "boscia"
-for num_v in [7:1:8;]#[4:1:8;]
-    for seed in 1:3#1:3
+for num_v in [4:1:8;]
+    for seed in 1:3
         @show seed, num_v
         try
             mip_lib(seed, num_v; example=example, bo_mode=bo_mode)
@@ -92,7 +92,8 @@ for num_v in [7:1:8;]#[4:1:8;]
             end
         end
     end
-end
+end=#
+
 
 #=
 bo_mode = "ipopt"
