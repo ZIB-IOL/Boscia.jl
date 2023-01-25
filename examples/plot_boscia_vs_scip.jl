@@ -3,7 +3,7 @@ using DataFrames
 using CSV
 
 # function plot_boscia_vs_scip(mode; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
-function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=false, afw=false, ss=false, as=false, as_ss=false, boscia_methods=false)
+function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=false, ss=false, as=false, as_ss=false, boscia_methods=false)
     if mode == "poisson"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/poisson_non_grouped.csv")))
     elseif mode == "sparse_reg"
