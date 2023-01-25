@@ -103,7 +103,7 @@ for num_v in [4:1:8;]#[4:1:8;]
         @show seed, num_v
         try
             mip_lib_ipopt(seed, num_v; example=example)
-        catch e 
+        catch 
             println(e)
             open("mip_lib_" * example * "_errors.txt","a") do io
                 println(io, seed, " ", num_v, " ", bo_mode, " : ", e)

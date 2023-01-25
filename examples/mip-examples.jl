@@ -4,12 +4,14 @@ using Test
 using Random
 using SCIP
 using JuMP
+using Ipopt
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 using DataFrames
 using CSV
 include("scip_oa.jl")
+include("BnB_Ipopt.jl")
 
 # MIPLIB instances
 # Objective function: Minimize the distance to randomely picked vertices
@@ -171,7 +173,7 @@ end
 # BnB tree with Ipopt
 function mip_lib_ipopt(seed=1, num_v=5; example)
       # build tree
-      bnb_model, expr, p, k = build_bnb_ipopt_model(seed, num_v, example)
+      bnb_model, expr = build_bnb_ipopt_model(seed, num_v, example)
       list_lb = []
       list_ub = []
       list_time = []
@@ -191,7 +193,7 @@ function mip_lib_ipopt(seed=1, num_v=5; example)
           status = "Optimal"
       end    
   
-      df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+      df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, number_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
       file_name = joinpath(@__DIR__,"csv/ipopt_" * example * ".csv")
       if !isfile(file_name)
           CSV.write(file_name, df, append=true, writeheader=true)
@@ -205,9 +207,13 @@ function build_bnb_ipopt_model(seed, num_v, example)
     Random.seed!(seed)
     time_limit = 1800
 
+    m = Model(Ipopt.Optimizer)
+    set_silent(m)
+
     file_name = example * ".mps"
     src = MOI.FileFormats.Model(filename=file_name)
     MOI.read_from_file(src, joinpath(@__DIR__, "mps-examples/mps-files/" ,file_name))
+    int_vars = []
 
     o = SCIP.Optimizer()
     MOI.copy_to(o, src)
@@ -241,8 +247,8 @@ function build_bnb_ipopt_model(seed, num_v, example)
     vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]
     unique!(vs)
     @assert !isempty(vs)
-    #b_mps = randn(n)
-    max_norm = 1 #maximum(norm.(vs))
+    b_mps = randn(n)
+    max_norm = maximum(norm.(vs))
 
      # Relaxed version
      filtered_src = MOI.Utilities.ModelFilter(o) do item
@@ -265,12 +271,12 @@ function build_bnb_ipopt_model(seed, num_v, example)
     end
 
     x = JuMP.all_variables(m)
-    expr1 =0 # @expression(m, dot(b_mps, x))
+    expr1 = @expression(m, dot(b_mps, x))
     expr = @expression(m, expr1 + 0.5 * 1/max_norm * sum(dot((x - vs[i]), (x - vs[i]) ) for i in 1:length(vs)))
     @objective(m, Min, expr)
 
 
-    model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
+    model = IpoptOptimizationProblem(int_vars, m, Boscia.SOLVING, time_limit, lbs, ubs)
     bnb_model = BB.initialize(;
     traverse_strategy = BB.BFS(),
     Node = MIPNode,
@@ -283,7 +289,7 @@ function build_bnb_ipopt_model(seed, num_v, example)
     ubs = fill(Inf, length(x)),
     status = MOI.OPTIMIZE_NOT_CALLED)
     )
-    return bnb_model, expr, p, k
+    return bnb_model, expr
 
 end
 
