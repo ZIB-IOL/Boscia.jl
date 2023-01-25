@@ -1,6 +1,6 @@
 include("mip-examples.jl")
 
-example="22433"
+example="neos5"
 #=
 bo_mode = "as"
 for num_v in [4:1:8;]
