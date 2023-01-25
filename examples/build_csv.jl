@@ -1111,17 +1111,17 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
     end
 
-    # absolute instances solved
-    gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
-    gdf[!,:terminationScip] .= gdf[!,:terminationScip]
-    gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
-    gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
-    gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
-    gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
+    # # absolute instances solved
+    # gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
+    # gdf[!,:terminationScip] .= gdf[!,:terminationScip]
+    # gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
+    # gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
+    # gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
+    # gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
 
-    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
-        gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
-    end
+    # if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+    #     gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
+    # end
 
     # relative instances solved
     gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
@@ -1135,6 +1135,10 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
     end
 
+    if mode == "sparse_reg"
+        gdf[!,:terminationScipTolRel] = gdf[!,:terminationScipTol]./gdf[!,:NumInstances]*100
+    end
+
     # parse to int
     gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
     gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
@@ -1145,6 +1149,10 @@ function build_grouped_csv(file_name, mode)
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
+    end
+
+    if mode == "sparse_reg"
+        gdf[!,:terminationScipTolRel] = convert.(Int64,round.(gdf[!,:terminationScipTolRel]))
     end
 
     # geo_mean of intersection with solved instances by all solvers except for scip oa and ipopt
