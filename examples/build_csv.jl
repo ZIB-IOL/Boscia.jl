@@ -2,7 +2,7 @@ using CSV
 using DataFrames
 using Statistics
 
-function build_csv(mode)
+function build_non_grouped_csv(mode)
     df = DataFrame()
 
     # load data
@@ -100,88 +100,88 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/portfolio_integer_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     
-# elseif mode == "mixed_obsolete"
-    #     # load boscia and scip oa
-    #     df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
-    #     # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
-    #     # delete!(df_bs, indices)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_bs)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_bs)
-    #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_bs)
-    #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_bs)
-    #     filter!(row -> !(row.dimension > 100),  df_bs)
+    # elseif mode == "mixed_obsolete"
+        #     # load boscia and scip oa
+        #     df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
+        #     # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
+        #     # delete!(df_bs, indices)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_bs)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_bs)
+        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_bs)
+        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_bs)
+        #     filter!(row -> !(row.dimension > 100),  df_bs)
 
-    #     time_scip = [row == -Inf ? 1800.0 : row for row in df_bs[!,:time_scip]]
-    #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
-    #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
-    #     termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_boscia]]
-    #     termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_scip]]
+        #     time_scip = [row == -Inf ? 1800.0 : row for row in df_bs[!,:time_scip]]
+        #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
+        #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
+        #     termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_boscia]]
+        #     termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_scip]]
 
-    #     df[!,:dimension] = df_bs[!,:dimension]
-    #     df[!,:time_boscia] = df_bs[!,:time_boscia]
-    #     df[!,:termination_boscia] = termination_boscia
-    #     df[!,:time_scip] = time_scip #df_bs[!,:time_scip]
-    #     df[!,:termination_scip] = termination_scip
+        #     df[!,:dimension] = df_bs[!,:dimension]
+        #     df[!,:time_boscia] = df_bs[!,:time_boscia]
+        #     df[!,:termination_boscia] = termination_boscia
+        #     df[!,:time_scip] = time_scip #df_bs[!,:time_scip]
+        #     df[!,:termination_scip] = termination_scip
 
-    #     # load afw
-    #     df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
-    #     #delete!(df_afw, indices)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_afw)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_afw)
-    #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_afw)
+        #     # load afw
+        #     df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
+        #     #delete!(df_afw, indices)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_afw)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_afw)
+        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_afw)
 
-    #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-    #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
-    #     termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination_afw]]
+        #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
+        #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
+        #     termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination_afw]]
 
-    #     df[!,:time_afw] = df_afw[!,:time_afw]
-    #     df[!,:termination_afw] = termination_afw
+        #     df[!,:time_afw] = df_afw[!,:time_afw]
+        #     df[!,:termination_afw] = termination_afw
 
-    #     # load without as, without ss
-    #     df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mixed_50.csv")))
+        #     # load without as, without ss
+        #     df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mixed_50.csv")))
+            
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ws)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ws)
+        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ws)
+        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ws)
+            
+        #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
+        #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Time limit reached" => "TIME_LIMIT")
+        #     termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination_afw]]
+
+        #     df[!,:time_no_ws] = df_no_ws[!,:time_afw]
+        #     df[!,:termination_no_ws] = termination_no_ws
+
+        #     # load without ss
+        #     df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_mixed_50.csv")))
+            
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ss)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ss)
+        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ss)
+        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ss)
+
+        #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
+        #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Time limit reached" => "TIME_LIMIT")
+        #     termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination_afw]]
+
+        #     df[!,:time_no_ss] = df_no_ss[!,:time_afw]
+        #     df[!,:termination_no_ss] = termination_no_ss
+
+        #     # load without as
+        #     df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_50.csv")))
+            
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_as)
+        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_as)
+        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_as)
+        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)
+
+        #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
+        #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
+        #     termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination_afw]]
+
+        #     df[!,:time_no_as] = df_no_as[!,:time_afw]
+        #     df[!,:termination_no_as] = termination_no_as
         
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ws)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ws)
-    #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ws)
-    #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ws)
-        
-    #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-    #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Time limit reached" => "TIME_LIMIT")
-    #     termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination_afw]]
-
-    #     df[!,:time_no_ws] = df_no_ws[!,:time_afw]
-    #     df[!,:termination_no_ws] = termination_no_ws
-
-    #     # load without ss
-    #     df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_mixed_50.csv")))
-        
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ss)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ss)
-    #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ss)
-    #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ss)
-
-    #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-    #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Time limit reached" => "TIME_LIMIT")
-    #     termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination_afw]]
-
-    #     df[!,:time_no_ss] = df_no_ss[!,:time_afw]
-    #     df[!,:termination_no_ss] = termination_no_ss
-
-    #     # load without as
-    #     df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_50.csv")))
-        
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_as)
-    #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_as)
-    #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_as)
-    #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)
-
-    #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-    #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
-    #     termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination_afw]]
-
-    #     df[!,:time_no_as] = df_no_as[!,:time_afw]
-    #     df[!,:termination_no_as] = termination_no_as
-    
     elseif mode == "mixed_portfolio"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mixed_portfolio.csv")))
@@ -952,6 +952,11 @@ function build_csv(mode)
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     end
+    return file_name
+end
+
+function build_grouped_csv(file_name, mode)
+    df = CSV.read(file_name, DataFrame)
 
     # set time below 1800
     df[df.time_boscia.>1800, :time_boscia] .= 1800
@@ -1098,6 +1103,7 @@ function build_csv(mode)
     
     if mode == "sparse_reg" 
         rename!(gdf, :time_scip_tol => :timeScipTol)
+        rename!(gdf, :termination_scip_tol => :terminationScipTol)
         gdf[!,:timeScipTol] = convert.(Int64,round.(gdf[!,:timeScipTol]))
     end
 
