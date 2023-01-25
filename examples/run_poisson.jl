@@ -86,10 +86,10 @@ include("poisson_reg.jl")
 #end
 
 bo_mode="scip_oa"
-for dimension in [50:20:100;]#[50:20:100;]
-    for seed in 1:10#1:10
-        for ns in [0.1,1,5,10]
-            @show seed, dimension
+for dimension in [50:20:50;]#[50:20:100;]
+    for seed in 4:10
+        for ns in [5.0] #[0.1,1.0,5.0,10.0]
+            @show seed, dimension, ns
             try 
                 poisson_scip(seed, dimension, ns, 1)            
             catch e 
