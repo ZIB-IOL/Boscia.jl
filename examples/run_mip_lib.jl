@@ -1,7 +1,7 @@
 include("mip-examples.jl")
 
 example="pg5_34"
-#=
+
 bo_mode = "as"
 for num_v in [4:1:8;]
     for seed in 1:3
@@ -61,9 +61,9 @@ for num_v in [4:1:8;]
         end
     end
 end
-=#
 
 
+#=
 bo_mode = "scip_oa"
 for num_v in [4:1:8;]
    for seed in 1:3
@@ -77,7 +77,7 @@ for num_v in [4:1:8;]
            end
        end
    end
-end
+end =#
 
 #=
 bo_mode = "boscia"
