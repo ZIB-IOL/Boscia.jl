@@ -1,0 +1,6 @@
+num_v,timeBoscia,terminationBoscia,timeScip,terminationScip,timeIpopt,terminationIpopt,timeNoWs,terminationNoWs,timeNoAs,terminationNoAs,timeNoSs,terminationNoSs,timeAfw,terminationAfw,optimalBoscia,optimalIpopt,optimalScip,NumInstances,terminationBosciaRel,terminationScipRel,terminationNoWsRel,terminationNoAsRel,terminationNoSsRel,terminationAfwRel,terminationIpoptRel,BosciaGeoMeanIntersection,NoWsGeoMeanIntersection,NoAsGeoMeanIntersection,NoSsGeoMeanIntersection,AfwGeoMeanIntersection
+4,83,3,1800,0,1800,0,79,3,79,3,79,3,93,3,3,0,0,3,100,0,100,100,100,100,0,83,79,79,79,93
+5,126,3,1800,0,1800,0,181,3,181,3,181,3,148,3,3,0,0,3,100,0,100,100,100,100,0,126,181,181,181,148
+6,68,3,1800,0,1800,0,131,3,131,3,131,3,86,3,3,0,0,3,100,0,100,100,100,100,0,68,131,131,131,86
+7,367,3,1800,0,1800,0,387,3,387,3,387,3,535,3,3,0,0,3,100,0,100,100,100,100,0,367,387,387,387,535
+8,379,3,1800,0,1800,0,798,2,798,2,798,2,418,3,3,0,0,3,100,0,67,67,67,100,0,383,531,531,531,383

@@ -173,7 +173,7 @@ function build_non_grouped_csv(mode)
         #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_as)
         #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_as)
         #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_as)
-        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)
+        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)f(x_t)^T(a_t - v_t) 
 
         #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
         #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
@@ -946,7 +946,7 @@ function build_non_grouped_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
-    elseif mode = "22433"
+    elseif mode == "22433"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_22433.csv")))
         # delete duplicates
@@ -957,7 +957,7 @@ function build_non_grouped_csv(mode)
 
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
-        df[!,:num_v] = df_bs[!,:num_V]
+        df[!,:num_v] = df_bs[!,:num_v]
 
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
@@ -981,7 +981,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
-        df_no_ws[!, :solution_no_ws] = 
+        df_no_ws[!, :solution_no_ws] = df_no_ws[!, :solution]
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
@@ -1063,7 +1063,7 @@ function build_non_grouped_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_22433.csv")
         CSV.write(file_name, df, append=false)
-    elseif mode = "neo5"
+    elseif mode == "neos5"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_neos5.csv")))
         # delete duplicates
@@ -1074,7 +1074,7 @@ function build_non_grouped_csv(mode)
 
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
-        df[!,:num_v] = df_bs[!,:num_V]
+        df[!,:num_v] = df_bs[!,:num_v]
 
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
@@ -1098,7 +1098,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
-        df_no_ws[!, :solution_no_ws] = 
+        df_no_ws[!, :solution_no_ws] = df_no_ws[!, :solution]
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
@@ -1180,7 +1180,7 @@ function build_non_grouped_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5.csv")
         CSV.write(file_name, df, append=false)
-    elseif mode = "pg5_34"
+    elseif mode == "pg5_34"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_pg5_34.csv")))
         # delete duplicates
@@ -1191,7 +1191,7 @@ function build_non_grouped_csv(mode)
 
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
-        df[!,:num_v] = df_bs[!,:num_V]
+        df[!,:num_v] = df_bs[!,:num_v]
 
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
@@ -1215,7 +1215,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
-        df_no_ws[!, :solution_no_ws] = 
+        df_no_ws[!, :solution_no_ws] = df_no_ws[!, :solution]
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
@@ -1297,7 +1297,7 @@ function build_non_grouped_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34.csv")
         CSV.write(file_name, df, append=false)
-    elseif mode = "ran14x18"
+    elseif mode == "ran14x18"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_ran14x18-disj-8.csv")))
         # delete duplicates
@@ -1308,7 +1308,7 @@ function build_non_grouped_csv(mode)
 
         df[!,:time_boscia] = df_bs[!,:time]
         df[!,:seed] = df_bs[!,:seed]
-        df[!,:num_v] = df_bs[!,:num_V]
+        df[!,:num_v] = df_bs[!,:num_v]
 
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
@@ -1623,7 +1623,7 @@ function build_grouped_csv(file_name, mode)
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
 
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" &&  mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" &&  mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18"
         df_intersection = combine(
             groupby(df_intersection, :dimension), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -1713,7 +1713,7 @@ function build_grouped_csv(file_name, mode)
 
     size_df_after = size(gdf)
 
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18"
         if size_df == size_df_after
             gdf = innerjoin(gdf, df_intersection, on =[:dimension])
         else
