@@ -169,8 +169,8 @@ function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
     list_time = []
     list_number_nodes = []
     callback = build_callback(list_lb, list_ub, list_time, list_number_nodes)
-    data = @timed BB.optimize!(bnb_model, callback=callback)
     time_ref = Dates.now()
+    data = @timed BB.optimize!(bnb_model, callback=callback)
     push!(list_lb, bnb_model.lb)
     push!(list_ub, bnb_model.incumbent)
     push!(list_time, float(Dates.value(Dates.now()-time_ref)))

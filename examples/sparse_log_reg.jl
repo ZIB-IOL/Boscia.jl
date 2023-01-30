@@ -220,16 +220,16 @@ end
 
 
 # BnB tree with Ipopt
-function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5)
+function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5, var_A=0.5)
     # build tree
-    bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n, Ns, k)
+    bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n, Ns, k, var_A)
     list_lb = []
     list_ub = []
     list_time = []
     list_number_nodes = []
     callback = build_callback(list_lb, list_ub, list_time, list_number_nodes)
-    data = @timed BB.optimize!(bnb_model, callback=callback)
     time_ref = Dates.now()
+    data = @timed BB.optimize!(bnb_model, callback=callback)
     push!(list_lb, bnb_model.lb)
     push!(list_ub, bnb_model.incumbent)
     push!(list_time, float(Dates.value(Dates.now()-time_ref)))
@@ -242,7 +242,7 @@ function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5)
         status = "Optimal"
     end    
 
-    df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    df = DataFrame(seed=seed, dimension=n, var_A=var_A, p=p, k=k, Ns=Ns, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_sparse_log_reg_ " * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -252,7 +252,7 @@ function sparse_log_reg_ipopt(seed = 1, n = 20, Ns= 1.0, k=5)
 end
 
 # build tree 
-function build_bnb_ipopt_model(seed, n, M, k)
+function build_bnb_ipopt_model(seed, n, M, k, var_A)
     Random.seed!(seed)
     time_limit = 1800
 
@@ -261,7 +261,7 @@ function build_bnb_ipopt_model(seed, n, M, k)
     y = Random.bitrand(n)
     y = [i == 0 ? -1 : 1 for i in y]
     for (i,val) in enumerate(y)
-        A[i,:] = 0.5 * A[i,:] * y[i]
+        A[i,:] = var_A * A[i,:] * y[i]
     end
     mu = 10.0 * rand(Float64);
 

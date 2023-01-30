@@ -19,7 +19,7 @@ include("sparse_log_reg.jl")
 #         end
 #     end
 # end 
-
+#=
 bo_mode = "as"
 for dimension in [5:5:20;]
     for seed in 1:3
@@ -98,7 +98,7 @@ for dimension in [5:5:20;]
             end
         end
     end
-end
+end=#
 
 # bo_mode = "scip_oa"
 # for dimension in [5:5:20;]
@@ -119,3 +119,24 @@ end
 #         end
 #     end
 # end
+
+
+bo_mode = "ipopt"
+for dimension in [5:5:20;]
+    for seed in 1:3
+        @show seed, dimension
+        for ns in [0.1,1]
+            for var_A in [1,5]
+                k = Float64(dimension)
+                try 
+                    sparse_log_reg_ipopt(seed, dimension, ns, k, var_A)
+                catch e
+                    println(e)
+                    open("sparse_log_reg_errors.txt","a") do io
+                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+                    end
+                end
+            end
+        end
+    end
+end
