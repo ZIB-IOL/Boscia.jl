@@ -7,70 +7,124 @@ function build_non_grouped_csv(mode)
 
     # load data
     if mode == "integer"
-        # load boscia and scip oa
-        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_integer_50.csv")))
-        # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
-        # delete!(df_bs, indices)
+        # load boscia 
+        df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_integer_portfolio.csv")))
 
-        df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
-        df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
-        termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_boscia]]
-        termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_scip]]
+        df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
+        for row in eachrow(df_bs)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+
+        termination_boscia = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_bs[!,:termination]]
 
         df[!,:dimension] = df_bs[!,:dimension]
-        df[!,:time_boscia] = df_bs[!,:time_boscia]
+        df[!,:time_boscia] = df_bs[!,:time]
+        df[!,:seed] = df_bs[!,:seed]
+        df[!,:solution_boscia] = df_bs[!,:solution]
         df[!,:termination_boscia] = termination_boscia
-        df[!,:time_scip] = df_bs[!,:time_scip]
-        df[!,:termination_scip] = termination_scip
-        df[!,:solution_boscia] = df_bs[!,:solution_boscia]
-        df[!,:solution_scip] = df_bs[!,:solution_scip]
 
         # load afw
-        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_50.csv")))
-        #delete!(df_afw, indices)
-        df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination_afw]]
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_portfolio.csv")))
+        df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
+        for row in eachrow(df_afw)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
 
-        df[!,:time_afw] = df_afw[!,:time_afw]
-        df[!,:termination_afw] = termination_afw
+        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_afw[!,:termination]]
+
+        df_afw[!,:time_afw] = df_afw[!,:time]
+        df_afw[!,:termination_afw] = termination_afw
+        df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :dimension])
+
+        df = outerjoin(df, df_afw, on = [:seed, :dimension])
 
         # load without as, without ss
-        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_integer_50.csv")))
-        df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination_afw]]
+        df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_integer_portfolio.csv")))
+        df_no_ws.termination .= replace.(df_no_ws.termination, "Time limit reached" => "TIME_LIMIT")
+        for row in eachrow(df_no_ws)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
 
-        df[!,:time_no_ws] = df_no_ws[!,:time_afw]
-        df[!,:termination_no_ws] = termination_no_ws
+        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ws[!,:termination]]
 
-        # load without ss
-        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_integer_50.csv")))
-        df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination_afw]]
+        df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
+        df_no_ws[!,:termination_no_ws] = termination_no_ws
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :seed, :dimension])
 
-        df[!,:time_no_ss] = df_no_ss[!,:time_afw]
-        df[!,:termination_no_ss] = termination_no_ss
-
-        # load without as
-        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_integer_50.csv")))
-        df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination_afw]]
-
-        df[!,:time_no_as] = df_no_as[!,:time_afw]
-        df[!,:termination_no_as] = termination_no_as
+        df = innerjoin(df, df_no_ws, on = [:seed, :dimension])
 
         # load ipopt 
         df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_portfolio_integer.csv")))
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
         termination_ipopt = [row == "Optimal" ? 1 : 0 for row in df_ipopt[!, :termination]]
 
-        df[!,:time_ipopt] = df_ipopt[!,:time]
-        df[!,:termination_ipopt] = termination_ipopt
-        df[!,:solution_ipopt] = df_ipopt[!,:solution]
-    
+        df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
+        df_ipopt[!, :termination_ipopt] = termination_ipopt
+        df_ipopt[!,:solution_ipopt] = df_ipopt[!,:solution]
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension])
+
+        df = innerjoin(df, df_ipopt, on = [:seed, :dimension])   
+
+        # load without as
+        df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_integer_portfolio.csv")))
+        df_no_as.termination .= replace.(df_no_as.termination, "Time limit reached" => "TIME_LIMIT")
+        for row in eachrow(df_no_as)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_as[!,:termination]]
+
+        df_no_as[!,:time_no_as] = df_no_as[!,:time]
+        df_no_as[!,:termination_no_as] = termination_no_as
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :seed, :dimension])
+
+        df = innerjoin(df, df_no_as, on = [:seed, :dimension])
+
+        # load without ss
+        df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_integer_portfolio.csv")))
+        df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
+        for row in eachrow(df_no_ss)
+            if row.time > 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ss[!,:termination]]
+
+        df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
+        df_no_ss[!,:termination_no_ss] = termination_no_ss
+        df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :seed, :dimension])
+
+        df = innerjoin(df, df_no_ss, on = [:seed, :dimension])
+
+        # load scip oa
+        df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_portfolio_integer.csv"))) 
+        termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
+
+        time_scip = []
+        for row in eachrow(df_scip)
+            if row.solution == Inf 
+                append!(time_scip,1800) 
+            else 
+                append!(time_scip,row.time)
+            end
+        end
+
+        df_scip[!,:time_scip] = time_scip
+        df_scip[!,:termination_scip] = termination_scip
+        df_scip[!,:solution_scip] = df_scip[!,:solution]
+        df_scip = select(df_scip, [:termination_scip, :time_scip, :seed, :solution_scip, :dimension])
+
+        df = innerjoin(df, df_scip, on = [:seed, :dimension])
+
+        sort!(df, [:dimension])
+
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
@@ -1233,12 +1287,14 @@ function build_grouped_csv(file_name, mode)
 
     size_df_after = size(gdf)
 
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "integer"
         if size_df == size_df_after
             gdf = innerjoin(gdf, df_intersection, on =[:dimension])
         else
             gdf = outerjoin(gdf, df_intersection, on =[:dimension])
         end
+    elseif mode == "integer"
+        print(first(df_intersection,5))
     elseif mode == "poisson"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
@@ -1260,10 +1316,12 @@ function build_grouped_csv(file_name, mode)
     # gdf[!,:NoAsGeoMeanIntersection] = df_intersection[!,:NoAsGeoMeanIntersection]
     # gdf[!,:NoSsGeoMeanIntersection] = df_intersection[!,:NoSsGeoMeanIntersection]
     # gdf[!,:AfwGeoMeanIntersection] = df_intersection[!,:AfwGeoMeanIntersection] 
-    
+
+    print(first(gdf,5))
+
     # save csv
     if mode == "integer"
-        file_name = joinpath(@__DIR__, "csv/integer_50.csv")
+        file_name = joinpath(@__DIR__, "csv/integer_portfolio.csv")
     elseif mode == "mixed" 
         file_name = joinpath(@__DIR__, "csv/mixed_50.csv")
     elseif mode == "mixed_portfolio"
