@@ -2,7 +2,7 @@ include("portfolio.jl")
 
 mode = "integer"
 
-bo_mode="boscia"
+#= bo_mode="boscia"
 for dimension in [20:5:120;]
     for seed in 1:10
         @show seed, dimension
@@ -15,7 +15,7 @@ for dimension in [20:5:120;]
             end
         end
     end
-end
+end 
 
 bo_mode="ss"
 for dimension in [20:5:120;]
@@ -48,7 +48,7 @@ for dimension in [20:5:120;]
 end
 
 bo_mode="as_ss"
-for dimension in [20:5:120;]
+for dimension in [80:5:120;]
     for seed in 1:10
         @show seed, dimension
         try 
@@ -76,13 +76,14 @@ for dimension in [20:5:120;]
         end
     end
 end
+=#
 
 bo_mode = "scip_oa"
 for dimension in [20:5:120;]
     for seed in 1:10
         @show seed, dimension
         try 
-            portfolio_scip(seed, dimension; mode="mixed")
+            portfolio_scip(seed, dimension; mode=mode)
         catch e
             println(e)
             open("portfolio_" * mode * "_errors.txt","a") do io

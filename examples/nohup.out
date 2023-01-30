@@ -1198,3 +1198,29 @@ Away FW: false
 (seed, dimension) = (8, 100)
 (seed, dimension) = (9, 100)
 (seed, dimension) = (10, 100)
+ERROR: SystemError: opening file "/nfs/homeoptimi/htroppen/Boscia.jl/examples/examples/run_portfolio.jl": Datei oder Verzeichnis nicht gefunden
+Stacktrace:
+  [1] systemerror(p::String, errno::Int32; extrainfo::Nothing)
+    @ Base ./error.jl:168
+  [2] #systemerror#62
+    @ ./error.jl:167 [inlined]
+  [3] systemerror
+    @ ./error.jl:167 [inlined]
+  [4] open(fname::String; lock::Bool, read::Nothing, write::Nothing, create::Nothing, truncate::Nothing, append::Nothing)
+    @ Base ./iostream.jl:293
+  [5] open
+    @ ./iostream.jl:282 [inlined]
+  [6] open(f::Base.var"#326#327"{String}, args::String; kwargs::Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+    @ Base ./io.jl:328
+  [7] open
+    @ ./io.jl:328 [inlined]
+  [8] read
+    @ ./io.jl:434 [inlined]
+  [9] _include(mapexpr::Function, mod::Module, _path::String)
+    @ Base ./loading.jl:1144
+ [10] include(mod::Module, _path::String)
+    @ Base ./Base.jl:386
+ [11] exec_options(opts::Base.JLOptions)
+    @ Base ./client.jl:285
+ [12] _start()
+    @ Base ./client.jl:485
