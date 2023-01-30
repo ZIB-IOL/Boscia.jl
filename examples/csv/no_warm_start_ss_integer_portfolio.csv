@@ -195,6 +195,7 @@ seed,dimension,time,solution,termination,ncalls
 4,115,1801.609,51.825625915530395,Time limit reached,42795
 5,115,1801.867,9.55584715067569,Time limit reached,49526
 6,115,1801.227,15.221370593358056,Time limit reached,47348
+7,115,1800.,Inf,Time limit reached,Inf
 8,115,1804.487,30.704067195171223,Time limit reached,54509
 9,115,1801.416,21.533633139404664,Time limit reached,55223
 10,115,1802.369,-48.32512859372398,Time limit reached,47998
@@ -206,4 +207,5 @@ seed,dimension,time,solution,termination,ncalls
 6,120,1800.931,14.90932400314012,Time limit reached,48579
 7,120,1803.489,9.872834165200231,Time limit reached,46911
 8,120,1801.697,23.34851509785777,Time limit reached,53146
+9,120,1800.,Inf,Time limit reached,Inf
 10,120,1800.843,4.3503059313033825,Time limit reached,42279
