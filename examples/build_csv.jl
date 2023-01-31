@@ -1686,11 +1686,11 @@ function build_grouped_csv(file_name, mode)
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
-            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
-            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
-            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
-            :time_afw => geo_mean => :AfwGeoMeanIntersection,
+            :timeBoscia => geo_mean => :BosciaGeoMeanIntersection,
+            :timeNoWs => geo_mean => :NoWsGeoMeanIntersection,
+            :timeNoAs => geo_mean => :NoAsGeoMeanIntersection,
+            :timeNoSs => geo_mean => :NoSsGeoMeanIntersection,
+            :timeAfw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
     elseif mode == "ran14x18"
@@ -1733,7 +1733,7 @@ function build_grouped_csv(file_name, mode)
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
-        gdf = innerjoin(gdf, df_intersection, on =[:num_v])
+        gdf = outerjoin(gdf, df_intersection, on =[:num_v])
     end
 
     # add geometric mean of intersected instances to main df
