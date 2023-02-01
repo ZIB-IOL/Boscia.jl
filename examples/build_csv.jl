@@ -1674,7 +1674,7 @@ function build_grouped_csv(file_name, mode)
 
     size_df = (size(gdf))
 
-    print(first, gdf,5)
+    # print(first, gdf,5)
 
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
