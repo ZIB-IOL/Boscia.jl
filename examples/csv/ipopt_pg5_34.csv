@@ -1,0 +1,16 @@
+seed,num_v,time,number_nodes,solution,termination
+1,4,1.800079e6,9171,Inf,Time limit reached
+2,4,1.800315e6,9355,Inf,Time limit reached
+3,4,1.800047e6,9219,Inf,Time limit reached
+1,5,1.800195e6,9351,Inf,Time limit reached
+2,5,1.800633e6,9229,Inf,Time limit reached
+3,5,1.800147e6,8857,Inf,Time limit reached
+1,6,1.800542e6,9637,Inf,Time limit reached
+2,6,1.800171e6,9327,Inf,Time limit reached
+3,6,1.800195e6,8771,Inf,Time limit reached
+1,7,1.800034e6,9183,Inf,Time limit reached
+2,7,1.800017e6,9269,Inf,Time limit reached
+3,7,1.800267e6,9247,Inf,Time limit reached
+1,8,1.800237e6,9763,Inf,Time limit reached
+2,8,1.800134e6,9773,Inf,Time limit reached
+3,8,1.800489e6,9523,Inf,Time limit reached
