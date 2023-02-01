@@ -1115,7 +1115,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
-        file_name = joinpath(@__DIR__, "csv/mip_lib_22433.csv")
+        file_name = joinpath(@__DIR__, "csv/mip_lib_22433_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     elseif mode == "neos5"
         # load boscia 
@@ -1232,7 +1232,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
-        file_name = joinpath(@__DIR__, "csv/mip_lib_neos5.csv")
+        file_name = joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     elseif mode == "pg5_34"
         # load boscia 
@@ -1349,7 +1349,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
-        file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34.csv")
+        file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     elseif mode == "ran14x18"
         # load boscia 
@@ -1417,7 +1417,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         # save csv 
-        file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8.csv")
+        file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     end
     return file_name
@@ -1674,6 +1674,8 @@ function build_grouped_csv(file_name, mode)
 
     size_df = (size(gdf))
 
+    print(first, gdf,5)
+
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
 
@@ -1767,11 +1769,7 @@ function build_grouped_csv(file_name, mode)
 
     size_df_after = size(gdf)
 
-<<<<<<< HEAD
-    if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "integer"
-=======
     if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18"
->>>>>>> 0621d524ae1838c78283255e6fb3a771d4914054
         if size_df == size_df_after
             gdf = innerjoin(gdf, df_intersection, on =[:dimension])
         else
@@ -1793,7 +1791,7 @@ function build_grouped_csv(file_name, mode)
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
-        gdf = innerjoin(gdf, df_intersection, on =[:num_v])
+        gdf = outerjoin(gdf, df_intersection, on =[:num_v])
     end
 
     # add geometric mean of intersected instances to main df
@@ -1803,7 +1801,7 @@ function build_grouped_csv(file_name, mode)
     # gdf[!,:NoSsGeoMeanIntersection] = df_intersection[!,:NoSsGeoMeanIntersection]
     # gdf[!,:AfwGeoMeanIntersection] = df_intersection[!,:AfwGeoMeanIntersection] 
 
-    print(first(gdf,5))
+    # print(first(gdf,5))
 
     # save csv
     if mode == "integer"
