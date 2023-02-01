@@ -26,7 +26,7 @@ include("BnB_Ipopt.jl")
 # timtab1             https://miplib.zib.de/instance_details_timtab1.html   (Takes LONG!)
 
 
-function mip_lib(seed=1, num_v=5; example, bo_mode)
+function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
     limit = 1800
 
     o = SCIP.Optimizer()
@@ -51,21 +51,34 @@ function mip_lib(seed=1, num_v=5; example, bo_mode)
     total_time_in_sec=result[:total_time_in_sec]
     status = result[:status]
     number_nodes = result[:number_nodes]
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+    end
     # if occursin("Optimal", result[:status])
     #     status = "OPTIMAL"
     # end
-    df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
-    if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
-    elseif bo_mode == "boscia"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
-    else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
-    end
-    if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
-    else 
-        CSV.write(file_name, df, append=true)
+
+    if full_callback
+        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "-" * string(num_v) * "_" *string(seed) *".csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
+        if bo_mode ==  "afw"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
+        elseif bo_mode == "boscia"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
+        else 
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
+        end
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
     end
 
     return f(x), x
@@ -171,7 +184,7 @@ function build_example_scip(example, num_v, seed, limit)
 end
 
 # BnB tree with Ipopt
-function mip_lib_ipopt(seed=1, num_v=5; example)
+function mip_lib_ipopt(seed=1, num_v=5, full_callback = false; example)
       # build tree
       bnb_model, expr = build_bnb_ipopt_model(seed, num_v, example)
       list_lb = []
@@ -192,14 +205,19 @@ function mip_lib_ipopt(seed=1, num_v=5; example)
       else
           status = "Optimal"
       end    
-  
-      df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, number_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
-      file_name = joinpath(@__DIR__,"csv/ipopt_" * example * ".csv")
-      if !isfile(file_name)
-          CSV.write(file_name, df, append=true, writeheader=true)
-      else 
-          CSV.write(file_name, df, append=true)
-      end
+    if full_callback
+        df = DataFrame(seed=seed, num_v=num_v,number_nodes = bnb_model.num_nodes, time=list_time, lowerBound = list_lb, upperBound = list_ub, termination=status,)
+        file_name =joinpath(@__DIR__,"csv/ipopt_" * example * "-" * string(num_v) * "_" * string(seed) *  ".csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, number_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+        file_name = joinpath(@__DIR__,"csv/ipopt_" * example *  ".csv")
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
+    end
 end
 
 # build tree 
