@@ -63,7 +63,7 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
 
     if full_callback
         df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls)
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "-" * string(num_v) * "_" *string(seed) *".csv")
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" *string(seed) *".csv")
         CSV.write(file_name, df, append=false)
     else
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
@@ -207,7 +207,7 @@ function mip_lib_ipopt(seed=1, num_v=5, full_callback = false; example)
       end    
     if full_callback
         df = DataFrame(seed=seed, num_v=num_v,number_nodes = bnb_model.num_nodes, time=list_time, lowerBound = list_lb, upperBound = list_ub, termination=status,)
-        file_name =joinpath(@__DIR__,"csv/ipopt_" * example * "-" * string(num_v) * "_" * string(seed) *  ".csv")
+        file_name =joinpath(@__DIR__,"csv/ipopt_" * example * "_" * string(num_v) * "_" * string(seed) *  ".csv")
         CSV.write(file_name, df, append=false)
     else
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, number_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
