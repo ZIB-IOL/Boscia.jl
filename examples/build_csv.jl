@@ -1794,14 +1794,27 @@ function build_grouped_csv(file_name, mode)
         gdf = outerjoin(gdf, df_intersection, on =[:num_v])
     end
 
-    # add geometric mean of intersected instances to main df
-    # gdf[!,:BosciaGeoMeanIntersection] = df_intersection[!,:BosciaGeoMeanIntersection]
-    # gdf[!,:NoWsGeoMeanIntersection] = df_intersection[!,:NoWsGeoMeanIntersection]
-    # gdf[!,:NoAsGeoMeanIntersection] = df_intersection[!,:NoAsGeoMeanIntersection]
-    # gdf[!,:NoSsGeoMeanIntersection] = df_intersection[!,:NoSsGeoMeanIntersection]
-    # gdf[!,:AfwGeoMeanIntersection] = df_intersection[!,:AfwGeoMeanIntersection] 
+    # intersection of Boscia, Ipopt, SCIP OA
+    df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
+    df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    if mode == "poisson"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :k, :Ns]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    end
 
-    # print(first(gdf,5))
+    # parse to int
+    df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
+    df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
+    df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+ 
+    if mode == "poisson"
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+    end
 
     # save csv
     if mode == "integer"
