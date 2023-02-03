@@ -2,19 +2,42 @@ using PyPlot
 using DataFrames
 using CSV
 
-# function plot_boscia_vs_scip(mode; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
-function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=false, ss=false, as=false, as_ss=false, boscia_methods=false)
-    if mode == "poisson"
+# function plot_boscia_vs_scip(example; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
+function plot_boscia_vs_scip(example, mode)
+    if mode == "boscia_methods"
+        boscia=true 
+        scip_oa=false
+        ipopt=false
+        afw=true
+        ss=true
+        as=true
+        as_ss=true
+        boscia_methods=true
+    elseif mode == "solvers"
+        boscia=true 
+        scip_oa=true
+        ipopt=true
+        afw=false
+        ss=false
+        as=false
+        as_ss=false
+        boscia_methods=false
+        if example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
+            ipopt = false
+        end
+    end
+    
+    if example == "poisson"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/poisson_non_grouped.csv")))
-    elseif mode == "sparse_reg"
+    elseif example == "sparse_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")))
-    elseif mode == "mixed_portfolio"
+    elseif example == "mixed_portfolio"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mixed_portfolio_non_grouped.csv")))
-    elseif mode == "sparse_log_reg"
+    elseif example == "sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")))
-    elseif mode == "tailed_sparse_reg"
+    elseif example == "tailed_sparse_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")))
-    elseif mode == "tailed_sparse_log_reg"
+    elseif example == "tailed_sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")))
     else
         error("wrong option")
@@ -41,6 +64,9 @@ function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=fa
     if boscia 
         df_boscia = copy(df)
         filter!(row -> !(row.termination_boscia == 0),  df_boscia)
+        if boscia & scip_oa & ipopt
+            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        end
         time_boscia = sort(df_boscia[!,"time_boscia"])
         push!(time_boscia, 1.1 * time_limit)
         ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
@@ -49,6 +75,9 @@ function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=fa
     if scip_oa     
         df_scip = copy(df)
         filter!(row -> !(row.termination_scip == 0),  df_scip)
+        if boscia & scip_oa & ipopt
+            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        end        
         time_scip = sort(df_scip[!,"time_scip"])
         push!(time_scip, 1.1 * time_limit)
         ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
@@ -57,6 +86,9 @@ function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=fa
     if ipopt
         df_ipopt = copy(df)
         filter!(row -> !(row.termination_ipopt == 0),  df_ipopt)
+        if boscia & scip_oa & ipopt
+            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
+        end
         time_ipopt = sort(df_ipopt[!,"time_ipopt"])
         push!(time_ipopt, 1.1 * time_limit)
         ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
@@ -99,19 +131,19 @@ function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=fa
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
-    if mode == "integer" || mode == "integer_50"
+    if example == "integer" || example == "integer_50"
         title("Pure-integer portfolio problem", loc="center")
-    elseif mode == "poisson"
+    elseif example == "poisson"
         title("Poisson regression", loc="center")
-    elseif mode == "sparse_reg"
+    elseif example == "sparse_reg"
         title("Sparse regression", loc="center")
-    elseif mode == "mixed_portfolio"
+    elseif example == "mixed_portfolio"
         title("Mixed-integer portfolio problem", loc="center")
-    elseif mode == "sparse_log_reg"
+    elseif example == "sparse_log_reg"
         title("Sparse log regression", loc="center")
-    elseif mode == "tailed_sparse_reg"
+    elseif example == "tailed_sparse_reg"
         title("Tailed sparse regression", loc="center")
-    elseif mode == "tailed_sparse_log_reg"
+    elseif example == "tailed_sparse_log_reg"
         title("Tailed sparse log regression", loc="center")
     end
 
@@ -126,9 +158,9 @@ function plot_boscia_vs_scip(mode; boscia=true, scip_oa=true, ipopt=true, afw=fa
     fig.tight_layout()
 
     if boscia_methods
-        file = "csv/" * mode * "_boscia_methods.pdf"
+        file = "csv/" * example * "_boscia_methods.pdf"
     else 
-        file = "csv/" * mode * ".pdf"
+        file = "csv/" * example * ".pdf"
     end
     savefig(file)
 end
