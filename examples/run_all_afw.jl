@@ -1,6 +1,6 @@
 include("poisson_reg.jl")
 
-bo_mode="afw"
+#=bo_mode="afw"
 for dimension in [50:20:100;]
    for seed in 1:10
        for ns in [0.1,1,5,10]
@@ -54,7 +54,7 @@ for dimension in [10:5:30;]
         end
     end
 end
-
+=#
 include("portfolio.jl")
 
 mode = "mixed"
@@ -88,7 +88,7 @@ for dimension in [20:5:120;]
         end
     end
 end
-
+#=
 include("sparse_log_reg.jl")    
 
 bo_mode = "afw"
@@ -127,3 +127,4 @@ for dimension in [15:1:30;]
        end
    end
 end
+=#
