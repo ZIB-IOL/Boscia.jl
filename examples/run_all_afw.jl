@@ -33,11 +33,11 @@ for dimension in [50:10:150;]
       end
   end
 end
-
+=#
 include("tailed_cardinality_sparse_log_reg.jl")
 
 bo_mode = "afw"
-for dimension in [10:5:30;]
+for dimension in [10:5:15;]
     for seed in 1:5
         @show seed, dimension
         for ns in [0.1,1.0]
@@ -54,7 +54,8 @@ for dimension in [10:5:30;]
         end
     end
 end
-=#
+
+#=
 include("portfolio.jl")
 
 mode = "mixed"
@@ -88,6 +89,7 @@ for dimension in [20:5:120;]
         end
     end
 end
+=#
 #=
 include("sparse_log_reg.jl")    
 
