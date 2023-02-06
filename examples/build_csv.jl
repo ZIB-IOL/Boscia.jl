@@ -34,7 +34,7 @@ function build_non_grouped_csv(mode)
             end
         end
 
-        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_afw[!,:termination]]
+        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_afw[!,:termination]]
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
@@ -51,7 +51,7 @@ function build_non_grouped_csv(mode)
             end
         end
 
-        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ws[!,:termination]]
+        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_ws[!,:termination]]
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
@@ -79,7 +79,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_as[!,:termination]]
+        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_as[!,:termination]]
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
@@ -95,7 +95,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ss[!,:termination]]
+        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_ss[!,:termination]]
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
@@ -1770,13 +1770,7 @@ function build_grouped_csv(file_name, mode)
     size_df_after = size(gdf)
 
     if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18"
-        if size_df == size_df_after
-            gdf = innerjoin(gdf, df_intersection, on =[:dimension])
-        else
-            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
-        end
-    elseif mode == "integer"
-        print(first(df_intersection,5))
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension])
     elseif mode == "poisson"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
@@ -1805,7 +1799,7 @@ function build_grouped_csv(file_name, mode)
             :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
             renamecols=false
         )
-    elseif mode == "mixed_portfolio"
+    elseif mode == "mixed_portfolio" || mode == "integer"
         df_intersection = combine(
             groupby(df_intersection, :dimension), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
@@ -1831,14 +1825,15 @@ function build_grouped_csv(file_name, mode)
         )
     end
 
+    print(first(gdf,5))
+    print(first(df_intersection,5))
+
     if size(df_intersection)[1] != 0
         # parse to int
         df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
         df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
         df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
     
-        print(first(df_intersection,5))
-
         if mode == "poisson"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
         elseif mode == "mixed_portfolio" || mode == "integer"

@@ -1,4 +1,4 @@
-seed,dimension,time,solution,termination,ncalls
+b,dimension,time,solution,termination,ncalls
 1,20,20.047,-2.485383514659386,primal>=tree.incumbent,10680
 2,20,8.544,-1.8589182762517051,primal>=tree.incumbent,4899
 3,20,8.041,0.8377493297643657,primal>=tree.incumbent,5812
