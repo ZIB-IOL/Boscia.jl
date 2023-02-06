@@ -1805,16 +1805,51 @@ function build_grouped_csv(file_name, mode)
             :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
             renamecols=false
         )
+    elseif mode == "mixed_portfolio"
+        df_intersection = combine(
+            groupby(df_intersection, :dimension), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k, :M, :varA]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "sparse_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
     end
 
-    # parse to int
-    df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
-    df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
-    df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
- 
-    if mode == "poisson"
-        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+    if size(df_intersection)[1] != 0
+        # parse to int
+        df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
+        df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
+        df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+    
+        print(first(df_intersection,5))
+
+        if mode == "poisson"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+        elseif mode == "mixed_portfolio" || mode == "integer"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
+        elseif mode == "sparse_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+        elseif mode == "sparse_log_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :varA])
+        end
     end
+
 
     # save csv
     if mode == "integer"
