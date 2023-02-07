@@ -200,7 +200,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                     @debug "found UB tightening $ub -> $new_bound"
                     node.local_bounds[j, :lessthan] = MOI.LessThan(new_bound)
                     num_tightenings += 1
-                    @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan].upper
+                    if haskey(tree.root.problem.integer_variable_bounds, (j, :lessthan))
+                        @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan]
+                    end
                     # if root node, also update global bounds
                     # if node.std.id == 1
                     #     tree.root.problem.integer_variable_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
