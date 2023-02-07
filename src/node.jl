@@ -162,6 +162,71 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     node.active_set = active_set
     lower_bound = primal - dual_gap
 
+    if tree.root.options[:dual_tightening]
+        grad = similar(x)
+        tree.root.problem.g(grad, x)
+        num_tightenings = 0
+        for j in tree.root.problem.integer_variables
+            lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), MOI.GreaterThan(-Inf))
+            ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), MOI.LessThan(Inf))
+            lb = get(node.local_bounds.lower_bounds, j, lb_global).lower
+            ub = get(node.local_bounds.upper_bounds, j, ub_global).upper
+            @assert lb >= lb_global.lower
+            @assert ub <= ub_global.upper
+            gj = grad[j]
+            safety_tolerance = 2.0
+            rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap
+            if gj > 0 && x[j] ≈ lb
+                Mlb = 0
+                bound_tightened = true
+                @debug "starting tightening lb"
+                while Mlb * gj <= rhs
+                    Mlb += 1
+                    if lb + Mlb -1 == ub
+                        bound_tightened = false
+                        break
+                    end
+                end
+                if bound_tightened
+                    new_bound = lb + Mlb - 1
+                    @debug "found UB tightening $ub -> $new_bound"
+                    node.local_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
+                    num_tightenings += 1
+                    # if root node, also update global bounds
+                    if node.std.id == 1
+                        tree.root.problem.integer_variable_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
+                    end
+                else
+                    @debug "failed to find tightening"
+                end
+            elseif gj < 0 && x[j] ≈ ub
+                Mub = 0
+                bound_tightened = true
+                @debug "starting tightening ub"
+                while -Mub * gj <= rhs
+                    Mub += 1
+                    if ub - Mub + 1 == lb
+                        bound_tightened = false
+                        break
+                    end
+                end
+                if bound_tightened
+                    new_bound = ub - Mub + 1
+                    @debug "found LB tightening $lb -> $new_bound"
+                    node.local_bounds[j, :lessthan] = MOI.LessThan(new_bound)
+                    num_tightenings += 1
+                    # if root node, also update global bounds
+                    if node.std.id == 1
+                        tree.root.problem.integer_variable_bounds[j, :lessthan] = MOI.LessThan(new_bound)
+                    end
+                else
+                    @debug "failed to find tightening"
+                end
+            end
+        end
+        @debug "# tightenings $num_tightenings"
+    end
+
     # check feasibility
     @assert is_linear_feasible(tree.root.problem.lmo, x)
 

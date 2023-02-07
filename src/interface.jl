@@ -44,6 +44,7 @@ function solve(
     use_postsolve=true,
     min_fw_iterations=5,
     max_iteration_post=10000,
+    dual_tightening=true,
     kwargs...,
 )
     if verbose
@@ -55,6 +56,7 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
+        println("\t Additional kwargs: $(collect(keys(kwargs)))")
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
@@ -142,6 +144,7 @@ function solve(
                 :max_fw_iter => max_fw_iter,
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :time_limit => time_limit,
+                :dual_tightening => dual_tightening,
             ),
         ),
         branch_strategy=branching_strategy,
