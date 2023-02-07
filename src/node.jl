@@ -50,9 +50,9 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x = Bonobo.get_relaxed_values(tree, node)
 
     # split active set
-    active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx)
+    active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
-        split_vertices_set!(node.discarded_vertices, tree, vidx, x)
+        split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
     @assert isapprox(sum(active_set_left.weights), 1.0)
     @assert sum(active_set_left.weights .< 0) == 0

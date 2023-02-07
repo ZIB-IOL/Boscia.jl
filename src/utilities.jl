@@ -109,13 +109,14 @@ Split an active set between left and right children.
 function split_vertices_set!(
     active_set::FrankWolfe.ActiveSet{T,R},
     tree,
-    var::Int;
+    var::Int,
+    local_bounds::IntegerBounds;
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
     right_as =
-        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))  # works..
+        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
@@ -161,7 +162,8 @@ function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
     tree,
     var::Int,
-    x;
+    x,
+    local_bounds::IntegerBounds;
     atol=1e-5,
     rtol=1e-5,
 ) where {T}

@@ -6,10 +6,11 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     return function fw_callback(state, active_set, args...)
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
-        if !is_linear_feasible(tree.root.problem.lmo, state.v)
-            @info "$v"
-        end
-        @assert is_linear_feasible(tree.root.problem.lmo, state.v)
+        # TODO deal with vertices becoming infeasible with conflicts
+        # if !is_linear_feasible(tree.root.problem.lmo, state.v)
+        #     @info "$(state.v)"
+        #     @assert is_linear_feasible(tree.root.problem.lmo, state.v)
+        # end
         @assert is_linear_feasible(tree.root.problem.lmo, state.x)
 
         push!(fw_iterations, state.t)

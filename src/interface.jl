@@ -14,7 +14,7 @@ dual_gap              - if this absolute dual gap is reached, the algorithm stop
 rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
 time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
                         it is possible that no feasible solution has been found yet.     
-print_iter            - encodes after how manz proccessed nodes the current node and solution status 
+print_iter            - encodes after how many proccessed nodes the current node and solution status 
                         is printed. Will always print if a new integral solution has been found. 
 dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
                         fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
@@ -265,7 +265,7 @@ function build_bnb_callback(
 
     headers = [
         " ",
-        "Iteration",
+        "Iter",
         "Open",
         "Bound",
         "Incumbent",
@@ -276,11 +276,11 @@ function build_bnb_callback(
         "FW (ms)",
         "LMO (ms)",
         "LMO (calls c)",
-        "FW (Its)",
-        "#ActiveSet",
-        "Discarded",
+        "FW (its)",
+        "#activeset",
+        "#shadow",
     ]
-    format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
+    format_string = "%1s %5i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %6i %8i %8i\n"
     print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
 
