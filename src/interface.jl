@@ -56,7 +56,7 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
-        println("\t Additional kwargs: $(collect(keys(kwargs)))")
+        println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
     v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
