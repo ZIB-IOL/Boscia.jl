@@ -201,7 +201,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                     node.local_bounds[j, :lessthan] = MOI.LessThan(new_bound)
                     num_tightenings += 1
                     if haskey(tree.root.problem.integer_variable_bounds, (j, :lessthan))
-                        @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan]
+                        @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan].upper
                     end
                     # if root node, also update global bounds
                     # if node.std.id == 1
