@@ -121,9 +121,10 @@ function split_vertices_set!(
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
+        valid_vertex = is_bound_feasible(local_bounds, a)
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
-        if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
+        if valid_vertex && a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as, tup)
             push!(left_del_indices, idx)
         elseif a[var] <= floor(x[var]) || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
@@ -143,7 +144,9 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    # renormalize active set and recompute new iterates 
+    @assert !isempty(active_set)
+    @assert !isempty(right_as)
+    # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
         FrankWolfe.compute_active_set_iterate!(active_set)
@@ -171,6 +174,9 @@ function split_vertices_set!(
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
+        if !is_bound_feasible(local_bounds, vertex)
+            continue
+        end
         if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
@@ -184,6 +190,20 @@ function split_vertices_set!(
     end
     deleteat!(discarded_set.storage, left_del_indices)
     return (discarded_set, right_as)
+end
+
+function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
+    for (idx, set) in bounds.lower_bounds
+        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            return false
+        end
+    end
+    for (idx, set) in bounds.upper_bounds
+        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            return false
+        end
+    end
+    return false
 end
 
 """
