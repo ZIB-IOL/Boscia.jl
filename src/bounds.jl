@@ -63,6 +63,14 @@ function Base.setindex!(ib::IntegerBounds, val, idx::Int, sense::Symbol)
     end
 end
 
+function Base.haskey(ib::IntegerBounds, (idx, sense))
+    if sense == :lessthan
+        haskey(ib.upper_bounds, idx)
+    else
+        haskey(ib.lower_bounds, idx)
+    end
+end
+
 #=function find_bound(ib::GlobalIntegerBounds, vidx)
     @inbounds for idx in eachindex(ib)
         if ib.indices[idx] == vidx

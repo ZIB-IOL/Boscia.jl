@@ -224,9 +224,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                     @debug "found LB tightening $lb -> $new_bound"
                     node.local_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
                     num_tightenings += 1
-                    if !(node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower)
-                        @show (node.local_bounds[j, :greaterthan].lower, tree.root.problem.integer_variable_bounds[j, :greaterthan].lower)
-                        error()
+                    if haskey(tree.root.problem.integer_variable_bounds, (j, :greaterthan))
+                        @assert node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower
                     end
                     # if root node, also update global bounds
                     # if node.std.id == 1
