@@ -95,6 +95,7 @@ const M1 = (A1 + A1') / 2
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )

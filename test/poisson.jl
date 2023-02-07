@@ -137,6 +137,7 @@ N = 5.0
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )
@@ -287,6 +288,7 @@ end
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
         branch_strategy=branching_strategy, #() ->
@@ -468,6 +470,7 @@ push!(groups, ((k-1)*group_size+1):pg)
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )
@@ -629,6 +632,7 @@ end
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
         branch_strategy=branching_strategy, #() ->

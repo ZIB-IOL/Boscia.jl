@@ -81,6 +81,7 @@ include("interface_test.jl")
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )
@@ -213,6 +214,7 @@ const diff = Random.rand(Bool, n) * 0.6 .+ 0.3
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )
@@ -304,6 +306,7 @@ end
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
         branch_strategy=branching_strategy, #() ->
@@ -490,6 +493,7 @@ const diff1 = rand(Bool, n1) * 0.8 .+ 1.1
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
     )
@@ -593,6 +597,7 @@ end
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
         branch_strategy=branching_strategy, #() ->
@@ -701,6 +706,7 @@ end
                 :dual_gap => 1e-6,
                 :max_fw_iter => 10000,
                 :min_node_fw_epsilon => 1e-6,
+                :dual_tightening => true,
             ),
         ),
         branch_strategy=branching_strategy, #() ->
