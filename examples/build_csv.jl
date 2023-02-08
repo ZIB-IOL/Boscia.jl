@@ -1825,9 +1825,6 @@ function build_grouped_csv(file_name, mode)
         )
     end
 
-    print(first(gdf,5))
-    print(first(df_intersection,5))
-
     if size(df_intersection)[1] != 0
         # parse to int
         df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
@@ -1836,12 +1833,14 @@ function build_grouped_csv(file_name, mode)
     
         if mode == "poisson"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+            gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
         elseif mode == "mixed_portfolio" || mode == "integer"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension])
         elseif mode == "sparse_reg"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
         elseif mode == "sparse_log_reg"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :varA])
+            gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
         end
     end
 
@@ -1858,6 +1857,7 @@ function build_grouped_csv(file_name, mode)
     elseif mode == "sparse_reg" 
         file_name = joinpath(@__DIR__, "csv/sparse_reg.csv")   
     elseif mode == "sparse_log_reg"
+        gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg.csv") 
     elseif mode == "tailed_cardinality"
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality.csv") 
