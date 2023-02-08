@@ -1,5 +1,12 @@
 using Statistics
 using LinearAlgebra
+using Random
+using SCIP
+using Boscia
+import MathOptInterface
+const MOI = MathOptInterface
+using Test
+using Bonobo
 
 # Constant parameters for the sparse regression
 # min norm(y-A β)² + λ_0 ∑ z_i + λ_2 ||β||²
@@ -15,6 +22,7 @@ const lambda_2 = 10.0 * rand(Float64);
 const A = rand(Float64, n0, p)
 const y = rand(Float64, n0)
 const M = 2 * var(A)
+using FrankWolfe
 
 @testset "Sparse Regression" begin
     o = SCIP.Optimizer()
@@ -68,14 +76,6 @@ const M = 2 * var(A)
         push!(global_bounds, (i, MOI.GreaterThan(-M)))
         push!(global_bounds, (i, MOI.LessThan(M)))
     end
-    time_lmo = Boscia.TimeTrackingLMO(lmo)
-
-    # Define the root of the tree
-    # we fix the direction so we can actually find a veriable to split on later!
-    direction = Vector{Float64}(undef, 2p)
-    Random.rand!(direction)
-    v = compute_extreme_point(time_lmo, direction)
-    vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     function f(x)
         return sum((y - A * x[1:p]) .^ 2) + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(x[1:p])^2
@@ -87,60 +87,8 @@ const M = 2 * var(A)
         )
         return storage
     end
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p, collect(p+1:2p), time_lmo, global_bounds)
 
-    # TO DO: how to do this elegantly
-    nodeEx = Boscia.FrankWolfeNode(
-        Bonobo.BnBNodeInfo(1, 0.0, 0.0),
-        active_set,
-        vertex_storage,
-        Boscia.IntegerBounds(),
-        1,
-        1e-3,
-        Millisecond(0),
-    )
-
-    # create tree
-    tree = Bonobo.initialize(;
-        traverse_strategy=Bonobo.BFS(),
-        Node=typeof(nodeEx),
-        root=(
-            problem=m,
-            current_node_id=Ref{Int}(0),
-            updated_incumbent=Ref{Bool}(false),
-            options=Dict{Symbol,Any}(
-                :verbose => false,
-                :dual_gap_decay_factor => 0.7,
-                :dual_gap => 1e-6,
-                :max_fw_iter => 10000,
-                :min_node_fw_epsilon => 1e-6,
-                :dual_tightening => true,
-            ),
-        ),
-    )
-    Bonobo.set_root!(
-        tree,
-        (
-            active_set=active_set,
-            discarded_vertices=vertex_storage,
-            local_bounds=Boscia.IntegerBounds(),
-            level=1,
-            fw_dual_gap_limit=1e-3,
-            fw_time=Millisecond(0),
-        ),
-    )
-
-    function build_FW_callback(tree)
-        return function fw_callback(state, active_set, args...) end
-    end
-
-    fw_callback = build_FW_callback(tree)
-    tree.root.options[:callback] = fw_callback
-    # Profile.init()
-    # ProfileView.@profview Bonobo.optimize!(tree)
-    Bonobo.optimize!(tree)
-    x = Bonobo.get_solution(tree)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
     # println("Solution: $(x[1:p])")
     @test sum(x[1+p:2p]) <= k
 end
