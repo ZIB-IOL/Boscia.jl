@@ -45,6 +45,7 @@ function solve(
     min_fw_iterations=5,
     max_iteration_post=10000,
     dual_tightening=true,
+    bnb_callback=nothing,
     kwargs...,
 )
     if verbose
@@ -73,8 +74,10 @@ function solve(
         push!(integer_variables, cidx.value)
         num_int += 1
     end
+    binary_variables = BitSet()
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
         push!(integer_variables, cidx.value)
+        push!(binary_variables, cidx.value)
         num_bin += 1
     end
 
@@ -109,6 +112,17 @@ function solve(
             push!(global_bounds, (idx, MOI.LessThan(s.upper)))
         end
         @assert !MOI.is_valid(lmo.o, cidx)
+    end
+    # adding binary bounds explicitly
+    for idx in binary_variables
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
+        end
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
+        end
     end
 
     direction = collect(1.0:n)
@@ -195,6 +209,7 @@ function solve(
         active_set_size_per_layer,
         discarded_set_size_per_layer,
         node_level,
+        bnb_callback,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -260,6 +275,7 @@ function build_bnb_callback(
     active_set_size_per_layer,
     discarded_set_size_per_layer,
     node_level,
+    baseline_callback,
 )
     iteration = 0
 
@@ -281,11 +297,10 @@ function build_bnb_callback(
         "#shadow",
     ]
     format_string = "%1s %5i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %6i %8i %8i\n"
-    print_callback = FrankWolfe.print_callback
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
-        print_callback(headers, format_string, print_header=true)
+        FrankWolfe.print_callback(headers, format_string, print_header=true)
     end
     return function callback(
         tree,
@@ -294,6 +309,7 @@ function build_bnb_callback(
         node_infeasible=false,
         lb_update=false,
     )
+        baseline_callback(tree, node, worse_than_incumbent=worse_than_incumbent, node_infeasible=node_infeasible, lb_update=lb_update)
         if !node_infeasible
             #update lower bound
             if lb_update == true
@@ -361,9 +377,9 @@ function build_bnb_callback(
                 tree.root.updated_incumbent[]
             )
                 if (mod(iteration, print_iter * 40) == 0)
-                    print_callback(headers, format_string, print_header=true)
+                    FrankWolfe.print_callback(headers, format_string, print_header=true)
                 end
-                print_callback(
+                FrankWolfe.print_callback(
                     (
                         incumbent_updated,
                         iteration,
@@ -436,26 +452,7 @@ function build_bnb_callback(
             result[:node_level] = node_level
 
             if verbose
-                print_callback = FrankWolfe.print_callback
-                headers = [
-                    " ",
-                    "Iteration",
-                    "Open",
-                    "Bound",
-                    "Incumbent",
-                    "Gap (abs)",
-                    "Gap (%)",
-                    "Time (s)",
-                    "Nodes/sec",
-                    "FW (ms)",
-                    "LMO (ms)",
-                    "LMO (calls c)",
-                    "FW (Its)",
-                    "#ActiveSet",
-                    "Discarded",
-                ]
-                format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
-                print_callback(headers, format_string, print_footer=true)
+                FrankWolfe.print_callback(headers, format_string, print_footer=true)
                 println()
             end
         end
@@ -582,3 +579,5 @@ end
 # no-op by default
 function free_model(o::MOI.AbstractOptimizer)   
 end
+
+⟩

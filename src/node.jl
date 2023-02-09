@@ -49,6 +49,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
 
+    @info "relaxed value $vidx $(x[vidx])"
+
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
@@ -130,8 +132,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         consI_list = MOI.get(
             tree.root.problem.lmo.lmo.o,
             MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
+        ) + MOI.get(
+            tree.root.problem.lmo.lmo.o,
+            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
         )
-        if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" && !isempty(consI_list)
+        if !isempty(consI_list)
             @error "Unreachable node! Active set is empty!"
         end
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
@@ -161,6 +166,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
+
+    for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
+        for (idx, set) in list
+            dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+            if dist > sqrt(eps())
+                @show MOI.is_valid(tree.root.problem.lmo.lmo.o, MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx),)
+                error("$dist, $idx, $set")
+            end
+        end
+    end
 
     if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
         grad = similar(x)

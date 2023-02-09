@@ -7,6 +7,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 using Test
 using Bonobo
+using FrankWolfe
 
 # Constant parameters for the sparse regression
 # min norm(y-A β)² + λ_0 ∑ z_i + λ_2 ||β||²
@@ -22,7 +23,6 @@ const lambda_2 = 10.0 * rand(Float64);
 const A = rand(Float64, n0, p)
 const y = rand(Float64, n0)
 const M = 2 * var(A)
-using FrankWolfe
 
 @testset "Sparse Regression" begin
     o = SCIP.Optimizer()
@@ -69,13 +69,6 @@ using FrankWolfe
         MOI.LessThan(k),
     )
     lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = Boscia.IntegerBounds()
-    for i in 1:p
-        push!(global_bounds, (i + p, MOI.GreaterThan(0.0)))
-        push!(global_bounds, (i + p, MOI.LessThan(1.0)))
-        push!(global_bounds, (i, MOI.GreaterThan(-M)))
-        push!(global_bounds, (i, MOI.LessThan(M)))
-    end
 
     function f(x)
         return sum((y - A * x[1:p]) .^ 2) + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(x[1:p])^2
@@ -88,7 +81,7 @@ using FrankWolfe
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=100)
     # println("Solution: $(x[1:p])")
     @test sum(x[1+p:2p]) <= k
 end

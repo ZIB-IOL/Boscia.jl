@@ -8,18 +8,16 @@ Enum for the solving stage
     TIME_LIMIT_REACHED = 3
 end
 
+abstract type AbstractSimpleOptimizationProblem end
+
 """
 Represents an optimization problem of the form:
 ```
 min_x f(x)
-s.t.  A1 x <= b1
-      A2 x >= b2
-      A3 x == b3
-      x_j ∈ {0,1} ∀ j in binary_variables
+s.t.  x ∈ X (given by the LMO)
+      x_j ∈ Z ∀ j in integer_variables
 ```
 """
-abstract type AbstractSimpleOptimizationProblem end
-
 mutable struct SimpleOptimizationProblem{
     F,
     G,
