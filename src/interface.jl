@@ -531,7 +531,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
             else 
                 @warn "primal >= tree.incumbent"
             end
-            @warn "postsolve did not improve the solution"
+            @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
             x = tree.incumbent_solution.solution = tree.solutions[1].solution
         end

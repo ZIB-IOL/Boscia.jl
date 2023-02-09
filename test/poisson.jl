@@ -156,7 +156,7 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
     
-    x_,result = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy = branching_strategy)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy = branching_strategy)
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -256,8 +256,6 @@ push!(groups, ((k-1)*group_size+1):pg)
     end
    
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    #@show x
-    @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
 end

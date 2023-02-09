@@ -170,12 +170,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             if dist > 0.01
                 @warn "infeas x $dist"
             end
-            @show MOI.is_valid(tree.root.problem.lmo.lmo.o, MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx))
             for v_idx in eachindex(node.active_set)
                 dist_v = MOD.distance_to_set(MOD.DefaultDistance(), node.active_set.atoms[v_idx][idx], set)
                 if dist_v > 0.01
-                    @show (dist_v, idx, v_idx, node.active_set.atoms[v_idx][idx], set)
-                    @show node.active_set.atoms[v_idx]
                     error("vertex beginning")
                 end
             end
@@ -214,31 +211,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
-    linear_feas = is_linear_feasible(tree.root.problem.lmo, x)
-    for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
-        for (idx, set) in list
-            dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
-            if dist > 0.01
-                @show MOI.is_valid(tree.root.problem.lmo.lmo.o, MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx),)
-                for v_idx in eachindex(active_set)
-                    dist_v = MOD.distance_to_set(MOD.DefaultDistance(), active_set.atoms[v_idx][idx], set)
-                    if dist_v > 0.01
-                        @show (dist_v, idx, v_idx, active_set.atoms[v_idx][idx], set)
-                        @show active_set.atoms[v_idx]
-                        error("vertex")
-                    end
-                end
-                @error("infeasible but vertex okay")
-                compute_active_set_iterate!(active_set)
-                dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
-                if dist2 > 0.01
-                    error("$dist, $idx, $set")
-                else
-                    error("recovered")
-                end
-            end
-        end
-    end
 
     if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
         grad = similar(x)
@@ -250,10 +222,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             lb = get(node.local_bounds.lower_bounds, j, lb_global).lower
             ub = get(node.local_bounds.upper_bounds, j, ub_global).upper
             @assert lb >= lb_global.lower
-            if !(ub <= ub_global.upper)
-                @show ub
-                @show ub_global.upper
-            end
             @assert ub <= ub_global.upper
             if lb ≈ ub
                 # variable already fixed
@@ -316,9 +284,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # check feasibility
-    if !is_linear_feasible(tree.root.problem.lmo, x)
-        @show linear_feas
-        error()
+    @debug begin
+        if !is_linear_feasible(tree.root.problem.lmo, x)
+            error("linear feasibility")
+        end
     end
 
     # Found an upper bound?

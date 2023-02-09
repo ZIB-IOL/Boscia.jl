@@ -17,21 +17,12 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                     @assert MOI.is_valid(state.lmo.lmo.o, c_idx)
                     set2 = MOI.get(state.lmo.lmo.o, MOI.ConstraintSet(), c_idx)
                     if !(set == set2)
-                        @show (set, set2)
-                        @show get(list, idx, nothing)
-                        if set isa MOI.GreaterThan
-                            @show get(tree.global_bounds.lower_bounds, idx, nothing)
-                        else
-                            @show get(tree.global_bounds.upper_bounds, idx, nothing)
-                        end
                         MOI.set(lmo.lmo.o, MOI.ConstraintSet(), c_idx, set)
                         set3 = MOI.get(lmo.lmo.o, MOI.ConstraintSet(), c_idx)
                         @assert (set3 == set) "$((idx, set3, set))"
                     end
                 end
             end
-            @show state.d
-            @show state.tt
             @assert is_linear_feasible(tree.root.problem.lmo, state.v)
         end
         # @assert is_linear_feasible(tree.root.problem.lmo, state.x)
