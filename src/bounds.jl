@@ -108,9 +108,6 @@ function build_LMO(
             if haskey(global_bounds.lower_bounds, c_idx.value)
                 # change 
                 if haskey(node_bounds.lower_bounds, c_idx.value)
-                    if c_idx.value == 5
-                        @debug "Found key variable $(node_bounds.lower_bounds[c_idx.value])"
-                    end
                     MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, node_bounds.lower_bounds[c_idx.value])
                 else
                     # keep
