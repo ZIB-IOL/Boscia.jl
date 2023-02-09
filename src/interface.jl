@@ -309,7 +309,9 @@ function build_bnb_callback(
         node_infeasible=false,
         lb_update=false,
     )
-        baseline_callback(tree, node, worse_than_incumbent=worse_than_incumbent, node_infeasible=node_infeasible, lb_update=lb_update)
+        if baseline_callback !== nothing
+            baseline_callback(tree, node, worse_than_incumbent=worse_than_incumbent, node_infeasible=node_infeasible, lb_update=lb_update)
+        end
         if !node_infeasible
             #update lower bound
             if lb_update == true
