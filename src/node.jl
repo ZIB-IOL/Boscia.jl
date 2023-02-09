@@ -191,7 +191,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # call blended_pairwise_conditional_gradient
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+    x, v, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
         tree.root.problem.g,
         tree.root.problem.lmo,
@@ -281,6 +281,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
         @debug "# tightenings $num_tightenings"
+    end
+
+    if tree.root.options[:global_dual_tightening] && node.std.id == 1
+        @debug "root node"
+        tree.root.problem.g(tree.root.root_gradient, x)
+        copyto!(tree.root_vertex)
     end
 
     # check feasibility

@@ -45,6 +45,7 @@ function solve(
     min_fw_iterations=5,
     max_iteration_post=10000,
     dual_tightening=true,
+    global_dual_tightening=true,
     bnb_callback=nothing,
     kwargs...,
 )
@@ -154,6 +155,9 @@ function solve(
             problem=m,
             current_node_id=Ref{Int}(0),
             updated_incumbent=Ref{Bool}(false),
+            root_gradient=similar(v),
+            root_relaxation=similar(v),
+            root_gap=Ref(-Inf),
             options=Dict{Symbol,Any}(
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_gap => dual_gap,
@@ -162,6 +166,7 @@ function solve(
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :time_limit => time_limit,
                 :dual_tightening => dual_tightening,
+                :global_dual_tightening => global_dual_tightening,
             ),
         ),
         branch_strategy=branching_strategy,
