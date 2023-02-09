@@ -95,6 +95,7 @@ function build_LMO(
     node_bounds::IntegerBounds,
     int_vars::Vector{Int},
 )
+    free_model(lmo.o)
     consLT_list =
         MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
     consGT_list =

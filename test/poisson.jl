@@ -3,8 +3,13 @@ using Random
 using Distributions
 using LinearAlgebra
 import HiGHS
-
-
+import SCIP
+import MathOptInterface
+const MOI = MathOptInterface
+import Boscia
+import Bonobo
+using FrankWolfe
+using Dates
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
@@ -12,7 +17,7 @@ import HiGHS
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p
 
-#Random.seed!(4)
+Random.seed!(5)
 
 n0 = 30
 p = n0
@@ -108,72 +113,11 @@ N = 5.0
         storage ./= norm(storage)
         return storage
     end
-    time_lmo = Boscia.TimeTrackingLMO(lmo)
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
-    m = Boscia.SimpleOptimizationProblem(f, grad!, 2p + 1, collect(p+1:2p), time_lmo, global_bounds)
 
-    # TO DO: how to do this elegantly
-    nodeEx = Boscia.FrankWolfeNode(
-        Bonobo.BnBNodeInfo(1, 0.0, 0.0),
-        active_set,
-        vertex_storage,
-        Boscia.IntegerBounds(),
-        1,
-        1e-3,
-        Millisecond(0),
-    )
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=500)
 
-    # create tree
-    tree = Bonobo.initialize(;
-        traverse_strategy=Bonobo.BFS(),
-        Node=typeof(nodeEx),
-        root=(
-            problem=m,
-            current_node_id=Ref{Int}(0),
-            updated_incumbent=Ref{Bool}(false),
-            options=Dict{Symbol,Any}(
-                :verbose => false,
-                :dual_gap_decay_factor => 0.7,
-                :dual_gap => 1e-6,
-                :max_fw_iter => 10000,
-                :min_node_fw_epsilon => 1e-6,
-                :dual_tightening => true,
-            ),
-        ),
-    )
-    Bonobo.set_root!(
-        tree,
-        (
-            active_set=active_set,
-            discarded_vertices=vertex_storage,
-            local_bounds=Boscia.IntegerBounds(),
-            level=1,
-            fw_dual_gap_limit=1e-3,
-            fw_time=Millisecond(0),
-        ),
-    )
 
-    function build_FW_callback(tree)
-        return function fw_callback(state, active_set, args...)
-            # print("Primal: $(state.primal)\n")
-            # print("Length of active set: $(length(active_set.weights))\n")
-        end
-    end
-
-    fw_callback = build_FW_callback(tree)
-    tree.root.options[:callback] = fw_callback
-    # Profile.init()
-    # ProfileView.@profview Bonobo.optimize!(tree)
-    Bonobo.optimize!(tree)
-    x = Bonobo.get_solution(tree)
-    # println("Solution: $(x[1:p])")
     @test sum(x[p+1:2p]) <= k
-    #println("Non zero entries:")
-    #for i in 1:p
-    #    if isapprox(x[i+p], 1.0, atol = 1e-5, rtol= 1e-5)
-    #        println("$(i)th entry: $(x[i])")
-    #    end
-    #end
 end
 
 @testset "Hybrid branching poisson sparse regression" begin
