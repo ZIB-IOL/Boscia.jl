@@ -15,6 +15,7 @@ using FrankWolfe
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
 #Random.seed!(4)
+
 n0 = 10;
 p = 5 * n0;
 k = ceil(n0 / 5);

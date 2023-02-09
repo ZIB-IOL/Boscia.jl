@@ -49,8 +49,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
 
-    @info "relaxed value $vidx $(x[vidx])"
-
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
@@ -127,7 +125,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     end
 
-
     if isempty(node.active_set)
         consI_list = MOI.get(
             tree.root.problem.lmo.lmo.o,
@@ -142,8 +139,39 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
     end
 
-    # time tracking FW 
+    # time tracking FW
+    active_set = node.active_set
     time_ref = Dates.now()
+    FrankWolfe.compute_active_set_iterate!(node.active_set)
+    x = node.active_set.x
+    for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
+        for (idx, set) in list
+            dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+            if dist > 0.01
+                @warn "infeas x $dist"
+            end
+            @show MOI.is_valid(tree.root.problem.lmo.lmo.o, MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx))
+            for v_idx in eachindex(node.active_set)
+                dist_v = MOD.distance_to_set(MOD.DefaultDistance(), node.active_set.atoms[v_idx][idx], set)
+                if dist_v > 0.01
+                    @show (dist_v, idx, v_idx, node.active_set.atoms[v_idx][idx], set)
+                    @show node.active_set.atoms[v_idx]
+                    error("vertex beginning")
+                end
+            end
+            if dist > 0.01
+                @warn "infeas x $dist"
+                @error("infeasible but vertex okay")
+                FrankWolfe.compute_active_set_iterate!(active_set)
+                dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+                if dist2 > 0.01
+                    error("$dist, $idx, $set")
+                else
+                    error("recovered")
+                end
+            end
+        end
+    end
 
     # call blended_pairwise_conditional_gradient
     x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
@@ -166,13 +194,28 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
     lower_bound = primal - dual_gap
-
+    linear_feas = is_linear_feasible(tree.root.problem.lmo, x)
     for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
         for (idx, set) in list
             dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
-            if dist > sqrt(eps())
+            if dist > 0.01
                 @show MOI.is_valid(tree.root.problem.lmo.lmo.o, MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx),)
-                error("$dist, $idx, $set")
+                for v_idx in eachindex(active_set)
+                    dist_v = MOD.distance_to_set(MOD.DefaultDistance(), active_set.atoms[v_idx][idx], set)
+                    if dist_v > 0.01
+                        @show (dist_v, idx, v_idx, active_set.atoms[v_idx][idx], set)
+                        @show active_set.atoms[v_idx]
+                        error("vertex")
+                    end
+                end
+                @error("infeasible but vertex okay")
+                compute_active_set_iterate!(active_set)
+                dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+                if dist2 > 0.01
+                    error("$dist, $idx, $set")
+                else
+                    error("recovered")
+                end
             end
         end
     end
@@ -253,7 +296,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # check feasibility
-    @assert is_linear_feasible(tree.root.problem.lmo, x)
+    if !is_linear_feasible(tree.root.problem.lmo, x)
+        @show linear_feas
+        error()
+    end
 
     # Found an upper bound?
     if is_integer_feasible(tree, x)
