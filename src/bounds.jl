@@ -167,7 +167,25 @@ function build_LMO(
         end
     end
 
-    #print(lmo.o)
+    for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
+        for (idx, set) in list
+            c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+            @assert MOI.is_valid(lmo.o, c_idx)
+            set2 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
+            if !(set == set2)
+                @show (set, set2)
+                @show get(list, idx, nothing)
+                if set isa MOI.GreaterThan
+                    @show get(global_bounds.lower_bounds, idx, nothing)
+                else
+                    @show get(global_bounds.upper_bounds, idx, nothing)
+                end
+                MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, set)
+                set3 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
+                @assert (set3 == set) "$((idx, set3, set))"
+            end
+        end
+    end
 
 end
 

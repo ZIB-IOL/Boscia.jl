@@ -579,5 +579,3 @@ end
 # no-op by default
 function free_model(o::MOI.AbstractOptimizer)   
 end
-
-⟩
