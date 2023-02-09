@@ -47,6 +47,30 @@ function Base.getindex(ib::IntegerBounds, idx::Int, sense::Symbol)
     end
 end
 
+function Base.get(ib::IntegerBounds, (idx, sense), default)
+    if sense == :lessthan
+        get(ib.upper_bounds, idx, default)
+    else
+        get(ib.lower_bounds, idx, default)
+    end
+end
+
+function Base.setindex!(ib::IntegerBounds, val, idx::Int, sense::Symbol)
+    if sense == :lessthan
+        ib.upper_bounds[idx] = val
+    else
+        ib.lower_bounds[idx] = val
+    end
+end
+
+function Base.haskey(ib::IntegerBounds, (idx, sense))
+    if sense == :lessthan
+        haskey(ib.upper_bounds, idx)
+    else
+        haskey(ib.lower_bounds, idx)
+    end
+end
+
 #=function find_bound(ib::GlobalIntegerBounds, vidx)
     @inbounds for idx in eachindex(ib)
         if ib.indices[idx] == vidx
@@ -68,9 +92,10 @@ ADD    - bound has to be added for this node because it does not exist in the gl
 function build_LMO(
     lmo::FrankWolfe.LinearMinimizationOracle,
     global_bounds::IntegerBounds,
-    nodeBounds::IntegerBounds,
+    node_bounds::IntegerBounds,
     int_vars::Vector{Int},
 )
+    free_model(lmo.o)
     consLT_list =
         MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
     consGT_list =
@@ -82,11 +107,8 @@ function build_LMO(
         if c_idx.value in int_vars
             if haskey(global_bounds.lower_bounds, c_idx.value)
                 # change 
-                if haskey(nodeBounds.lower_bounds, c_idx.value)
-                    if c_idx.value == 5
-                        @debug "Found key variable $(nodeBounds.lower_bounds[c_idx.value])"
-                    end
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.lower_bounds[c_idx.value])
+                if haskey(node_bounds.lower_bounds, c_idx.value)
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, node_bounds.lower_bounds[c_idx.value])
                 else
                     # keep
                     MOI.set(
@@ -108,8 +130,8 @@ function build_LMO(
         if c_idx.value in int_vars
             if haskey(global_bounds.upper_bounds, c_idx.value)
                 # change 
-                if haskey(nodeBounds.upper_bounds, c_idx.value)
-                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, nodeBounds.upper_bounds[c_idx.value])
+                if haskey(node_bounds.upper_bounds, c_idx.value)
+                    MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, node_bounds.upper_bounds[c_idx.value])
                 else
                     # keep
                     MOI.set(
@@ -132,18 +154,29 @@ function build_LMO(
     end
 
     # add node specific constraints
-    for key in keys(nodeBounds.lower_bounds)
+    for key in keys(node_bounds.lower_bounds)
         if !haskey(global_bounds.lower_bounds, key)
-            MOI.add_constraint(lmo.o, MOI.VariableIndex(key), nodeBounds.lower_bounds[key])
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(key), node_bounds.lower_bounds[key])
         end
     end
-    for key in keys(nodeBounds.upper_bounds)
+    for key in keys(node_bounds.upper_bounds)
         if !haskey(global_bounds.upper_bounds, key)
-            MOI.add_constraint(lmo.o, MOI.VariableIndex(key), nodeBounds.upper_bounds[key])
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(key), node_bounds.upper_bounds[key])
         end
     end
 
-    #print(lmo.o)
+    for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
+        for (idx, set) in list
+            c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+            @assert MOI.is_valid(lmo.o, c_idx)
+            set2 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
+            if !(set == set2)
+                MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, set)
+                set3 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
+                @assert (set3 == set) "$((idx, set3, set))"
+            end
+        end
+    end
 
 end
 
