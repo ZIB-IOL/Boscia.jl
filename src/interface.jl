@@ -119,10 +119,13 @@ function solve(
         if !MOI.is_valid(lmo.o, cidx)
             MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
         end
+        @assert MOI.is_valid(lmo.o, cidx)
         cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
         if !MOI.is_valid(lmo.o, cidx)
             MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
         end
+        global_bounds[idx, :greaterthan] = MOI.GreaterThan(0.0)
+        global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
     end
 
     direction = collect(1.0:n)
