@@ -77,6 +77,26 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
+    for v in active_set_left.atoms
+        if !(v[vidx] <= floor(x[vidx]))
+            error( "active_set_left")
+        end
+    end
+    for v in discarded_set_left.storage
+        if !(v[vidx] <= floor(x[vidx]))
+            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
+    for v in active_set_right.atoms
+        if !(v[vidx] >= ceil(x[vidx]))
+            error("active_set_right")
+        end
+    end
+    for v in discarded_set_right.storage
+        if !(v[vidx] >= ceil(x[vidx]))
+            error("storage right")
+        end
+    end
     # update the LMO
     node_info_left = (
         active_set=active_set_left,

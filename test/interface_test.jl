@@ -6,6 +6,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 import Boscia
 import FrankWolfe
+using Test
 
 # Testing of the interface function solve
 

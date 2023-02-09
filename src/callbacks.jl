@@ -30,6 +30,8 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                     end
                 end
             end
+            @show state.d
+            @show state.tt
             @assert is_linear_feasible(tree.root.problem.lmo, state.v)
         end
         # @assert is_linear_feasible(tree.root.problem.lmo, state.x)

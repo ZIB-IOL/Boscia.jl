@@ -73,15 +73,6 @@ N = 5.0
     MOI.add_constraint(o, b, MOI.LessThan(N))
     MOI.add_constraint(o, b, MOI.GreaterThan(-N))
     lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = Boscia.IntegerBounds()
-    for i in 1:p
-        push!(global_bounds, (p + i, MOI.GreaterThan(0.0)))
-        push!(global_bounds, (p + i, MOI.LessThan(1.0)))
-        push!(global_bounds, (i, MOI.GreaterThan(-N)))
-        push!(global_bounds, (i, MOI.LessThan(N)))
-    end
-    push!(global_bounds, (2p + 1, MOI.GreaterThan(-N)))
-    push!(global_bounds, (2p + 1, MOI.LessThan(N)))
 
     direction = Vector{Float64}(undef, 2p + 1)
     Random.rand!(direction)

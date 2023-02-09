@@ -121,26 +121,22 @@ function split_vertices_set!(
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
-        valid_vertex = is_bound_feasible(local_bounds, a)
+        if !is_bound_feasible(local_bounds, a)
+            @info "removed"
+            push!(left_del_indices, idx)
+            continue
+        end
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
-        if valid_vertex && a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
+        if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as, tup)
             push!(left_del_indices, idx)
         elseif a[var] <= floor(x[var]) || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
             # keep in left, don't add to right
         else #floor(x[var]) < a[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
-            consI_list = MOI.get(
-                tree.root.problem.lmo.lmo.o,
-                MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-            )
-            if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" &&
-               !isempty(consI_list)
-                @warn "Attention! Vertex in the middle."
-            end
+            @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
-
         end
     end
     deleteat!(active_set, left_del_indices)
@@ -175,6 +171,7 @@ function split_vertices_set!(
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
         if !is_bound_feasible(local_bounds, vertex)
+            push!(left_del_indices, idx)
             continue
         end
         if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
@@ -185,6 +182,7 @@ function split_vertices_set!(
             # keep in left, don't add to right
         else #floor(x[var]) < vertex[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
+            @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
         end
     end
@@ -203,7 +201,7 @@ function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
             return false
         end
     end
-    return false
+    return true
 end
 
 """

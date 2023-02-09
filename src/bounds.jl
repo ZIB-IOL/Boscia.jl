@@ -175,6 +175,7 @@ function build_LMO(
             set2 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
             if !(set == set2)
                 @show (set, set2)
+                @show lmo.o.binbounds[MOI.VariableIndex(idx)]
                 @show get(list, idx, nothing)
                 if set isa MOI.GreaterThan
                     @show get(global_bounds.lower_bounds, idx, nothing)
@@ -182,6 +183,7 @@ function build_LMO(
                     @show get(global_bounds.upper_bounds, idx, nothing)
                 end
                 MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, set)
+                @info "set $(set)"
                 set3 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
                 @assert (set3 == set) "$((idx, set3, set))"
             end
