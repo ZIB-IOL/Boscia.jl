@@ -81,7 +81,7 @@ const M = 2 * var(A)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=100)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=100, print_iter =1)
     # println("Solution: $(x[1:p])")
     @test sum(x[1+p:2p]) <= k
 end
