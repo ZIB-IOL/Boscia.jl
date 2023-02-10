@@ -348,7 +348,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
         for (j, (gj, ub)) in tree.root.global_tightening_root_info.upper_bounds
             lb = get(tree.root.problem.integer_variable_bounds.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
-            lb_new = get(tree.root.global_tightening_root_info.lower_bound, j, MOI.GreaterThan(-Inf)).lower
+            lb_new = get(tree.root.global_tightening_root_info.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
             lb = max(lb, lb_new)
             Mub = 0
             bound_tightened = true
