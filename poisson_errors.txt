@@ -1,5 +1,0 @@
-1 50 5.0 scip_oa : MathOptInterface.ResultIndexBoundsError{MathOptInterface.VariablePrimal}(MathOptInterface.VariablePrimal(1), 0)
-1 50 5.0 scip_oa : ErrorException("SCIP's solving was interrupted, but not by a user-given limit!")
-1 50 0.1 ipopt : StackOverflowError()
-1 50 5 scip_oa : MathOptInterface.UnsupportedConstraint{MathOptInterface.ScalarAffineFunction{Int64}, MathOptInterface.GreaterThan{Float64}}("")
-1 50 10 scip_oa : MathOptInterface.UnsupportedConstraint{MathOptInterface.ScalarAffineFunction{Int64}, MathOptInterface.GreaterThan{Float64}}("")
