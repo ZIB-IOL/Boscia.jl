@@ -178,6 +178,7 @@ function solve(
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
     node_level = Int[]
+    open_nodes = Int[]
     result = Dict{Symbol,Any}()
     lmo_calls_per_layer = Vector{Vector{Int}}()
     active_set_size_per_layer = Vector{Vector{Int}}()
@@ -200,6 +201,7 @@ function solve(
         active_set_size_per_layer,
         discarded_set_size_per_layer,
         node_level,
+        open_nodes
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -265,6 +267,7 @@ function build_bnb_callback(
     active_set_size_per_layer,
     discarded_set_size_per_layer,
     node_level,
+    open_nodes
 )
     iteration = 0
 
@@ -310,6 +313,7 @@ function build_bnb_callback(
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
             push!(node_level, node.level)
+            push!(open_nodes,length(tree.nodes))
             iteration += 1
             if tree.lb == -Inf && isempty(tree.nodes)
                 tree.lb = node.lb
@@ -439,6 +443,7 @@ function build_bnb_callback(
             result[:active_set_size_per_layer] = active_set_size_per_layer
             result[:discarded_set_size_per_layer] = discarded_set_size_per_layer
             result[:node_level] = node_level
+            result[:open_nodes] = open_nodes
 
             if verbose
                 print_callback = FrankWolfe.print_callback

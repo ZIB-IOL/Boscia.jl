@@ -12,3 +12,5 @@
 2 40 scip_oa : AssertionError("Boscia.is_linear_feasible(lmo_check.o, vars_scip)")
 5 55 scip_oa : AssertionError("Boscia.is_linear_feasible(lmo_check.o, vars_scip)")
 10 80 scip_oa : AssertionError("Boscia.is_linear_feasible(lmo_check.o, vars_scip)")
+4 105 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
+1 120 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
