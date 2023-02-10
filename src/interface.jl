@@ -155,9 +155,12 @@ function solve(
             problem=m,
             current_node_id=Ref{Int}(0),
             updated_incumbent=Ref{Bool}(false),
-            root_gradient=similar(v),
-            root_relaxation=similar(v),
-            root_gap=Ref(-Inf),
+            global_tightening_rhs=Ref(-Inf),
+            global_tightening_root_info = (
+                lower_bounds = Dict{Int, Tuple{Float64, MOI.GreaterThan{Float64}}}(),
+                upper_bounds = Dict{Int, Tuple{Float64, MOI.LessThan{Float64}}}(),
+            ),
+            global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_gap => dual_gap,
@@ -304,7 +307,7 @@ function build_bnb_callback(
         "#activeset",
         "#shadow",
     ]
-    format_string = "%1s %5i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %6i %8i %8i\n"
+    format_string = "%1s %5i %5i %14e %14e %14e %14e %14e %14e %12i %14i %14i %8i %8i %8i\n"
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose

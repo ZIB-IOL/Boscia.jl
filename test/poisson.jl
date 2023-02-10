@@ -18,7 +18,6 @@ using Test
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p
 
-
 n0 = 30
 p = n0
 
@@ -34,6 +33,7 @@ const y0 = map(1:n0) do idx
     a = dot(X0[idx, :], w0) + b0
     return rand(Distributions.Poisson(exp(a)))
 end
+
 N = 1.0
 
 @testset "Poisson sparse regression" begin
