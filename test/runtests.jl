@@ -45,7 +45,8 @@ include("poisson.jl")
 include("mean_risk.jl")
 include("time_limit.jl")
 
-
+n= 10
+const diff1 = rand(Bool, n) * 0.8 .+ 1.1
 @testset "Strong branching" begin
     function f(x)
         return sum((x .- diff1) .^ 2)
@@ -59,7 +60,7 @@ include("time_limit.jl")
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
-    x = MOI.add_variables(o, n1)
+    x = MOI.add_variables(o, n)
     for xi in x
         MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
         MOI.add_constraint(o, xi, MOI.LessThan(4.0))
@@ -67,12 +68,12 @@ include("time_limit.jl")
     end
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.LessThan(ub),
     )
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(lb),
     )
     lmo = FrankWolfe.MathOptLMO(o)
@@ -99,7 +100,7 @@ end
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
-    x = MOI.add_variables(o, n1)
+    x = MOI.add_variables(o, n)
     for xi in x
         MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
         MOI.add_constraint(o, xi, MOI.LessThan(4.0))
@@ -107,12 +108,12 @@ end
     end
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.LessThan(ub),
     )
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n1), x), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(lb),
     )
     lmo = FrankWolfe.MathOptLMO(o)
@@ -124,6 +125,8 @@ end
     branching_strategy =
         Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
     MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+
+    x,_,result = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy) 
     
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end

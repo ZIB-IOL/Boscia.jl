@@ -532,9 +532,9 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
         else 
             if primal < tree.incumbent && tree.lb > primal - dual_gap
-                @warn "tree.lb > primal - dual_gap"
+                @info "tree.lb > primal - dual_gap"
             else 
-                @warn "primal >= tree.incumbent"
+                @info "primal >= tree.incumbent"
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective

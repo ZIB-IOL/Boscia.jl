@@ -10,6 +10,7 @@ import Boscia
 import Bonobo
 using FrankWolfe
 using Dates
+using Test
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
@@ -257,7 +258,7 @@ push!(groups, ((k-1)*group_size+1):pg)
    
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[p+1:2pg]) <= k
 end
 
 
@@ -331,9 +332,9 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
 
-    x, _, result_strong_branching =
+    x, _, result =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
 
-        @test f(x) <= f(result[:raw_solution]) + 1e-6
-        @test sum(x[p+1:2p]) <= k
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
+    @test sum(x[p+1:2pg]) <= k
 end

@@ -78,23 +78,23 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
     for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]))
-            error( "active_set_left")
+        if !(v[vidx] <= floor(x[vidx]) + 1e-9) 
+            error( "active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in discarded_set_left.storage
-        if !(v[vidx] <= floor(x[vidx]))
+        if !(v[vidx] <= floor(x[vidx]) + 1e-9)
             error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in active_set_right.atoms
-        if !(v[vidx] >= ceil(x[vidx]))
-            error("active_set_right")
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+            error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in discarded_set_right.storage
-        if !(v[vidx] >= ceil(x[vidx]))
-            error("storage right")
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     # update the LMO
@@ -191,7 +191,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # call blended_pairwise_conditional_gradient
-    x, v, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         tree.root.problem.f,
         tree.root.problem.g,
         tree.root.problem.lmo,
@@ -283,10 +283,20 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @debug "# tightenings $num_tightenings"
     end
 
+    # store gradient, dual gap and relaxation
     if tree.root.options[:global_dual_tightening] && node.std.id == 1
         @debug "root node"
         tree.root.problem.g(tree.root.root_gradient, x)
-        copyto!(tree.root_vertex)
+        tree.root.root_gap[] = dual_gap
+        copyto!(tree.root.root_relaxation, x)
+    end
+
+    # new incumbent: check global fixings
+    if tree.root.options[:global_dual_tightening] && tree.root.updated_incumbent[]
+        grad = tree.root.root_gradient
+        num_tightenings = 0
+        for j in tree.root.problem.integer_variables
+        end
     end
 
     # check feasibility

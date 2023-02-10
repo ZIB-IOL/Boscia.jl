@@ -1,7 +1,16 @@
 using Statistics
+using Random
 using Distributions
 using LinearAlgebra
-
+import HiGHS
+import SCIP
+import MathOptInterface
+const MOI = MathOptInterface
+import Boscia
+import Bonobo
+using FrankWolfe
+using Dates
+using Test
 # min h(sqrt(y' * M * y)) - r' * y
 # s.t. a' * y <= b 
 #           y >= 0
@@ -42,13 +51,6 @@ const M1 = (A1 + A1') / 2
     )
     lmo = FrankWolfe.MathOptLMO(o)
 
-    # Define the root of the tree
-    # we fix the direction so we can actually find a veriable to split on later!
-    direction = Vector{Float64}(undef, n0)
-    Random.rand!(direction)
-    v = compute_extreme_point(time_lmo, direction)
-    vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
-
     function f(x)
         return Ω * (x' * M1 * x) - r' * x
     end
@@ -57,7 +59,7 @@ const M1 = (A1 + A1') / 2
         return storage
     end
 
-    x_,result = Boscia.solve(f, grad!, lmo, verbose)
+    x,_,result = Boscia.solve(f, grad!, lmo, verbose= true)
     
     @test dot(a,x) <= b + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
