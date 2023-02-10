@@ -45,7 +45,13 @@ function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
             x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
         elseif bo_mode == "boscia"
             x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
-        end             
+        elseif bo_mode = "local_tightening"
+            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
+        elseif bo_mode = "global_tightening"
+            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true) 
+        elseif bo_mode = "no_tightening"
+            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
+        end              
         # @show x, f(x)
         # @test dot(ai, x) <= bi + 1e-6
         # @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -54,10 +60,10 @@ function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
-        elseif bo_mode == "boscia"
+        elseif bo_mode == "boscia" || bo_mode = "local_tightening" || bo_mode = "global_tightening" || bo_mode = "no_tightening"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson.csv")
