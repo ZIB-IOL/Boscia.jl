@@ -59,7 +59,7 @@ function sparse_log_regression(seed=1, dimension=10, M=1.0, var_A=1; bo_mode="bo
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, M=M, time=total_time_in_sec, solution=result[:primal_objective], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, M=M, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality_sparse_log_reg.csv")
     elseif bo_mode == "boscia"
