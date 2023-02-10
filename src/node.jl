@@ -50,9 +50,9 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x = Bonobo.get_relaxed_values(tree, node)
 
     # split active set
-    active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx)
+    active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
-        split_vertices_set!(node.discarded_vertices, tree, vidx, x)
+        split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
     @assert isapprox(sum(active_set_left.weights), 1.0)
     @assert sum(active_set_left.weights .< 0) == 0
@@ -77,6 +77,26 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
+    for v in active_set_left.atoms
+        if !(v[vidx] <= floor(x[vidx]) + 1e-9) 
+            error( "active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
+    for v in discarded_set_left.storage
+        if !(v[vidx] <= floor(x[vidx]) + 1e-9)
+            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
+    for v in active_set_right.atoms
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+            error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
+    for v in discarded_set_right.storage
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
     # update the LMO
     node_info_left = (
         active_set=active_set_left,
@@ -101,6 +121,28 @@ end
 Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
+    # check if conflict between local bounds and global tightening
+    for (j, ub) in tree.root.global_tightenings.upper_bounds
+        if !haskey(node.local_bounds.lower_bounds, j)
+            continue
+        end
+        lb = node.local_bounds.lower_bounds[j]
+        if ub.upper < lb.lower
+            @debug "local lb $(lb.lower) conflicting with global tightening $(ub.upper)"
+            return NaN, NaN
+        end
+    end
+    for (j, lb) in tree.root.global_tightenings.lower_bounds
+        if !haskey(node.local_bounds.upper_bounds, j)
+            continue
+        end
+        ub = node.local_bounds.upper_bounds[j]
+        if ub.upper < lb.lower
+            @debug "local ub $(ub.upper) conflicting with global tightening $(lb.lower)"
+            return NaN, NaN
+        end
+    end
+
     # build up node LMO
     build_LMO(
         tree.root.problem.lmo,
@@ -125,13 +167,15 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     end
 
-
     if isempty(node.active_set)
         consI_list = MOI.get(
             tree.root.problem.lmo.lmo.o,
             MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
+        ) + MOI.get(
+            tree.root.problem.lmo.lmo.o,
+            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
         )
-        if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" && !isempty(consI_list)
+        if !isempty(consI_list)
             @error "Unreachable node! Active set is empty!"
         end
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
@@ -142,8 +186,36 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
     end
 
-    # time tracking FW 
+    # time tracking FW
+    active_set = node.active_set
     time_ref = Dates.now()
+    FrankWolfe.compute_active_set_iterate!(node.active_set)
+    x = node.active_set.x
+    for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
+        for (idx, set) in list
+            dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+            if dist > 0.01
+                @warn "infeas x $dist"
+            end
+            for v_idx in eachindex(node.active_set)
+                dist_v = MOD.distance_to_set(MOD.DefaultDistance(), node.active_set.atoms[v_idx][idx], set)
+                if dist_v > 0.01
+                    error("vertex beginning")
+                end
+            end
+            if dist > 0.01
+                @warn "infeas x $dist"
+                @error("infeasible but vertex okay")
+                FrankWolfe.compute_active_set_iterate!(active_set)
+                dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
+                if dist2 > 0.01
+                    error("$dist, $idx, $set")
+                else
+                    error("recovered")
+                end
+            end
+        end
+    end
 
     if !tree.root.options[:afw]
         # call blended_pairwise_conditional_gradient
@@ -181,8 +253,140 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     node.active_set = active_set
     lower_bound = primal - dual_gap
 
-    # check feasibility
-    @assert is_linear_feasible(tree.root.problem.lmo, x)
+    if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
+        grad = similar(x)
+        tree.root.problem.g(grad, x)
+        num_tightenings = 0
+        for j in tree.root.problem.integer_variables
+            lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), MOI.GreaterThan(-Inf))
+            ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), MOI.LessThan(Inf))
+            lb = get(node.local_bounds.lower_bounds, j, lb_global).lower
+            ub = get(node.local_bounds.upper_bounds, j, ub_global).upper
+            @assert lb >= lb_global.lower
+            @assert ub <= ub_global.upper
+            if lb ≈ ub
+                # variable already fixed
+                continue
+            end
+            gj = grad[j]
+            safety_tolerance = 2.0
+            rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap
+            if gj > 0 && ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
+                Mlb = 0
+                bound_tightened = true
+                @debug "starting tightening ub $(rhs)"
+                while Mlb * gj <= rhs
+                    Mlb += 1
+                    if lb + Mlb -1 == ub
+                        bound_tightened = false
+                        break
+                    end
+                end
+                if bound_tightened
+                    new_bound = lb + Mlb - 1
+                    @debug "found UB tightening $ub -> $new_bound"
+                    node.local_bounds[j, :lessthan] = MOI.LessThan(new_bound)
+                    num_tightenings += 1
+                    if haskey(tree.root.problem.integer_variable_bounds, (j, :lessthan))
+                        @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan].upper
+                    end
+                end
+            elseif gj < 0 && ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol)
+                Mub = 0
+                bound_tightened = true
+                @debug "starting tightening lb $(rhs)"
+                while -Mub * gj <= rhs
+                    Mub += 1
+                    if ub - Mub + 1 == lb
+                        bound_tightened = false
+                        break
+                    end
+                end
+                if bound_tightened
+                    new_bound = ub - Mub + 1
+                    @debug "found LB tightening $lb -> $new_bound"
+                    node.local_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
+                    num_tightenings += 1
+                    if haskey(tree.root.problem.integer_variable_bounds, (j, :greaterthan))
+                        @assert node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower
+                    end
+                end
+            end
+        end
+        @debug "# tightenings $num_tightenings"
+    end
+
+    # store gradient, dual gap and relaxation
+    if tree.root.options[:global_dual_tightening] && node.std.id == 1
+        @debug "storing root node info for tightening"
+        grad = similar(x)
+        tree.root.problem.g(grad, x)
+        safety_tolerance = 2.0
+        tree.root.global_tightening_rhs[] = -tree.root.problem.f(x) + safety_tolerance * dual_gap
+        for j in tree.root.problem.integer_variables
+            if haskey(tree.root.problem.integer_variable_bounds.upper_bounds, j)
+                ub = tree.root.problem.integer_variable_bounds[j, :lessthan]
+                if ≈(x[j], ub.upper, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] < 0
+                    tree.root.global_tightening_root_info.upper_bounds[j] = (grad[j], ub)
+                end
+            end
+            if haskey(tree.root.problem.integer_variable_bounds.lower_bounds, j)
+                lb = tree.root.problem.integer_variable_bounds[j, :greaterthan]
+                if ≈(x[j], lb.lower, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] > 0
+                    tree.root.global_tightening_root_info.lower_bounds[j] = (grad[j], lb)
+                end
+            end
+        end
+    end
+
+    # new incumbent: check global fixings
+    if tree.root.options[:global_dual_tightening] && tree.root.updated_incumbent[]
+        num_tightenings = 0
+        rhs = tree.incumbent + tree.root.global_tightening_rhs[]
+        @assert isfinite(rhs)
+        for (j, (gj, lb)) in tree.root.global_tightening_root_info.lower_bounds
+            ub = get(tree.root.problem.integer_variable_bounds.upper_bounds, j, MOI.LessThan(Inf)).upper
+            ub_new = get(tree.root.global_tightening_root_info.upper_bounds, j, MOI.LessThan(Inf)).upper
+            ub = min(ub, ub_new)
+            Mlb = 0
+            bound_tightened = true
+            lb = lb.lower
+            while Mlb * gj <= rhs
+                Mlb += 1
+                if lb + Mlb -1 == ub
+                    bound_tightened = false
+                    break
+                end
+            end
+            if bound_tightened
+                new_bound = lb + Mlb - 1
+                @debug "found global UB tightening $ub -> $new_bound"
+                tree.root.global_tightenings.upper_bounds[j] = MOI.LessThan(new_bound)
+                num_tightenings += 1
+            end
+        end
+        for (j, (gj, ub)) in tree.root.global_tightening_root_info.upper_bounds
+            lb = get(tree.root.problem.integer_variable_bounds.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
+            lb_new = get(tree.root.global_tightening_root_info.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
+            lb = max(lb, lb_new)
+            Mub = 0
+            bound_tightened = true
+            ub = ub.upper
+            while -Mub * gj <= rhs
+                Mub += 1
+                if ub - Mub + 1 == lb
+                    bound_tightened = false
+                    break
+                end
+            end
+            if bound_tightened
+                new_bound = ub - Mub + 1
+                @debug "found global LB tightening $lb -> $new_bound"
+                tree.root.global_tightenings.lower_bounds[j] = MOI.GreaterThan(new_bound)
+                num_tightenings += 1
+            end
+        end
+    end
 
     # Found an upper bound?
     if is_integer_feasible(tree, x)

@@ -6,13 +6,14 @@ import MathOptInterface
 const MOI = MathOptInterface
 import Boscia
 import FrankWolfe
+using Test
 
 # Testing of the interface function solve
 
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
-@testset "Interface - norm hyperbox" begin
+@testset "Norm hyperbox" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -37,56 +38,33 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     @test f(x) == f(result[:raw_solution])
 end
 
-
-# min h(sqrt(y' * M * y)) - r' * y
-# s.t. a' * y <= b 
-#           y >= 0
-#           y_i in Z for i in I
-
-n = 10
-const ri = rand(n)
-const ai = rand(n)
-const Ωi = rand(Float64)
-const bi = sum(ai)
-Ai = randn(n, n)
-Ai = Ai' * Ai
-const Mi = (Ai + Ai') / 2
-@assert isposdef(Mi)
-#=
-@testset "Interface - Buchheim et. al." begin
+@testset "Norm hyperbox - strong branching" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
-    x = MOI.add_variables(o,n)
-    I =  rand(1:n, Int64(floor(n/2)))  #collect(1:n)
-    for i in 1:n
-        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
-        if i in I
-            MOI.add_constraint(o, x[i], MOI.Integer())
-        end
-    end 
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.LessThan(bi))
-    #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai,x), 0.0), MOI.GreaterThan(minimum(ai)))
-    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),x), 0.0), MOI.GreaterThan(1.0))
+    x = MOI.add_variables(o, n)
+    for xi in x
+        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+        MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+    end
     lmo = FrankWolfe.MathOptLMO(o)
 
-    function h(x)
-        return Ωi
-    end
     function f(x)
-        return h(x) * (x' * Mi * x) - ri' * x
+        return sum(0.5 * (x .- diffi) .^ 2)
     end
     function grad!(storage, x)
-        storage.= 2 * Mi * x - ri
-        return storage
+        @. storage = x - diffi
     end
 
-    x, _,result = Boscia.solve(f, grad!, lmo, verbose = true)
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
+    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
 
-    @test sum(ai'* x) <= bi + 1e-3
-    @test f(x) <= f(result[:raw_solution])
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, branching_strategy = branching_strategy)
+
+    @test x == round.(diffi)
+    @test f(x) == f(result[:raw_solution])
 end
-=#
 
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2

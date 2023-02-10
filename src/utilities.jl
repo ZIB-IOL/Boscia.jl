@@ -109,17 +109,23 @@ Split an active set between left and right children.
 function split_vertices_set!(
     active_set::FrankWolfe.ActiveSet{T,R},
     tree,
-    var::Int;
+    var::Int,
+    local_bounds::IntegerBounds;
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
     right_as =
-        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))  # works..
+        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
+        if !is_bound_feasible(local_bounds, a)
+            @info "removed"
+            push!(left_del_indices, idx)
+            continue
+        end
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
         if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
@@ -129,20 +135,14 @@ function split_vertices_set!(
             # keep in left, don't add to right
         else #floor(x[var]) < a[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
-            consI_list = MOI.get(
-                tree.root.problem.lmo.lmo.o,
-                MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-            )
-            if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP" &&
-               !isempty(consI_list)
-                @warn "Attention! Vertex in the middle."
-            end
+            @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
-
         end
     end
     deleteat!(active_set, left_del_indices)
-    # renormalize active set and recompute new iterates 
+    @assert !isempty(active_set)
+    @assert !isempty(right_as)
+    # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
         FrankWolfe.compute_active_set_iterate!(active_set)
@@ -161,7 +161,8 @@ function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
     tree,
     var::Int,
-    x;
+    x,
+    local_bounds::IntegerBounds;
     atol=1e-5,
     rtol=1e-5,
 ) where {T}
@@ -169,6 +170,10 @@ function split_vertices_set!(
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
+        if !is_bound_feasible(local_bounds, vertex)
+            push!(left_del_indices, idx)
+            continue
+        end
         if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
@@ -177,11 +182,26 @@ function split_vertices_set!(
             # keep in left, don't add to right
         else #floor(x[var]) < vertex[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
+            @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
         end
     end
     deleteat!(discarded_set.storage, left_del_indices)
     return (discarded_set, right_as)
+end
+
+function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
+    for (idx, set) in bounds.lower_bounds
+        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            return false
+        end
+    end
+    for (idx, set) in bounds.upper_bounds
+        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            return false
+        end
+    end
+    return true
 end
 
 """

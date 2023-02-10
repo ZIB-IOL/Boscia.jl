@@ -14,7 +14,7 @@ dual_gap              - if this absolute dual gap is reached, the algorithm stop
 rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
 time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
                         it is possible that no feasible solution has been found yet.     
-print_iter            - encodes after how manz proccessed nodes the current node and solution status 
+print_iter            - encodes after how many proccessed nodes the current node and solution status 
                         is printed. Will always print if a new integral solution has been found. 
 dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
                         fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
@@ -47,6 +47,9 @@ function solve(
     use_postsolve=true,
     min_fw_iterations=5,
     max_iteration_post=10000,
+    dual_tightening=true,
+    global_dual_tightening=true,
+    bnb_callback=nothing,
     kwargs...,
 )
     if verbose
@@ -58,6 +61,7 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
+        println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
     println("Away FW: " * string(afw))
@@ -76,8 +80,10 @@ function solve(
         push!(integer_variables, cidx.value)
         num_int += 1
     end
+    binary_variables = BitSet()
     for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
         push!(integer_variables, cidx.value)
+        push!(binary_variables, cidx.value)
         num_bin += 1
     end
 
@@ -113,6 +119,20 @@ function solve(
         end
         @assert !MOI.is_valid(lmo.o, cidx)
     end
+    # adding binary bounds explicitly
+    for idx in binary_variables
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
+        end
+        @assert MOI.is_valid(lmo.o, cidx)
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
+        end
+        global_bounds[idx, :greaterthan] = MOI.GreaterThan(0.0)
+        global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
+    end
 
     direction = collect(1.0:n)
     v = compute_extreme_point(lmo, direction)
@@ -140,6 +160,12 @@ function solve(
             problem=m,
             current_node_id=Ref{Int}(0),
             updated_incumbent=Ref{Bool}(false),
+            global_tightening_rhs=Ref(-Inf),
+            global_tightening_root_info = (
+                lower_bounds = Dict{Int, Tuple{Float64, MOI.GreaterThan{Float64}}}(),
+                upper_bounds = Dict{Int, Tuple{Float64, MOI.LessThan{Float64}}}(),
+            ),
+            global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_gap => dual_gap,
@@ -149,7 +175,9 @@ function solve(
                 :time_limit => time_limit,
                 :warmstart_active_set => warmstart_active_set,
                 :warmstart_shadow_set => warmstart_shadow_set,
-                :afw => afw
+                :afw => afw,
+                :dual_tightening => dual_tightening,
+                :global_dual_tightening => global_dual_tightening,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -201,7 +229,8 @@ function solve(
         active_set_size_per_layer,
         discarded_set_size_per_layer,
         node_level,
-        open_nodes
+        open_nodes,
+        bnb_callback,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -267,13 +296,14 @@ function build_bnb_callback(
     active_set_size_per_layer,
     discarded_set_size_per_layer,
     node_level,
-    open_nodes
+    open_nodes,
+    baseline_callback,
 )
     iteration = 0
 
     headers = [
         " ",
-        "Iteration",
+        "Iter",
         "Open",
         "Bound",
         "Incumbent",
@@ -284,16 +314,15 @@ function build_bnb_callback(
         "FW (ms)",
         "LMO (ms)",
         "LMO (calls c)",
-        "FW (Its)",
-        "#ActiveSet",
-        "Discarded",
+        "FW (its)",
+        "#activeset",
+        "#shadow",
     ]
-    format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
-    print_callback = FrankWolfe.print_callback
+    format_string = "%1s %5i %5i %14e %14e %14e %14e %14e %14e %12i %10i %14i %10i %8i %8i\n"
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
-        print_callback(headers, format_string, print_header=true)
+        FrankWolfe.print_callback(headers, format_string, print_header=true)
     end
     return function callback(
         tree,
@@ -302,6 +331,9 @@ function build_bnb_callback(
         node_infeasible=false,
         lb_update=false,
     )
+        if baseline_callback !== nothing
+            baseline_callback(tree, node, worse_than_incumbent=worse_than_incumbent, node_infeasible=node_infeasible, lb_update=lb_update)
+        end
         if !node_infeasible
             #update lower bound
             if lb_update == true
@@ -370,9 +402,9 @@ function build_bnb_callback(
                 tree.root.updated_incumbent[]
             )
                 if (mod(iteration, print_iter * 40) == 0)
-                    print_callback(headers, format_string, print_header=true)
+                    FrankWolfe.print_callback(headers, format_string, print_header=true)
                 end
-                print_callback(
+                FrankWolfe.print_callback(
                     (
                         incumbent_updated,
                         iteration,
@@ -446,26 +478,7 @@ function build_bnb_callback(
             result[:open_nodes] = open_nodes
 
             if verbose
-                print_callback = FrankWolfe.print_callback
-                headers = [
-                    " ",
-                    "Iteration",
-                    "Open",
-                    "Bound",
-                    "Incumbent",
-                    "Gap (abs)",
-                    "Gap (%)",
-                    "Time (s)",
-                    "Nodes/sec",
-                    "FW (ms)",
-                    "LMO (ms)",
-                    "LMO (calls c)",
-                    "FW (Its)",
-                    "#ActiveSet",
-                    "Discarded",
-                ]
-                format_string = "%1s %10i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %10i %12i %10i\n"
-                print_callback(headers, format_string, print_footer=true)
+                FrankWolfe.print_callback(headers, format_string, print_footer=true)
                 println()
             end
         end
@@ -550,18 +563,11 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
         else 
             if primal < tree.incumbent && tree.lb > primal - dual_gap
-                @warn "tree.lb > primal - dual_gap"
-               # if status_string != "Time limit reached"
-                #    status_string = "tree.lb>primal-dual_gap"
-                #end
-                
+                @info "tree.lb > primal - dual_gap"
             else 
-                @warn "primal >= tree.incumbent"
-                #if status_string != "Time limit reached"
-                #    status_string = "primal>=tree.incumbent"
-                #end
+                @info "primal >= tree.incumbent"
             end
-            @warn "postsolve did not improve the solution"
+            @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
             x = tree.incumbent_solution.solution = tree.solutions[1].solution
         end
