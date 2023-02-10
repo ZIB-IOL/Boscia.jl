@@ -352,6 +352,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             lb = max(lb, lb_new)
             Mub = 0
             bound_tightened = true
+            ub = ub.upper
             while -Mub * gj <= rhs
                 Mub += 1
                 if ub - Mub + 1 == lb
