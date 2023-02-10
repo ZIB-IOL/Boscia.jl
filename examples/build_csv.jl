@@ -1740,13 +1740,14 @@ function build_grouped_csv(file_name, mode)
             renamecols=false
             )
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
+        print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
-            :timeBoscia => geo_mean => :BosciaGeoMeanIntersection,
-            :timeNoWs => geo_mean => :NoWsGeoMeanIntersection,
-            :timeNoAs => geo_mean => :NoAsGeoMeanIntersection,
-            :timeNoSs => geo_mean => :NoSsGeoMeanIntersection,
-            :timeAfw => geo_mean => :AfwGeoMeanIntersection,
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
+            :time_no_ws => geo_mean => :NoWsGeoMeanIntersection,
+            :time_no_as => geo_mean => :NoAsGeoMeanIntersection,
+            :time_no_ss => geo_mean => :NoSsGeoMeanIntersection,
+            :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
     elseif mode == "ran14x18"
@@ -1789,8 +1790,16 @@ function build_grouped_csv(file_name, mode)
     end
 
     # intersection of Boscia, Ipopt, SCIP OA
-    df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
-    df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "ran14x18"
+        df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    elseif mode == "ran14x18"
+        df_intersection = df
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    else
+        df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0),  df_intersection)
+    end
     if mode == "poisson"
         df_intersection = combine(
             groupby(df_intersection, [:dimension, :k, :Ns]), 
@@ -1823,14 +1832,37 @@ function build_grouped_csv(file_name, mode)
             :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
             renamecols=false
         )
+    elseif mode == "tailed_cardinality"
+        df_intersection = combine(
+            groupby(df_intersection, [:n0, :m0, :M]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :M,:varA]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+        df_intersection = combine(
+            groupby(df_intersection, [:num_v]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
     end
 
     if size(df_intersection)[1] != 0
         # parse to int
         df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
         df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
-        df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
-    
+        if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+            df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+        end
         if mode == "poisson"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
             gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
@@ -1841,6 +1873,13 @@ function build_grouped_csv(file_name, mode)
         elseif mode == "sparse_log_reg"
             gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :varA])
             gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
+        elseif mode == "tailed_cardinality"
+            gdf = outerjoin(gdf, df_intersection, on =[:n0, :m0, :M])   
+            gdf[!,:M] = convert.(Int64,round.(gdf[!,:M]))  
+        elseif mode == "tailed_cardinality_sparse_log_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
+        elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+            gdf = outerjoin(gdf, df_intersection, on =[:num_v])
         end
     end
 
@@ -1860,16 +1899,22 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg.csv") 
     elseif mode == "tailed_cardinality"
+        rename!(gdf, :n0 => :n)
+        rename!(gdf, :m0 => :m)
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality.csv") 
     elseif mode == "tailed_cardinality_sparse_log_reg"
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg.csv") 
     elseif mode == "22433"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_22433.csv") 
     elseif mode == "neos5"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5.csv") 
     elseif mode == "pg5_34"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34.csv") 
     elseif mode == "ran14x18"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18.csv") 
     else
         println("Specify file name!!")

@@ -1,4 +1,4 @@
-num_v,timeBoscia,terminationBoscia,timeScip,terminationScip,timeIpopt,terminationIpopt,optimalBoscia,optimalIpopt,optimalScip,NumInstances,terminationBosciaRel,terminationScipRel,terminationIpoptRel,BosciaGeoMeanIntersection
+numV,timeBoscia,terminationBoscia,timeScip,terminationScip,timeIpopt,terminationIpopt,optimalBoscia,optimalIpopt,optimalScip,NumInstances,terminationBosciaRel,terminationScipRel,terminationIpoptRel,BosciaGeoMeanIntersection
 4,1800,0,1800,0,1800,0,0,0,3,3,0,0,0,
 5,1800,0,1800,0,1800,0,3,0,0,3,0,0,0,
 6,1800,0,1800,0,1800,0,3,0,0,3,0,0,0,
