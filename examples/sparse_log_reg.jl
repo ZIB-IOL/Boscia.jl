@@ -51,11 +51,11 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mo
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
-    elseif bo_mode = "local_tightening"
+    elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
-    elseif bo_mode = "global_tightening"
+    elseif bo_mode == "global_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true) 
-    elseif bo_mode = "no_tightening"
+    elseif bo_mode == "no_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
     end             
 
