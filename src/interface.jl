@@ -307,7 +307,7 @@ function build_bnb_callback(
         "#activeset",
         "#shadow",
     ]
-    format_string = "%1s %5i %5i %14e %14e %14e %14e %14e %14e %12i %14i %14i %8i %8i %8i\n"
+    format_string = "%1s %5i %5i %14e %14e %14e %14e %14e %14e %12i %10i %14i %10i %8i %8i\n"
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose

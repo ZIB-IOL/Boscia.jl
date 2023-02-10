@@ -252,7 +252,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             gj = grad[j]
             safety_tolerance = 2.0
             rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap
-            if gj > 0 && x[j] ≈ lb
+            if gj > 0 && ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                 Mlb = 0
                 bound_tightened = true
                 @debug "starting tightening ub $(rhs)"
@@ -272,7 +272,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                         @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan].upper
                     end
                 end
-            elseif gj < 0 && x[j] ≈ ub
+            elseif gj < 0 && ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol)
                 Mub = 0
                 bound_tightened = true
                 @debug "starting tightening lb $(rhs)"
@@ -291,10 +291,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                     if haskey(tree.root.problem.integer_variable_bounds, (j, :greaterthan))
                         @assert node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower
                     end
-                    # if root node, also update global bounds
-                    # if node.std.id == 1
-                    #     tree.root.problem.integer_variable_bounds[j, :lessthan] = MOI.LessThan(new_bound)
-                    # end
                 end
             end
         end
@@ -311,14 +307,13 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         for j in tree.root.problem.integer_variables
             if haskey(tree.root.problem.integer_variable_bounds.upper_bounds, j)
                 ub = tree.root.problem.integer_variable_bounds[j, :lessthan]
-                # TODO check tolerance
-                if x[j] ≈ ub.upper && grad[j] < 0
+                if ≈(x[j], ub.upper, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] < 0
                     tree.root.global_tightening_root_info.upper_bounds[j] = (grad[j], ub)
                 end
             end
             if haskey(tree.root.problem.integer_variable_bounds.lower_bounds, j)
                 lb = tree.root.problem.integer_variable_bounds[j, :greaterthan]
-                if x[j] ≈ lb.lower && grad[j] > 0
+                if ≈(x[j], lb.lower, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] > 0
                     tree.root.global_tightening_root_info.lower_bounds[j] = (grad[j], lb)
                 end
             end
