@@ -75,7 +75,7 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
-        elseif bo_mode == "boscia" || bo_mode = "local_tightening" || bo_mode = "global_tightening" || bo_mode = "no_tightening"
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")

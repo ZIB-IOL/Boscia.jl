@@ -67,7 +67,7 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mo
     df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, x=[x], solution=result[:primal_objective], dual_gap = result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
     if bo_mode ==  "afw"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
-    elseif bo_mode == "boscia" || bo_mode = "local_tightening" || bo_mode = "global_tightening" || bo_mode = "no_tightening"
+    elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
     else 
         file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_log_regression.csv")
