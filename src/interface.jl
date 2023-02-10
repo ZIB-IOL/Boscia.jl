@@ -45,6 +45,7 @@ function solve(
     min_fw_iterations=5,
     max_iteration_post=10000,
     dual_tightening=true,
+    global_dual_tightening=true,
     bnb_callback=nothing,
     kwargs...,
 )
@@ -154,6 +155,12 @@ function solve(
             problem=m,
             current_node_id=Ref{Int}(0),
             updated_incumbent=Ref{Bool}(false),
+            global_tightening_rhs=Ref(-Inf),
+            global_tightening_root_info = (
+                lower_bounds = Dict{Int, Tuple{Float64, MOI.GreaterThan{Float64}}}(),
+                upper_bounds = Dict{Int, Tuple{Float64, MOI.LessThan{Float64}}}(),
+            ),
+            global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_gap => dual_gap,
@@ -162,6 +169,7 @@ function solve(
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :time_limit => time_limit,
                 :dual_tightening => dual_tightening,
+                :global_dual_tightening => global_dual_tightening,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -299,7 +307,7 @@ function build_bnb_callback(
         "#activeset",
         "#shadow",
     ]
-    format_string = "%1s %5i %10i %14e %14e %14e %14e %14e %14e %14i %14i %14i %6i %8i %8i\n"
+    format_string = "%1s %5i %5i %14e %14e %14e %14e %14e %14e %12i %10i %14i %10i %8i %8i\n"
     print_iter = get(tree.root.options, :print_iter, 100)
 
     if verbose
