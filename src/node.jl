@@ -107,7 +107,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
-        local_tightenings=0
+        local_tightenings=0,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -117,7 +117,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
-        local_tightenings=0
+        local_tightenings=0,
     )
     return [node_info_left, node_info_right]
 end
