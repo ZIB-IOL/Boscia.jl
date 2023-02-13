@@ -229,7 +229,7 @@ function solve(
         node_level,
         bnb_callback,
         global_tightenings,
-        local_tightenings
+        local_tightenings,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -297,7 +297,7 @@ function build_bnb_callback(
     node_level,
     baseline_callback,
     local_tightenings,
-    global_tightenings
+    global_tightenings,
 )
     iteration = 0
 
