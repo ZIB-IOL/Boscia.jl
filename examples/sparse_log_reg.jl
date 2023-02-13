@@ -30,7 +30,7 @@ include("BnB_Ipopt.jl")
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mode="boscia") 
+function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10, full_callback = false; bo_mode="boscia") 
     limit = 1800
 
     f, grad!, p = build_function(seed, dimension, var_A)
@@ -64,13 +64,27 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10; bo_mo
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, x=[x], solution=result[:primal_objective], dual_gap = result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-    if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
-    elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
-    else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_log_regression.csv")
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
+    end
+
+    if full_callback
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" *string(seed) *".csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=total_time_in_sec, x=[x], solution=result[:primal_objective], dual_gap = result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        if bo_mode ==  "afw"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression.csv")
+        else 
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_log_regression.csv")
+        end
     end
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true, delim=";")
