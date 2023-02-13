@@ -510,7 +510,8 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
 
-    if use_postsolve
+    only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
+    if use_postsolve && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
