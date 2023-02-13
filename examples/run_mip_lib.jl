@@ -1,7 +1,7 @@
 include("mip-examples.jl")
 
-example="ran14x18-disj-8"
-#=
+example="22433" #"ran14x18-disj-8" "pg5_34" "neos5"
+
 bo_mode = "as"
 for num_v in [4:1:8;]
     for seed in 1:3
@@ -60,7 +60,7 @@ for num_v in [4:1:8;]
             end
         end
     end
-end=#
+end
 #=
 bo_mode = "scip_oa"
 for num_v in [4:1:8;]
@@ -78,7 +78,7 @@ for num_v in [4:1:8;]
 end
 =#
 
-#=bo_mode = "boscia"
+bo_mode = "boscia"
 for num_v in [4:1:8;]
     for seed in 1:3
         @show seed, num_v
@@ -91,7 +91,7 @@ for num_v in [4:1:8;]
             end
         end
     end
-end=#
+end
 #=
 bo_mode = "ipopt"
 for num_v in [4:1:8;]#[4:1:8;]
@@ -128,6 +128,7 @@ for num_v in [7]
 end 
 =#
 
+
 # Full runs for images
 examples = ["22433", "pg5_34", "neos5", "ran14x18-disj-8"]
 
@@ -136,7 +137,7 @@ for example in examples
         seed = 1
         try
             mip_lib(seed, num_v, true; example=example, bo_mode ="boscia")
-            mip_lib_ipopt(seed, num_v, true; example=example)
+           # mip_lib_ipopt(seed, num_v, true; example=example)
         catch
             println(e)
             open("mip_lib_" * example * "_errors.txt","a") do io
