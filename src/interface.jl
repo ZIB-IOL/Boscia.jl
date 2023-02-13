@@ -143,6 +143,8 @@ function solve(
         1,
         1e-3,
         Millisecond(0),
+        0,
+        0,
     )
 
     Node = typeof(nodeEx)
@@ -185,6 +187,8 @@ function solve(
             level=1,
             fw_dual_gap_limit=fw_epsilon,
             fw_time=Millisecond(0),
+            global_tightenings=0,
+            local_tightenings=0,
         ),
     )
 
@@ -203,6 +207,9 @@ function solve(
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
     time_ref = Dates.now()
+    global_tightenings = Int[]
+    local_tightenings = Int[]
+
     bnb_callback = build_bnb_callback(
         tree,
         time_ref,
@@ -221,6 +228,8 @@ function solve(
         discarded_set_size_per_layer,
         node_level,
         bnb_callback,
+        global_tightenings,
+        local_tightenings,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -287,6 +296,8 @@ function build_bnb_callback(
     discarded_set_size_per_layer,
     node_level,
     baseline_callback,
+    local_tightenings,
+    global_tightenings,
 )
     iteration = 0
 
@@ -431,6 +442,9 @@ function build_bnb_callback(
                 push!(discarded_set_size_per_layer[node.level], discarded_set_size)
             end
 
+            # add tightenings
+            push!(global_tightenings, node.global_tightenings)
+            push!(local_tightenings, node.local_tightenings)
         end
         # update current_node_id
         if !Bonobo.terminated(tree)
@@ -463,6 +477,8 @@ function build_bnb_callback(
             result[:active_set_size_per_layer] = active_set_size_per_layer
             result[:discarded_set_size_per_layer] = discarded_set_size_per_layer
             result[:node_level] = node_level
+            result[:global_tightenings] = global_tightenings
+            result[:local_tightenings] = local_tightenings
 
             if verbose
                 FrankWolfe.print_callback(headers, format_string, print_footer=true)
