@@ -35,6 +35,8 @@ mutable struct FrankWolfeNode{
     level::Int
     fw_dual_gap_limit::Float64
     fw_time::Millisecond
+    global_tightenings::Int
+    local_tightenings::Int
 end
 
 """
@@ -45,7 +47,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
-
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
 
@@ -105,6 +106,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         level=node.level + 1,
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
+        global_tightenings=0,
+        local_tightenings=0
     )
     node_info_right = (
         active_set=active_set_right,
@@ -113,6 +116,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         level=node.level + 1,
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
+        global_tightenings=0,
+        local_tightenings=0
     )
     return [node_info_left, node_info_right]
 end
@@ -295,6 +300,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
         @debug "# tightenings $num_tightenings"
+        node.local_tightenings = num_tightenings
     end
 
     # store gradient, dual gap and relaxation
@@ -367,6 +373,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                 num_tightenings += 1
             end
         end
+        node.global_tightenings = num_tightenings
     end
 
     # Found an upper bound?
