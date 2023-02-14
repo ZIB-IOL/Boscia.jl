@@ -1596,12 +1596,19 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, :dimension), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
+            :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
+            :rel_gap_ipopt => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum, :optimal_ipopt => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
@@ -1610,12 +1617,19 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :k, :Ns]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
+            :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
+            :rel_gap_ipopt => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum, :optimal_ipopt => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
@@ -1624,13 +1638,19 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
-            :time_scip_tol => geo_mean, :termination_scip_tol => sum,
+            :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
+            :rel_gap_ipopt => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum, :optimal_ipopt => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
@@ -1639,12 +1659,19 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :p, :k, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
+            :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
+            :rel_gap_ipopt => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum, :optimal_ipopt => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
@@ -1653,11 +1680,17 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:n0, :m0, :M]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
+            :rel_gap_scip => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
@@ -1666,11 +1699,17 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
+            :rel_gap_boscia => mean
             :time_scip => geo_mean, :termination_scip => sum,
+            :rel_gap_scip => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
+            :rel_gap_no_ws => mean,
             :time_no_as => geo_mean, :termination_no_as => sum,
+            :rel_gap_no_as => mean,
             :time_no_ss => geo_mean, :termination_no_ss => sum,
+            :rel_gap_no_ss => mean,
             :time_afw => geo_mean, :termination_afw => sum,
+            :rel_gap_afw => mean,
             :optimal_boscia => sum,
             :optimal_scip => sum,
             nrow => :NumInstances, renamecols=false
