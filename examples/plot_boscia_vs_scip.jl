@@ -33,6 +33,8 @@ function plot_boscia_vs_scip(example, mode)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")))
     elseif example == "mixed_portfolio"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mixed_portfolio_non_grouped.csv")))
+    elseif example == "integer"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/portfolio_integer_non_grouped.csv")))
     elseif example == "sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")))
     elseif example == "tailed_sparse_reg"
@@ -76,7 +78,7 @@ function plot_boscia_vs_scip(example, mode)
         df_scip = copy(df)
         filter!(row -> !(row.termination_scip == 0),  df_scip)
         if boscia & scip_oa & ipopt
-            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+            filter!(row -> !(row.optimal_scip == 0),  df_scip)
         end        
         time_scip = sort(df_scip[!,"time_scip"])
         push!(time_scip, 1.1 * time_limit)

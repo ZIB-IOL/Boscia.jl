@@ -37,7 +37,7 @@ function build_non_grouped_csv(mode)
             end
         end
 
-        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_afw[!,:termination]]
+        termination_afw = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_afw[!,:termination]]
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
@@ -55,7 +55,7 @@ function build_non_grouped_csv(mode)
             end
         end
 
-        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ws[!,:termination]]
+        termination_no_ws = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_ws[!,:termination]]
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
@@ -85,7 +85,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_as[!,:termination]]
+        termination_no_as = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_as[!,:termination]]
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
@@ -102,7 +102,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>tree.incumbent+1e-2" ? 1 : 0 for row in df_no_ss[!,:termination]]
+        termination_no_ss = [row == "OPTIMAL" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_no_ss[!,:termination]]
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
@@ -1910,6 +1910,7 @@ function build_grouped_csv(file_name, mode)
             renamecols=false
             )
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
+        print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -1940,13 +1941,7 @@ function build_grouped_csv(file_name, mode)
     size_df_after = size(gdf)
 
     if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18"
-        if size_df == size_df_after
-            gdf = innerjoin(gdf, df_intersection, on =[:dimension])
-        else
-            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
-        end
-    elseif mode == "integer"
-        print(first(df_intersection,5))
+        gdf = outerjoin(gdf, df_intersection, on =[:dimension])
     elseif mode == "poisson"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "sparse_reg"
@@ -1966,8 +1961,16 @@ function build_grouped_csv(file_name, mode)
 
     #=
     # intersection of Boscia, Ipopt, SCIP OA
-    df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
-    df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "ran14x18"
+        df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    elseif mode == "ran14x18"
+        df_intersection = df
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+    else
+        df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0),  df_intersection)
+    end
     if mode == "poisson"
         df_intersection = combine(
             groupby(df_intersection, [:dimension, :k, :Ns]), 
@@ -1986,7 +1989,81 @@ function build_grouped_csv(file_name, mode)
  
     if mode == "poisson"
         gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+    elseif mode == "mixed_portfolio" || mode == "integer"
+        df_intersection = combine(
+            groupby(df_intersection, :dimension), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k, :M, :varA]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "sparse_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :p, :k]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "tailed_cardinality"
+        df_intersection = combine(
+            groupby(df_intersection, [:n0, :m0, :M]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "tailed_cardinality_sparse_log_reg"
+        df_intersection = combine(
+            groupby(df_intersection, [:dimension, :M,:varA]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+        df_intersection = combine(
+            groupby(df_intersection, [:num_v]), 
+            :time_boscia => geo_mean => :BosciaGeoMeanIntersectionSolvers,
+            :time_scip => geo_mean => :ScipGeoMeanIntersectionSolvers,
+            :time_ipopt => geo_mean => :IpoptGeoMeanIntersectionSolvers,
+            renamecols=false
+        )
     end
+
+    if size(df_intersection)[1] != 0
+        # parse to int
+        df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
+        df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
+        if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+            df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+        end
+        if mode == "poisson"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+            gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
+        elseif mode == "mixed_portfolio" || mode == "integer"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension])
+        elseif mode == "sparse_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k])
+        elseif mode == "sparse_log_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :p, :k, :M, :varA])
+            gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
+        elseif mode == "tailed_cardinality"
+            gdf = outerjoin(gdf, df_intersection, on =[:n0, :m0, :M])   
+            gdf[!,:M] = convert.(Int64,round.(gdf[!,:M]))  
+        elseif mode == "tailed_cardinality_sparse_log_reg"
+            gdf = outerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
+        elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+            gdf = outerjoin(gdf, df_intersection, on =[:num_v])
+        end
+    end
+
 
     # save csv
     if mode == "integer"
@@ -2000,18 +2077,25 @@ function build_grouped_csv(file_name, mode)
     elseif mode == "sparse_reg" 
         file_name = joinpath(@__DIR__, "csv/sparse_reg.csv")   
     elseif mode == "sparse_log_reg"
+        gdf[!,:k] = convert.(Int64,round.(gdf[!,:k]))
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg.csv") 
     elseif mode == "tailed_cardinality"
+        rename!(gdf, :n0 => :n)
+        rename!(gdf, :m0 => :m)
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality.csv") 
     elseif mode == "tailed_cardinality_sparse_log_reg"
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg.csv") 
     elseif mode == "22433"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_22433.csv") 
     elseif mode == "neos5"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5.csv") 
     elseif mode == "pg5_34"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34.csv") 
     elseif mode == "ran14x18"
+        rename!(gdf, :num_v => :numV)
         file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18.csv") 
     else
         println("Specify file name!!")
