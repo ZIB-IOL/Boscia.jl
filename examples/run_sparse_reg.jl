@@ -1,6 +1,6 @@
 include("sparse_reg.jl")
 
-bo_mode="boscia"
+#=bo_mode="boscia"
 for dimension in [30]
     for seed in 1:2
         @show seed, dimension
@@ -13,7 +13,7 @@ for dimension in [30]
             end
         end
     end
-end
+end=#
 
 bo_mode = "local_tightening"
 for dimension in [30]
