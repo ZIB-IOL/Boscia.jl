@@ -79,8 +79,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
     for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]) + 1e-9) 
-            error( "active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        if !(v[vidx] <= floor(x[vidx]) + 1e-9)
+            error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in discarded_set_left.storage
@@ -237,7 +237,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # update active set of the node
     node.active_set = active_set
-    lower_bound = primal - dual_gap
 
     if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
         grad = similar(x)
@@ -374,6 +373,27 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
         node.global_tightenings = num_tightenings
+    end
+
+    lower_bound = primal - dual_gap
+
+    μ = tree.root.options[:strong_convexity]
+    if μ > 0
+        @debug "Using strong convexity $μ"
+        strong_convexity_bound = lower_bound 
+        for j in tree.root.problem.integer_variables
+            if x[j] > ceil(x[j]) + 1e-6 || x[j] < floor
+                new_bound_left = lower_bound + μ/2 *  (x[j] - ceil(x[j]))^2
+                new_bound_right = lower_bound + μ/2 * (floor(x[j]) - x[j])^2
+                new_bound = min(new_bound_left, new_bound_right)
+                if new_bound > strong_convexity_bound
+                    strong_convexity_bound = new_bound
+                end
+            end
+        end
+        @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
+        @assert strong_convexity_bound > lower_bound
+        lower_bound = strong_convexity_bound
     end
 
     # Found an upper bound?

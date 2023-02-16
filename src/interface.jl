@@ -47,6 +47,7 @@ function solve(
     dual_tightening=true,
     global_dual_tightening=true,
     bnb_callback=nothing,
+    strong_convexity=0.0,
     kwargs...,
 )
     if verbose
@@ -172,6 +173,7 @@ function solve(
                 :time_limit => time_limit,
                 :dual_tightening => dual_tightening,
                 :global_dual_tightening => global_dual_tightening,
+                :strong_convexity => strong_convexity,
             ),
         ),
         branch_strategy=branching_strategy,
