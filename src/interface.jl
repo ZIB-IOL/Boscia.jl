@@ -192,7 +192,7 @@ function solve(
             fw_time=Millisecond(0),
             global_tightenings=0,
             local_tightenings=0,
-            dual_bound=-Inf,
+            dual_gap=-Inf,
         ),
     )
 
