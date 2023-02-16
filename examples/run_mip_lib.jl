@@ -1,7 +1,7 @@
 include("mip-examples.jl")
 
-example="pg5_34" #"ran14x18-disj-8" "pg5_34" "neos5" "22433"
-
+example="ran14x18-disj-8" #"ran14x18-disj-8" "pg5_34" "neos5" "22433"
+#=
 bo_mode = "boscia"
 for num_v in [4:1:8;]
     for seed in 1:3
@@ -75,7 +75,7 @@ for num_v in [4:1:8;]
             end
         end
     end
-end
+end=#
 
 #=
 bo_mode = "scip_oa"
@@ -133,7 +133,7 @@ end
 
 
 # Full runs for images
-#=
+
 examples = ["22433", "pg5_34", "neos5", "ran14x18-disj-8"]
 
 for example in examples
@@ -150,4 +150,4 @@ for example in examples
         end
     end
 end
-=#
+
