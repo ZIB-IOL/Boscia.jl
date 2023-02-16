@@ -37,6 +37,7 @@ mutable struct FrankWolfeNode{
     fw_time::Millisecond
     global_tightenings::Int
     local_tightenings::Int
+    dual_gap::Float64
 end
 
 """
@@ -49,6 +50,27 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
+    primal = tree.root.problem.f(x)
+    lower_bound_base = primal - node.dual_gap
+    @assert isfinite(lower_bound_base)
+
+    prune_left = false
+    prune_right = false
+    # if strong convexity, potentially remove one of two children
+    μ = tree.root.options[:strong_convexity]
+    if μ > 0
+        @debug "Using strong convexity $μ"
+        new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
+        new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
+        if new_bound_left >= tree.incumbent
+            prune_left = true
+        end
+        if new_bound_right >= tree.incumbent
+            prune_right = true
+        end
+    end
+
+    @assert !(prune_left && prune_right) "both sides should not be pruned"
 
     # split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
@@ -108,6 +130,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         fw_time=Millisecond(0),
         global_tightenings=0,
         local_tightenings=0,
+        dual_gap=NaN,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -118,8 +141,16 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         fw_time=Millisecond(0),
         global_tightenings=0,
         local_tightenings=0,
+        dual_gap=NaN,
     )
-    return [node_info_left, node_info_right]
+    nodes = if !prune_left && !prune_right
+        [node_info_left, node_info_right]
+    elseif prune_left
+        [node_info_right]
+    else
+        [node_info_left]
+    end
+    return nodes
 end
 
 """
@@ -234,6 +265,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     )
 
     node.fw_time = Dates.now() - time_ref
+    node.dual_gap = dual_gap
 
     # update active set of the node
     node.active_set = active_set
