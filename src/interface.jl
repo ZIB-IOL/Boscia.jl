@@ -136,7 +136,7 @@ function solve(
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
-    nodeEx = Boscia.FrankWolfeNode(
+    nodeEx = FrankWolfeNode(
         Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         active_set,
         vertex_storage,
@@ -146,6 +146,7 @@ function solve(
         Millisecond(0),
         0,
         0,
+        0.0,
     )
 
     Node = typeof(nodeEx)
