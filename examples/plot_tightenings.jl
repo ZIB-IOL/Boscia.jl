@@ -8,7 +8,14 @@ function plot(example)
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_reg_30_1.csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_reg_30_1.csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_reg_30_1.csv")))
+    elseif example == "sparse_log_reg"
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_log_regression_18_1-1_1.csv")))
+        df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_log_regression_18_1-1_1.csv")))
+        df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_log_regression_18_1-1_1.csv")))
+        df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_log_regression_18_1-1_1.csv")))
     end
+
+
 
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
