@@ -128,10 +128,10 @@ function split_vertices_set!(
         end
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
-        if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
+        if a[var] >= ceil(x[var]) - 1e-9 || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as, tup)
             push!(left_del_indices, idx)
-        elseif a[var] <= floor(x[var]) || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
+        elseif a[var] <= floor(x[var]) + 1e-9 || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
             # keep in left, don't add to right
         else #floor(x[var]) < a[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
@@ -193,11 +193,16 @@ end
 function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
     for (idx, set) in bounds.lower_bounds
         if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            @show idx
+            @show set
+            @show v[idx]
             return false
         end
     end
     for (idx, set) in bounds.upper_bounds
         if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+            @show set
+            @show v[idx]
             return false
         end
     end

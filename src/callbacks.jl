@@ -105,6 +105,12 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
         end
 
+        if tree.root.options[:time_limit] != Inf
+            if state.time >= tree.root.options[:time_limit] && tree.incumbent != Inf
+                return false
+            end
+        end
+
         return true
     end
 end
