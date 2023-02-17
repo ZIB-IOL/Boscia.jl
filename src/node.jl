@@ -59,13 +59,16 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # if strong convexity, potentially remove one of two children
     μ = tree.root.options[:strong_convexity]
     if μ > 0
+        @show node.id
         @debug "Using strong convexity $μ"
         new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
         new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
         if new_bound_left >= tree.incumbent
+            @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
             prune_left = true
         end
         if new_bound_right >= tree.incumbent
+            @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
     end
@@ -198,10 +201,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # set relative accurary for the IP solver
-    accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
-    if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
-        MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
-    end
+    # accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
+    # if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
+    #     MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
+    # end
 
     if isempty(node.active_set)
         consI_list = MOI.get(
@@ -413,18 +416,21 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if μ > 0
         @debug "Using strong convexity $μ"
         strong_convexity_bound = lower_bound 
+        num_fractional = 0
         for j in tree.root.problem.integer_variables
-            if x[j] > ceil(x[j]) + 1e-6 || x[j] < floor
-                new_bound_left = lower_bound + μ/2 *  (x[j] - ceil(x[j]))^2
-                new_bound_right = lower_bound + μ/2 * (floor(x[j]) - x[j])^2
+            if x[j] > floor(x[j]) + 1e-6 && x[j] < ceil(x[j]) - 1e-6
+                num_fractional += 1
+                new_bound_left = lower_bound + μ/2 *  (x[j] - floor(x[j]))^2
+                new_bound_right = lower_bound + μ/2 * (ceil(x[j]) - x[j])^2
                 new_bound = min(new_bound_left, new_bound_right)
                 if new_bound > strong_convexity_bound
+                    @debug "Found new bound Δ $(new_bound - strong_convexity_bound)"
                     strong_convexity_bound = new_bound
                 end
             end
         end
         @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-        @assert strong_convexity_bound > lower_bound
+        @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         lower_bound = strong_convexity_bound
     end
 
