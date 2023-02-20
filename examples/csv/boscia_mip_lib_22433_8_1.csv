@@ -1,2 +1,2 @@
 seed,num_v,time,lowerBound,upperBound,termination,LMOcalls
-1,8,77.0,-10736.706325443743,-10736.706325443743,Optimal (tree empty),4
+1,8,8933.0,-10737.565859791352,-10737.565859791352,Optimal (tree empty),5
