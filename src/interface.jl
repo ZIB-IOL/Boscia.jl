@@ -47,6 +47,7 @@ function solve(
     dual_tightening=true,
     global_dual_tightening=true,
     bnb_callback=nothing,
+    strong_convexity=0.0,
     kwargs...,
 )
     if verbose
@@ -135,7 +136,7 @@ function solve(
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
-    nodeEx = Boscia.FrankWolfeNode(
+    nodeEx = FrankWolfeNode(
         Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         active_set,
         vertex_storage,
@@ -145,6 +146,7 @@ function solve(
         Millisecond(0),
         0,
         0,
+        0.0,
     )
 
     Node = typeof(nodeEx)
@@ -172,6 +174,7 @@ function solve(
                 :time_limit => time_limit,
                 :dual_tightening => dual_tightening,
                 :global_dual_tightening => global_dual_tightening,
+                :strong_convexity => strong_convexity,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -189,6 +192,7 @@ function solve(
             fw_time=Millisecond(0),
             global_tightenings=0,
             local_tightenings=0,
+            dual_gap=-Inf,
         ),
     )
 
