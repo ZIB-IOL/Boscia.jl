@@ -132,13 +132,13 @@ end
 @testset "Sparse Regression Group" begin
     function f(x)
         return sum(abs2, y_g - A_g * x[1:p]) +
-        lambda_0_g * sum(x[p+1:2p]) +
+        lambda_0_g * norm(x[p+1:2p])^2 +
         lambda_2_g * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
             2 * (transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]),
-            lambda_0_g * ones(p),
+            2 * lambda_0_g * x[p+1:2p],
         )
         return storage
     end
@@ -158,8 +158,7 @@ end
     end
 
     # strong convexity
-    λmin = max(eigmin(A_g' * A_g), 0.0)
-    μ = λmin + 2 * lambda_2_g
+    μ = 2lambda_0_g
 
     lmo = build_sparse_lmo_grouped()
     x2, _, result2 = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon = 1e-3, strong_convexity=μ)

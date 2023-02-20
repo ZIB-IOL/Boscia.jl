@@ -59,7 +59,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # if strong convexity, potentially remove one of two children
     μ = tree.root.options[:strong_convexity]
     if μ > 0
-        @show node.id
         @debug "Using strong convexity $μ"
         new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
         new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
