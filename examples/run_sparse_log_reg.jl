@@ -7,7 +7,7 @@ for dimension in [18]
         @show seed, dimension
         try 
             k = Float64(dimension)
-            sparse_reg(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
@@ -23,7 +23,7 @@ for dimension in [18]
         @show seed, dimension
         try 
             k = Float64(dimension)
-            sparse_reg(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
         catch e
            println(e)
            open("sparse_reg_errors.txt","a") do io
@@ -39,7 +39,7 @@ for dimension in [18]
         @show seed, dimension
         try 
             k = Float64(dimension)
-            sparse_reg(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
         catch e
            println(e)
            open("sparse_reg_errors.txt","a") do io
@@ -55,7 +55,7 @@ for dimension in [18]
         @show seed, dimension
         try 
             k = Float64(dimension)
-            sparse_reg(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
