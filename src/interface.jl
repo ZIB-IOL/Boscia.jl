@@ -67,7 +67,6 @@ function solve(
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
-    time_lmo = Boscia.TimeTrackingLMO(lmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
@@ -82,6 +81,7 @@ function solve(
         push!(binary_variables, cidx.value)
         num_bin += 1
     end
+    time_lmo = Boscia.TimeTrackingLMO(lmo, integer_variables)
 
     if num_bin == 0 && num_int == 0
         error("No integer or binary variables detected! Please use an IP solver!")
@@ -132,6 +132,7 @@ function solve(
 
     direction = collect(1.0:n)
     v = compute_extreme_point(lmo, direction)
+    v[integer_variables] = round.(v[integer_variables])
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
@@ -559,6 +560,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
                 @info "tree.lb > primal - dual_gap"
             else 
                 @info "primal >= tree.incumbent"
+                @assert primal <= tree.incumbent + 1e-3 || isapprox(primal, tree.incumbent, atol =1e-6, rtol=1e-2)
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
