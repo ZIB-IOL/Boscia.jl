@@ -29,7 +29,7 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
         # load afw
-        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_portfolio.csv")))
+        df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_integer_portfolio.csv")))
         df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
         for row in eachrow(df_afw)
             if row.time > 1800
@@ -106,7 +106,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
-        df_no_ss[!, :rel_gap_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
+        df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :seed, :dimension])
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension])
@@ -279,7 +279,7 @@ function build_non_grouped_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
-        df_afw[!, :rel_gap_afw] = (df_bs[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
+        df_afw[!, :rel_gap_afw] = (df_afw[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :rel_gap_afw, :seed, :dimension])
 
         df = innerjoin(df, df_afw, on = [:seed, :dimension])
@@ -1053,6 +1053,7 @@ function build_non_grouped_csv(mode)
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
+
     elseif mode == "22433"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_22433.csv")))
@@ -1596,7 +1597,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, :dimension), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
@@ -1659,7 +1660,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :p, :k, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
@@ -1699,7 +1700,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :M, :varA]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
@@ -1792,15 +1793,20 @@ function build_grouped_csv(file_name, mode)
     gdf[!,:timeBoscia] = convert.(Int64,round.(gdf[!,:timeBoscia]))
     gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
 
-    gdf[!, :relGapBoscia] = convert.(Int64, round.(gdf[!, :relGapBoscia]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapBoscia])
+    gdf[non_inf_entries, :relGapBoscia] = convert.(Int64, round.(gdf[non_inf_entries, :relGapBoscia]*100))
     non_inf_entries = findall(isfinite, gdf[!, :relGapScip])
     gdf[non_inf_entries, :relGapScip] = convert.(Int64, round.(gdf[non_inf_entries, :relGapScip]*100))
 
     if mode != "ran14x18"
-        gdf[!, :relGapAfw] = convert.(Int64, round.(gdf[!, :relGapAfw]*100))
-        gdf[!, :relGapNoWs] = convert.(Int64, round.(gdf[!, :relGapNoWs]*100))
-        gdf[!, :relGapNoSs] = convert.(Int64, round.(gdf[!, :relGapNoSs]*100))
-        gdf[!, :relGapNoAs] = convert.(Int64, round.(gdf[!, :relGapNoAs]*100))
+        non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
+        gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
+        non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
+        gdf[non_inf_entries, :relGapNoWs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoWs]*100))
+        non_inf_entries = findall(isfinite, gdf[!, :relGapNoSs])
+        gdf[non_inf_entries, :relGapNoSs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoSs]*100))
+        non_inf_entries = findall(isfinite, gdf[!, :relGapNoAs])
+        gdf[non_inf_entries, :relGapNoAs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoAs]*100))
     end
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
