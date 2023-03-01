@@ -441,7 +441,7 @@ function build_non_grouped_csv(mode)
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
-        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws :seed, :dimension, :k, :Ns, :p])
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :Ns, :p])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :Ns, :p])
         # print(first(df,5))
@@ -1617,7 +1617,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :k, :Ns]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,
@@ -1793,7 +1793,8 @@ function build_grouped_csv(file_name, mode)
     gdf[!,:timeScip] = convert.(Int64,round.(gdf[!,:timeScip]))
 
     gdf[!, :relGapBoscia] = convert.(Int64, round.(gdf[!, :relGapBoscia]*100))
-    gdf[!, :relGapScip] = convert.(Int64, round.(gdf[!, :relGapScip]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapScip])
+    gdf[non_inf_entries, :relGapScip] = convert.(Int64, round.(gdf[non_inf_entries, :relGapScip]*100))
 
     if mode != "ran14x18"
         gdf[!, :relGapAfw] = convert.(Int64, round.(gdf[!, :relGapAfw]*100))
@@ -1998,7 +1999,6 @@ function build_grouped_csv(file_name, mode)
         gdf = outerjoin(gdf, df_intersection, on =[:num_v])
     end
 
-    #=
     # intersection of Boscia, Ipopt, SCIP OA
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "ran14x18"
         df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
@@ -2023,11 +2023,11 @@ function build_grouped_csv(file_name, mode)
     df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
     df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
     df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
-    end=#
+    end
     
  
     if mode == "poisson"
-        gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
+        # gdf = outerjoin(gdf, df_intersection, on =[:dimension, :k, :Ns])
     elseif mode == "mixed_portfolio" || mode == "integer"
         df_intersection = combine(
             groupby(df_intersection, :dimension), 
