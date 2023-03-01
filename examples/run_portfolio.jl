@@ -140,7 +140,7 @@ mode = "mixed"
 # end
 
 bo_mode="afw"
-for dimension in [20:5:120;]
+for dimension in [120:1:120;]
     for seed in 4:10
         @show seed, dimension
         try 
