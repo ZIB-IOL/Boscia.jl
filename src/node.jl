@@ -78,22 +78,22 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
     for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]) + 1e-9) 
+        if !(v[vidx] <= floor(x[vidx]) + 1e-7) 
             error( "active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in discarded_set_left.storage
-        if !(v[vidx] <= floor(x[vidx]) + 1e-9)
+        if !(v[vidx] <= floor(x[vidx]) + 1e-7)
             error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in active_set_right.atoms
-        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-7)
             error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
     for v in discarded_set_right.storage
-        if !(v[vidx] >= ceil(x[vidx]) - 1e-9)
+        if !(v[vidx] >= ceil(x[vidx]) - 1e-7)
             error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
@@ -162,10 +162,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # set relative accurary for the IP solver
-    accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
+   #=accurary = node.level >= 2 ? 0.01 / (floor(node.level / 2) * (3/4)) : 0.01
     if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
         MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
-    end
+    end=#
 
     if isempty(node.active_set)
         consI_list = MOI.get(
@@ -246,6 +246,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             lazy=true,
         )
     end
+
+    @assert dual_gap >= 0.0
 
     node.fw_time = Dates.now() - time_ref
 

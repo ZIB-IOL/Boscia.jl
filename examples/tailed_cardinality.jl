@@ -31,7 +31,7 @@ include("BnB_Ipopt.jl")
 # modified from
 # Tractable Continuous Approximations for Constraint Selection via Cardinality Minimization, Ahn, Gangammanavar†1, Troxell
 
-function sparse_regression(seed=1, dimension=10; bo_mode="boscia") 
+function sparse_regression(seed=1, dimension=10, full_callback= false; bo_mode="boscia") 
     limit = 1800
     f, grad!, n0, m0, τ, M = build_objective_gradient(seed, dimension)
     o = SCIP.Optimizer()
@@ -53,6 +53,12 @@ function sparse_regression(seed=1, dimension=10; bo_mode="boscia")
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+    elseif bo_mode == "local_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
+    elseif bo_mode == "global_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true) 
+    elseif bo_mode == "no_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
@@ -60,13 +66,27 @@ function sparse_regression(seed=1, dimension=10; bo_mode="boscia")
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, n0=n0, m0=m0, M=M, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-    if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
-    elseif bo_mode == "boscia"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
-    else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_tailed_cardinality.csv")
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
+    end
+
+    if full_callback
+        df = DataFrame(seed=seed, dimension=m0, n0=n0, M=M, time= time_list, lowerBound=lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality_" * string(dimension) * "_" *string(seed) *".csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, n0=n0, m0=m0, M=M, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        if bo_mode ==  "afw"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_tailed_cardinality.csv")
+        else 
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_tailed_cardinality.csv")
+        end
     end
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)

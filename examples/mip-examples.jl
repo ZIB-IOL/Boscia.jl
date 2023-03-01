@@ -29,13 +29,13 @@ include("BnB_Ipopt.jl")
 function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
     limit = 1800
 
-    o = SCIP.Optimizer()
-    lmo, f, grad! = build_example(o, example, num_v, seed)
-    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
+    #o = SCIP.Optimizer()
+    #lmo, f, grad! = build_example(o, example, num_v, seed)
+    #Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
-
+    
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
     elseif bo_mode == "as_ss"
@@ -45,7 +45,7 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter = 1)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
     elseif bo_mode == "global_tightening"
