@@ -316,7 +316,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                         end
 
                     end
-                elseif gj < 0
+                elseif isapprox(gj,0)
+                    num_potential_tightenings += 1
+                end
+            elseif ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol)        
+                if gj < 0
                     Mub = 0
                     bound_tightened = true
                     @debug "starting tightening lb $(rhs)"
@@ -336,9 +340,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                             @assert node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower
                         end
                     end
+                elseif isapprox(gj,0)
+                    num_potential_tightenings += 1
                 end
-            else
-                num_potential_tightenings += 1
             end
         end
         @debug "# tightenings $num_tightenings"
