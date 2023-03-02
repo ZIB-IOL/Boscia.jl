@@ -344,7 +344,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @debug "# tightenings $num_tightenings"
         node.local_tightenings = num_tightenings
         node.local_potential_tightenings = num_potential_tightenings
-        @show num_potential_tightenings
     end
 
     # store gradient, dual gap and relaxation

@@ -608,7 +608,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
             println("\t Total number of potential tightenings: ", sum(result[:local_potential_tightenings]))
         end
     end
-    
+
     # Reset LMO
     int_bounds = IntegerBounds()
     build_LMO(
