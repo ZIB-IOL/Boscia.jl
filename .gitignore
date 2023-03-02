@@ -24,3 +24,6 @@ docs/site/
 /Manifest.toml
 .DS_Store
 julia
+
+# Files for Slurm
+*.sbatch
