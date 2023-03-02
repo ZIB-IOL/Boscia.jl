@@ -593,8 +593,14 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
+        if tree.root.options[:dual_tightening]
+            println("\t Total number of global tightenings: ", sum(result[:global_tightenings]))
+            println("\t Global tightenings / node: ", round(sum(result[:global_tightenings])/length(result[:global_tightenings]), digits=2))
+            println("\t Total number of local tightenings: ", sum(result[:local_tightenings]))
+            println("\t Local tightenings / node: ", round(sum(result[:local_tightenings])/length(result[:local_tightenings]), digits=2))
+        end
     end
-
+    
     # Reset LMO
     int_bounds = IntegerBounds()
     build_LMO(
