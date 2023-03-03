@@ -1,5 +1,5 @@
 include("tailed_cardinality.jl")
-
+#=
 bo_mode="boscia"
 for dimension in [50:10:150;]
    for seed in 1:10
@@ -74,8 +74,9 @@ for dimension in [50:10:150;]
       end
   end
 end
+=#
 
-#=
+
 bo_mode = "local_tightening"
 for dimension in [50:10:150;]
   for seed in 1:10
@@ -122,7 +123,7 @@ for dimension in [50:10:150;]
       end
   end
 end
-=#
+
 
 # bo_mode = "scip_oa"
 # for dimension in [50:10:150;]
