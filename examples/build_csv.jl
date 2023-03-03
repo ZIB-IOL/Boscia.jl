@@ -418,7 +418,7 @@ function build_non_grouped_csv(mode)
         df[!,:Ns] = df_bs[!,:Ns]
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
         df[!,:lb_boscia] = lowerBounds
-        df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
+        df[!,:rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
         df[!,:termination_boscia] = termination_boscia
 
         # load afw
@@ -539,12 +539,29 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         # compute lower bound 
-        no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
-
-        lowerBounds = df[!, :lb_boscia]
-        df[!, :rel_gap_scip] = (df[!, :solution_scip] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df[!, :solution_scip]))
-        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df[!, :solution_ipopt]))
-        # println(df_ipopt[32:41, [:seed, :dimension, :Ns, :solution_ipopt, :rel_gap_ipopt, :lowerBounds]])
+        # lowerBounds = df[!, :lb_boscia]
+        # df[!, :rel_gap_scip] = (df[!, :solution_scip] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df[!, :solution_scip]))
+        # df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df[!, :solution_ipopt]))
+        rel_gap_scip = []
+        rel_gap_ipopt = []
+        for row in eachrow(df)
+            if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
+                push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_scip)
+                push!(rel_gap_scip, Inf)
+            else
+                push!(rel_gap_scip, (row.solution_scip - row.lb_boscia)/min(abs(row.solution_scip), abs(row.lb_boscia)))
+            end
+            if min(abs(row.solution_ipopt), abs(row.lb_boscia)) == 0
+                push!(rel_gap_ipopt, row.solution_ipopt - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_ipopt)
+                push!(rel_gap_ipopt, Inf)
+            else
+                push!(rel_gap_ipopt, (row.solution_ipopt - row.lb_boscia)/min(abs(row.solution_ipopt), abs(row.lb_boscia)))
+            end
+        end
+        df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
+        df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
