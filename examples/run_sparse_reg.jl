@@ -61,7 +61,7 @@ end
 #    include("run_tailed_cardinality.jl")
 # end
 
-bo_mode = "as"
+#=bo_mode = "as"
 for dimension in [15:1:30;]
    for seed in 1:10
        @show seed, dimension
@@ -120,7 +120,7 @@ for dimension in [15:1:30;]
        end
    end
 end
-
+=#
 #=bo_mode = "scip_oa"
 for dimension in [28:1:30;]
     for seed in 1:10
