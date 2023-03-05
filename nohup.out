@@ -12062,3 +12062,1565 @@ Search Statistics.
 	 LMO calls / node: 41.28971962616822
 
 
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+(seed, dimension) = (1, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 5)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 10)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 15)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (2, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (3, 20)
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+Away FW: true
+
+Away FW: false
+
+(seed, dimension) = (1, 5)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (2, 5)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (3, 5)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (1, 10)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (2, 10)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (3, 10)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (1, 15)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (2, 15)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (3, 15)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (1, 20)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (2, 20)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+(seed, dimension) = (3, 20)
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
+Away FW: true
+
