@@ -423,7 +423,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             if bound_tightened
                 new_bound = ub - Mub + 1
                 @debug "found global LB tightening $lb -> $new_bound"
-                tree.root.global_tightenings.lower_bounds[j] = MOI.GreaterThan(new_bound)
                 if haskey(tree.root.global_tightenings.lower_bounds,j)
                     if tree.root.global_tightenings.lower_bounds[j] != MOI.GreaterThan(new_bound)
                         num_tightenings +=1
@@ -431,6 +430,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                 else 
                     num_tightenings += 1
                 end
+                tree.root.global_tightenings.lower_bounds[j] = MOI.GreaterThan(new_bound)
             end
         end
         node.global_tightenings = num_tightenings
