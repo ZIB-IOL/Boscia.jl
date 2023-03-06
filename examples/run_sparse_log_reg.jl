@@ -1,5 +1,82 @@
 include("sparse_log_reg.jl")    
 
+#=
+bo_mode="boscia"
+for dimension in [18]
+    for seed in 1:2
+        @show seed, dimension
+        try 
+            k = Float64(dimension)
+            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("sparse_reg_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+=#
+
+bo_mode = "local_tightening"
+for dimension in [5:5:20;]
+    for seed in 1:3
+        @show seed, dimension
+        for ns in [0.1,1]
+            for var_A in [1,5]
+                try 
+                    k = Float64(dimension)
+                    sparse_log_regression(seed, dimension, ns, k, var_A, false; bo_mode=bo_mode)
+                catch e
+                    println(e)
+                    open("sparse_reg_errors.txt","a") do io
+                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+                    end
+                end
+            end
+       end
+   end
+end
+
+bo_mode = "global_tightening"
+for dimension in [5:5:20;]
+    for seed in 1:3
+        @show seed, dimension
+        for ns in [0.1,1]
+            for var_A in [1,5]
+                try 
+                    k = Float64(dimension)
+                    sparse_log_regression(seed, dimension, ns, k, var_A, false; bo_mode=bo_mode)
+                catch e
+                    println(e)
+                    open("sparse_reg_errors.txt","a") do io
+                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+                    end
+                end
+            end
+       end
+   end
+end
+
+bo_mode = "no_tightening"
+for dimension in [5:5:20;]
+    for seed in 1:3
+        @show seed, dimension
+        for ns in [0.1,1]
+            for var_A in [1,5]
+                try 
+                    k = Float64(dimension)
+                    sparse_log_regression(seed, dimension, ns, k, var_A, false; bo_mode=bo_mode)
+                catch e
+                    println(e)
+                    open("sparse_reg_errors.txt","a") do io
+                        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+                    end
+                end
+            end
+        end
+   end
+end
 
 bo_mode="boscia"
 for dimension in [16,17,18]

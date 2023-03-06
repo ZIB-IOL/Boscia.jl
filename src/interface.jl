@@ -50,6 +50,7 @@ function solve(
     dual_tightening=true,
     global_dual_tightening=true,
     bnb_callback=nothing,
+    strong_convexity=0.0,
     kwargs...,
 )
     if verbose
@@ -71,7 +72,6 @@ function solve(
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
-    time_lmo = Boscia.TimeTrackingLMO(lmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
@@ -86,6 +86,7 @@ function solve(
         push!(binary_variables, cidx.value)
         num_bin += 1
     end
+    time_lmo = Boscia.TimeTrackingLMO(lmo, integer_variables)
 
     if num_bin == 0 && num_int == 0
         error("No integer or binary variables detected! Please use an IP solver!")
@@ -136,11 +137,12 @@ function solve(
 
     direction = collect(1.0:n)
     v = compute_extreme_point(lmo, direction)
+    v[integer_variables] = round.(v[integer_variables])
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
-    nodeEx = Boscia.FrankWolfeNode(
+    nodeEx = FrankWolfeNode(
         Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         active_set,
         vertex_storage,
@@ -148,6 +150,10 @@ function solve(
         1,
         1e-3,
         Millisecond(0),
+        0,
+        0,
+        0,
+        0.0,
     )
 
     Node = typeof(nodeEx)
@@ -178,6 +184,7 @@ function solve(
                 :afw => afw,
                 :dual_tightening => dual_tightening,
                 :global_dual_tightening => global_dual_tightening,
+                :strong_convexity => strong_convexity,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -193,6 +200,10 @@ function solve(
             level=1,
             fw_dual_gap_limit=fw_epsilon,
             fw_time=Millisecond(0),
+            global_tightenings=0,
+            local_tightenings=0,
+            local_potential_tightenings=0, 
+            dual_gap=-Inf,
         ),
     )
 
@@ -212,6 +223,10 @@ function solve(
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
     time_ref = Dates.now()
+    global_tightenings = Int[]
+    local_tightenings = Int[]
+    local_potential_tightenings = Int[]
+
     bnb_callback = build_bnb_callback(
         tree,
         time_ref,
@@ -231,6 +246,9 @@ function solve(
         node_level,
         open_nodes,
         bnb_callback,
+        global_tightenings,
+        local_tightenings,
+        local_potential_tightenings,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -298,6 +316,9 @@ function build_bnb_callback(
     node_level,
     open_nodes,
     baseline_callback,
+    local_tightenings,
+    global_tightenings,
+    local_potential_tightenings,
 )
     iteration = 0
 
@@ -443,6 +464,10 @@ function build_bnb_callback(
                 push!(discarded_set_size_per_layer[node.level], discarded_set_size)
             end
 
+            # add tightenings
+            push!(global_tightenings, node.global_tightenings)
+            push!(local_tightenings, node.local_tightenings)
+            push!(local_potential_tightenings, node.local_potential_tightenings)
         end
         # update current_node_id
         if !Bonobo.terminated(tree)
@@ -476,6 +501,9 @@ function build_bnb_callback(
             result[:discarded_set_size_per_layer] = discarded_set_size_per_layer
             result[:node_level] = node_level
             result[:open_nodes] = open_nodes
+            result[:global_tightenings] = global_tightenings
+            result[:local_tightenings] = local_tightenings
+            result[:local_potential_tightenings] = local_potential_tightenings
 
             if verbose
                 FrankWolfe.print_callback(headers, format_string, print_footer=true)
@@ -510,7 +538,8 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         tree.root.problem.solving_stage = OPT_GAP_REACHED
     end
 
-    if use_postsolve
+    only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
+    if use_postsolve && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
@@ -566,6 +595,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
                 @info "tree.lb > primal - dual_gap"
             else 
                 @info "primal >= tree.incumbent"
+                @assert primal <= tree.incumbent + 1e-3 || isapprox(primal, tree.incumbent, atol =1e-6, rtol=1e-2)
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
@@ -598,6 +628,13 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
+        if tree.root.options[:dual_tightening]
+            println("\t Total number of global tightenings: ", sum(result[:global_tightenings]))
+            println("\t Global tightenings / node: ", round(sum(result[:global_tightenings])/length(result[:global_tightenings]), digits=2))
+            println("\t Total number of local tightenings: ", sum(result[:local_tightenings]))
+            println("\t Local tightenings / node: ", round(sum(result[:local_tightenings])/length(result[:local_tightenings]), digits=2))
+            println("\t Total number of potential tightenings: ", sum(result[:local_potential_tightenings]))
+        end
     end
 
     # Reset LMO

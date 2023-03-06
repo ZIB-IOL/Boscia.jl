@@ -34,7 +34,7 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
     #Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
-    lmo, f, grad! = build_example(o, example, num_v, seed)
+    lmo, f, grad!, max_norm = build_example(o, example, num_v, seed)
     
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
@@ -52,6 +52,8 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true) 
     elseif bo_mode == "no_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
+    elseif bo_mode == "strong_convexity"
+        x,_, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, strong_convexity = num_v/max_norm) 
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
@@ -75,7 +77,7 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
-        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode == "strong_convexity"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
@@ -167,7 +169,7 @@ function build_example(o, example, num_v, seed)
         end
     end
 
-    return lmo, f, grad!
+    return lmo, f, grad!, max_norm
 end
 
 function build_example_scip(example, num_v, seed, limit)
