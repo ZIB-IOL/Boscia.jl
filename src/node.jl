@@ -456,6 +456,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     lower_bound = primal - dual_gap
 
     μ = tree.root.options[:strong_convexity]
+    @show μ
     if μ > 0
         @debug "Using strong convexity $μ"
         strong_convexity_bound = lower_bound
@@ -465,11 +466,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                 num_fractional += 1
                 new_bound_left = lower_bound + μ/2 *  (x[j] - floor(x[j]))^2
                 new_bound_right = lower_bound + μ/2 * (ceil(x[j]) - x[j])^2
+                @show new_bound_left
+                @show new_bound_right
                 new_bound = min(new_bound_left, new_bound_right)
                 strong_convexity_bound += new_bound
             end
         end
         @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
+        @show num_fractional
+        @show strong_convexity_bound
+        @show lower_bound
         @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         lower_bound = strong_convexity_bound
     end
