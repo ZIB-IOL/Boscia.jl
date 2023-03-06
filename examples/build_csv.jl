@@ -1733,7 +1733,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:n0, :m0, :M]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_no_ws => geo_mean, :termination_no_ws => sum,
@@ -2025,7 +2025,7 @@ function build_grouped_csv(file_name, mode)
             renamecols=false
         )
     end
-        
+
     # parse to int
     df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
 
@@ -2050,7 +2050,7 @@ function build_grouped_csv(file_name, mode)
         sort!(gdf, [:dimension, :p, :M, :varA])
     elseif mode == "tailed_cardinality"
         gdf[!,:M] = convert.(Int64,round.(gdf[!,:M]))
-        gdf = innerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
+        gdf = outerjoin(gdf, df_intersection, on =[:n0, :m0, :M])
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = innerjoin(gdf, df_intersection, on =[:dimension, :M,:varA])
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
