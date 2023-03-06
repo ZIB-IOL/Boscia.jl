@@ -13,3 +13,5 @@
 10 80 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
 1 100 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
 10 115 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
+4 120 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")
+5 120 afw : AssertionError("is_linear_feasible(tree.root.problem.lmo, state.v)")

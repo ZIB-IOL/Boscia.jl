@@ -30,11 +30,9 @@ const MOI = MathOptInterface
 # a unique solution. See below for the exact realization
 
 n = 10
-alpha = 0.00
 
-const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
-
-@testset "Interface - 2-norm over hypercube" begin
+@testset "Interface - 2-norm over hypercube -- α = $alpha" for alpha in (0.0, 0.05)
+    diff_point = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -47,11 +45,11 @@ const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum(0.5 * (x .- diffw) .^ 2)
+        return 0.5 * sum((x .- diff_point) .^ 2)
     end
 
     function grad!(storage, x)
-        @. storage = x - diffw
+        @. storage = x - diff_point
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
@@ -59,7 +57,7 @@ const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
     # build optimal solution
     xopt = zeros(n)
     for i in 1:n
-        if diffw[i] > 0.5
+        if diff_point[i] > 0.5
             xopt[i] = 1
         end
     end
@@ -76,4 +74,8 @@ const diffw = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
     # test if number of nodes is still correct when stopping FW early
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, min_number_lower=5)
     @test result[:number_nodes] == 2^(n + 1) - 1
+
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose=true, strong_convexity=1.0)
+
+    @test f(x_strong) == f(x)
 end
