@@ -66,8 +66,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
                 continue
             end
             lower_bound_base += μ/2 * min(
-                μ/2 *  (x[j] - floor(x[j]))^2,
-                μ/2 * (ceil(x[j]) - x[j])^2,
+                (x[j] - floor(x[j]))^2,
+                (ceil(x[j]) - x[j])^2,
             )
         end
         new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
@@ -464,12 +464,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         for j in tree.root.problem.integer_variables
             if x[j] > floor(x[j]) + 1e-6 && x[j] < ceil(x[j]) - 1e-6
                 num_fractional += 1
-                new_bound_left = lower_bound + μ/2 *  (x[j] - floor(x[j]))^2
-                new_bound_right = lower_bound + μ/2 * (ceil(x[j]) - x[j])^2
-                @show new_bound_left
-                @show new_bound_right
-                new_bound = min(new_bound_left, new_bound_right)
-                strong_convexity_bound += new_bound
+                new_left_increment = μ/2 *  (x[j] - floor(x[j]))^2
+                new_right_increment = μ/2 * (ceil(x[j]) - x[j])^2
+                new_increment = min(new_left_increment, new_right_increment)
+                strong_convexity_bound += new_increment
             end
         end
         @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
