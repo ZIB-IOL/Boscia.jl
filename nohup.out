@@ -13624,3 +13624,570 @@ Away FW: true
 
 Away FW: true
 
+[?1049h[22;0;0t[1;24r(B[m[4l[?7h[39;49m[?1h=[?1h=[?1h=[?25l[39;49m(B[m[H[2J[22;30H(B[0;7m[ Datei wird gelesen ](B[m[22;32H(B[0;7m121 Zeilen[22;52H(B[m[H(B[0;7m  GNU nano 2.9.3               examples/run_poisson.jl                          [1;79H(B[m[23d(B[0;7m^G(B[m Hilfe     (B[0;7m^O(B[m Speichern (B[0;7m^W(B[m Wo ist    (B[0;7m^K(B[m Ausschneid(B[0;7m^J(B[m Ausrichten(B[0;7m^C(B[m Textmarke[24d(B[0;7m^X(B[m Beenden   (B[0;7m^R(B[m Datei öffn(B[0;7m^\(B[m Ersetzen  (B[0;7m^U(B[m Ausschn. r(B[0;7m^T(B[m Rechtschr.(B[0;7m^_(B[m Zu Zeile ge[?7lh[?7h[22d[3d[39;49m(B[minclude("poisson_reg.jl")[5d[36m#=bo_mode="boscia"[6d[39m(B[mfor dimension in [50:20:100;][7;5Hfor seed in 1:10[8;9Hfor ns in [0.1,1,5,10][9;13H@show seed, dimension[10;13Htry[11d poisson(seed, dimension, ns, 1; bo_mode=bo_mode)[12;13Hcatch e[13;17Hprintln(e)[14;17Hopen("poisson_errors.txt","a") do io[15;21Hprintln(io, seed, " ", dimension, " ", ns, " ", bo_mode, " $[16;17Hend[17;13Hend[18;9Hend[19;5Hend[20dend[3d[?12l[?25h[24;1H[?1049l[23;0;0t[?1l>Zu viele Fehler aus der StandardeingabeERROR: unknown option `--projecz`
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia /nfs/homeoptimi/htroppen/Boscia.jl/src/interface.jl:504
+(seed, dimension) = (1, 50)
+Away FW: false
+
+(seed, dimension) = (1, 50)
+Away FW: false
+
+(seed, dimension) = (1, 50)
+Away FW: false
+
+(seed, dimension) = (1, 50)
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: false
+
+(seed, dimension) = (2, 50)
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: false
+
+(seed, dimension) = (3, 50)
+Away FW: false
+
+(seed, dimension) = (4, 50)
+Away FW: false
+
+(seed, dimension) = (4, 50)
+Away FW: false
+
+(seed, dimension) = (4, 50)
+Away FW: false
+
+(seed, dimension) = (4, 50)
+Away FW: false
+
+(seed, dimension) = (5, 50)
+Away FW: false
+
+(seed, dimension) = (5, 50)
+Away FW: false
+
+(seed, dimension) = (5, 50)
+Away FW: false
+
+(seed, dimension) = (5, 50)
+Away FW: false
+
+(seed, dimension) = (6, 50)
+Away FW: false
+
+(seed, dimension) = (6, 50)
+Away FW: false
+
+(seed, dimension) = (6, 50)
+Away FW: false
+
+(seed, dimension) = (6, 50)
+Away FW: false
+
+(seed, dimension) = (7, 50)
+Away FW: false
+
+(seed, dimension) = (7, 50)
+Away FW: false
+
+(seed, dimension) = (7, 50)
+Away FW: false
+
+(seed, dimension) = (7, 50)
+Away FW: false
+
+(seed, dimension) = (8, 50)
+Away FW: false
+
+(seed, dimension) = (8, 50)
+Away FW: false
+
+(seed, dimension) = (8, 50)
+Away FW: false
+
+(seed, dimension) = (8, 50)
+Away FW: false
+
+(seed, dimension) = (9, 50)
+Away FW: false
+
+(seed, dimension) = (9, 50)
+Away FW: false
+
+(seed, dimension) = (9, 50)
+Away FW: false
+
+(seed, dimension) = (9, 50)
+Away FW: false
+
+(seed, dimension) = (10, 50)
+Away FW: false
+
+(seed, dimension) = (10, 50)
+Away FW: false
+
+(seed, dimension) = (10, 50)
+Away FW: false
+
+(seed, dimension) = (10, 50)
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: false
+
+(seed, dimension) = (1, 70)
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: false
+
+(seed, dimension) = (2, 70)
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: false
+
+(seed, dimension) = (3, 70)
+Away FW: false
+
+(seed, dimension) = (4, 70)
+Away FW: false
+
+(seed, dimension) = (4, 70)
+Away FW: false
+
+(seed, dimension) = (4, 70)
+Away FW: false
+
+(seed, dimension) = (4, 70)
+Away FW: false
+
+(seed, dimension) = (5, 70)
+Away FW: false
+
+(seed, dimension) = (5, 70)
+Away FW: false
+
+(seed, dimension) = (5, 70)
+Away FW: false
+
+(seed, dimension) = (5, 70)
+Away FW: false
+
+(seed, dimension) = (6, 70)
+Away FW: false
+
+(seed, dimension) = (6, 70)
+Away FW: false
+
+(seed, dimension) = (6, 70)
+Away FW: false
+
+(seed, dimension) = (6, 70)
+Away FW: false
+
+(seed, dimension) = (7, 70)
+Away FW: false
+
+(seed, dimension) = (7, 70)
+Away FW: false
+
+(seed, dimension) = (7, 70)
+Away FW: false
+
+(seed, dimension) = (7, 70)
+Away FW: false
+
+(seed, dimension) = (8, 70)
+Away FW: false
+
+(seed, dimension) = (8, 70)
+Away FW: false
+
+(seed, dimension) = (8, 70)
+Away FW: false
+
+(seed, dimension) = (8, 70)
+Away FW: false
+
+(seed, dimension) = (9, 70)
+Away FW: false
+
+(seed, dimension) = (9, 70)
+Away FW: false
+
+(seed, dimension) = (9, 70)
+Away FW: false
+
+(seed, dimension) = (9, 70)
+Away FW: false
+
+(seed, dimension) = (10, 70)
+Away FW: false
+
+(seed, dimension) = (10, 70)
+Away FW: false
+
+(seed, dimension) = (10, 70)
+Away FW: false
+
+(seed, dimension) = (10, 70)
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: false
+
+(seed, dimension) = (1, 90)
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: false
+
+(seed, dimension) = (2, 90)
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: false
+
+(seed, dimension) = (3, 90)
+Away FW: false
+
+(seed, dimension) = (4, 90)
+Away FW: false
+
+(seed, dimension) = (4, 90)
+Away FW: false
+
+(seed, dimension) = (4, 90)
+Away FW: false
+
+(seed, dimension) = (4, 90)
+Away FW: false
+
+(seed, dimension) = (5, 90)
+Away FW: false
+
+(seed, dimension) = (5, 90)
+Away FW: false
+
+(seed, dimension) = (5, 90)
+Away FW: false
+
+(seed, dimension) = (5, 90)
+Away FW: false
+
+(seed, dimension) = (6, 90)
+Away FW: false
+
+(seed, dimension) = (6, 90)
+Away FW: false
+
+(seed, dimension) = (6, 90)
+Away FW: false
+
+(seed, dimension) = (6, 90)
+Away FW: false
+
+(seed, dimension) = (7, 90)
+Away FW: false
+
+(seed, dimension) = (7, 90)
+Away FW: false
+
+(seed, dimension) = (7, 90)
+Away FW: false
+
+(seed, dimension) = (7, 90)
+Away FW: false
+
+(seed, dimension) = (8, 90)
+Away FW: false
+
+(seed, dimension) = (8, 90)
+Away FW: false
+
+(seed, dimension) = (8, 90)
+Away FW: false
+
+(seed, dimension) = (8, 90)
+Away FW: false
+
+(seed, dimension) = (9, 90)
+Away FW: false
+
+(seed, dimension) = (9, 90)
+Away FW: false
+
+(seed, dimension) = (9, 90)
+Away FW: false
+
+(seed, dimension) = (9, 90)
+Away FW: false
+
+(seed, dimension) = (10, 90)
+Away FW: false
+
+(seed, dimension) = (10, 90)
+Away FW: false
+
+(seed, dimension) = (10, 90)
+Away FW: false
+
+(seed, dimension) = (10, 90)
+Away FW: false
+
