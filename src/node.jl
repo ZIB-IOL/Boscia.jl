@@ -471,9 +471,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
         @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-        @show num_fractional
-        @show strong_convexity_bound
-        @show lower_bound
         @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         lower_bound = strong_convexity_bound
     end

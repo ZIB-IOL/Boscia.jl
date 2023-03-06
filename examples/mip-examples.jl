@@ -150,7 +150,7 @@ function build_example(o, example, num_v, seed)
     # for 22433 and neos5
     # b_mps = randn(n) and max_norm = maximum(norm.(vs)) -> scip will be better than us in some cases but still within tolerance
     b_mps = randn(n)
-    max_norm = 4.0 # maximum(norm.(vs))
+    max_norm = maximum(norm.(vs))
     #max_norm = norm(b_mps) * 2
 
     function f(x)
