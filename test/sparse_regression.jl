@@ -83,14 +83,15 @@ const lambda_2_g = 10.0 * rand(Float64);
 const A_g = rand(Float64, n0, p)
 const y_g = rand(Float64, n0)
 const M_g = 2 * var(A_g)
-groups = []
+const groups = []
+
 k_int = convert(Int64, k)
 for i in 1:(k_int-1)
     push!(groups, ((i-1)*group_size+p+1):(i*group_size+p))
 end
 push!(groups, ((k_int-1)*group_size+p+1):2p)
 
-@testset "Sparse Regression Group" begin
+function build_sparse_lmo_grouped()
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -125,20 +126,24 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
         )
     end
     lmo = FrankWolfe.MathOptLMO(o)
-   
+    return lmo
+end
+
+@testset "Sparse Regression Group" begin
     function f(x)
-        return sum((y_g - A_g * x[1:p]) .^ 2) +
-               lambda_0_g * sum(x[p+1:2p]) +
-               lambda_2_g * norm(x[1:p])^2
+        return sum(abs2, y_g - A_g * x[1:p]) +
+        lambda_0_g * norm(x[p+1:2p])^2 +
+        lambda_2_g * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
             2 * (transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]),
-            lambda_0_g * ones(p),
+            2 * lambda_0_g * x[p+1:2p],
         )
         return storage
     end
-
+    
+    lmo = build_sparse_lmo_grouped()
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon = 1e-3)
 
     @test sum(x[p+1:2p]) <= k
@@ -151,4 +156,15 @@ push!(groups, ((k_int-1)*group_size+p+1):2p)
             println("$(i)th entry: $(x[i])")
         end
     end
+
+    # strong convexity
+    μ = 2lambda_0_g
+
+    lmo = build_sparse_lmo_grouped()
+    x2, _, result2 = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon = 1e-3, strong_convexity=μ)
+    @test sum(x2[p+1:2p]) <= k
+    for i in 1:k_int
+        @test sum(x2[groups[i]]) >= 1
+    end
+    @test f(x) ≈ f(x2)
 end
