@@ -18,6 +18,7 @@ for dimension in [18]
 end
 =#
 
+#=
 bo_mode = "local_tightening"
 for dimension in [5:5:20;]
     for seed in 1:3
@@ -77,6 +78,7 @@ for dimension in [5:5:20;]
         end
    end
 end
+=#
 
 bo_mode="boscia"
 for dimension in [16,17,18]
