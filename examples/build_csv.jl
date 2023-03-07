@@ -697,7 +697,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
         rel_gap[]
         for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_loc_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -720,7 +720,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
         rel_gap[]
         for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_gl_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -743,7 +743,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
         rel_gap[]
         for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_no_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -922,7 +922,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
         rel_gap[]
         for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_loc_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -945,7 +945,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
         rel_gap[]
         for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_gl_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -968,7 +968,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
         rel_gap[]
         for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_no_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -1115,7 +1115,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
         rel_gap[]
         for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_loc_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -1138,7 +1138,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
         rel_gap[]
         for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_gl_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
                 push!(rel_gap, Inf)
@@ -1161,7 +1161,7 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
         rel_gap[]
         for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0.0
                 push!(rel_gap, df_no_ti[i, :dual_gap])
             elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
                 push!(rel_gap, Inf)
