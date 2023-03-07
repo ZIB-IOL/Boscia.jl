@@ -1874,171 +1874,204 @@ function build_grouped_csv(file_name, mode)
     function geo_mean(group)
         prod = 1.0
         n = length(group)
+        count = 0
         for element in group
             # @show element
-            prod = prod * element
+            if element != Inf && element != -Inf && element != NaN  #&& element != missing 
+                prod = prod * element
+                count += 1
+            end
         end
         # @show prod, n
-        return prod^(1/n)
+        return prod^(1/count)
+    end
+
+    function custom_mean(group)
+        sum = 0.0
+        n = length(group)
+        count = 0
+        for element in group
+            # @show element
+            if element != Inf && element != -Inf && element != NaN  #&& element != missing
+                sum = sum + element
+                count += 1
+            end
+        end
+        # @show prod, n
+        return count > 0 ? (sum/count) : Inf
+    end
+
+    function custom_sum(group)
+        sum = 0.0
+        count = 0
+        for element in group
+            # @show element
+            if element != Inf && element != -Inf && element != NaN # && element != missing
+                sum = sum + element
+                count += 1
+            end
+        end
+        # @show prod, n
+        return count > 0 ? sum : Inf
     end
 
     # group by dimension
     if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18" 
         gdf = combine(
             groupby(df, :dimension), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "poisson"
         gdf = combine(
             groupby(df, [:dimension, :k, :Ns]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_reg"
         gdf = combine(
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :rel_gap_boscia => custom_mean
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_log_reg"
         gdf = combine(
             groupby(df, [:dimension, :p, :k, :M, :varA]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "tailed_cardinality"
         gdf = combine(
             groupby(df, [:n0, :m0, :M]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = combine(
             groupby(df, [:dimension, :M, :varA]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" 
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode = "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "ran14x18"
+   #= elseif mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
-            )
+            ) =#
     end
 
     # remove underscore in headers for LaTex
