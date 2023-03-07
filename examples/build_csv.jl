@@ -1472,7 +1472,7 @@ function build_non_grouped_csv(mode)
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
-        df_ipopt[!, :lowerBounds] = df_boscia[!, :lowerBounds]
+        df_ipopt[!, :lowerBounds] = df_bs[!, :lowerBounds]
         rel_gap = []
         for row in eachrow(df_ipopt)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
@@ -1480,7 +1480,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
@@ -1504,7 +1504,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_scip[!, :rel_gap_scip] = rel_gap
@@ -1636,7 +1636,7 @@ function build_non_grouped_csv(mode)
                 push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_no_as[!, :rel_no_as] = rel_gap
+        df_no_as[!, :rel_gap_no_as] = rel_gap
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :solution_no_as, :rel_gap_no_as, :seed, :num_v])
 
         df = innerjoin(df, df_no_as, on = [:seed, :num_v])
@@ -1681,7 +1681,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
@@ -1705,7 +1705,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_scip[!, :rel_gap_scip] = rel_gap
@@ -1882,7 +1882,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
@@ -1906,7 +1906,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_scip[!, :rel_gap_scip] = rel_gap
@@ -2082,7 +2082,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
@@ -2098,7 +2098,7 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = df_scip[!,:time]
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :lowerBounds] = df_bs[!, :lowerbounds]
+        df_scip[!, :lowerBounds] = df_bs[!, :lowerBounds]
         rel_gap = []
         for row in eachrow(df_scip)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
@@ -2106,7 +2106,7 @@ function build_non_grouped_csv(mode)
             elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
+                push!(rel_gap, (row.solution-row.lowerBounds)/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_scip[!, :rel_gap_scip] = rel_gap
@@ -2386,22 +2386,20 @@ function build_grouped_csv(file_name, mode)
         :optimal_scip => :optimalScip
     )
 
-    if mode != "ran14x18"
-        rename!(gdf,
-            :time_no_ws => :timeNoWs, 
-            :termination_no_ws => :terminationNoWs,
-            :rel_gap_no_ws => :relGapNoWs,
-            :time_no_as => :timeNoAs, 
-            :termination_no_as => :terminationNoAs,
-            :rel_gap_no_as => :relGapNoAs,
-            :time_no_ss => :timeNoSs, 
-            :termination_no_ss => :terminationNoSs,
-            :rel_gap_no_ss => :relGapNoSs,
-            :time_afw => :timeAfw, 
-            :termination_afw => :terminationAfw,
-            :rel_gap_afw => :relGapAfw,
-        )
-    end
+    rename!(gdf,
+        :time_no_ws => :timeNoWs, 
+        :termination_no_ws => :terminationNoWs,
+        :rel_gap_no_ws => :relGapNoWs,
+        :time_no_as => :timeNoAs, 
+        :termination_no_as => :terminationNoAs,
+        :rel_gap_no_as => :relGapNoAs,
+        :time_no_ss => :timeNoSs, 
+        :termination_no_ss => :terminationNoSs,
+        :rel_gap_no_ss => :relGapNoSs,
+        :time_afw => :timeAfw, 
+        :termination_afw => :terminationAfw,
+        :rel_gap_afw => :relGapAfw,
+    )
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         rename!(gdf, 
@@ -2421,28 +2419,24 @@ function build_grouped_csv(file_name, mode)
     non_inf_entries = findall(isfinite, gdf[!, :relGapScip])
     gdf[non_inf_entries, :relGapScip] = convert.(Int64, round.(gdf[non_inf_entries, :relGapScip]*100))
 
-    if mode != "ran14x18"
-        non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
-        gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
-        gdf[non_inf_entries, :relGapNoWs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoWs]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoSs])
-        gdf[non_inf_entries, :relGapNoSs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoSs]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoAs])
-        gdf[non_inf_entries, :relGapNoAs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoAs]*100))
-    end
+    non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
+    gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
+    gdf[non_inf_entries, :relGapNoWs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoWs]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoSs])
+    gdf[non_inf_entries, :relGapNoSs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoSs]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoAs])
+    gdf[non_inf_entries, :relGapNoAs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoAs]*100))
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         non_inf_entries = findall(isfinite, gdf[!, :relGapIpopt])
         gdf[non_inf_entries, :relGapIpopt] = convert.(Int64, round.(gdf[non_inf_entries, :relGapIpopt]*100))
     end 
 
-    if mode != "ran14x18"
-        gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
-        gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
-        gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
-        gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
-    end
+    gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
+    gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
+    gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
+    gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
     
     if mode == "sparse_reg" 
         rename!(gdf, :time_scip_tol => :timeScipTol)
@@ -2470,12 +2464,11 @@ function build_grouped_csv(file_name, mode)
     gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
     gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
 
-    if mode != "ran14x18"
-        gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
-    end
+    gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
+
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
@@ -2489,12 +2482,11 @@ function build_grouped_csv(file_name, mode)
     gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
     gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
 
-    if mode != "ran14x18"
-        gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
-        gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
-        gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
-        gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
-    end
+    gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
+    gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
+    gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
+    gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
+
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
@@ -2578,7 +2570,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
         print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
@@ -2589,23 +2581,21 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-    elseif mode == "ran14x18"
+   #= elseif mode == "ran14x18"
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
             renamecols=false
-        )
+        )=#
     end
 
     # parse to int
     df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
 
-    if mode != "ran14x18"
-        df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
-        df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
-        df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
-        df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
-    end
+    df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
+    df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
+    df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
+    df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
 
     size_df_after = size(gdf)
 
@@ -2632,9 +2622,9 @@ function build_grouped_csv(file_name, mode)
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "ran14x18"
         df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
         df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
-    elseif mode == "ran14x18"
+   #= elseif mode == "ran14x18"
         df_intersection = df
-        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)
+        df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0 || row.optimal_ipopt == 0),  df_intersection)=#
     else
         df_intersection = select(df, Not([:termination_afw, :time_afw, :termination_no_ws, :time_no_ws, :termination_no_as, :time_no_as, :termination_no_ss, :time_no_ss ]))
         df_intersection = filter(row -> !(row.optimal_boscia == 0 || row.optimal_scip == 0),  df_intersection)
