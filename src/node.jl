@@ -456,7 +456,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     lower_bound = primal - dual_gap
 
     μ = tree.root.options[:strong_convexity]
-    @show μ
     if μ > 0
         @debug "Using strong convexity $μ"
         strong_convexity_bound = lower_bound

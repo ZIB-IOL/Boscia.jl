@@ -81,12 +81,11 @@ end
 =#
 
 bo_mode="boscia"
-for dimension in [16,17,18]
+for dimension in [25]
     for seed in 1:2
         @show seed, dimension
         try 
-            k = Float64(dimension)
-            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 5, 1.0, 5.0, true; bo_mode=bo_mode)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
@@ -97,12 +96,11 @@ for dimension in [16,17,18]
 end
 
 bo_mode = "local_tightening"
-for dimension in [16,17,18]
+for dimension in [25]
     for seed in 1:2
         @show seed, dimension
         try 
-            k = Float64(dimension)
-            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 5, 1.0, 5.0, true; bo_mode=bo_mode)
         catch e
            println(e)
            open("sparse_reg_errors.txt","a") do io
@@ -113,12 +111,11 @@ for dimension in [16,17,18]
 end
 
 bo_mode = "global_tightening"
-for dimension in [16,17,18]
+for dimension in [25]
     for seed in 1:2
         @show seed, dimension
         try 
-            k = Float64(dimension)
-            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 5, 1.0, 5.0, true; bo_mode=bo_mode)
         catch e
            println(e)
            open("sparse_reg_errors.txt","a") do io
@@ -129,12 +126,11 @@ for dimension in [16,17,18]
 end
 
 bo_mode = "no_tightening"
-for dimension in [16,17,18]
+for dimension in [25]
     for seed in 1:2
         @show seed, dimension
         try 
-            k = Float64(dimension)
-            sparse_log_regression(seed, dimension, 1, k, 1, true; bo_mode=bo_mode)
+            sparse_log_regression(seed, dimension, 5, 1.0, 5.0, true; bo_mode=bo_mode)
         catch e
             println(e)
             open("sparse_reg_errors.txt","a") do io
