@@ -1,5 +1,5 @@
 include("sparse_reg.jl")
-
+#=
 bo_mode="boscia"
 for dimension in [16,18,20]
     for seed in 1:2
@@ -44,7 +44,7 @@ for dimension in [16,18,20]
         end
     end
 end
-
+=#
 bo_mode = "no_tightening"
 for dimension in [16,18,20]
     for seed in 1:2
@@ -57,6 +57,7 @@ for dimension in [16,18,20]
                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
             end
         end
+    end
 end
 
 #=bo_mode = "as"
