@@ -1,5 +1,5 @@
 include("sparse_reg.jl")
-
+#=
 bo_mode="boscia"
 for dimension in [16,18,20]
     for seed in 1:2
@@ -57,7 +57,7 @@ for dimension in [16,18,20]
                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
             end
         end
-end
+end =#
 
 #=bo_mode = "as"
 for dimension in [15:1:30;]
@@ -102,7 +102,7 @@ for dimension in [15:1:30;]
            end
        end
    end
-end
+end =#
 
 bo_mode = "afw"
 for dimension in [15:1:30;]
@@ -110,7 +110,7 @@ for dimension in [15:1:30;]
        @show seed, dimension
        try 
            sparse_reg(seed, dimension, 1; bo_mode=bo_mode)
-       catch e
+       catch 
            println(e)
            open("sparse_reg_errors.txt","a") do io
                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
@@ -118,7 +118,7 @@ for dimension in [15:1:30;]
        end
    end
 end
-=#
+
 #=bo_mode = "scip_oa"
 for dimension in [28:1:30;]
     for seed in 1:10

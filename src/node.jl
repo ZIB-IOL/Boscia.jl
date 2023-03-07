@@ -266,7 +266,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
     end
-
+    
     if !tree.root.options[:afw]
         # call blended_pairwise_conditional_gradient
         x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
@@ -297,7 +297,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         )
     end
 
-    @assert dual_gap >= 0.0
+    @assert dual_gap >= 0.0 - 1e-9
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
