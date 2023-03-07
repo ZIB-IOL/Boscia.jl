@@ -658,7 +658,7 @@ function build_non_grouped_csv(mode)
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
-        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :reg_gap_no_ws, :seed, :dimension, :k, :p])
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :p])
         # print(first(df,5))
@@ -671,7 +671,7 @@ function build_non_grouped_csv(mode)
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
-        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :reg_gap_no_as, :seed, :dimension, :k, :p])
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_as, on = [:seed, :dimension, :k, :p])
 
@@ -688,21 +688,21 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_reg.jl")))
+        df_loc_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_reg.csv")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
         df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
         df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
-        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_loc_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+        df_loc_ti[!, :lowerBounds] = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_loc_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
@@ -711,48 +711,48 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_reg.jl")))
+        df_gl_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_reg.csv")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
         df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
         df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
-        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_gl_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+        df_gl_ti[!, :lowerBounds] = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_gl_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti[!, :rel_gap_gl_ti] = rel_gap
         df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_reg.jl")))
+        df_no_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_reg.csv")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
         df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
         df_no_ti[!, :termination_no_ti] = termination_no_ti
-        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_no_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+        df_no_ti[!, :lowerBounds] = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_no_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
-        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p])
+        df_no_ti[!, :rel_gap_no_ti] = rel_gap
+        df_no_ti = select(df_no_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_ti, on = [:seed, :dimension, :k, :p])
 
@@ -913,21 +913,21 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:dimension, :k, :p, :seed, :M, :var_A])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_log_reg.jl")))
+        df_loc_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_log_regression.csv")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
         df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
         df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
-        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_loc_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+        df_loc_ti[!, :lowerBounds] = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_loc_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
@@ -936,48 +936,48 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_log_reg.jl")))
+        df_gl_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_log_regression.csv")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
         df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
         df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
-        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_gl_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+        df_gl_ti[!, :lowerBounds] = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_gl_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti[!, :rel_gap_gl_ti] = rel_gap
         df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :dimension, :k, :p, :M, :var_A])
 
         df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_log_reg.jl")))
+        df_no_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_log_regression.csv")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
         df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
         df_no_ti[!, :termination_no_ti] = termination_no_ti
-        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_no_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+        df_no_ti[!, :lowerBounds] = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_no_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
-        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p, :M, :var_A])
+        df_no_ti[!, :rel_gap_no_ti] = rel_gap
+        df_no_ti = select(df_no_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p, :M, :var_A])
 
         df = innerjoin(df, df_no_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
@@ -1106,21 +1106,21 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_tailed_cardinality.jl")))
+        df_loc_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_tailed_cardinality.csv")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
         df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
         df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
-        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_loc_ti[!, :dual_gap]
-            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_loc_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+        df_loc_ti[!, :lowerBounds] = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_loc_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
         df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
@@ -1129,48 +1129,48 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_tailed_cardinality.jl")))
+        df_gl_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_tailed_cardinality.csv")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
         df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
         df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
-        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_gl_ti[!, :dual_gap]
-            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_gl_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+        df_gl_ti[!, :lowerBounds] = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_gl_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti[!, :rel_gap_gl_ti] = rel_gap
         df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :n0, :m0, :M])
 
         df = innerjoin(df, df_gl_ti, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_tailed_cardinality.jl")))
+        df_no_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_tailed_cardinality.csv")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
         df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
         df_no_ti[!, :termination_no_ti] = termination_no_ti
-        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
-        rel_gap[]
-        for i in df_no_ti[!, :dual_gap]
-            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
-                push!(rel_gap, df_no_ti[i, :dual_gap])
-            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+        df_no_ti[!, :lowerBounds] = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap = []
+        for row in eachrow(df_no_ti)
+            if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
+                push!(rel_gap, row.dual_gap)
+            elseif sign(row.lowerBounds) != sign(row.solution)
                 push!(rel_gap, Inf)
             else
-                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+                push!(rel_gap, row.dual_gap/min(abs(row.solution), abs(row.lowerBounds)))
             end
         end
-        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
-        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :n0, :m0, :M])
+        df_no_ti[!, :rel_gap_no_ti] = rel_gap
+        df_no_ti = select(df_no_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :n0, :m0, :M])
 
         df = innerjoin(df, df_no_ti, on = [:seed, :n0, :m0, :M])
 
@@ -2261,9 +2261,10 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => custom_mean
+            :rel_gap_boscia => custom_mean,
             :time_scip => geo_mean, :termination_scip => custom_sum,
             :rel_gap_scip => custom_mean,
+            :time_scip_tol => geo_mean, :termination_scip_tol => custom_sum,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
@@ -2337,7 +2338,7 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode = "ran14x18"
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
