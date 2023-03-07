@@ -30,7 +30,7 @@ include("BnB_Ipopt.jl")
 # Each continuous variable β_i is assigned a binary z_i,
 # z_i = 0 => β_i = 0
 
-function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10, full_callback = false; bo_mode="boscia") 
+function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=1.0, full_callback = false; bo_mode="boscia") 
     limit = 1800
 
     f, grad!, p = build_function(seed, dimension, var_A)
@@ -70,10 +70,12 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=10, full_
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
         list_open_nodes = result[:open_nodes]
+        list_local_tightening = result[:local_tightenings]
+        list_global_tightening = result[:global_tightenings]
     end
 
     if full_callback
-        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes)
+        df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" *string(seed) *".csv")
         CSV.write(file_name, df, append=false)
     else

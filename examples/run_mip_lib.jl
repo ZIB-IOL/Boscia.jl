@@ -25,7 +25,7 @@ for example in ["neos5", "pg5_34", "ran14x18-disj-8"]
             @show seed, num_v
             try 
                 mip_lib(seed, num_v; example=example, bo_mode=bo_mode)
-            catch e
+            catch 
                 println(e)
                 open("mip_lib_" * example * "_errors.txt","a") do io
                     println(io, seed, " ", num_v, " ", bo_mode, " : ", e)
