@@ -688,7 +688,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_reg.jl")))
+        df_loc_ti = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_reg.csv")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
@@ -711,7 +711,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_reg.jl")))
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/global_tightening_sparse_reg.jl")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
@@ -734,7 +734,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_reg.jl")))
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/no_tightening_sparse_reg.jl")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
@@ -913,7 +913,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:dimension, :k, :p, :seed, :M, :var_A])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_log_reg.jl")))
+        df_loc_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/local_tightening_sparse_log_reg.jl")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
@@ -936,7 +936,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_log_reg.jl")))
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/global_tightening_sparse_log_reg.jl")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
@@ -959,7 +959,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_log_reg.jl")))
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/no_tightening_sparse_log_reg.jl")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
@@ -1106,7 +1106,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_no_ss, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_tailed_cardinality.jl")))
+        df_loc_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/local_tightening_tailed_cardinality.jl")))
         df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
 
@@ -1129,7 +1129,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_loc_ti, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_tailed_cardinality.jl")))
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/global_tightening_tailed_cardinality.jl")))
         df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
 
@@ -1152,7 +1152,7 @@ function build_non_grouped_csv(mode)
         df = innerjoin(df, df_gl_ti, on = [:seed, :n0, :m0, :M])
 
         # load local tightening
-        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_tailed_cardinality.jl")))
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@__DIR__, "csv/no_tightening_tailed_cardinality.jl")))
         df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
 
@@ -2038,7 +2038,7 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode = "ran14x18"
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
