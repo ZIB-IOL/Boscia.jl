@@ -1,7 +1,7 @@
 include("sparse_reg.jl")
 
 bo_mode="boscia"
-for dimension in [15:1:30]
+for dimension in [15:1:30;]
     for seed in 1:10
         @show seed, dimension
         try 
