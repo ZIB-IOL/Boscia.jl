@@ -658,7 +658,7 @@ function build_non_grouped_csv(mode)
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
-        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :reg_gap_no_ws, :seed, :dimension, :k, :p])
+        df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :p])
         # print(first(df,5))
@@ -671,7 +671,7 @@ function build_non_grouped_csv(mode)
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
-        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :reg_gap_no_as, :seed, :dimension, :k, :p])
+        df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_as, on = [:seed, :dimension, :k, :p])
 
@@ -1716,7 +1716,7 @@ function build_grouped_csv(file_name, mode)
         gdf = combine(
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean
+            :rel_gap_boscia => mean,
             :time_scip => geo_mean, :termination_scip => sum,
             :rel_gap_scip => mean,
             :time_ipopt => geo_mean, :termination_ipopt => sum,

@@ -39,4 +39,4 @@ push!(df_afw, [6, 26, 130, 6.0, 1800, Inf, Inf, Inf, "AssertionError", Inf], pro
 
 push!(df_afw, [6, 28, 140, 6.0, 1800, Inf, Inf, Inf, "AssertionError", Inf], promote=true)
 
-CSV.write(file_name, df_afw, append=true)
+CSV.write(file_name, df_afw, append=false)
