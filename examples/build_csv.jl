@@ -636,6 +636,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!, :lb_boscia] = lowerBounds
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
         # load afw
@@ -645,6 +646,7 @@ function build_non_grouped_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
+        lowerBounds = df_afw[!, :solution] - df_afw[!, :dual_gap]
         df_afw[!, :rel_gap_afw] = (df_afw[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :rel_gap_afw, :seed, :dimension, :k, :p])
 
@@ -657,6 +659,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
+        lowerBounds = df_no_ws[!, :solution] - df_no_ws[!, :dual_gap]
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :p])
 
@@ -670,6 +673,7 @@ function build_non_grouped_csv(mode)
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
+        lowerBounds = df_no_as[!, :solution] - df_no_as[!, :dual_gap]
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :seed, :dimension, :k, :p])
 
@@ -682,6 +686,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
+        lowerBounds = df_no_ss[!, :solution] - df_no_ss[!, :dual_gap]
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :seed, :dimension, :k, :p])
 
@@ -764,8 +769,7 @@ function build_non_grouped_csv(mode)
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
-        df_ipopt[!, :rel_gap_ipopt] = (df_ipopt[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_ipopt[!, :solution]))
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :dimension, :k, :p])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :dimension, :k, :p])
 
@@ -786,8 +790,7 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :rel_gap_scip] = (df_scip[!, :solution] - lowerBounds)./ min.(abs.(lowerBounds), abs.(df_scip[!, :solution]))
-        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :dimension, :k, :p])
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p])
 
@@ -837,6 +840,28 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
 
+        # compute lower bound 
+        rel_gap_scip = []
+        rel_gap_ipopt = []
+        for row in eachrow(df)
+            if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
+                push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_scip)
+                push!(rel_gap_scip, Inf)
+            else
+                push!(rel_gap_scip, (row.solution_scip - row.lb_boscia)/min(abs(row.solution_scip), abs(row.lb_boscia)))
+            end
+            if min(abs(row.solution_ipopt), abs(row.lb_boscia)) == 0
+                push!(rel_gap_ipopt, row.solution_ipopt - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_ipopt)
+                push!(rel_gap_ipopt, Inf)
+            else
+                push!(rel_gap_ipopt, (row.solution_ipopt - row.lb_boscia)/min(abs(row.solution_ipopt), abs(row.lb_boscia)))
+            end
+        end
+        df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
+        df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -861,6 +886,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!, :lb_boscia] = lowerBounds
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
         # load afw
@@ -870,6 +896,7 @@ function build_non_grouped_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
+        lowerBounds = df_afw[!, :solution] - df_afw[!, :dual_gap]
         df_afw[!, :rel_gap_afw] = (df_afw[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :rel_gap_afw, :dimension, :k, :p, :seed, :M, :var_A])
 
@@ -882,6 +909,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
+        lowerBounds = df_no_ws[!, :solution] - df_no_ws[!, :dual_gap]
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :dimension, :k, :p, :seed, :M, :var_A])
 
@@ -895,6 +923,7 @@ function build_non_grouped_csv(mode)
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
+        lowerBounds = df_no_as[!, :solution] - df_no_as[!, :dual_gap]
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :dimension, :k, :p, :seed, :M, :var_A])
 
@@ -904,9 +933,10 @@ function build_non_grouped_csv(mode)
         df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_sparse_log_regression.csv")))
         df_no_ss.termination .= replace.(df_no_ss.termination, "Time limit reached" => "TIME_LIMIT")
         termination_no_ss = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ss[!,:termination]]
-
+        lowerBounds = df_no_ss[!, :solution] - df_no_ss[!, :dual_gap]
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
+        
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :dimension, :k, :p, :seed, :M, :var_A])
 
@@ -989,8 +1019,7 @@ function build_non_grouped_csv(mode)
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
-        df_ipopt[!, :rel_gap_ipopt] = (df_ipopt[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_ipopt[!, :solution]))
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :dimension, :k, :p, :seed, :M, :var_A])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :dimension, :k, :p, :seed, :M, :var_A])
 
         df = innerjoin(df, df_ipopt, on = [:dimension, :k, :p, :seed, :M, :var_A])
 
@@ -1001,8 +1030,7 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = df_scip[!,:time]
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :rel_gap_scip] = (df_scip[!, :solution]- lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_scip[!, :solution]))
-        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :dimension, :k, :p, :M, :var_A])
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :dimension, :k, :p, :M, :var_A])
 
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
@@ -1033,6 +1061,28 @@ function build_non_grouped_csv(mode)
 
         rename!(df, :var_A => :varA)
 
+        # compute lower bound 
+        rel_gap_scip = []
+        rel_gap_ipopt = []
+        for row in eachrow(df)
+            if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
+                push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_scip)
+                push!(rel_gap_scip, Inf)
+            else
+                push!(rel_gap_scip, (row.solution_scip - row.lb_boscia)/min(abs(row.solution_scip), abs(row.lb_boscia)))
+            end
+            if min(abs(row.solution_ipopt), abs(row.lb_boscia)) == 0
+                push!(rel_gap_ipopt, row.solution_ipopt - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_ipopt)
+                push!(rel_gap_ipopt, Inf)
+            else
+                push!(rel_gap_ipopt, (row.solution_ipopt - row.lb_boscia)/min(abs(row.solution_ipopt), abs(row.lb_boscia)))
+            end
+        end
+        df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
+        df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_log_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -1054,6 +1104,7 @@ function build_non_grouped_csv(mode)
 
         df[!,:termination_boscia] = termination_boscia
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!, :lb_boscia] = lowerBounds
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
         # load afw
@@ -1063,6 +1114,7 @@ function build_non_grouped_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
+        lowerBounds = df_afw[!, :solution] - df_afw[!, :dual_gap]
         df_afw[!, :rel_gap_afw] = (df_afw[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :rel_gap_afw, :seed, :n0, :m0, :M])
 
@@ -1075,6 +1127,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
+        lowerBounds = df_no_ws[!, :solution] - df_no_ws[!, :dual_gap]
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :n0, :m0, :M])
 
@@ -1088,6 +1141,7 @@ function build_non_grouped_csv(mode)
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
+        lowerBounds = df_no_as[!, :solution] - df_no_as[!, :dual_gap]
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :seed, :n0, :m0, :M])
 
@@ -1100,6 +1154,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
+        lowerBounds = df_no_ss[!, :solution] - df_no_ss[!, :dual_gap]
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :seed, :n0, :m0, :M])
 
@@ -1191,8 +1246,7 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :rel_gap_scip] = (df_scip[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_scip[!, :solution]))
-        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :rel_gap_scip, :seed, :n0, :m0, :M])
+        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :n0, :m0, :M])
 
         # sort!(df, [:dimension, :k, :Ns, :p])
         # print(first(df,20))
@@ -1217,6 +1271,19 @@ function build_non_grouped_csv(mode)
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_boscia] = optimal_boscia
+                
+        # compute lower bound 
+        rel_gap_scip = []
+        for row in eachrow(df)
+            if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
+                push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_scip)
+                push!(rel_gap_scip, Inf)
+            else
+                push!(rel_gap_scip, (row.solution_scip - row.lb_boscia)/min(abs(row.solution_scip), abs(row.lb_boscia)))
+            end
+        end
+        df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")
@@ -1238,6 +1305,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!, :lb_boscia] = lowerBounds
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
         
         # load afw
@@ -1247,6 +1315,7 @@ function build_non_grouped_csv(mode)
 
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
+        lowerBounds = df_afw[!, :solution] - df_afw[!, :dual_gap]
         df_afw[!, :rel_gap_afw] = (df_afw[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :seed, :rel_gap_afw, :dimension, :M, :var_A])
 
@@ -1259,6 +1328,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
+        lowerBounds = df_no_ws[!, :solution] - df_no_ws[!, :dual_gap]
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :M, :var_A])
 
@@ -1272,6 +1342,7 @@ function build_non_grouped_csv(mode)
 
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
+        lowerBounds = df_no_as[!, :solution] - df_no_as[!, :dual_gap]
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :rel_gap_no_as, :seed, :dimension, :M, :var_A])
 
@@ -1284,6 +1355,7 @@ function build_non_grouped_csv(mode)
 
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
+        lowerBounds = df_no_ss[!, :solution] - df_no_ss[!, :dual_gap]
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :seed, :dimension, :M, :var_A])
 
@@ -1306,8 +1378,7 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = time_scip
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :rel_gap_scip] = (df_scip[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_scip[!, :solution]))
-        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :rel_gap_scip, :seed, :dimension, :M, :var_A])
+        df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :dimension, :M, :var_A])
 
         # sort!(df, [:dimension, :k, :Ns, :p])
         # print(first(df,20))
@@ -1334,6 +1405,19 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_boscia] = optimal_boscia
 
         rename!(df, :var_A => :varA)
+
+        # compute lower bound 
+        rel_gap_scip = []
+        for row in eachrow(df)
+            if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
+                push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_scip)
+                push!(rel_gap_scip, Inf)
+            else
+                push!(rel_gap_scip, (row.solution_scip - row.lb_boscia)/min(abs(row.solution_scip), abs(row.lb_boscia)))
+            end
+        end
+        df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")
