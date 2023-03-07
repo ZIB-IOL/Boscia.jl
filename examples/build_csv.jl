@@ -687,6 +687,75 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension, :k, :p])
 
+        # load local tightening
+        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_reg.jl")))
+        df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
+
+        df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
+        df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
+        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_loc_ti[!, :dual_gap]
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_loc_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_loc_ti, :time_loc_ti, :rel_gap_loc_ti, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p])
+
+        # load local tightening
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_reg.jl")))
+        df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
+
+        df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
+        df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
+        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_gl_ti[!, :dual_gap]
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_gl_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p])
+
+        # load local tightening
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_reg.jl")))
+        df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
+
+        df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
+        df_no_ti[!, :termination_no_ti] = termination_no_ti
+        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_no_ti[!, :dual_gap]
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_no_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p])
+
+        df = innerjoin(df, df_no_ti, on = [:seed, :dimension, :k, :p])
+
         # load ipopt 
         df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_sparse_reg.csv")))
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
@@ -843,6 +912,75 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_no_ss, on = [:dimension, :k, :p, :seed, :M, :var_A])
 
+        # load local tightening
+        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_sparse_log_reg.jl")))
+        df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
+
+        df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
+        df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
+        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_loc_ti[!, :dual_gap]
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_loc_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_loc_ti, :time_loc_ti, :rel_gap_loc_ti, :dimension, :k, :p, :seed, :M, :var_A])
+
+        df = innerjoin(df, df_loc_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
+
+        # load local tightening
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_sparse_log_reg.jl")))
+        df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
+
+        df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
+        df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
+        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_gl_ti[!, :dual_gap]
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_gl_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :dimension, :k, :p, :M, :var_A])
+
+        df = innerjoin(df, df_gl_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
+
+        # load local tightening
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_sparse_log_reg.jl")))
+        df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
+
+        df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
+        df_no_ti[!, :termination_no_ti] = termination_no_ti
+        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_no_ti[!, :dual_gap]
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_no_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :dimension, :k, :p, :M, :var_A])
+
+        df = innerjoin(df, df_no_ti, on = [:seed, :dimension, :k, :p, :M, :var_A])
+
         # load ipopt 
         df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_sparse_log_reg.csv")))
         df_ipopt.termination .= replace.(df_ipopt.termination, "Time limit reached" => "TIME_LIMIT")
@@ -966,6 +1104,75 @@ function build_non_grouped_csv(mode)
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :rel_gap_no_ss, :seed, :n0, :m0, :M])
 
         df = innerjoin(df, df_no_ss, on = [:seed, :n0, :m0, :M])
+
+        # load local tightening
+        df_loc_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/local_tightening_tailed_cardinality.jl")))
+        df_loc_ti.termination .= replace.(df_loc_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_loc_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_loc_ti[!, :termination]]
+
+        df_loc_ti[!, :time_loc_ti] = df_loc_ti[!, :time]
+        df_loc_ti[!, :termination_loc_ti] = termination_loc_ti
+        lowerBounds = df_loc_ti[!, :solution] - df_loc_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_loc_ti[!, :dual_gap]
+            if min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_loc_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_loc_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_loc_ti[i, :dual_gap]/min(abs(df_loc_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_loc_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_loc_ti, :time_loc_ti, :rel_gap_loc_ti, :seed, :n0, :m0, :M])
+
+        df = innerjoin(df, df_loc_ti, on = [:seed, :n0, :m0, :M])
+
+        # load local tightening
+        df_gl_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/global_tightening_tailed_cardinality.jl")))
+        df_gl_ti.termination .= replace.(df_gl_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_gl_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_gl_ti[!, :termination]]
+
+        df_gl_ti[!, :time_gl_ti] = df_gl_ti[!, :time]
+        df_gl_ti[!, :termination_gl_ti] = termination_gl_ti
+        lowerBounds = df_gl_ti[!, :solution] - df_gl_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_gl_ti[!, :dual_gap]
+            if min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_gl_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_gl_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_gl_ti[i, :dual_gap]/min(abs(df_gl_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_gl_ti[!, :rel_gap_gl_loc] = rel_gap
+        df_gl_ti = select(df_gl_ti, [:termination_gl_ti, :time_gl_ti, :rel_gap_gl_ti, :seed, :n0, :m0, :M])
+
+        df = innerjoin(df, df_gl_ti, on = [:seed, :n0, :m0, :M])
+
+        # load local tightening
+        df_no_ti = DataFrame(CSV.FIle(joinpath(@_DIR_, "csv/no_tightening_tailed_cardinality.jl")))
+        df_no_ti.termination .= replace.(df_no_ti.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_no_ti = [row == "TIME_LIMIT" ? 0 : 1 for row in df_no_ti[!, :termination]]
+
+        df_no_ti[!, :time_no_ti] = df_no_ti[!, :time]
+        df_no_ti[!, :termination_no_ti] = termination_no_ti
+        lowerBounds = df_no_ti[!, :solution] - df_no_ti[!, :dual_gap]
+        rel_gap[]
+        for i in df_no_ti[!, :dual_gap]
+            if min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])) == 0,0
+                push!(rel_gap, df_no_ti[i, :dual_gap])
+            elseif sign(lowerbounds[i]) != sign(df_no_ti[i, :solution])
+                push!(rel_gap, Inf)
+            else
+                push!(rel_gap, df_no_ti[i, :dual_gap]/min(abs(df_no_ti[i, :solution]), abs(lowerbounds[i])))
+            end
+        end
+        df_loc_ti[!, :rel_gap_no_ti] = rel_gap
+        df_loc_ti = select(df_loc_ti, [:termination_no_ti, :time_no_ti, :rel_gap_no_ti, :seed, :n0, :m0, :M])
+
+        df = innerjoin(df, df_no_ti, on = [:seed, :n0, :m0, :M])
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_tailed_cardinality.csv")))
@@ -1654,6 +1861,12 @@ function build_grouped_csv(file_name, mode)
         df[df.time_no_ws.>1800, :time_no_ws] .= 1800
     end
 
+    if mode == "sparse_reg" || mode == "sparse_log_reg" || mode == "tailed_cardinality"
+        df[df.time_loc_ti.>1800, :time_loc_ti] .= 1800
+        df[df.time_gl_ti.>1800, :time_gl_ti] .= 1800
+        df[df.time_no_ti.>1800, :time_no_ti] .= 1800
+    end
+
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         df[df.time_ipopt.>1800, :time_ipopt] .= 1800
     end
@@ -1661,171 +1874,204 @@ function build_grouped_csv(file_name, mode)
     function geo_mean(group)
         prod = 1.0
         n = length(group)
+        count = 0
         for element in group
             # @show element
-            prod = prod * element
+            if element != Inf && element != -Inf && element != NaN  #&& element != missing 
+                prod = prod * element
+                count += 1
+            end
         end
         # @show prod, n
-        return prod^(1/n)
+        return prod^(1/count)
+    end
+
+    function custom_mean(group)
+        sum = 0.0
+        n = length(group)
+        count = 0
+        for element in group
+            # @show element
+            if element != Inf && element != -Inf && element != NaN  #&& element != missing
+                sum = sum + element
+                count += 1
+            end
+        end
+        # @show prod, n
+        return count > 0 ? (sum/count) : Inf
+    end
+
+    function custom_sum(group)
+        sum = 0.0
+        count = 0
+        for element in group
+            # @show element
+            if element != Inf && element != -Inf && element != NaN # && element != missing
+                sum = sum + element
+                count += 1
+            end
+        end
+        # @show prod, n
+        return count > 0 ? sum : Inf
     end
 
     # group by dimension
     if mode != "poisson" && mode != "sparse_reg" && mode != "sparse_log_reg" && mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg" && mode != "22433" && mode != "neos5" && mode != "pg5_34" && mode != "ran14x18" 
         gdf = combine(
             groupby(df, :dimension), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "poisson"
         gdf = combine(
             groupby(df, [:dimension, :k, :Ns]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_reg"
         gdf = combine(
             groupby(df, [:dimension, :p, :k]), 
             :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_log_reg"
         gdf = combine(
             groupby(df, [:dimension, :p, :k, :M, :varA]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "tailed_cardinality"
         gdf = combine(
             groupby(df, [:n0, :m0, :M]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "tailed_cardinality_sparse_log_reg"
         gdf = combine(
             groupby(df, [:dimension, :M, :varA]), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" 
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode = "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :time_no_ws => geo_mean, :termination_no_ws => sum,
-            :rel_gap_no_ws => mean,
-            :time_no_as => geo_mean, :termination_no_as => sum,
-            :rel_gap_no_as => mean,
-            :time_no_ss => geo_mean, :termination_no_ss => sum,
-            :rel_gap_no_ss => mean,
-            :time_afw => geo_mean, :termination_afw => sum,
-            :rel_gap_afw => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "ran14x18"
+   #= elseif mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => sum,
-            :rel_gap_boscia => mean,
-            :time_scip => geo_mean, :termination_scip => sum,
-            :rel_gap_scip => mean,
-            :time_ipopt => geo_mean, :termination_ipopt => sum,
-            :rel_gap_ipopt => mean,
-            :optimal_boscia => sum, :optimal_ipopt => sum,
-            :optimal_scip => sum,
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
-            )
+            ) =#
     end
 
     # remove underscore in headers for LaTex
