@@ -3,7 +3,11 @@ using DataFrames
 using CSV
 
 # "sparse_reg", "30_1"
+# "sparse_reg", "20_1"
+
 # "sparse_log_reg", "18_1-1_1"
+# "sparse_log_reg", "25_5-5.0_1"
+
 function plot(example, setup)
     if example == "sparse_reg"
         df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_reg_" * setup * ".csv")))
@@ -30,10 +34,10 @@ function plot(example, setup)
     """)
     ax = fig.add_subplot(111)
 
-    ax.plot(df_boscia[!,"openNodes"], 1:length(df_boscia[!,"openNodes"]), label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
-    ax.plot(df_global_tightening[!,"openNodes"], 1:length(df_global_tightening[!,"openNodes"]), label="global tightening", color=colors[end], marker=markers[2], markevery=0.1)
-    ax.plot(df_local_tightening[!,"openNodes"], 1:length(df_local_tightening[!,"openNodes"]), label="local tightening", color=colors[2], marker=markers[3], markevery=0.1)
-    ax.plot(df_no_tightening[!,"openNodes"], 1:length(df_no_tightening[!,"openNodes"]), label="no tightening", color=colors[3], marker=markers[4], markevery=0.1)
+    ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
     ylabel("open nodes")
     #locator_params(axis="y", nbins=4)
