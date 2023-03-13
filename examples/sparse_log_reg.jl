@@ -42,15 +42,15 @@ function sparse_log_regression(seed=1, dimension=10, M=3, k=5.0, var_A=1.0, full
     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     if bo_mode == "afw"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, afw=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, afw=true)
     elseif bo_mode == "as_ss"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=false)
     elseif bo_mode == "as"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
     elseif bo_mode == "ss"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
     elseif bo_mode == "global_tightening"
