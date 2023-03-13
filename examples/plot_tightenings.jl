@@ -19,6 +19,11 @@ function plot(example, setup)
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_log_regression_" * setup * ".csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_log_regression_" * setup * ".csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_log_regression_" * setup * ".csv")))
+    elseif example == "integer_portfolio"
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_" * setup * "_integer_portfolio.csv")))
+        df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_" * setup * "_integer_portfolio.csv")))
+        df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_" * setup * "_integer_portfolio.csv")))
+        df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_" * setup * "_integer_portfolio.csv")))
     end
 
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
