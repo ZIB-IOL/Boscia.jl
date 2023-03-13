@@ -142,17 +142,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -407,17 +407,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -572,17 +572,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -613,6 +613,8 @@ function build_non_grouped_csv(mode)
         end
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+
+        # print(select(df, [:seed, :dimension, :k, :Ns, :p, :solution_boscia, :lb_boscia, :solution_ipopt]))
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
@@ -820,17 +822,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1039,17 +1041,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1258,12 +1260,12 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1390,12 +1392,12 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1526,17 +1528,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1652,17 +1654,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1778,17 +1780,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1904,17 +1906,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
