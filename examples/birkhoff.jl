@@ -7,15 +7,15 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
+using DataFrames
+using CSV
 
 # Example on the Birkhoff polytope but using permutation matrices directly
 # https://arxiv.org/pdf/2011.02752.pdf
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
 
 # For bug hunting:
-seed = rand(UInt64)
-@show seed
-seed = 0x3eb09305cecf69f0
+seed = 2
 Random.seed!(seed)
 
 
@@ -33,8 +33,8 @@ Random.seed!(seed)
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
 # Small dimensions since the size of the problem grows quickly (2 k n^2 + k variables)
-n = 3
-k = 2
+n = 2
+k = 3
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
@@ -100,8 +100,22 @@ function build_birkhoff_lmo()
 end
 
 lmo = build_birkhoff_lmo()
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
+# x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
+x, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
 
+total_time_in_sec=result[:total_time_in_sec]
+status = result[:status]
+lb_list = result[:list_lb]
+ub_list = result[:list_ub]
+time_list = result[:list_time]
+list_lmo_calls = result[:list_lmo_calls_acc]
+list_open_nodes = result[:open_nodes]
+list_local_tightening = result[:local_tightenings]
+list_global_tightening = result[:global_tightenings]
+
+df = DataFrame(seed=seed, dimension=n, k=k, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_birkhoff_open_nodes_" * string(n) * "_" * string(k) * "_" *string(seed) *".csv")
+CSV.write(file_name, df, append=false)
 
 # TODO the below needs to be fixed
 # TODO can use the min_via_enum function if not too many solutions

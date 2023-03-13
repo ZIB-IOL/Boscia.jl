@@ -26,7 +26,8 @@ include("BnB_Ipopt.jl")
 # It is assumed that y_i is poisson distributed and that the log 
 # of its expected value can be computed linearly.
 
-function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
+# poisson(1,10,1.0,1,true;bo_mode="boscia") assertionError
+function poisson(seed=1, n=20, Ns=0.1, iter = 1, full_callback=false; bo_mode)
     limit = 1800
 
     f, grad!, p = build_function(seed, n)
@@ -44,7 +45,7 @@ function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
         elseif bo_mode == "ss"
             x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
         elseif bo_mode == "boscia"
-            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+            x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
         elseif bo_mode == "local_tightening"
             x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
         elseif bo_mode == "global_tightening"
@@ -60,13 +61,29 @@ function poisson(seed=1, n=20, Ns=0.1, iter = 1; bo_mode)
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-        if bo_mode ==  "afw"
-            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
-        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
-            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
-        else 
-            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson.csv")
+        if full_callback
+            lb_list = result[:list_lb]
+            ub_list = result[:list_ub]
+            time_list = result[:list_time]
+            list_lmo_calls = result[:list_lmo_calls_acc]
+            list_open_nodes = result[:open_nodes]
+            list_local_tightening = result[:local_tightenings]
+            list_global_tightening = result[:global_tightenings]
+        end
+
+        if full_callback
+            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson_" * string(n) * "_" * string(Ns) * "-" * string(p) * "_"  * string(k) * "_" * string(seed) * ".csv")
+            CSV.write(file_name, df, append=false)
+        else
+            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+            if bo_mode ==  "afw"
+                file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
+            elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+                file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson.csv")
+            else 
+                file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson.csv")
+            end
         end
         if !isfile(file_name)
             CSV.write(file_name, df, append=true, writeheader=true)
