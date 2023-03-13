@@ -19,7 +19,8 @@ end
 =#
 
 bo_mode = "strong_convexity"
-for example in ["neos5", "pg5_34", "ran14x18-disj-8"]
+# pg5_34 dim 5 seed 3 and 6:8 1:3
+for example in ["ran14x18-disj-8"]
     for num_v in [4:1:8;]#[4:1:8;]
         for seed in 1:3 #1:3
             @show seed, num_v

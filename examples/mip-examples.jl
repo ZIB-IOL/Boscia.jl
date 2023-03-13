@@ -29,9 +29,9 @@ include("BnB_Ipopt.jl")
 function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
     limit = 1800
 
-    #o = SCIP.Optimizer()
-    #lmo, f, grad! = build_example(o, example, num_v, seed)
-    #Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
+    o = SCIP.Optimizer()
+    lmo, f, grad! = build_example(o, example, num_v, seed)
+    Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     o = SCIP.Optimizer()
     lmo, f, grad!, max_norm = build_example(o, example, num_v, seed)
