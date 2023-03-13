@@ -1567,6 +1567,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = lowerBounds
         # incumbent - lb /min (incumbent ,lb )
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
@@ -1649,6 +1650,21 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
 
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_neos5.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:solution_sc] = df_sc[!,:solution]
+        df_sc[!,:termination_sc] = termination_sc
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
+
+        df[!, :rel_gap_sc] = (df[!, :solution_sc] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_sc]))
+
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
@@ -1693,6 +1709,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = lowerBounds
         # incumbent - lb /min (incumbent ,lb )
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
@@ -1775,6 +1792,18 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
 
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_pg5_34.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:termination_sc] = termination_sc
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
+
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
@@ -1818,6 +1847,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = lowerBounds
         # incumbent - lb /min (incumbent ,lb )
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
@@ -1901,6 +1931,21 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
 
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_ran14x18-disj-8.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:termination_sc] = termination_sc
+        df_sc[!,:solution_sc] = df_sc[!,:solution]
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
+
+        df[!, :rel_gap_sc] = (df[!, :solution_sc] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_sc]))
+
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
@@ -1951,6 +1996,10 @@ function build_grouped_csv(file_name, mode)
         df[df.time_loc_ti.>1800, :time_loc_ti] .= 1800
         df[df.time_gl_ti.>1800, :time_gl_ti] .= 1800
         df[df.time_no_ti.>1800, :time_no_ti] .= 1800
+    end
+
+    if mode == "neos5"
+        df[df.time_sc.>1800, :time_sc] .= 1800
     end
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
@@ -2125,7 +2174,7 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
@@ -2144,9 +2193,12 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
             :optimal_scip => custom_sum,
+            :termination_sc => custom_sum,
+            :time_sc => geo_mean,
+            :rel_gap_sc => custom_mean,
             nrow => :NumInstances, renamecols=false
             )
-   #= elseif mode == "ran14x18"
+    elseif mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
@@ -2157,8 +2209,10 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_ipopt => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
             :optimal_scip => custom_sum,
+            :termination_sc => custom_sum,
+            :time_sc => geo_mean,
             nrow => :NumInstances, renamecols=false
-            ) =#
+            )
     end
 
     # remove underscore in headers for LaTex
@@ -2519,13 +2573,24 @@ function build_grouped_csv(file_name, mode)
         end
     end
 
-    gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
-    gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
-    gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
-    gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
-    gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
-    gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
+    if mode != "ran14x18"
+        gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
+        gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
+        gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
+        gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
+        gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
+        gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
+    end
 
+    if mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+        rename!(gdf, :termination_sc => :terminationSc)
+        gdf[!,:terminationSc] = convert.(Int64,gdf[!,:terminationSc])
+        rename!(gdf, :time_sc => :timeSc)
+        gdf[!,:timeSc] = convert.(Int64,round.(gdf[!,:timeSc]))
+        rename!(gdf, :rel_gap_sc => :relGapSc)
+        non_inf_entries = findall(isfinite, gdf[!, :relGapSc])
+        gdf[non_inf_entries, :relGapSc] = convert.(Int64, round.(gdf[non_inf_entries, :relGapSc]*100))
+    end
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
     end

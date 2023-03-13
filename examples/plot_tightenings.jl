@@ -29,7 +29,7 @@ function plot(example, setup)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(6.5,3.5))
+    fig = plt.figure(figsize=(6.5,9.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -37,7 +37,7 @@ function plot(example, setup)
     \usepackage{libertine}
     \usepackage{libertinust1math}
     """)
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(311)
 
     ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
     ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
@@ -45,6 +45,30 @@ function plot(example, setup)
     ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
     ylabel("open nodes")
+    #locator_params(axis="y", nbins=4)
+    xlabel("iteration")
+    ax.grid()
+
+    # lb, time 
+    ax = fig.add_subplot(312)
+    ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+    ax.plot(df_global_tightening[!,"time"], df_global_tightening[!,"lowerBound"], label="global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+    ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+    ax.plot(df_no_tightening[!,"time"], df_no_tightening[!,"lowerBound"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+
+    ylabel("lower bound")
+    #locator_params(axis="y", nbins=4)
+    xlabel("time")
+    ax.grid()
+
+    # ncalls
+    ax = fig.add_subplot(313)
+    ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"LMOcalls"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"LMOcalls"], label="global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"LMOcalls"], label="local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+    ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"LMOcalls"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+
+    ylabel("LMO calls")
     #locator_params(axis="y", nbins=4)
     xlabel("iteration")
     ax.grid()
