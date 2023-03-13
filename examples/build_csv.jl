@@ -2519,6 +2519,19 @@ function build_grouped_csv(file_name, mode)
         end
     end
 
+    gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
+    gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
+    gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
+    gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
+    gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
+    gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
+
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
+    end
+
+
+    print(first(gdf,5))
 
     # save csv
     if mode == "integer"
