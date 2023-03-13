@@ -12,7 +12,7 @@ using DataFrames
 include("scip_oa.jl")
 include("BnB_Ipopt.jl")
 
-function portfolio(seed=1, dimension=5; mode, bo_mode)
+function portfolio(seed=1, dimension=5, full_callback=false; mode, bo_mode)
     limit = 1800
 
     f, grad!, n = build_function(seed, dimension)
@@ -30,7 +30,7 @@ function portfolio(seed=1, dimension=5; mode, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false) 
     elseif bo_mode == "global_tightening"
@@ -44,20 +44,32 @@ function portfolio(seed=1, dimension=5; mode, bo_mode)
     if occursin("Optimal", result[:status])
         status = "OPTIMAL"
     end
-    df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-    if bo_mode ==  "afw"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
-    elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
-    else 
-        file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_" * mode * "_portfolio.csv")
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
+        list_local_tightening = result[:local_tightenings]
+        list_global_tightening = result[:global_tightenings]
+        df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * string(n) * "_" *string(seed) * "_" * mode * "_portfolio.csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        if bo_mode ==  "afw"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
+        else 
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_" * mode * "_portfolio.csv")
+        end
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
     end
-    if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
-    else 
-        CSV.write(file_name, df, append=true)
-    end
-    
 end
 
 function portfolio_scip(seed=1, dimension=5; mode)
