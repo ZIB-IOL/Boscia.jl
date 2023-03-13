@@ -2615,3 +2615,659 @@ Search Statistics.
 	 Local tightenings / node: 1.18
 	 Total number of potential tightenings: 0
 
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+WARNING: Dual bound -10.8133 is larger than the objective of the primal solution -10.8135. The solution might not be optimal.
+WARNING: Dual bound -6874.68 is larger than the objective of the primal solution -6874.69. The solution might not be optimal.
+ERROR: LoadError: syntax: incomplete: premature end of input
+Stacktrace:
+ [1] top-level scope
+   @ /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/run_portfolio.jl:15
+in expression starting at /nfs/homeoptimi/htroppen/git/Boscia.jl/examples/run_portfolio.jl:15
+Away FW: false
+
+Away FW: false
+
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+WARNING: Dual bound -10175.7 is larger than the objective of the primal solution -10175.7. The solution might not be optimal.
+WARNING: Dual bound -70.3014 is larger than the objective of the primal solution -70.3017. The solution might not be optimal.
+WARNING: Dual bound -96.2737 is larger than the objective of the primal solution -96.2738. The solution might not be optimal.
+WARNING: Dual bound -72.694 is larger than the objective of the primal solution -72.6941. The solution might not be optimal.
+WARNING: Dual bound -46232.5 is larger than the objective of the primal solution -46232.6. The solution might not be optimal.
+WARNING: Dual bound -3.90642 is larger than the objective of the primal solution -3.90643. The solution might not be optimal.
+WARNING: Dual bound 10.7748 is larger than the objective of the primal solution 10.7748. The solution might not be optimal.
+WARNING: Dual bound -35.2293 is larger than the objective of the primal solution -35.2296. The solution might not be optimal.
+WARNING: Dual bound -18715.8 is larger than the objective of the primal solution -18715.8. The solution might not be optimal.
+WARNING: Dual bound -72.694 is larger than the objective of the primal solution -72.6941. The solution might not be optimal.
+WARNING: Dual bound -475.27 is larger than the objective of the primal solution -475.376. The solution might not be optimal.
+WARNING: Dual bound 12.9209 is larger than the objective of the primal solution 12.9209. The solution might not be optimal.
+WARNING: Dual bound -167.028 is larger than the objective of the primal solution -167.028. The solution might not be optimal.
+WARNING: Dual bound -64.9114 is larger than the objective of the primal solution -64.9116. The solution might not be optimal.
+WARNING: Dual bound -196.157 is larger than the objective of the primal solution -196.157. The solution might not be optimal.
+WARNING: Dual bound -3372.07 is larger than the objective of the primal solution -3372.07. The solution might not be optimal.
+WARNING: Dual bound -8.41819 is larger than the objective of the primal solution -8.41825. The solution might not be optimal.
+WARNING: Dual bound -9.80581 is larger than the objective of the primal solution -9.80595. The solution might not be optimal.
+WARNING: Dual bound -67282.6 is larger than the objective of the primal solution -67282.7. The solution might not be optimal.
+WARNING: Dual bound -51.8686 is larger than the objective of the primal solution -51.8701. The solution might not be optimal.
+WARNING: Dual bound 19.5955 is larger than the objective of the primal solution 19.5955. The solution might not be optimal.
+WARNING: Dual bound -1898.91 is larger than the objective of the primal solution -1898.92. The solution might not be optimal.
+WARNING: Dual bound -197.295 is larger than the objective of the primal solution -197.295. The solution might not be optimal.
+WARNING: Dual bound 3.45971 is larger than the objective of the primal solution 3.45904. The solution might not be optimal.
+WARNING: Dual bound -207466 is larger than the objective of the primal solution -207467. The solution might not be optimal.
+WARNING: Dual bound -2.91885e+08 is larger than the objective of the primal solution -2.91885e+08. The solution might not be optimal.
+WARNING: Dual bound -2.58409e+06 is larger than the objective of the primal solution -2.58425e+06. The solution might not be optimal.
+WARNING: Dual bound -3.69605e+08 is larger than the objective of the primal solution -3.69606e+08. The solution might not be optimal.
+WARNING: Dual bound -10.9798 is larger than the objective of the primal solution -10.9798. The solution might not be optimal.
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 110
+	 Number of integer variables: 110
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -6.325353e+01   1.393593e+01   7.718946e+01            Inf   6.392000e+00   4.693367e-01         5688       1412            114      10001       79        0
+*     6     7  -7.401977e+00   1.282589e+01   2.022787e+01            Inf   2.880500e+01   4.513105e-01         2465        276            443      10001       73        0
+*    46    37  -3.765598e+00   1.278636e+01   1.655196e+01            Inf   1.654080e+02   5.017895e-01         2520        375           3824      10001       96        0
+*    68    53  -1.823054e+00   1.228591e+01   1.410896e+01            Inf   2.254620e+02   5.455465e-01         2520        339           5748      10001       95        0
+*    69    46  -1.654427e+00   1.025025e+01   1.190468e+01            Inf   2.286720e+02   5.466345e-01         3207       1010           5876      10001       68        0
+    100    77  -6.946870e-01   1.025025e+01   1.094494e+01            Inf   3.924710e+02   4.764683e-01         3094        268           8889      10001       66        0
+    200   129   2.485488e-01   1.025025e+01   1.000170e+01   4.024038e+01   6.371210e+02   5.320810e-01          403         81          16047       1047      368        0
+    300   149   1.912361e+00   1.025025e+01   8.337889e+00   4.359998e+00   8.562650e+02   5.360490e-01         2021        746          20897       2228       80        0
+    400   167   2.820278e+00   1.025025e+01   7.429972e+00   2.634482e+00   1.221663e+03   4.723070e-01         4883        927          29154      10001       90        0
+    500   207   4.148586e+00   1.025025e+01   6.101664e+00   1.470782e+00   1.757614e+03   4.079394e-01         7527       1300          38579      10001      108        0
+    506   213   4.206302e+00   1.025025e+01   6.043948e+00   1.436879e+00   1.805762e+03   4.037077e-01         7296       1217          39163      10001       96        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 10.250249739924474
+	 Dual Bound: 4.206302230669916
+	 Dual Gap (relative): 1.436879039548228
+
+Search Statistics.
+	 Total number of nodes processed: 729
+	 Total number of lmo calls: 39163
+	 Total time (s): 1805.762
+	 LMO calls / sec: 21.687797173713925
+	 Nodes / sec: 0.40370768683802183
+	 LMO calls / node: 53.72153635116598
+
+	 Total number of global tightenings: 118
+	 Global tightenings / node: 0.23
+	 Total number of local tightenings: 11369
+	 Local tightenings / node: 22.47
+	 Total number of potential tightenings: 17154
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 110
+	 Number of integer variables: 110
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -1.532566e+01   1.464700e+01   2.997266e+01            Inf   5.879000e+00   5.102909e-01         5869       1522            115      10001       68        0
+*    26    27  -9.163746e-01   1.394643e+01   1.486280e+01            Inf   1.441850e+02   3.675833e-01         6618        737           2275      10001       71        0
+    100    77   6.409419e-02   1.394643e+01   1.388233e+01   2.165927e+02   4.229940e+02   4.184457e-01         1156         84           7984       1360      489        0
+    200    83   2.336681e+00   1.394643e+01   1.160974e+01   4.968476e+00   5.027940e+02   5.628548e-01           67         24          11306        109      177        0
+    300   135   6.290201e+00   1.394643e+01   7.656224e+00   1.217167e+00   9.799150e+02   4.439161e-01          726        356          20518       1545       75        0
+    400   175   7.864015e+00   1.394643e+01   6.082411e+00   7.734485e-01   1.435275e+03   4.006201e-01         6934       1301          30889      10001       76        0
+    479   204   8.771186e+00   1.394643e+01   5.175240e+00   5.900274e-01   1.801958e+03   3.790321e-01         4438        903          39875      10001       60        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 13.946425671704947
+	 Dual Bound: 8.771185517954212
+	 Dual Gap (relative): 0.5900274419184565
+
+Search Statistics.
+	 Total number of nodes processed: 683
+	 Total number of lmo calls: 39875
+	 Total time (s): 1801.958
+	 LMO calls / sec: 22.128706662419432
+	 Nodes / sec: 0.3790321417036357
+	 LMO calls / node: 58.38213762811127
+
+	 Total number of global tightenings: 58
+	 Global tightenings / node: 0.12
+	 Total number of local tightenings: 10429
+	 Local tightenings / node: 21.77
+	 Total number of potential tightenings: 16335
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 120
+	 Number of integer variables: 120
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -4.125693e+01   1.230021e+01   5.355714e+01            Inf   4.263000e+00   7.037298e-01         4259       1027            121      10001       77        0
+*     2     3  -4.125693e+01   1.191873e+01   5.317566e+01            Inf   8.639000e+00   5.787707e-01         4372        529            179      10001       78        0
+*     8     9  -2.796553e+00   1.082631e+01   1.362286e+01            Inf   3.406200e+01   4.990899e-01         4427        587            703      10001       92        0
+*    39    38  -1.622821e+00   9.872834e+00   1.149566e+01            Inf   2.062120e+02   3.734021e-01        10114       2958           4307      10001       93        0
+    100    95  -2.838634e-01   9.872834e+00   1.015670e+01            Inf   5.670210e+02   3.439026e-01         4276        501          10989      10001       65        0
+    200   139   3.725920e-01   9.872834e+00   9.500242e+00   2.549771e+01   7.648990e+02   4.431958e-01          197         46          17301        443      378        0
+    300   161   2.644311e+00   9.872834e+00   7.228524e+00   2.733614e+00   9.802350e+02   4.702954e-01         1016        444          23561       2015       83        0
+    400   197   3.222855e+00   9.872834e+00   6.649979e+00   2.063381e+00   1.530678e+03   3.900232e-01         1050        418          34205       1364       59        0
+    450   229   3.691654e+00   9.872834e+00   6.181181e+00   1.674366e+00   1.801716e+03   3.768629e-01         5450       1459          39999      10001       76        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: 9.872834165200231
+	 Dual Bound: 3.6916536347254834
+	 Dual Gap (relative): 1.6743663252509846
+
+Search Statistics.
+	 Total number of nodes processed: 679
+	 Total number of lmo calls: 39999
+	 Total time (s): 1801.717
+	 LMO calls / sec: 22.200489866055545
+	 Nodes / sec: 0.376862737044719
+	 LMO calls / node: 58.908689248895435
+
+	 Total number of global tightenings: 134
+	 Global tightenings / node: 0.3
+	 Total number of local tightenings: 10728
+	 Local tightenings / node: 23.84
+	 Total number of potential tightenings: 16263
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 80
+	 Number of integer variables: 40
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -4.268745e+01   3.353347e-01   4.302278e+01            Inf   9.460000e-01   3.171247e+00          944        281             73      10001       49        0
+*     3     4  -4.253447e+01   1.859234e-02   4.255306e+01            Inf   2.190000e+00   3.196347e+00          881        236            205       8576       66        0
+*     4     5  -4.253447e+01  -3.206265e+00   3.932820e+01   1.226605e+01   3.156000e+00   2.851711e+00          963        213            264      10001       66        0
+*     6     7  -4.253447e+01  -4.079218e+01   1.742287e+00   4.271129e-02   4.993000e+00   2.603645e+00          940        191            402      10001       80        0
+*    10    11  -4.253447e+01  -4.111920e+01   1.415266e+00   3.441862e-02   8.150000e+00   2.576687e+00          799         63            634      10001       82        0
+*    11    12  -4.253447e+01  -4.131656e+01   1.217912e+00   2.947757e-02   9.054000e+00   2.540314e+00          902        156            716      10001       54        0
+*    16    17  -4.253447e+01  -4.168534e+01   8.491245e-01   2.036986e-02   1.325900e+01   2.488875e+00          740         21            951      10001       47        0
+*    45    46  -4.253447e+01  -4.183380e+01   7.006676e-01   1.674884e-02   3.937400e+01   2.311170e+00          773         40           2875      10001       13        0
+*    61    62  -4.253447e+01  -4.192363e+01   6.108363e-01   1.457021e-02   5.338600e+01   2.303975e+00          799         60           3776      10001       41        0
+    100   101  -4.253447e+01  -4.192363e+01   6.108363e-01   1.457021e-02   8.748500e+01   2.297537e+00          854         99           5996      10001       82        0
+    200   195  -4.253447e+01  -4.192363e+01   6.108363e-01   1.457021e-02   1.761040e+02   2.242993e+00          915        150          11990      10001       48        0
+    300   287  -4.253447e+01  -4.192363e+01   6.108363e-01   1.457021e-02   2.632040e+02   2.230209e+00          921        133          17902      10001       89        0
+*   379   310  -4.253447e+01  -4.214560e+01   3.888644e-01   9.226688e-03   3.300600e+02   2.190511e+00          530        122          22437       5270       63        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: -42.24683298574246
+	 Dual Bound: -42.53446802815101
+	 Dual Gap (relative): 0.006808440351153058
+
+Search Statistics.
+	 Total number of nodes processed: 723
+	 Total number of lmo calls: 22488
+	 Total time (s): 330.219
+	 LMO calls / sec: 68.10026073605698
+	 Nodes / sec: 2.189456088232355
+	 LMO calls / node: 31.103734439834025
+
+	 Total number of global tightenings: 109
+	 Global tightenings / node: 0.29
+	 Total number of local tightenings: 2224
+	 Local tightenings / node: 5.87
+	 Total number of potential tightenings: 8598
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 100
+	 Number of integer variables: 50
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -5.843076e+00   5.055053e+00   1.089813e+01            Inf   4.597000e+00   6.525995e-01         4590        595             91      10001       65        0
+*     2     3  -5.843076e+00   2.933789e+00   8.776865e+00            Inf   8.857000e+00   5.645252e-01         4252        219            120      10001       68        0
+*     4     5  -5.843076e+00   1.723144e+00   7.566219e+00            Inf   1.777800e+01   5.062437e-01         4510        250            266      10001       78        0
+*     6     7  -5.639534e+00   1.119103e+00   6.758637e+00            Inf   2.722700e+01   4.774672e-01         4405        161            391      10001       72        0
+*     8     9  -5.240580e+00   5.729710e-01   5.813551e+00            Inf   3.743200e+01   4.541569e-01         4883        249            564      10001       79        0
+*    54    35  -2.643506e+00   5.397201e-01   3.183226e+00            Inf   1.933420e+02   4.603242e-01         3545        282           4366      10001      105        0
+*    64    39  -2.580217e+00   3.304193e-01   2.910637e+00            Inf   2.200620e+02   4.771383e-01         3240        183           5310      10001      114        0
+*    66    39  -2.357750e+00   1.156350e-02   2.369313e+00            Inf   2.257850e+02   4.827601e-01         3407         99           5461      10001       88        0
+*    68    41  -2.357750e+00  -4.027783e-02   2.317472e+00   5.753715e+01   2.326280e+02   4.857541e-01         3738        302           5637      10001       88        0
+    100    61  -2.086969e+00  -4.027783e-02   2.046691e+00   5.081433e+01   3.328520e+02   4.957158e-01          942        129           8612       1431      107        0
+*   122    61  -2.012741e+00  -3.307501e-01   1.681991e+00   5.085384e+00   3.988930e+02   4.788251e-01         5063        512          10550      10001       98        0
+*   124    61  -2.012741e+00  -3.718532e-01   1.640888e+00   4.412731e+00   4.091330e+02   4.717292e-01         5346        602          10766      10001      103        0
+*   126    61  -2.012741e+00  -4.692967e-01   1.543445e+00   3.288846e+00   4.193490e+02   4.650065e-01         5326        647          11002      10001      108        0
+    200    63  -1.662343e+00  -4.692967e-01   1.193047e+00   2.542202e+00   6.736110e+02   4.023093e-01         5441        345          17489      10001      108        0
+*   246    61  -1.473812e+00  -5.694670e-01   9.043449e-01   1.588055e+00   8.197540e+02   3.891411e-01         4924        415          21436      10001      116        0
+*   248    59  -1.473812e+00  -5.983113e-01   8.755006e-01   1.463286e+00   8.296160e+02   3.893368e-01         4771        370          21643      10001       93        0
+*   264    55  -1.354876e+00  -6.605519e-01   6.943238e-01   1.051127e+00   8.974960e+02   3.777176e-01         5329        465          23156      10001       94        0
+*   284    47  -1.303371e+00  -7.391109e-01   5.642604e-01   7.634314e-01   9.551190e+02   3.716814e-01         3960        250          24922      10001       61        0
+*   286    45  -1.303371e+00  -7.453639e-01   5.580074e-01   7.486375e-01   9.578670e+02   3.727031e-01         2339        230          25056      10001       74        0
+    300    37  -1.195968e+00  -7.453639e-01   4.506042e-01   6.045426e-01   9.826780e+02   3.693987e-01          358         65          26132        614       86        0
+*   338    29  -1.103178e+00  -7.629267e-01   3.402510e-01   4.459813e-01   1.080029e+03   3.675827e-01         5175        311          29618      10001       63        0
+*   352    25  -1.086464e+00  -7.907554e-01   2.957085e-01   3.739570e-01   1.129192e+03   3.604347e-01         5544        490          30913      10001       62        0
+*   356    25  -1.026419e+00  -7.974894e-01   2.289297e-01   2.870630e-01   1.142835e+03   3.596320e-01         4869        212          31201      10001       61        0
+*   368    23  -1.004007e+00  -8.032519e-01   2.007550e-01   2.499278e-01   1.185138e+03   3.552329e-01         5366        344          32324      10001       86        0
+*   372    23  -9.751635e-01  -8.049051e-01   1.702584e-01   2.115261e-01   1.198627e+03   3.545724e-01         4838        173          32538      10001       51        0
+*   374    21  -9.699092e-01  -8.241061e-01   1.458031e-01   1.769227e-01   1.205199e+03   3.542983e-01         5189        395          32716      10001       78        0
+*   376    21  -9.683818e-01  -8.330268e-01   1.353550e-01   1.624858e-01   1.211157e+03   3.542068e-01         4954        234          32843      10001       50        0
+*   382    19  -9.346094e-01  -8.422723e-01   9.233718e-02   1.096287e-01   1.231111e+03   3.517148e-01         5273        352          33360      10001       53        0
+*   394    13  -9.019771e-01  -8.529666e-01   4.901056e-02   5.745895e-02   1.271509e+03   3.452591e-01         4769        203          34407      10001       62        0
+*   396    13  -8.995946e-01  -8.569734e-01   4.262121e-02   4.973458e-02   1.277130e+03   3.453055e-01         4704        192          34510      10001       48        0
+*   398    13  -8.995946e-01  -8.573043e-01   4.229027e-02   4.932935e-02   1.282784e+03   3.453426e-01         4848        244          34635      10001       52        0
+    400    11  -8.855021e-01  -8.573043e-01   2.819781e-02   3.289125e-02   1.284811e+03   3.447978e-01         1485        176          34733       2648      105        0
+*   404    11  -8.836734e-01  -8.585684e-01   2.510496e-02   2.924049e-02   1.300972e+03   3.435893e-01         5023        333          35092      10001       55        0
+*   416     7  -8.732744e-01  -8.594809e-01   1.379356e-02   1.604871e-02   1.345409e+03   3.381871e-01         4847        238          36147      10001       53        0
+*   418     7  -8.698754e-01  -8.603039e-01   9.571550e-03   1.112578e-02   1.350759e+03   3.383283e-01         4676        161          36238      10001       58        0
+*   420     7  -8.693429e-01  -8.611890e-01   8.153912e-03   9.468203e-03   1.355836e+03   3.385365e-01         4537        106          36312      10001       46        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: -0.8611889860311217
+	 Dual Bound: -0.8693428983354887
+	 Dual Gap (relative): 0.009468203189575338
+
+Search Statistics.
+	 Total number of nodes processed: 459
+	 Total number of lmo calls: 36397
+	 Total time (s): 1356.767
+	 LMO calls / sec: 26.826271570579177
+	 Nodes / sec: 0.33830421877890604
+	 LMO calls / node: 79.29629629629629
+
+	 Total number of global tightenings: 149
+	 Global tightenings / node: 0.35
+	 Total number of local tightenings: 3818
+	 Local tightenings / node: 9.09
+	 Total number of potential tightenings: 6088
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 115
+	 Number of integer variables: 57
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -5.568879e+01   4.353435e-01   5.612413e+01            Inf   5.282000e+00   5.679667e-01         5273        825            100      10001       75        0
+*     2     3  -5.568879e+01  -4.851551e+01   7.173277e+00   1.478553e-01   1.075300e+01   4.649865e-01         5468        676            179      10001      126        0
+*     9    10  -5.553503e+01  -4.902384e+01   6.511186e+00   1.328167e-01   4.843400e+01   3.922864e-01         5259        412            855      10001       17        0
+*    72    73  -5.553503e+01  -4.917881e+01   6.356219e+00   1.292471e-01   3.634160e+02   3.989918e-01         4865         38           6225      10001       66        0
+    100   101  -5.553503e+01  -4.917881e+01   6.356219e+00   1.292471e-01   4.797740e+02   4.189473e-01         5284        312           8491      10001      130        0
+    200   201  -5.553503e+01  -4.917881e+01   6.356219e+00   1.292471e-01   1.002236e+03   4.001054e-01         3143         62          16611      10001       72        0
+    300   297  -5.543720e+01  -4.917881e+01   6.258389e+00   1.272578e-01   1.405130e+03   4.248717e-01         3685         84          24531      10001       32        0
+*   391   384  -5.537986e+01  -4.920142e+01   6.178447e+00   1.255746e-01   1.793600e+03   4.332070e-01         3464         79          31818      10001       66        0
+    394   387  -5.537986e+01  -4.920142e+01   6.178447e+00   1.255746e-01   1.804319e+03   4.339587e-01         4336        205          32060      10001      107        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: -49.58191146178605
+	 Dual Bound: -55.379863604044544
+	 Dual Gap (relative): 0.1169368419111295
+
+Search Statistics.
+	 Total number of nodes processed: 783
+	 Total number of lmo calls: 32129
+	 Total time (s): 1805.236
+	 LMO calls / sec: 17.79767299123217
+	 Nodes / sec: 0.43373830346835535
+	 LMO calls / node: 41.03320561941251
+
+	 Total number of global tightenings: 49
+	 Global tightenings / node: 0.12
+	 Total number of local tightenings: 2860
+	 Local tightenings / node: 7.26
+	 Total number of potential tightenings: 9641
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 120
+	 Number of integer variables: 60
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -3.040405e+01   4.486188e-01   3.085267e+01            Inf   5.665000e+00   5.295675e-01         5654        790             97      10001       73        0
+*     4     5  -2.858132e+01  -1.278011e+00   2.730331e+01   2.136392e+01   2.187100e+01   4.115038e-01         4918        101            253      10001       76        0
+*     6     7  -2.858132e+01  -4.336397e+00   2.424493e+01   5.591030e+00   3.289600e+01   3.951848e-01         4937         55            388      10001       73        0
+*     8     9  -2.858132e+01  -4.578978e+00   2.400235e+01   5.241856e+00   4.377400e+01   3.883584e-01         5139         88            524      10001       77        0
+*    13    14  -2.777709e+01  -5.174344e+00   2.260275e+01   4.368234e+00   7.162500e+01   3.769634e-01         6009        432           1005      10001       67        0
+*    22    23  -2.777709e+01  -6.047487e+00   2.172960e+01   3.593162e+00   1.220050e+02   3.688373e-01         5322         54           1558      10001       72        0
+*    64    65  -2.637024e+01  -6.124104e+00   2.024614e+01   3.305976e+00   3.591810e+02   3.591504e-01         5436         73           4701      10001       67        0
+    100   101  -2.559381e+01  -6.124104e+00   1.946971e+01   3.179193e+00   5.144900e+02   3.906781e-01         3155         73           7412      10001       71        0
+*   118   119  -2.522925e+01  -7.029975e+00   1.819927e+01   2.588811e+00   6.030120e+02   3.930270e-01         5024         94           8771      10001       81        0
+    200   197  -2.485410e+01  -7.029975e+00   1.782413e+01   2.535447e+00   9.890030e+02   4.014144e-01         1040         94          15427       3423       74        0
+    300   293  -2.302217e+01  -7.029975e+00   1.599220e+01   2.274859e+00   1.421317e+03   4.172187e-01         5061         59          23479      10001       63        0
+    390   381  -2.191688e+01  -7.029975e+00   1.488691e+01   2.117633e+00   1.801862e+03   4.278907e-01         2644         97          30818      10001       74        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Time limit reached
+	 Primal Objective: -9.165902448242452
+	 Dual Bound: -21.916883662254154
+	 Dual Gap (relative): 1.3911321101237208
+
+Search Statistics.
+	 Total number of nodes processed: 771
+	 Total number of lmo calls: 30879
+	 Total time (s): 1802.326
+	 LMO calls / sec: 17.132860536884003
+	 Nodes / sec: 0.4277805458058087
+	 LMO calls / node: 40.05058365758755
+
+	 Total number of global tightenings: 113
+	 Global tightenings / node: 0.29
+	 Total number of local tightenings: 5488
+	 Local tightenings / node: 14.07
+	 Total number of potential tightenings: 10115
+
+Away FW: false
+
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+Away FW: true
+	 Total number of variables: 120
+	 Number of integer variables: 60
+	 Number of binary variables: 0
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2  -1.051545e+03   7.720373e+00   1.059265e+03            Inf   3.370000e+00   8.902077e-01         3366        465             99      10001       72        0
+*     2     3  -1.051545e+03   2.225561e+00   1.053770e+03            Inf   6.699000e+00   7.463801e-01         3326        136            132      10001       82        0
+*    14     9  -3.664716e+00   1.948644e+00   5.613359e+00            Inf   5.415800e+01   4.616123e-01         3761        279           1105      10001       85        0
+*    16    11  -2.961429e+00   1.535345e+00   4.496774e+00            Inf   6.089000e+01   4.762687e-01         3181        272           1280      10001       99        0
+*    32    17  -2.840801e+00   9.852309e-01   3.826032e+00            Inf   1.412260e+02   3.894467e-01         5540        420           2885      10001      104        0
+*    34    15  -2.840801e+00   9.316172e-01   3.772418e+00            Inf   1.524290e+02   3.870655e-01         5491        427           3062      10001       85        0
+*    38    15  -2.498488e+00   4.308866e-01   2.929375e+00            Inf   1.719130e+02   3.664644e-01         5320        278           3436      10001       85        0
+*    40    17  -2.498488e+00   4.005593e-01   2.899048e+00            Inf   1.835050e+02   3.651127e-01         5690        497           3646      10001       98        0
+*    46    17  -2.484840e+00   3.415765e-01   2.826416e+00            Inf   2.185240e+02   3.340594e-01         4212        321           4409      10001      103        0
+    100    27  -2.325324e+00   3.415765e-01   2.666901e+00            Inf   4.587040e+02   2.986676e-01         5248        162           9212      10001       78        0
+*   120    21  -1.906984e+00   1.236986e-01   2.030683e+00            Inf   5.419430e+02   2.860079e-01         5949        437          11142      10001      101        0
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+*   130    19  -1.780768e+00   7.285984e-02   1.853628e+00            Inf   5.843330e+02   2.789505e-01         5741        337          12216      10001       99        0
+*   132    21  -1.780768e+00  -6.450992e-03   1.774317e+00   2.750456e+02   5.969810e+02   2.797409e-01         6497        744          12430      10001      129        0
+*   134    23  -1.780768e+00  -1.336891e-01   1.647079e+00   1.232022e+01   6.094170e+02   2.805960e-01         5813        400          12639      10001      122        0
+*   144    17  -1.467528e+00  -2.148213e-01   1.252707e+00   5.831390e+00   6.383670e+02   2.804030e-01         2654        236          13604      10001      116        0
+*   146    17  -1.467528e+00  -2.950472e-01   1.172481e+00   3.973876e+00   6.429230e+02   2.815267e-01         2622        243          13771      10001       91        0
+*   148    17  -1.467528e+00  -3.456521e-01   1.121876e+00   3.245680e+00   6.480370e+02   2.823913e-01         2715        307          14017      10001      107        0
+*   152    13  -1.294766e+00  -3.815846e-01   9.131815e-01   2.393130e+00   6.564510e+02   2.818184e-01         2738        322          14476      10001       98        0
+*   154    15  -1.294766e+00  -4.201656e-01   8.746005e-01   2.081562e+00   6.618360e+02   2.855692e-01         2615        238          14685      10001       95        0
+*   158    13  -1.294766e+00  -4.615668e-01   8.331993e-01   1.805155e+00   6.676630e+02   2.860725e-01         2787        335          15046      10001       90        0
+*   164    13  -1.294766e+00  -4.851075e-01   8.096586e-01   1.669029e+00   6.849620e+02   2.876072e-01         5411        194          15641      10001       83        0
+*   166    11  -1.182287e+00  -5.129111e-01   6.693754e-01   1.305052e+00   6.899220e+02   2.884384e-01         3877        340          15803      10001       78        0
+*   168    11  -1.182287e+00  -5.517649e-01   6.305217e-01   1.142736e+00   6.953400e+02   2.890672e-01         3453        174          15998      10001       78        0
+*   172    11  -1.113592e+00  -5.890705e-01   5.245214e-01   8.904220e-01   7.081210e+02   2.894985e-01         4166        361          16397      10001       74        0
+*   178     5  -9.483732e-01  -6.129062e-01   3.354670e-01   5.473381e-01   7.284270e+02   2.841740e-01         5589        241          17005      10001       83        0
+*   180     5  -9.483732e-01  -6.351876e-01   3.131856e-01   4.930601e-01   7.334780e+02   2.849438e-01         3057        355          17183      10001       92        0
+*   182     5  -9.483732e-01  -6.786163e-01   2.697569e-01   3.975101e-01   7.369790e+02   2.863040e-01         2420        218          17364      10001       77        0
+*   184     5  -9.483732e-01  -6.892848e-01   2.590884e-01   3.758800e-01   7.406910e+02   2.875693e-01         2556        279          17535      10001       80        0
+*   186     5  -9.483732e-01  -6.969021e-01   2.514712e-01   3.608415e-01   7.440660e+02   2.889529e-01         2568        317          17729      10001       74        0
+*   188     5  -9.483732e-01  -7.072004e-01   2.411728e-01   3.410248e-01   7.472790e+02   2.903869e-01         2580        294          17908      10001      122        0
+*   190     5  -9.483732e-01  -7.178545e-01   2.305187e-01   3.211217e-01   7.503590e+02   2.918603e-01         2415        199          18035      10001       79        0
+*   192     5  -9.483732e-01  -7.314467e-01   2.169265e-01   2.965718e-01   7.538320e+02   2.931688e-01         2419        182          18232      10001       96        0
+*   194     5  -9.483732e-01  -7.403190e-01   2.080542e-01   2.810331e-01   7.569220e+02   2.946142e-01         2349        113          18378      10001       68        0
+*   196     5  -8.300887e-01  -7.410170e-01   8.907174e-02   1.202020e-01   7.599050e+02   2.960896e-01         2413        210          18519      10001       69        0
+*   198     5  -8.300887e-01  -7.429674e-01   8.712129e-02   1.172612e-01   7.633270e+02   2.973824e-01         2495        265          18690      10001       77        0
+    200     3  -8.149533e-01  -7.429674e-01   7.198583e-02   9.688961e-02   7.647700e+02   2.968213e-01          574        146          18862       1870      108        0
+*   208     3  -8.138810e-01  -7.449703e-01   6.891065e-02   9.250120e-02   7.791090e+02   3.016266e-01         2548        271          19646      10001      107        0
+*   210     3  -8.138810e-01  -7.498117e-01   6.406926e-02   8.544713e-02   7.821360e+02   3.030164e-01         2439        190          19789      10001       85        0
+*   212     3  -8.138810e-01  -7.500947e-01   6.378628e-02   8.503764e-02   7.850760e+02   3.044291e-01         2291        100          19896      10001       76        0
+*   214     3  -8.138810e-01  -7.522283e-01   6.165266e-02   8.196004e-02   7.883890e+02   3.056867e-01         2326        113          20042      10001       75        0
+*   216     3  -8.138810e-01  -7.563749e-01   5.750607e-02   7.602853e-02   7.915370e+02   3.069977e-01         2333        119          20190      10001       63        0
+*   218     3  -7.916776e-01  -7.579979e-01   3.367970e-02   4.443244e-02   7.945050e+02   3.083681e-01         2478        184          20324      10001       81        0
+*   220     3  -7.847403e-01  -7.594260e-01   2.531430e-02   3.333346e-02   7.988300e+02   3.092022e-01         3937        155          20451      10001       64        0
+*   222     3  -7.731132e-01  -7.595257e-01   1.358759e-02   1.788958e-02   8.020890e+02   3.104394e-01         2824        275          20588      10001       87        0
+*   224     3  -7.731132e-01  -7.600255e-01   1.308777e-02   1.722017e-02   8.076800e+02   3.107666e-01         5088        161          20702      10001       58        0
+*   226     3  -7.731132e-01  -7.609314e-01   1.218181e-02   1.600907e-02   8.156080e+02   3.101980e-01         6254        292          20842      10001       56        0
+*   228     3  -7.731132e-01  -7.613101e-01   1.180318e-02   1.550378e-02   8.222480e+02   3.101254e-01         6095        243          20944      10001       56        0
+*   230     3  -7.731132e-01  -7.614347e-01   1.167854e-02   1.533755e-02   8.289200e+02   3.100420e-01         5880        173          21016      10001       56        0
+*   232     3  -7.731132e-01  -7.615012e-01   1.161201e-02   1.524884e-02   8.346020e+02   3.103276e-01         4386        156          21112      10001       55        0
+    233     2  -7.621806e-01  -7.615012e-01   6.794130e-04   8.922021e-04   8.352180e+02   3.100987e-01          613        134          21168        907       39        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Solution Statistics.
+	 Solution Status: Optimal (tolerance reached)
+	 Primal Objective: -0.7615012349103618
+	 Dual Bound: -0.7621806479021367
+	 Dual Gap (relative): 0.0008922020879649003
+
+Search Statistics.
+	 Total number of nodes processed: 259
+	 Total number of lmo calls: 21266
+	 Total time (s): 836.164
+	 LMO calls / sec: 25.432809831564143
+	 Nodes / sec: 0.3097478485081874
+	 LMO calls / node: 82.10810810810811
+
+	 Total number of global tightenings: 139
+	 Global tightenings / node: 0.6
+	 Total number of local tightenings: 2605
+	 Local tightenings / node: 11.18
+	 Total number of potential tightenings: 4268
+

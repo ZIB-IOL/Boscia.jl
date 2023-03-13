@@ -4,22 +4,13 @@ mode = "integer"
 
 bo_mode="boscia"
 try 
-    portfolio(5, 110; bo_mode=bo_mode, mode=mode)
-catch e
-    println(e)
-    open("portfolio_" * mode * "_errors.txt","a") do io
-        println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
-    end
-end
-bo_mode="boscia"
-try 
     portfolio(10, 110; bo_mode=bo_mode, mode=mode)
 catch e
     println(e)
     open("portfolio_" * mode * "_errors.txt","a") do io
         println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
     end
-endbo_mode="boscia"
+end
 try 
     portfolio(1, 115; bo_mode=bo_mode, mode=mode)
 catch e
