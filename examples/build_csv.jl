@@ -1690,6 +1690,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
 
+        print(select(df,[:solution_boscia, :time_boscia, :solution_sc, :time_sc]))
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -1721,6 +1722,7 @@ function build_non_grouped_csv(mode)
         df_afw[!,:time_afw] = df_afw[!,:time]
         df_afw[!,:termination_afw] = termination_afw
         df_afw[!, :afw_solution] = df_afw[!, :solution]
+        lowerBounds = df_afw[!, :solution] - df_afw[!, :dual_gap]
         df_afw[!, :rel_gap_afw] = (df_afw[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_afw[!, :solution]))
         df_afw = select(df_afw, [:termination_afw, :time_afw, :afw_solution, :rel_gap_afw, :seed, :num_v])
 
@@ -1734,6 +1736,7 @@ function build_non_grouped_csv(mode)
         df_no_ws[!,:time_no_ws] = df_no_ws[!,:time]
         df_no_ws[!,:termination_no_ws] = termination_no_ws
         df_no_ws[!, :solution_no_ws] = df_no_ws[!, :solution]
+        lowerBounds = df_no_ws[!, :solution] - df_no_ws[!, :dual_gap]
         df_no_ws[!, :rel_gap_no_ws] = (df_no_ws[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ws[!, :solution]))
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :rel_gap_no_ws, :seed, :num_v])
 
@@ -1748,6 +1751,7 @@ function build_non_grouped_csv(mode)
         df_no_as[!,:time_no_as] = df_no_as[!,:time]
         df_no_as[!,:termination_no_as] = termination_no_as
         df_no_as[!, :solution_no_as] = df_no_as[!, :solution]
+        lowerBounds = df_no_as[!, :solution] - df_no_as[!, :dual_gap]
         df_no_as[!, :rel_gap_no_as] = (df_no_as[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_as[!, :solution]))
         df_no_as = select(df_no_as, [:termination_no_as, :time_no_as, :solution_no_as, :rel_gap_no_as, :seed, :num_v])
 
@@ -1761,6 +1765,7 @@ function build_non_grouped_csv(mode)
         df_no_ss[!,:time_no_ss] = df_no_ss[!,:time]
         df_no_ss[!,:termination_no_ss] = termination_no_ss
         df_no_ss[!, :solution_no_ss] = df_no_ss[!, :solution]
+        lowerBounds = df_no_ss[!, :solution] - df_no_ss[!, :dual_gap]
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :solution_no_ss, :rel_gap_no_ss, :seed, :num_v])
 
@@ -1774,11 +1779,11 @@ function build_non_grouped_csv(mode)
         df_ipopt[!, :time_ipopt] = df_ipopt[!, :time]/1000
         df_ipopt[!, :termination_ipopt] = termination_ipopt
         df_ipopt[!, :solution_ipopt] = df_ipopt[!, :solution]
-        df_ipopt[!, :rel_gap_ipopt] = (df_ipopt[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_ipopt[!, :solution]))
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
+        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_pg5_34.csv")))
@@ -1787,10 +1792,10 @@ function build_non_grouped_csv(mode)
         df_scip[!,:time_scip] = df_scip[!,:time]
         df_scip[!,:termination_scip] = termination_scip
         df_scip[!,:solution_scip] = df_scip[!,:solution]
-        df_scip[!, :rel_gap_scip] = (df_scip[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_scip[!, :solution]))
-        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
+        df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
+        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
 
         # load strong convexity 
         df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_pg5_34.csv")))
@@ -1942,9 +1947,13 @@ function build_non_grouped_csv(mode)
 
         df_sc[!,:termination_sc] = termination_sc
         df_sc[!,:solution_sc] = df_sc[!,:solution]
+        lowerBounds = df_sc[!, :solution] - df_sc[!, :dual_gap]
+        df_sc[!, :rel_gap_sc] = (df_sc[!, :solution_sc] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_sc[!, :solution_sc]))
+        select!(df_sc, [:solution_sc, :termination_sc, :time_sc, :rel_gap_sc, :seed, :num_v])
+
+
         df = innerjoin(df, df_sc, on = [:seed, :num_v])
 
-        df[!, :rel_gap_sc] = (df[!, :solution_sc] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_sc]))
 
         # check if solution optimal
         optimal_scip = []
@@ -1970,6 +1979,8 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+
+        print(select(df,[:solution_boscia, :time_boscia, :rel_gap_boscia, :lb_boscia, :solution_sc, :time_sc, :rel_gap_sc]))
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")
@@ -1998,7 +2009,7 @@ function build_grouped_csv(file_name, mode)
         df[df.time_no_ti.>1800, :time_no_ti] .= 1800
     end
 
-    if mode == "neos5"
+    if mode == "neos5" || mode == "ran14x18"
         df[df.time_sc.>1800, :time_sc] .= 1800
     end
 
@@ -2211,6 +2222,7 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             :termination_sc => custom_sum,
             :time_sc => geo_mean,
+            :rel_gap_sc => custom_mean,
             nrow => :NumInstances, renamecols=false
             )
     end
@@ -2595,8 +2607,8 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
     end
 
-
-    print(first(gdf,5))
+    print(select(gdf,[:timeSc,:timeBoscia]))
+    # print(first(gdf,5))
 
     # save csv
     if mode == "integer"
