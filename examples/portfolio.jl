@@ -195,6 +195,12 @@ function portfolio_ipopt(seed = 1, n = 20; mode="mixed")
         status = "Optimal"
     end    
 
+    o_check = SCIP.Optimizer()
+    lmo_check, _ = build_optimizer(o_check, mode, n)
+    x = Bonobo.get_solution(bnb_model)
+    
+    @assert Boscia.is_linear_feasible(lmo_check.o, x)
+
     df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_portfolio_ " * mode * ".csv")
     if !isfile(file_name)
