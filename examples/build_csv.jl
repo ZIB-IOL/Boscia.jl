@@ -2585,8 +2585,9 @@ function build_grouped_csv(file_name, mode)
         end
     end
 
+    gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
+
     if mode != "ran14x18"
-        gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
         gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
         gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
         gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
@@ -2602,6 +2603,8 @@ function build_grouped_csv(file_name, mode)
         rename!(gdf, :rel_gap_sc => :relGapSc)
         non_inf_entries = findall(isfinite, gdf[!, :relGapSc])
         gdf[non_inf_entries, :relGapSc] = convert.(Int64, round.(gdf[non_inf_entries, :relGapSc]*100))
+        gdf[!,:terminationScRel] = gdf[!,:terminationSc]./gdf[!,:NumInstances]*100
+        gdf[!,:terminationScRel] = convert.(Int64,gdf[!,:terminationScRel])
     end
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
