@@ -1995,12 +1995,10 @@ function build_grouped_csv(file_name, mode)
     df[df.time_boscia.>1800, :time_boscia] .= 1800
     df[df.time_scip.>1800, :time_scip] .= 1800
 
-    if mode != "ran14x18"
-        df[df.time_afw.>1800, :time_afw] .= 1800
-        df[df.time_no_as.>1800, :time_no_as] .= 1800
-        df[df.time_no_ss.>1800, :time_no_ss] .= 1800
-        df[df.time_no_ws.>1800, :time_no_ws] .= 1800
-    end
+    df[df.time_afw.>1800, :time_afw] .= 1800
+    df[df.time_no_as.>1800, :time_no_as] .= 1800
+    df[df.time_no_ss.>1800, :time_no_ss] .= 1800
+    df[df.time_no_ws.>1800, :time_no_ws] .= 1800
 
     if mode == "sparse_reg" || mode == "sparse_log_reg" || mode == "tailed_cardinality"
         df[df.time_loc_ti.>1800, :time_loc_ti] .= 1800
@@ -2184,7 +2182,7 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
@@ -2208,22 +2206,6 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_sc => custom_mean,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "ran14x18"
-        gdf = combine(
-            groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => custom_sum,
-            :rel_gap_boscia => custom_mean,
-            :time_scip => geo_mean, :termination_scip => custom_sum,
-            :rel_gap_scip => custom_mean,
-            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
-            :rel_gap_ipopt => custom_mean,
-            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
-            :termination_sc => custom_sum,
-            :time_sc => geo_mean,
-            :rel_gap_sc => custom_mean,
-            nrow => :NumInstances, renamecols=false
-            )
     end
 
     # remove underscore in headers for LaTex
@@ -2235,25 +2217,20 @@ function build_grouped_csv(file_name, mode)
         :termination_scip => :terminationScip,
         :rel_gap_scip => :relGapScip,
         :optimal_boscia => :optimalBoscia,
-        :optimal_scip => :optimalScip
+        :optimal_scip => :optimalScip,
+        :time_no_ws => :timeNoWs, 
+        :termination_no_ws => :terminationNoWs,
+        :rel_gap_no_ws => :relGapNoWs,
+        :time_no_as => :timeNoAs, 
+        :termination_no_as => :terminationNoAs,
+        :rel_gap_no_as => :relGapNoAs,
+        :time_no_ss => :timeNoSs, 
+        :termination_no_ss => :terminationNoSs,
+        :rel_gap_no_ss => :relGapNoSs,
+        :time_afw => :timeAfw, 
+        :termination_afw => :terminationAfw,
+        :rel_gap_afw => :relGapAfw,
     )
-
-    if mode != "ran14x18"
-        rename!(gdf,
-            :time_no_ws => :timeNoWs, 
-            :termination_no_ws => :terminationNoWs,
-            :rel_gap_no_ws => :relGapNoWs,
-            :time_no_as => :timeNoAs, 
-            :termination_no_as => :terminationNoAs,
-            :rel_gap_no_as => :relGapNoAs,
-            :time_no_ss => :timeNoSs, 
-            :termination_no_ss => :terminationNoSs,
-            :rel_gap_no_ss => :relGapNoSs,
-            :time_afw => :timeAfw, 
-            :termination_afw => :terminationAfw,
-            :rel_gap_afw => :relGapAfw,
-        )
-    end
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         rename!(gdf, 
@@ -2272,29 +2249,24 @@ function build_grouped_csv(file_name, mode)
     gdf[non_inf_entries, :relGapBoscia] = convert.(Int64, round.(gdf[non_inf_entries, :relGapBoscia]*100))
     non_inf_entries = findall(isfinite, gdf[!, :relGapScip])
     gdf[non_inf_entries, :relGapScip] = convert.(Int64, round.(gdf[non_inf_entries, :relGapScip]*100))
-
-    if mode != "ran14x18"
-        non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
-        gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
-        gdf[non_inf_entries, :relGapNoWs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoWs]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoSs])
-        gdf[non_inf_entries, :relGapNoSs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoSs]*100))
-        non_inf_entries = findall(isfinite, gdf[!, :relGapNoAs])
-        gdf[non_inf_entries, :relGapNoAs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoAs]*100))
-    end
+    non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
+    gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
+    gdf[non_inf_entries, :relGapNoWs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoWs]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoSs])
+    gdf[non_inf_entries, :relGapNoSs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoSs]*100))
+    non_inf_entries = findall(isfinite, gdf[!, :relGapNoAs])
+    gdf[non_inf_entries, :relGapNoAs] = convert.(Int64, round.(gdf[non_inf_entries, :relGapNoAs]*100))
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         non_inf_entries = findall(isfinite, gdf[!, :relGapIpopt])
         gdf[non_inf_entries, :relGapIpopt] = convert.(Int64, round.(gdf[non_inf_entries, :relGapIpopt]*100))
     end 
 
-    if mode != "ran14x18"
-        gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
-        gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
-        gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
-        gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
-    end
+    gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
+    gdf[!,:timeNoAs] = convert.(Int64,round.(gdf[!,:timeNoAs]))
+    gdf[!,:timeNoSs] = convert.(Int64,round.(gdf[!,:timeNoSs]))
+    gdf[!,:timeAfw] = convert.(Int64,round.(gdf[!,:timeAfw]))
     
     if mode == "sparse_reg" 
         rename!(gdf, :time_scip_tol => :timeScipTol)
@@ -2306,28 +2278,13 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
     end
 
-    # # absolute instances solved
-    # gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
-    # gdf[!,:terminationScip] .= gdf[!,:terminationScip]
-    # gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
-    # gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
-    # gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
-    # gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
-
-    # if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
-    #     gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
-    # end
-
     # relative instances solved
     gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
     gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
-
-    if mode != "ran14x18"
-        gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
-        gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
-    end
+    gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
+    gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
@@ -2340,13 +2297,10 @@ function build_grouped_csv(file_name, mode)
     # parse to int
     gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
     gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
-
-    if mode != "ran14x18"
-        gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
-        gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
-        gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
-        gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
-    end
+    gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
+    gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
+    gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
+    gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
@@ -2430,8 +2384,8 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34"
-        print(first(df_intersection, 3))
+    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+        # print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -2441,23 +2395,15 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-    elseif mode == "ran14x18"
-        df_intersection = combine(
-            groupby(df_intersection, [:num_v]), 
-            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-            renamecols=false
-        )
     end
 
     # parse to int
     df_intersection[!,:BosciaGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersection]))
 
-    if mode != "ran14x18"
-        df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
-        df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
-        df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
-        df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
-    end
+    df_intersection[!,:NoWsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoWsGeoMeanIntersection]))
+    df_intersection[!,:NoAsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoAsGeoMeanIntersection]))
+    df_intersection[!,:NoSsGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:NoSsGeoMeanIntersection]))
+    df_intersection[!,:AfwGeoMeanIntersection] = convert.(Int64,round.(df_intersection[!,:AfwGeoMeanIntersection]))
 
     size_df_after = size(gdf)
 
@@ -2501,9 +2447,9 @@ function build_grouped_csv(file_name, mode)
         )
 
         # parse to int
-    df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
-    df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
-    df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+        df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
+        df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
+        df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
     end
     
  
@@ -2586,13 +2532,11 @@ function build_grouped_csv(file_name, mode)
 
     gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
 
-    if mode != "ran14x18"
-        gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
-        gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
-        gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
-        gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
-        gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
-    end
+    gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
+    gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
+    gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
+    gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
+    gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
 
     if mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
         rename!(gdf, :termination_sc => :terminationSc)

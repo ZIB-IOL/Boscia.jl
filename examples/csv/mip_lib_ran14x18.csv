@@ -1,6 +1,6 @@
-numV,timeBoscia,terminationBoscia,relGapBoscia,timeScip,terminationScip,relGapScip,timeIpopt,terminationIpopt,relGapIpopt,optimalBoscia,optimalIpopt,optimalScip,terminationSc,timeSc,relGapSc,NumInstances,terminationBosciaRel,terminationScipRel,terminationIpoptRel,BosciaGeoMeanIntersection,terminationScRel
-4,1800,0,1.0,1800,0.0,-1.0,1800,0,Inf,1.0,0.0,3.0,0,1800,4.0,3,0,0,0,,0
-5,1800,0,1.0,1800,0.0,15.0,1800,0,Inf,3.0,0.0,0.0,0,1800,4.0,3,0,0,0,,0
-6,1800,0,3.0,1800,0.0,83.0,1800,0,Inf,3.0,0.0,0.0,0,1800,12.0,3,0,0,0,,0
-7,1800,0,3.0,1800,0.0,18.0,1800,0,Inf,3.0,0.0,0.0,0,1800,10.0,3,0,0,0,,0
-8,1800,0,11.0,1800,0.0,286.0,1800,0,Inf,3.0,0.0,0.0,0,1800,31.0,3,0,0,0,,0
+numV,timeBoscia,terminationBoscia,relGapBoscia,timeScip,terminationScip,relGapScip,timeIpopt,terminationIpopt,relGapIpopt,timeNoWs,terminationNoWs,relGapNoWs,timeNoAs,terminationNoAs,relGapNoAs,timeNoSs,terminationNoSs,relGapNoSs,timeAfw,terminationAfw,relGapAfw,optimalBoscia,optimalIpopt,optimalScip,terminationSc,timeSc,relGapSc,NumInstances,terminationBosciaRel,terminationScipRel,terminationNoWsRel,terminationNoAsRel,terminationNoSsRel,terminationAfwRel,terminationIpoptRel,BosciaGeoMeanIntersection,NoWsGeoMeanIntersection,NoAsGeoMeanIntersection,NoSsGeoMeanIntersection,AfwGeoMeanIntersection,terminationScRel
+4,1800,0,1.0,1800,0,-1.0,1800,0,Inf,1800,0,0.0,1800,0,0.0,1800,0,0.0,1800,0,0.0,1.0,0.0,3.0,0,1800,4.0,3,0,0,0,0,0,0,0,,,,,,0
+5,1800,0,1.0,1800,0,15.0,1800,0,Inf,1800,0,2.0,1800,0,2.0,1800,0,2.0,1800,0,4.0,3.0,0.0,0.0,0,1800,4.0,3,0,0,0,0,0,0,0,,,,,,0
+6,1800,0,3.0,1800,0,83.0,1800,0,Inf,1800,0,7.0,1800,0,7.0,1800,0,7.0,1800,0,8.0,3.0,0.0,0.0,0,1800,12.0,3,0,0,0,0,0,0,0,,,,,,0
+7,1800,0,3.0,1800,0,18.0,1800,0,Inf,1800,0,6.0,1800,0,6.0,1800,0,6.0,1800,0,9.0,3.0,0.0,0.0,0,1800,10.0,3,0,0,0,0,0,0,0,,,,,,0
+8,1800,0,11.0,1800,0,286.0,1800,0,Inf,1800,0,15.0,1800,0,15.0,1800,0,15.0,1800,0,21.0,3.0,0.0,0.0,0,1800,31.0,3,0,0,0,0,0,0,0,,,,,,0
