@@ -614,7 +614,7 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
 
-        # print(select(df, [:seed, :dimension, :k, :Ns, :p, :solution_boscia, :lb_boscia, :solution_ipopt]))
+        print(select(df, [:seed, :dimension, :k, :Ns, :p, :solution_boscia, :lb_boscia, :solution_ipopt, :time_ipopt]))
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
@@ -2610,7 +2610,7 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
     end
 
-    print(select(gdf,[:timeSc,:timeBoscia]))
+    # print(select(gdf,[:timeSc,:timeBoscia]))
     # print(first(gdf,5))
 
     # save csv
