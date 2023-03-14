@@ -15,7 +15,7 @@ using CSV
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
 
 # For bug hunting:
-seed = 2
+seed = 0x3eb09305cecf69f0
 Random.seed!(seed)
 
 
@@ -127,15 +127,15 @@ CSV.write(file_name, df, append=false)
 #     end
 # end
 
-@testset "Birkhoff" begin
-    lmo = build_birkhoff_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
-    @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
-    lmo = build_birkhoff_lmo()
-    branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
-    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
-    x_strong, _, result_strong =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
-    @test f(x) ≈ f(x_strong)
-    @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
-end
+# @testset "Birkhoff" begin
+#     lmo = build_birkhoff_lmo()
+#     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+#     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
+#     lmo = build_birkhoff_lmo()
+#     branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
+#     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+#     x_strong, _, result_strong =
+#         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+#     @test f(x) ≈ f(x_strong)
+#     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
+# end

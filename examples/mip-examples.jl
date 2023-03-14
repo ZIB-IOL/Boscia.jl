@@ -27,7 +27,7 @@ include("BnB_Ipopt.jl")
 
 
 function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
-    limit = 1800
+    limit = 600
 
     o = SCIP.Optimizer()
     lmo, f, grad! = build_example(o, example, num_v, seed)
@@ -64,13 +64,14 @@ function mip_lib(seed=1, num_v=5, full_callback = false; example, bo_mode)
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
     end
     # if occursin("Optimal", result[:status])
     #     status = "OPTIMAL"
     # end
 
     if full_callback
-        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls)
+        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" *string(seed) *".csv")
         CSV.write(file_name, df, append=false)
     else
