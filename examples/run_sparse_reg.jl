@@ -1,8 +1,9 @@
 include("sparse_reg.jl")
-#=
+#==
+
 bo_mode="boscia"
 for dimension in [16,18,20]
-    for seed in 1:2
+    for seed in 3:5
         @show seed, dimension
         try 
             sparse_reg(seed, dimension, 1, true; bo_mode=bo_mode)
@@ -17,7 +18,7 @@ end
 
 bo_mode = "local_tightening"
 for dimension in [16,18,20]
-    for seed in 1:2
+    for seed in 3:5
         @show seed, dimension
         try 
             sparse_reg(seed, dimension, 1, true; bo_mode=bo_mode)
@@ -32,7 +33,7 @@ end
 
 bo_mode = "global_tightening"
 for dimension in [16,18,20]
-    for seed in 1:2
+    for seed in 3:5
         @show seed, dimension
         try 
             sparse_reg(seed, dimension, 1, true; bo_mode=bo_mode)
@@ -44,10 +45,10 @@ for dimension in [16,18,20]
         end
     end
 end
-
+=#
 bo_mode = "no_tightening"
 for dimension in [16,18,20]
-    for seed in 1:2
+    for seed in 3:5
         @show seed, dimension
         try 
             sparse_reg(seed, dimension, 1, true; bo_mode=bo_mode)
@@ -57,7 +58,8 @@ for dimension in [16,18,20]
                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
             end
         end
-end =#
+    end
+end 
 
 #=bo_mode = "as"
 for dimension in [15:1:30;]
@@ -119,6 +121,7 @@ end =#
 #    end
 # end
 
+#=
 bo_mode = "afw"
 try 
     sparse_reg(4, 15, 1; bo_mode=bo_mode)
@@ -296,6 +299,7 @@ catch
         println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
     end
 end
+=#
 #=bo_mode = "scip_oa"
 for dimension in [28:1:30;]
     for seed in 1:10
