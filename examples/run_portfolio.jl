@@ -7,7 +7,7 @@ for dimension in [25,30,35]
     for seed in 1:3
         @show seed, dimension
         try 
-            portfolio(seed, dimension, true; bo_mode=bo_mode)
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
         catch e
             println(e)
             open("portfolio_" * mode * "_errors.txt","a") do io
@@ -22,7 +22,7 @@ for dimension in [25,30,35]
     for seed in 1:3
         @show seed, dimension
         try 
-            portfolio(seed, dimension, true; bo_mode=bo_mode)
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
         catch e
             println(e)
             open("portfolio_" * mode * "_errors.txt","a") do io
@@ -37,7 +37,7 @@ for dimension in [25,30,35]
     for seed in 1:3
         @show seed, dimension
         try 
-            portfolio(seed, dimension, true; bo_mode=bo_mode)
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
         catch e
             println(e)
             open("portfolio_" * mode * "_errors.txt","a") do io
@@ -52,13 +52,14 @@ for dimension in [25,30,35]
     for seed in 1:3
         @show seed, dimension
         try 
-            portfolio(seed, dimension, true; bo_mode=bo_mode)
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
         catch e
             println(e)
             open("portfolio_" * mode * "_errors.txt","a") do io
                 println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
             end
         end
+    end
 end
 
 # bo_mode="boscia"
