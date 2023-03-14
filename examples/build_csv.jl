@@ -1856,7 +1856,6 @@ function build_non_grouped_csv(mode)
         # incumbent - lb /min (incumbent ,lb )
         df[!, :rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
 
-        #=
         # load afw
         df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mip_lib_ran14x18-disj-8.csv")))
         df_afw.termination .= replace.(df_afw.termination, "Time limit reached" => "TIME_LIMIT")
@@ -1908,7 +1907,7 @@ function build_non_grouped_csv(mode)
         df_no_ss[!, :rel_gap_no_ss] = (df_no_ss[!, :solution] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_no_ss[!, :solution]))
         df_no_ss = select(df_no_ss, [:termination_no_ss, :time_no_ss, :solution_no_ss, :rel_gap_no_ss, :seed, :num_v])
 
-        df = innerjoin(df, df_no_ss, on = [:seed, :num_v]) =#
+        df = innerjoin(df, df_no_ss, on = [:seed, :num_v]) 
 
         # load ipopt 
         df_ipopt = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_ran14x18-disj-8.csv")))
