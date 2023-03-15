@@ -2595,7 +2595,8 @@ function build_grouped_csv(file_name, mode)
     end
 
     # print(select(gdf,[:timeSc,:timeBoscia]))
-    # print(first(gdf,5))
+    
+    mapcols!(col -> replace(col, missing => "-"), gdf)
 
     # save csv
     if mode == "integer"

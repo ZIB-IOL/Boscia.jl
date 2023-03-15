@@ -87,25 +87,28 @@ function plot(example, setup)
         xlabel("iteration")
         ax.grid()
     else
-        fig = plt.figure(figsize=(6.5,6.5))
-        ax = fig.add_subplot(211)
+        df_boscia[!,:time] = df_boscia[!,:time]./1000.0
+        df_sc[!,:time] = df_sc[!,:time]./1000.0
 
-        ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_sc[!,"openNodes"]), df_sc[!,"openNodes"], label="strong convexity", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        fig = plt.figure(figsize=(6.5,3.5))
+        # ax = fig.add_subplot(211)
+
+        # ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        # ax.plot(1:length(df_sc[!,"openNodes"]), df_sc[!,"openNodes"], label="strong convexity", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         
-        ylabel("open nodes")
-        #locator_params(axis="y", nbins=4)
-        xlabel("iteration")
-        ax.grid()
+        # ylabel("open nodes")
+        # #locator_params(axis="y", nbins=4)
+        # xlabel("iteration")
+        # ax.grid()
 
         # lb, time 
-        ax = fig.add_subplot(212)
+        ax = fig.add_subplot(111)
         ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(df_sc[!,"time"], df_sc[!,"lowerBound"], label="strong convexity", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        ax.plot(df_sc[!,"time"], df_sc[!,"lowerBound"], label="Strong convexity", color=colors[end], marker=markers[2], alpha=.5)
         
-        ylabel("lower bound")
+        ylabel("Lower bound")
         #locator_params(axis="y", nbins=4)
-        xlabel("time")
+        xlabel("Time (s)")
         ax.grid()
 
     end
