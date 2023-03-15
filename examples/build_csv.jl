@@ -142,17 +142,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -407,17 +407,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -572,17 +572,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -613,6 +613,8 @@ function build_non_grouped_csv(mode)
         end
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+
+        filter!(row -> (isapprox(row.solution_ipopt,row.solution_boscia,atol=1.0)) || row.solution_ipopt==Inf, df)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
@@ -820,17 +822,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1039,17 +1041,17 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1258,12 +1260,12 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1390,12 +1392,12 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1569,9 +1571,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
+        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_22433.csv")))
@@ -1595,23 +1598,24 @@ function build_non_grouped_csv(mode)
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
+        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
 
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1770,9 +1774,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
+        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_neos5.csv")))
@@ -1796,23 +1801,42 @@ function build_non_grouped_csv(mode)
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
+        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
+
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_neos5.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:solution_sc] = df_sc[!,:solution]
+        df_sc[!,:termination_sc] = termination_sc
+        lowerBounds = df_sc[!, :solution] - df_sc[!, :dual_gap]
+        df_sc[!,:lb_sc] = lowerBounds
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
+
+        df[!, :rel_gap_sc] = (df[!, :solution_sc] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_sc]))
+        df[!, :rel_gap_boscia_sc] = (df[!, :solution_boscia] - df[!,:lb_sc]) ./ min.(abs.(df[!,:lb_sc]), abs.(df[!, :solution_boscia])) # used to compare strong convexity
 
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -1822,6 +1846,7 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
 
+        print(select(df,[:solution_boscia, :time_boscia, :solution_sc, :time_sc]))
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -1971,9 +1996,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
+        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_pg5_34.csv")))
@@ -1997,23 +2023,36 @@ function build_non_grouped_csv(mode)
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
+        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
+
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_pg5_34.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:termination_sc] = termination_sc
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
 
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -2171,9 +2210,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
+        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_ran14x18-disj-8.csv")))
@@ -2197,23 +2237,44 @@ function build_non_grouped_csv(mode)
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
+        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
+
+        # load strong convexity 
+        df_sc = DataFrame(CSV.File(joinpath(@__DIR__, "csv/strong_convexity_mip_lib_ran14x18-disj-8.csv")))
+        df_sc.termination .= replace.(df_sc.termination, "Time limit reached" => "TIME_LIMIT")
+        termination_sc = [row == "TIME_LIMIT" ? 0 : 1 for row in df_sc[!,:termination]]
+
+        df_sc[!,:time_sc] = df_sc[!,:time]
+        df_sc[!,:seed] = df_sc[!,:seed]
+        df_sc[!,:num_v] = df_sc[!,:num_v]
+
+        df_sc[!,:termination_sc] = termination_sc
+        df_sc[!,:solution_sc] = df_sc[!,:solution]
+        lowerBounds = df_sc[!, :solution] - df_sc[!, :dual_gap]
+        df_sc[!,:lb_sc] = lowerBounds
+        df_sc[!, :rel_gap_sc] = (df_sc[!, :solution_sc] - lowerBounds) ./ min.(abs.(lowerBounds), abs.(df_sc[!, :solution_sc]))
+        select!(df_sc, [:solution_sc, :termination_sc, :time_sc, :rel_gap_sc, :seed, :num_v, :lb_sc])
+
+        df = innerjoin(df, df_sc, on = [:seed, :num_v])
+
+        df[!, :rel_gap_boscia_sc] = (df[!, :solution_boscia] - df[!,:lb_sc]) ./ min.(abs.(df[!,:lb_sc]), abs.(df[!, :solution_boscia])) # used to compare strong convexity
 
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
         for row in eachrow(df)
-            if isapprox(row.solution_boscia, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
             else 
                 append!(optimal_boscia, 0)
             end
-            if isapprox(row.solution_ipopt, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_ipopt, 1)
             else 
                 append!(optimal_ipopt, 0)
             end
-            if isapprox(row.solution_scip, min(row.solution_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_scip, 1)
             else 
                 append!(optimal_scip, 0)
@@ -2222,6 +2283,8 @@ function build_non_grouped_csv(mode)
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+
+        print(select(df,[:solution_boscia, :time_boscia, :rel_gap_boscia, :lb_boscia, :rel_gap_boscia_sc, :solution_sc, :time_sc, :rel_gap_sc, :lb_sc]))
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")
@@ -2237,17 +2300,19 @@ function build_grouped_csv(file_name, mode)
     df[df.time_boscia.>1800, :time_boscia] .= 1800
     df[df.time_scip.>1800, :time_scip] .= 1800
 
-    if mode != "ran14x18"
-        df[df.time_afw.>1800, :time_afw] .= 1800
-        df[df.time_no_as.>1800, :time_no_as] .= 1800
-        df[df.time_no_ss.>1800, :time_no_ss] .= 1800
-        df[df.time_no_ws.>1800, :time_no_ws] .= 1800
-    end
+    df[df.time_afw.>1800, :time_afw] .= 1800
+    df[df.time_no_as.>1800, :time_no_as] .= 1800
+    df[df.time_no_ss.>1800, :time_no_ss] .= 1800
+    df[df.time_no_ws.>1800, :time_no_ws] .= 1800
 
     if mode == "sparse_reg" || mode == "sparse_log_reg" || mode == "tailed_cardinality"
         df[df.time_loc_ti.>1800, :time_loc_ti] .= 1800
         df[df.time_gl_ti.>1800, :time_gl_ti] .= 1800
         df[df.time_no_ti.>1800, :time_no_ti] .= 1800
+    end
+
+    if mode == "neos5" || mode == "ran14x18"
+        df[df.time_sc.>1800, :time_sc] .= 1800
     end
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
@@ -2422,7 +2487,32 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-    elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
+    elseif mode == "neos5" || mode == "ran14x18"
+        gdf = combine(
+            groupby(df, :num_v), 
+            :time_boscia => geo_mean, :termination_boscia => custom_sum,
+            :rel_gap_boscia => custom_mean,
+            :time_scip => geo_mean, :termination_scip => custom_sum,
+            :rel_gap_scip => custom_mean,
+            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
+            :rel_gap_ipopt => custom_mean,
+            :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
+            :rel_gap_no_ws => custom_mean,
+            :time_no_as => geo_mean, :termination_no_as => custom_sum,
+            :rel_gap_no_as => custom_mean,
+            :time_no_ss => geo_mean, :termination_no_ss => custom_sum,
+            :rel_gap_no_ss => custom_mean,
+            :time_afw => geo_mean, :termination_afw => custom_sum,
+            :rel_gap_afw => custom_mean,
+            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
+            :optimal_scip => custom_sum,
+            :termination_sc => custom_sum,
+            :time_sc => geo_mean,
+            :rel_gap_sc => custom_mean,
+            :rel_gap_boscia_sc => custom_mean,
+            nrow => :NumInstances, renamecols=false
+            )
+    elseif mode == "22433" || mode == "pg5_34"
         gdf = combine(
             groupby(df, :num_v), 
             :time_boscia => geo_mean, :termination_boscia => custom_sum,
@@ -2443,19 +2533,6 @@ function build_grouped_csv(file_name, mode)
             :optimal_scip => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
-   #= elseif mode == "ran14x18"
-        gdf = combine(
-            groupby(df, :num_v), 
-            :time_boscia => geo_mean, :termination_boscia => custom_sum,
-            :rel_gap_boscia => custom_mean,
-            :time_scip => geo_mean, :termination_scip => custom_sum,
-            :rel_gap_scip => custom_mean,
-            :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
-            :rel_gap_ipopt => custom_mean,
-            :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
-            nrow => :NumInstances, renamecols=false
-            ) =#
     end
 
     # remove underscore in headers for LaTex
@@ -2467,10 +2544,7 @@ function build_grouped_csv(file_name, mode)
         :termination_scip => :terminationScip,
         :rel_gap_scip => :relGapScip,
         :optimal_boscia => :optimalBoscia,
-        :optimal_scip => :optimalScip
-    )
-
-    rename!(gdf,
+        :optimal_scip => :optimalScip,
         :time_no_ws => :timeNoWs, 
         :termination_no_ws => :terminationNoWs,
         :rel_gap_no_ws => :relGapNoWs,
@@ -2484,6 +2558,7 @@ function build_grouped_csv(file_name, mode)
         :termination_afw => :terminationAfw,
         :rel_gap_afw => :relGapAfw,
     )
+
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         rename!(gdf, 
@@ -2502,7 +2577,6 @@ function build_grouped_csv(file_name, mode)
     gdf[non_inf_entries, :relGapBoscia] = convert.(Int64, round.(gdf[non_inf_entries, :relGapBoscia]*100))
     non_inf_entries = findall(isfinite, gdf[!, :relGapScip])
     gdf[non_inf_entries, :relGapScip] = convert.(Int64, round.(gdf[non_inf_entries, :relGapScip]*100))
-
     non_inf_entries = findall(isfinite, gdf[!, :relGapAfw])
     gdf[non_inf_entries, :relGapAfw] = convert.(Int64, round.(gdf[non_inf_entries, :relGapAfw]*100))
     non_inf_entries = findall(isfinite, gdf[!, :relGapNoWs])
@@ -2532,27 +2606,13 @@ function build_grouped_csv(file_name, mode)
         gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
     end
 
-    # # absolute instances solved
-    # gdf[!,:terminationBoscia] .= gdf[!,:terminationBoscia]
-    # gdf[!,:terminationScip] .= gdf[!,:terminationScip]
-    # gdf[!,:terminationNoWs] .= gdf[!,:terminationNoWs]
-    # gdf[!,:terminationNoAs] .= gdf[!,:terminationNoAs]
-    # gdf[!,:terminationNoSs] .= gdf[!,:terminationNoSs]
-    # gdf[!,:terminationAfw] .= gdf[!,:terminationAfw]
-
-    # if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
-    #     gdf[!,:terminationIpopt] .= gdf[!,:terminationIpopt]
-    # end
-
     # relative instances solved
     gdf[!,:terminationBosciaRel] = gdf[!,:terminationBoscia]./gdf[!,:NumInstances]*100
     gdf[!,:terminationScipRel] = gdf[!,:terminationScip]./gdf[!,:NumInstances]*100
-
     gdf[!,:terminationNoWsRel] = gdf[!,:terminationNoWs]./gdf[!,:NumInstances]*100
     gdf[!,:terminationNoAsRel] = gdf[!,:terminationNoAs]./gdf[!,:NumInstances]*100
     gdf[!,:terminationNoSsRel] = gdf[!,:terminationNoSs]./gdf[!,:NumInstances]*100
     gdf[!,:terminationAfwRel] .= gdf[!,:terminationAfw]./gdf[!,:NumInstances]*100
-
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
@@ -2565,12 +2625,10 @@ function build_grouped_csv(file_name, mode)
     # parse to int
     gdf[!,:terminationBosciaRel] = convert.(Int64,round.(gdf[!,:terminationBosciaRel]))
     gdf[!,:terminationScipRel] = convert.(Int64,round.(gdf[!,:terminationScipRel]))
-
     gdf[!,:terminationNoWsRel] = convert.(Int64,round.(gdf[!,:terminationNoWsRel]))
     gdf[!,:terminationNoAsRel] = convert.(Int64,round.(gdf[!,:terminationNoAsRel]))
     gdf[!,:terminationNoSsRel] = convert.(Int64,round.(gdf[!,:terminationNoSsRel]))
     gdf[!,:terminationAfwRel] = convert.(Int64,round.(gdf[!,:terminationAfwRel]))
-
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
@@ -2655,7 +2713,7 @@ function build_grouped_csv(file_name, mode)
             renamecols=false
             )
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
-        print(first(df_intersection, 3))
+        # print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -2665,12 +2723,6 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean => :AfwGeoMeanIntersection,
             renamecols=false
             )
-   #= elseif mode == "ran14x18"
-        df_intersection = combine(
-            groupby(df_intersection, [:num_v]), 
-            :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
-            renamecols=false
-        )=#
     end
 
     # parse to int
@@ -2723,9 +2775,9 @@ function build_grouped_csv(file_name, mode)
         )
 
         # parse to int
-    df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
-    df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
-    df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
+        df_intersection[!,:BosciaGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:BosciaGeoMeanIntersectionSolvers]))
+        df_intersection[!,:ScipGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:ScipGeoMeanIntersectionSolvers]))
+        df_intersection[!,:IpoptGeoMeanIntersectionSolvers] = convert.(Int64,round.(df_intersection[!,:IpoptGeoMeanIntersectionSolvers]))
     end
     
  
@@ -2806,6 +2858,34 @@ function build_grouped_csv(file_name, mode)
         end
     end
 
+    gdf[!,:terminationBoscia] = convert.(Int64,gdf[!,:terminationBoscia])
+
+    gdf[!,:terminationScip] = convert.(Int64,gdf[!,:terminationScip])
+    gdf[!,:terminationNoAs] = convert.(Int64,gdf[!,:terminationNoAs])
+    gdf[!,:terminationNoWs] = convert.(Int64,gdf[!,:terminationNoWs])
+    gdf[!,:terminationNoSs] = convert.(Int64,gdf[!,:terminationNoSs])
+    gdf[!,:terminationAfw] = convert.(Int64,gdf[!,:terminationAfw])
+
+    if mode == "neos5" || mode == "ran14x18"
+        rename!(gdf, :termination_sc => :terminationSc)
+        gdf[!,:terminationSc] = convert.(Int64,gdf[!,:terminationSc])
+        rename!(gdf, :time_sc => :timeSc)
+        gdf[!,:timeSc] = convert.(Int64,round.(gdf[!,:timeSc]))
+        rename!(gdf, :rel_gap_sc => :relGapSc)
+        non_inf_entries = findall(isfinite, gdf[!, :relGapSc])
+        gdf[non_inf_entries, :relGapSc] = convert.(Int64, round.(gdf[non_inf_entries, :relGapSc]*100))
+        gdf[!,:terminationScRel] = gdf[!,:terminationSc]./gdf[!,:NumInstances]*100
+        gdf[!,:terminationScRel] = convert.(Int64,gdf[!,:terminationScRel])
+        rename!(gdf, :rel_gap_boscia_sc => :relGapBosciaSc)
+        gdf[!, :relGapBosciaSc] = round.(gdf[!, :relGapBosciaSc]*100)
+    end
+    if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
+        gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
+    end
+
+    # print(select(gdf,[:timeSc,:timeBoscia]))
+    
+    mapcols!(col -> replace(col, missing => "-"), gdf)
 
     # save csv
     if mode == "integer"

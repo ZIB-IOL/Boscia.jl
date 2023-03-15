@@ -66,7 +66,7 @@ function plot_boscia_vs_scip(example, mode)
     if boscia 
         df_boscia = copy(df)
         filter!(row -> !(row.termination_boscia == 0),  df_boscia)
-        if boscia & scip_oa & ipopt
+        if boscia & scip_oa
             filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
         end
         time_boscia = sort(df_boscia[!,"time_boscia"])
@@ -77,7 +77,7 @@ function plot_boscia_vs_scip(example, mode)
     if scip_oa     
         df_scip = copy(df)
         filter!(row -> !(row.termination_scip == 0),  df_scip)
-        if boscia & scip_oa & ipopt
+        if boscia & scip_oa
             filter!(row -> !(row.optimal_scip == 0),  df_scip)
         end        
         time_scip = sort(df_scip[!,"time_scip"])
