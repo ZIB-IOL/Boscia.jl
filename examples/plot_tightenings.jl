@@ -24,6 +24,11 @@ function plot(example, setup)
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_" * setup * "_integer_portfolio.csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_" * setup * "_integer_portfolio.csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_" * setup * "_integer_portfolio.csv")))
+    elseif example == "mixed_portfolio"
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_" * setup * "_mixed_portfolio.csv")))
+        df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_" * setup * "_mixed_portfolio.csv")))
+        df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_" * setup * "_mixed_portfolio.csv")))
+        df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_" * setup * "_mixed_portfolio.csv")))
     elseif example == "neos5"
         df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mip_lib_" * example * "_" * setup * ".csv")))
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_mip_lib_" * example * "_" * setup * ".csv")))
