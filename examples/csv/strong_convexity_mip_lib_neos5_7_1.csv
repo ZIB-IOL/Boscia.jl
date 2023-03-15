@@ -1,0 +1,2 @@
+seed,num_v,time,lowerBound,upperBound,termination,LMOcalls,openNodes
+1,7,150.0,-8.404607360145972,-8.400099009752287,Optimal (tolerance reached),39,1
