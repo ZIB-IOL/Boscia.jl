@@ -3,7 +3,69 @@ include("portfolio.jl")
 mode = "integer"
 
 bo_mode="boscia"
-for dimension in [25,30,35]
+for dimension in [15,20,25,30,35,45]
+    for seed in 4:5
+        @show seed, dimension
+        try 
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
+        catch e
+            println(e)
+            open("portfolio_" * mode * "_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "local_tightening"
+for dimension in [15,20,25,30,35,45]
+    for seed in 4:5
+        @show seed, dimension
+        try 
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
+        catch e
+            println(e)
+            open("portfolio_" * mode * "_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "global_tightening"
+for dimension in [15,20,25,30,35,45]
+    for seed in 4:5
+        @show seed, dimension
+        try 
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
+        catch e
+            println(e)
+            open("portfolio_" * mode * "_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+bo_mode = "no_tightening"
+for dimension in [15,20,25,30,35,45]
+    for seed in 4:5
+        @show seed, dimension
+        try 
+            portfolio(seed, dimension, true; bo_mode=bo_mode,mode=mode)
+        catch e
+            println(e)
+            open("portfolio_" * mode * "_errors.txt","a") do io
+                println(io, seed, " ", dimension, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
+mode = "mixed"
+
+bo_mode="boscia"
+for dimension in [35,45,50]
     for seed in 1:3
         @show seed, dimension
         try 
@@ -18,7 +80,7 @@ for dimension in [25,30,35]
 end
 
 bo_mode = "local_tightening"
-for dimension in [25,30,35]
+for dimension in [35,45,50]
     for seed in 1:3
         @show seed, dimension
         try 
@@ -33,7 +95,7 @@ for dimension in [25,30,35]
 end
 
 bo_mode = "global_tightening"
-for dimension in [25,30,35]
+for dimension in [35,45,50]
     for seed in 1:3
         @show seed, dimension
         try 
@@ -48,7 +110,7 @@ for dimension in [25,30,35]
 end
 
 bo_mode = "no_tightening"
-for dimension in [25,30,35]
+for dimension in [35,45,50]
     for seed in 1:3
         @show seed, dimension
         try 
