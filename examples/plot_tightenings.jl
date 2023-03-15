@@ -55,6 +55,11 @@ function plot(example, setup)
     """)
 
     if example != "sc_neos5" && example != "sc_ran14x18"
+        df_boscia[!,:time] = df_boscia[!,:time]./1000.0
+        df_global_tightening[!,:time] = df_global_tightening[!,:time]./1000.0
+        df_local_tightening[!,:time] = df_local_tightening[!,:time]./1000.0
+        df_no_tightening[!,:time] = df_no_tightening[!,:time]./1000.0
+
         fig = plt.figure(figsize=(6.5,9.5))
         ax = fig.add_subplot(311)
 
@@ -63,9 +68,9 @@ function plot(example, setup)
         ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("open nodes")
+        ylabel("Open nodes")
         #locator_params(axis="y", nbins=4)
-        xlabel("iteration")
+        xlabel("Iteration")
         ax.grid()
 
         # lb, time 
@@ -75,9 +80,9 @@ function plot(example, setup)
         ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(df_no_tightening[!,"time"], df_no_tightening[!,"lowerBound"], label="no tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("lower bound")
+        ylabel("Lower bound")
         #locator_params(axis="y", nbins=4)
-        xlabel("time")
+        xlabel("Time (s)")
         ax.grid()
 
         # ncalls
@@ -89,7 +94,7 @@ function plot(example, setup)
 
         ylabel("LMO calls")
         #locator_params(axis="y", nbins=4)
-        xlabel("iteration")
+        xlabel("Iteration")
         ax.grid()
     else
         df_boscia[!,:time] = df_boscia[!,:time]./1000.0
