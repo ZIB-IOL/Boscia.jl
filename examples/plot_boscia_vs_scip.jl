@@ -25,6 +25,15 @@ function plot_boscia_vs_scip(example, mode)
         if example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
             ipopt = false
         end
+    elseif example == "miplib"
+        boscia=true 
+        scip_oa=false
+        ipopt=true
+        afw=false
+        ss=false
+        as=false
+        as_ss=false
+        boscia_methods=false
     end
     
     if example == "poisson"
@@ -41,6 +50,21 @@ function plot_boscia_vs_scip(example, mode)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_non_grouped.csv")))
     elseif example == "tailed_sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")))
+    elseif example == "miplib"
+        df_22433 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_22433_non_grouped.csv")))
+        df = select(df_22433, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        df_neos5 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")))
+        select!(df_neos5, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        append!(df,df_neos5)
+        df_pg534 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_pg5_34_non_grouped.csv")))
+        select!(df_pg534, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        append!(df,df_pg534)
+        df_ran14x18 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")))
+        select!(df_ran14x18, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        append!(df,df_ran14x18)
+
+        df[df.time_boscia.>1800, :time_boscia] .= 1800
+        df[df.time_ipopt.>1800, :time_ipopt] .= 1800
     else
         error("wrong option")
     end
@@ -64,9 +88,11 @@ function plot_boscia_vs_scip(example, mode)
     #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_scip"], label="SCIP", color=colors[3], marker=markers[2])
 
     if boscia 
-        df_boscia = copy(df)
+        df_boscia = deepcopy(df)
         filter!(row -> !(row.termination_boscia == 0),  df_boscia)
-        if boscia & scip_oa
+        if boscia && scip_oa
+            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        elseif example == "miplib"
             filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
         end
         time_boscia = sort(df_boscia[!,"time_boscia"])
@@ -75,9 +101,9 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if scip_oa     
-        df_scip = copy(df)
+        df_scip = deepcopy(df)
         filter!(row -> !(row.termination_scip == 0),  df_scip)
-        if boscia & scip_oa
+        if boscia && scip_oa
             filter!(row -> !(row.optimal_scip == 0),  df_scip)
         end        
         time_scip = sort(df_scip[!,"time_scip"])
@@ -86,9 +112,11 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if ipopt
-        df_ipopt = copy(df)
+        df_ipopt = deepcopy(df)
         filter!(row -> !(row.termination_ipopt == 0),  df_ipopt)
-        if boscia & scip_oa & ipopt
+        if boscia && scip_oa && ipopt
+            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
+        elseif example == "miplib"
             filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
         end
         time_ipopt = sort(df_ipopt[!,"time_ipopt"])
@@ -97,7 +125,7 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if afw 
-        df_afw = copy(df)
+        df_afw = deepcopy(df)
         filter!(row -> !(row.termination_afw == 0),  df_afw)
         time_afw = sort(df_afw[!,"time_afw"])
         push!(time_afw, 1.1 * time_limit)
@@ -105,7 +133,7 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if ss 
-        df_ss = copy(df)
+        df_ss = deepcopy(df)
         filter!(row -> !(row.termination_no_ss == 0), df_ss)
         time_ss = sort(df_ss[!,"time_no_ss"])
         push!(time_ss, 1.1 * time_limit)
@@ -113,7 +141,7 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if as 
-        df_as = copy(df)
+        df_as = deepcopy(df)
         filter!(row -> !(row.termination_no_as == 0), df_as)
         time_as = sort(df_as[!,"time_no_as"])
         push!(time_as, 1.1 * time_limit)
@@ -121,7 +149,7 @@ function plot_boscia_vs_scip(example, mode)
     end
 
     if as_ss 
-        df_as_ss = copy(df)
+        df_as_ss = deepcopy(df)
         filter!(row -> !(row.termination_no_ws == 0), df_as_ss)
         time_as_ss = sort(df_as_ss[!,"time_no_ws"])
         push!(time_as_ss, 1.1 * time_limit)
