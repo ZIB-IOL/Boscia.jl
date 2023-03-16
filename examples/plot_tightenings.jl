@@ -73,33 +73,33 @@ function plot(example, setup)
         df_local_tightening[!,:time] = df_local_tightening[!,:time]./1000.0
         df_no_tightening[!,:time] = df_no_tightening[!,:time]./1000.0
 
-        fig = plt.figure(figsize=(6.5,9.5))
-        ax = fig.add_subplot(311)
+        fig = plt.figure(figsize=(6.5,3.5))
+        # ax = fig.add_subplot(111)
 
-        ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+        # ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        # ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        # ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+        # ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("Open nodes")
-        #locator_params(axis="y", nbins=4)
-        xlabel("Iteration")
-        ax.grid()
+        # ylabel("Open nodes")
+        # #locator_params(axis="y", nbins=4)
+        # xlabel("Iteration")
+        # ax.grid()
 
-        # lb, time 
-        ax = fig.add_subplot(312)
-        ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(df_global_tightening[!,"time"], df_global_tightening[!,"lowerBound"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
-        ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
-        ax.plot(df_no_tightening[!,"time"], df_no_tightening[!,"lowerBound"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+        # # lb, time 
+        # ax = fig.add_subplot(312)
+        # ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        # ax.plot(df_global_tightening[!,"time"], df_global_tightening[!,"lowerBound"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        # ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+        # ax.plot(df_no_tightening[!,"time"], df_no_tightening[!,"lowerBound"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("Lower bound")
-        #locator_params(axis="y", nbins=4)
-        xlabel("Time (s)")
-        ax.grid()
+        # ylabel("Lower bound")
+        # #locator_params(axis="y", nbins=4)
+        # xlabel("Time (s)")
+        # ax.grid()
 
         # ncalls
-        ax = fig.add_subplot(313)
+        ax = fig.add_subplot(111)
         ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"LMOcalls"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"LMOcalls"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
@@ -164,6 +164,6 @@ function plot(example, setup)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
         fancybox=true, shadow=false, ncol=2)
     fig.tight_layout()
-    file = joinpath(@__DIR__, "csv/" * example * "_" * setup * "_tightenings.pdf")
+    file = joinpath(@__DIR__, "csv/" * example * "_" * setup * "_tightenings_lmo.pdf")
     savefig(file)
 end
