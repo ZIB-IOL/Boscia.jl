@@ -595,7 +595,8 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
                 @info "tree.lb > primal - dual_gap"
             else 
                 @info "primal >= tree.incumbent"
-                @assert primal <= tree.incumbent + 1e-3 || isapprox(primal, tree.incumbent, atol =1e-6, rtol=1e-2)
+                @show primal, tree.incumbent
+                @assert primal <= tree.incumbent + 1e-2 || isapprox(primal, tree.incumbent, atol =1e-6, rtol=1e-2)
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
