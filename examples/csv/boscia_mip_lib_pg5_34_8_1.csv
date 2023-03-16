@@ -1,0 +1,2 @@
+seed,num_v,time,lowerBound,upperBound,termination,LMOcalls
+1,8,1.919526e6,-479.4259057593209,-469.0401713386133,Time limit reached,35
