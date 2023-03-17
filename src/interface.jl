@@ -239,6 +239,8 @@ function solve(
         global_tightenings,
         local_tightenings,
         local_potential_tightenings,
+        num_bin,
+        num_int, 
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -308,6 +310,8 @@ function build_bnb_callback(
     local_tightenings,
     global_tightenings,
     local_potential_tightenings,
+    num_bin,
+    num_int,
 )
     iteration = 0
 
@@ -456,6 +460,9 @@ function build_bnb_callback(
             push!(global_tightenings, node.global_tightenings)
             push!(local_tightenings, node.local_tightenings)
             push!(local_potential_tightenings, node.local_potential_tightenings)
+            @assert node.local_potential_tightenings <= num_bin + num_int
+            @assert node.local_tightenings <= num_bin + num_int
+            @assert node.global_tightenings <= num_bin + num_int
         end
         # update current_node_id
         if !Bonobo.terminated(tree)
@@ -600,12 +607,14 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
         println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
         println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
-        if tree.root.options[:dual_tightening]
+        if tree.root.options[:global_dual_tightening]
             println("\t Total number of global tightenings: ", sum(result[:global_tightenings]))
             println("\t Global tightenings / node: ", round(sum(result[:global_tightenings])/length(result[:global_tightenings]), digits=2))
+        end
+        if tree.root.options[:dual_tightening]
             println("\t Total number of local tightenings: ", sum(result[:local_tightenings]))
             println("\t Local tightenings / node: ", round(sum(result[:local_tightenings])/length(result[:local_tightenings]), digits=2))
-            println("\t Total number of potential tightenings: ", sum(result[:local_potential_tightenings]))
+            println("\t Total number of potential local tightenings: ", sum(result[:local_potential_tightenings]))
         end
     end
 
