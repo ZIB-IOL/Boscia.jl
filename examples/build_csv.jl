@@ -864,6 +864,7 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
 
+        print(select(df,[:solution_boscia, :lb_boscia, :optimal_boscia, :solution_ipopt, :optimal_ipopt, :solution_scip, :optimal_scip]))
         # save csv 
         file_name = joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")
         CSV.write(file_name, df, append=false)
