@@ -274,7 +274,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             node.active_set,
             epsilon=node.fw_dual_gap_limit,
             max_iteration=tree.root.options[:max_fw_iter],
-            line_search=FrankWolfe.Adaptive(verbose=false),
+            line_search=tree.root.options[:lineSearch],
             add_dropped_vertices=true,
             use_extra_vertex_storage=true,
             extra_vertex_storage=node.discarded_vertices,
@@ -290,7 +290,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             node.active_set,
             epsilon=node.fw_dual_gap_limit,
             max_iteration=tree.root.options[:max_fw_iter],
-            line_search=FrankWolfe.Adaptive(verbose=false),
+            line_search=tree.root.options[:lineSearch],
             callback=tree.root.options[:callback],
             lazy=true,
         )

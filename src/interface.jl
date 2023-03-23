@@ -11,7 +11,9 @@ branching_strategy    - by default we branch on the entry which is the farthest
 variant               - variant of FrankWolfe to be used to solve the node problem.
                         Options: FW   -- Vanilla FrankWolfe
                                  AFW  -- Away FrankWolfe
-                                 BPCG -- Blended Pairwise Conditional Gradient          
+                                 BPCG -- Blended Pairwise Conditional Gradient  
+line_search           - specifies the Line Search method used in the FrankWolfe variant.
+                        Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
 fw_epsilon            - the tolerance for FrankWolfe in the root node.
 verbose               - if true, a log and solution statistics are printed.
 dual_gap              - if this absolute dual gap is reached, the algorithm stops.
@@ -36,6 +38,7 @@ function solve(
     traverse_strategy=Bonobo.BFS(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant=BPCG,
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -61,6 +64,7 @@ function solve(
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
         println("\t FrankWolfe variant: ", print_variant(variant))
+        println("\t Line Search Method: $(line_search)")
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
@@ -184,6 +188,7 @@ function solve(
                 :global_dual_tightening => global_dual_tightening,
                 :strong_convexity => strong_convexity,
                 :variant => variant,
+                :lineSearch => line_search,
             ),
         ),
         branch_strategy=branching_strategy,

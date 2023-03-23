@@ -134,7 +134,7 @@ end
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
-@testset "Away FW, step size and predefined start point" begin
+@testset "Away FW, monotonic step size and predefined start point" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -153,7 +153,8 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         @. storage = x - diffi
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW)
+    line_search = FrankWolfe.MonotonicStepSize()
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW, line_search=line_search)
 
     @test x == round.(diffi)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
