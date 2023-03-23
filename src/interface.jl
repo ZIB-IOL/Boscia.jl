@@ -8,6 +8,10 @@ traverse_strategy     - encodes how to choose the next node for evaluation.
                         By default the node with the best lower bound is picked.
 branching_strategy    - by default we branch on the entry which is the farthest 
                         away from being an integer.
+variant               - variant of FrankWolfe to be used to solve the node problem.
+                        Options: FW   -- Vanilla FrankWolfe
+                                 AFW  -- Away FrankWolfe
+                                 BPCG -- Blended Pairwise Conditional Gradient          
 fw_epsilon            - the tolerance for FrankWolfe in the root node.
 verbose               - if true, a log and solution statistics are printed.
 dual_gap              - if this absolute dual gap is reached, the algorithm stops.
@@ -31,6 +35,7 @@ function solve(
     lmo;
     traverse_strategy=Bonobo.BFS(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    variant=BPCG,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -55,6 +60,7 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
+        println("\t FrankWolfe variant: ", print_variant(variant))
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
@@ -177,6 +183,7 @@ function solve(
                 :dual_tightening => dual_tightening,
                 :global_dual_tightening => global_dual_tightening,
                 :strong_convexity => strong_convexity,
+                :variant => variant,
             ),
         ),
         branch_strategy=branching_strategy,

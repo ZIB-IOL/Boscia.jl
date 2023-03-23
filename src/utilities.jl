@@ -85,6 +85,24 @@ function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
     end
 end
 
+"""
+Print the full name of the different FrankWolfe variants.
+Throws an error if a variant is not yet supported or the abbreviation is wrong.
+"""
+function print_variant(var::Variant)
+    # TO DO in FrankWolfe. Has to hand back an active set.
+    if var == FW
+        error("Not supported")
+        return "Vanilla FrankWolfe"
+    elseif var == AFW
+        return "Away FrankWolfe"
+    elseif var == BPCG
+        return "Blended Pairwise Conditional Gradient"
+    else
+        error("$var is not a supported variant!")
+    end
+end
+
 
 """
 Call this if the active set is empty after splitting.

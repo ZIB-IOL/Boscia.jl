@@ -262,21 +262,39 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
     end
 
-    # call blended_pairwise_conditional_gradient
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        tree.root.problem.f,
-        tree.root.problem.g,
-        tree.root.problem.lmo,
-        node.active_set,
-        epsilon=node.fw_dual_gap_limit,
-        max_iteration=tree.root.options[:max_fw_iter],
-        line_search=FrankWolfe.Adaptive(verbose=false),
-        add_dropped_vertices=true,
-        use_extra_vertex_storage=true,
-        extra_vertex_storage=node.discarded_vertices,
-        callback=tree.root.options[:callback],
-        lazy=true,
-    )
+    x = zeros(tree.root.problem.nvars)
+    dual_gap = primal = 0
+    active_set = FrankWolfe.ActiveSet([(1.0, x)])
+    if tree.root.options[:variant] == BPCG
+        # call blended_pairwise_conditional_gradient
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            add_dropped_vertices=true,
+            use_extra_vertex_storage=true,
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:callback],
+            lazy=true,
+        )
+    elseif tree.root.options[:variant] == AFW
+        # call away_frank_wolfe
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=FrankWolfe.Adaptive(verbose=false),
+            callback=tree.root.options[:callback],
+            lazy=true,
+        )
+    end
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
