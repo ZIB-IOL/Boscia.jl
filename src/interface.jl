@@ -39,6 +39,7 @@ function solve(
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant=BPCG,
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    active_set::FrankWolfe.ActiveSet=FrankWolfe.ActiveSet([],[],[]),
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -140,10 +141,20 @@ function solve(
         global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
     end
 
-    direction = collect(1.0:n)
-    v = compute_extreme_point(lmo, direction)
-    v[integer_variables] = round.(v[integer_variables])
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
+    v = []
+    if isempty(active_set)
+        direction = collect(1.0:n)
+        v = compute_extreme_point(lmo, direction)
+        v[integer_variables] = round.(v[integer_variables])
+        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+    else
+        @assert FrankWolfe.active_set_validate(active_set)
+        for a in active_set.atoms
+            @assert is_linear_feasible(lmo.o, a)
+        end
+        v = active_set.atoms[1]
+    end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)

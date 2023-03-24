@@ -146,6 +146,16 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
+    o_f= SCIP.Optimizer()
+    MOI.set(o_f, MOI.Silent(), true)
+    MOI.empty!(o_f)
+    x = MOI.add_variables(o_f, n)
+    for xi in x
+        MOI.add_constraint(o_f, xi, MOI.GreaterThan(0.0))
+        MOI.add_constraint(o_f, xi, MOI.LessThan(1.0))
+    end
+    lmo_f = FrankWolfe.MathOptLMO(o_f)
+
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
     end
@@ -153,8 +163,12 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         @. storage = x - diffi
     end
 
+    direction = rand(n)
+    v = compute_extreme_point(lmo, direction)
+    x,_,_,_,_,active_set = FrankWolfe.blended_pairwise_conditional_gradient(f, grad!, lmo_f, v, max_iteration = 3)
+
     line_search = FrankWolfe.MonotonicStepSize()
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW, line_search=line_search)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW, line_search=line_search, active_set=active_set)
 
     @test x == round.(diffi)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
