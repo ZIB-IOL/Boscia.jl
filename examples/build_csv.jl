@@ -1442,6 +1442,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         df_bs[!, :lowerBounds] = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = df_bs[!,:lowerBounds]
         rel_gap = []
         for row in eachrow(df_bs)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
@@ -1572,10 +1573,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :rel_gap_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
-        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
+        # df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_22433.csv")))
@@ -1599,7 +1600,7 @@ function build_non_grouped_csv(mode)
         df_scip = select(df_scip, [:solution_scip, :termination_scip, :time_scip, :rel_gap_scip, :seed, :num_v])
 
         df = innerjoin(df, df_scip, on = [:seed, :num_v])
-        df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
+        # df[!, :rel_gap_scip] = (df[!, :solution_scip] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_scip]))
 
         # check if solution optimal
         optimal_scip = []
@@ -1645,6 +1646,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         df_bs[!, :lowerBounds] = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = df_bs[!,:lowerBounds]
         rel_gap = []
         for row in eachrow(df_bs)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
@@ -1775,10 +1777,10 @@ function build_non_grouped_csv(mode)
         end
         df_ipopt[!, :rel_gap_ipopt] = rel_gap
 
-        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :solution_ipopt, :seed, :num_v])
+        df_ipopt = select(df_ipopt, [:termination_ipopt, :time_ipopt, :rel_gap_ipopt, :solution_ipopt, :seed, :num_v])
 
         df = innerjoin(df, df_ipopt, on = [:seed, :num_v])
-        df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
+        # df[!, :rel_gap_ipopt] = (df[!, :solution_ipopt] - df[!,:lb_boscia]) ./ min.(abs.(df[!,:lb_boscia]), abs.(df[!, :solution_ipopt]))
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_neos5.csv")))
@@ -1867,6 +1869,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         df_bs[!, :lowerBounds] = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = df_bs[!,:lowerBounds]
         rel_gap = []
         for row in eachrow(df_bs)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
@@ -2081,6 +2084,7 @@ function build_non_grouped_csv(mode)
         df[!,:termination_boscia] = termination_boscia
         df[!, :solution_boscia] = df_bs[!, :solution]  
         df_bs[!, :lowerBounds] = df_bs[!, :solution] - df_bs[!, :dual_gap]
+        df[!,:lb_boscia] = df_bs[!,:lowerBounds]
         rel_gap = []
         for row in eachrow(df_bs)
             if min(abs(row.solution), abs(row.lowerBounds)) == 0.0
