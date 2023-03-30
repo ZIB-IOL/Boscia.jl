@@ -44,7 +44,7 @@ function solve(
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant=BPCG,
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    active_set::FrankWolfe.ActiveSet=FrankWolfe.ActiveSet([],[],[]),
+    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -148,7 +148,7 @@ function solve(
     end
 
     v = []
-    if isempty(active_set)
+    if active_set === nothing
         direction = collect(1.0:n)
         v = compute_extreme_point(lmo, direction)
         v[integer_variables] = round.(v[integer_variables])
