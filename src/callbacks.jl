@@ -31,7 +31,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         if ncalls != state.lmo.ncalls
             ncalls = state.lmo.ncalls
             (best_v, best_val) =
-                find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars)
+                find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars, tree.root.options[:domainOracle])
             if best_val < tree.incumbent
                 tree.root.updated_incumbent[] = true
                 node = tree.nodes[tree.root.current_node_id[]]
@@ -50,19 +50,21 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             return false
         end
 
-        val = tree.root.problem.f(state.v)
-        if val < tree.incumbent
-            tree.root.updated_incumbent[] = true
-            #TODO: update solution without adding node
-            node = tree.nodes[tree.root.current_node_id[]]
-            sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
-            push!(tree.solutions, sol)
-            if tree.incumbent_solution === nothing ||
-               sol.objective < tree.incumbent_solution.objective
-                tree.incumbent_solution = sol
+        if tree.root.options[:domainOracle](state.v)
+            val = tree.root.problem.f(state.v)
+            if val < tree.incumbent
+                tree.root.updated_incumbent[] = true
+                #TODO: update solution without adding node
+                node = tree.nodes[tree.root.current_node_id[]]
+                sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
+                push!(tree.solutions, sol)
+                if tree.incumbent_solution === nothing ||
+                    sol.objective < tree.incumbent_solution.objective
+                    tree.incumbent_solution = sol
+                end
+                tree.incumbent = val
+                Bonobo.bound!(tree, node.id)
             end
-            tree.incumbent = val
-            Bonobo.bound!(tree, node.id)
         end
 
         node = tree.nodes[tree.root.current_node_id[]]

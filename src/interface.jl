@@ -30,6 +30,11 @@ min_number_lower      - If not Inf, evaluation of a node is stopped if at least 
 min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
 min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
 max_iteration_post    - maximum number of iterations in a FrankWolfe run during postsolve
+dual_tightening
+global_dual_tightening
+bnb_callback
+strong_convexity
+domain_oracle         - For a point x: returns true if x is in the domain of f, else false. Per default is true.
 """
 function solve(
     f,
@@ -57,6 +62,7 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
+    domain_oracle= x->true,
     kwargs...,
 )
     if verbose
@@ -200,6 +206,7 @@ function solve(
                 :strong_convexity => strong_convexity,
                 :variant => variant,
                 :lineSearch => line_search,
+                :domainOracle => domain_oracle,
             ),
         ),
         branch_strategy=branching_strategy,

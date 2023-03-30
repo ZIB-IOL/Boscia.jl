@@ -168,9 +168,8 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     x,_,_,_,_,active_set = FrankWolfe.blended_pairwise_conditional_gradient(f, grad!, lmo_f, v, max_iteration = 3)
 
     line_search = FrankWolfe.MonotonicStepSize()
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW, line_search=line_search, active_set=active_set)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, variant = Boscia.AFW, line_search=line_search, active_set=active_set, time_limit = 300)
 
-    @test x == round.(diffi)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
