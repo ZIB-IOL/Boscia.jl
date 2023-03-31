@@ -18,7 +18,7 @@ function find_best_solution(f::Function, o::SCIP.Optimizer, vars::Vector{MOI.Var
             end
         end
     end
-    @assert isfinite(best_val)
+    #@assert isfinite(best_val) -> not necessarily the case if the domain oracle is not the default.
     return (best_v, best_val)
 end
 
