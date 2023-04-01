@@ -228,10 +228,12 @@ By default (in Bonobo) stops then the priority queue is empty.
 """
 function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
     if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+        println("Time limit reached")
         return true
     end
     absgap = tree.incumbent - tree.lb
     if absgap ≤ tree.options.abs_gap_limit
+        println("Absolute gap limit reached")
         return true
     end
     dual_gap = if signbit(tree.incumbent) != signbit(tree.lb)
@@ -241,6 +243,8 @@ function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
     else
         absgap / min(abs(tree.incumbent), abs(tree.lb))
     end
+    isempty(tree.nodes) ? println("Tree empty") : nothing
+    dual_gap ≤ tree.options.dual_gap_limit ? println("Relative gap limit reached") : nothing
     return isempty(tree.nodes) || dual_gap ≤ tree.options.dual_gap_limit
 end
 
