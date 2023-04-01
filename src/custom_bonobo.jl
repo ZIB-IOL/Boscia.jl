@@ -110,7 +110,7 @@ function Bonobo.get_solution(
         @warn "There is no solution in the tree. This behaviour can happen if you have supplied 
         \na custom domain oracle. In that case, try to increase the time limit. If you have not specified a 
         \ndomain oracle, please report!"
-        return Inf
+        return nothing
     end
     return tree.solutions[result].solution
 end

@@ -207,6 +207,7 @@ function solve(
                 :variant => variant,
                 :lineSearch => line_search,
                 :domainOracle => domain_oracle,
+                :usePostsolve => use_postsolve,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -280,7 +281,7 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
+    x = postsolve(tree, result, time_ref, verbose, max_iteration_post)
 
     # Check solution and polish
     x_polished = x
@@ -503,7 +504,13 @@ function build_bnb_callback(
         if Bonobo.terminated(tree)
             Bonobo.sort_solutions!(tree.solutions, tree.sense)
             x = Bonobo.get_solution(tree)
-            primal_value = tree.root.problem.f(x)
+            # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
+            if x === nothing
+                @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+            end 
+            primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
+            # deactivate postsolve if there is no solution
+            tree.root.options[:usePostsolve] = x === nothing ? false : tree.root.options[:usePostsolve]
 
             # TODO: here we need to calculate the actual state
 
@@ -544,9 +551,9 @@ Runs the post solve both for a cleaner solutiona and to optimize
 for the continuous variables if present.
 Prints solution statistics if verbose is true.        
 """
-function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
+function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)
-    primal = tree.incumbent_solution.objective
+    primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -560,7 +567,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
     end
 
     only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
-    if use_postsolve && !only_integer_vars
+    if tree.root.options[:usePostsolve] && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
