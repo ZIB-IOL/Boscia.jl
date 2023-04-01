@@ -285,10 +285,10 @@ function solve(
 
     # Check solution and polish
     x_polished = x
-    if !is_linear_feasible(tree.root.problem.lmo, x)
+    if !is_linear_feasible(tree.root.problem.lmo, x) && x !== nothing
         error("Reported solution not linear feasbile!")
     end
-    if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16)
+    if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16) && x !== nothing
         @info "Polish solution"
         for i in tree.root.problem.integer_variables
             x_polished[i] = round(x_polished[i])
