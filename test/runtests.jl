@@ -136,3 +136,7 @@ for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
         include(file)
     end
 end
+
+@testset "fixing" begin
+    include("fixing_test.jl")
+end
