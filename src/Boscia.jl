@@ -3,15 +3,16 @@ module Boscia
 using FrankWolfe
 using Random
 using SCIP
-import MathOptInterface
+import MathOptInterface as MOI
+const MOIU = MOI.Utilities
+
 import Bonobo
 using Printf
 using Dates
-const MOI = MathOptInterface
-const MOIU = MOI.Utilities
 
-import MathOptSetDistances
-const MOD = MathOptSetDistances
+import MathOptSetDistances as MOD
+
+const XREF = [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
 include("time_tracking_lmo.jl")
 include("bounds.jl")
