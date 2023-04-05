@@ -87,7 +87,7 @@ function build_birkhoff_lmo()
         )
         MOI.add_constraint.(
             o,
-            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            vec(sum(X[i], dims=2, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
             MOI.EqualTo(1.0),
         )
         # 0 ≤ Y_i ≤ X_i
