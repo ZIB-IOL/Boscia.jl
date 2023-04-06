@@ -209,7 +209,7 @@ function solve(
         if size(start_solution) != size(v)
             error("size of starting solution differs from vertices: $(size(start_solution)), $(size(v))")
         end
-        node = tree.nodes[tree.root.current_node_id[]]
+        node = tree.nodes[1]
         sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
         push!(tree.solutions, sol)
     end
