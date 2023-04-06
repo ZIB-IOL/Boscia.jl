@@ -160,4 +160,8 @@ Ns = 0.1
 
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution])
+
+    x2, _, result = Boscia.solve(f, grad!, lmo, start_solution=x)
+    @test sum(x2[p+1:2p]) <= k
+    @test f(x2) == f(x)
 end
