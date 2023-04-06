@@ -10,8 +10,7 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
-import MathOptSetDistances
-const MOD = MathOptSetDistances
+import MathOptSetDistances as MOD
 
 include("time_tracking_lmo.jl")
 include("bounds.jl")

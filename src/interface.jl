@@ -24,6 +24,11 @@ min_number_lower      - If not Inf, evaluation of a node is stopped if at least 
 min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
 min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
 max_iteration_post    - maximum number of iterations in a FrankWolfe run during postsolve
+dual_tightening       - whether to use dual tightening techniques (make sure your function is convex!)
+global_dual_tightening - dual tightening maintained globally valid (when new solutions are found)
+bnb_callback          - an optional callback called at every node of the tree, for example for heuristics
+strong_convexity      - strong convexity of the function, used for tighter dual bound at every node
+start_solution        - initial solution to start with an incumbent
 """
 function solve(
     f,
@@ -48,6 +53,7 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
+    start_solution=nothing,
     kwargs...,
 )
     if verbose
@@ -198,6 +204,15 @@ function solve(
             dual_gap=-Inf,
         ),
     )
+
+    if start_solution !== nothing
+        if size(start_solution) != size(v)
+            error("size of starting solution differs from vertices: $(size(start_solution)), $(size(v))")
+        end
+        node = tree.nodes[1]
+        sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
+        push!(tree.solutions, sol)
+    end
 
     # build callbacks
     list_ub_cb = Float64[]
