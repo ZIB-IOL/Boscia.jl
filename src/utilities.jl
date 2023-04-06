@@ -266,7 +266,7 @@ end
 
 
 # utility function to print the values of the parameters
-_value_to_print(::Bonobo.BFS) = "Move best bound"
+_value_to_print(::Bonobo.BestFirstSearch) = "Move best bound"
 _value_to_print(::PartialStrongBranching) = "Partial strong branching"
 _value_to_print(::HybridStrongBranching) = "Hybrid strong branching"
 _value_to_print(::Bonobo.MOST_INFEASIBLE) = "Most infeasible"
