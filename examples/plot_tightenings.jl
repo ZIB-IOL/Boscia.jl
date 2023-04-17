@@ -141,10 +141,15 @@ function plot(example, setup)
         ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"LMOcalls"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
-        
+ 
         ylabel("LMO calls")
         #locator_params(axis="y", nbins=4)
         xlabel("Iteration")
+        if setup == "50_3"
+            ylim((0,6500))
+        elseif setup == "40_3"
+            ylim((0,11000))
+        end
         ax.grid()
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
         fancybox=true, shadow=false, ncol=2)
