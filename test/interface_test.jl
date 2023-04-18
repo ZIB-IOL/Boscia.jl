@@ -14,28 +14,33 @@ n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
 @testset "Norm hyperbox" begin
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o, n)
-    for xi in x
-        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, xi, MOI.LessThan(1.0))
-        MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
-    end
-    lmo = FrankWolfe.MathOptLMO(o)
-
     function f(x)
         return sum(0.5 * (x .- diffi) .^ 2)
     end
     function grad!(storage, x)
         @. storage = x - diffi
     end
+    
+    function build_norm_lmo()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        return FrankWolfe.MathOptLMO(o)
+    end
+    x_baseline, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=false)
+    x_tighten, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=true)
+    x_strong, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=true, strong_convexity=1.0)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false)
-
-    @test x == round.(diffi)
-    @test f(x) == f(result[:raw_solution])
+    @test x_baseline == round.(diffi)
+    @test f(x_tighten) == f(result[:raw_solution])
+    @test f(x_tighten) ≈ f(x_baseline)
+    @test f(x_tighten) ≈ f(x_strong)
 end
 
 @testset "Norm hyperbox - strong branching" begin
@@ -156,8 +161,12 @@ Ns = 0.1
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false)
 
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution])
+
+    x2, _, result = Boscia.solve(f, grad!, lmo, start_solution=x)
+    @test sum(x2[p+1:2p]) <= k
+    @test f(x2) == f(x)
 end

@@ -4,7 +4,7 @@
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
 [![Genie Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/Boscia)](https://pkgs.genieframework.com?packages=Boscia)
 
-A package for Branch-and-Bound on top of Frank-Wolfe methods.
+A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for convex relaxations and a branch-and-bound algorithm.
 
 ## Overview
 
@@ -23,8 +23,16 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 ## Installation
 
-Add Boscia in its current state with:
+Add the Boscia stable release with:
+
 ```julia
+import Pkg
+Pkg.add("Boscia")
+```
+
+Or get the latest master branch with:
+```julia
+import Pkg
 Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
 ```
 

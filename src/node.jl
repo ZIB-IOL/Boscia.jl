@@ -307,6 +307,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.g(grad, x)
         num_tightenings = 0
         num_potential_tightenings = 0
+        μ = tree.root.options[:strong_convexity]
         for j in tree.root.problem.integer_variables
             lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), MOI.GreaterThan(-Inf))
             ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), MOI.LessThan(Inf))
@@ -320,16 +321,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
             gj = grad[j]
             safety_tolerance = 2.0
-            rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap
+            rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap + sqrt(eps(tree.incumbent))
             if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
-                if !isapprox(gj,0,atol=1e-5)
+                if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
                 end
                 if gj > 0
                     Mlb = 0
                     bound_tightened = true
                     @debug "starting tightening ub $(rhs)"
-                    while Mlb * gj <= rhs
+                    while 0.99 * (Mlb * gj + μ/2 * Mlb^2) <= rhs
                         Mlb += 1
                         if lb + Mlb -1 == ub
                             bound_tightened = false
@@ -354,7 +355,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                     Mub = 0
                     bound_tightened = true
                     @debug "starting tightening lb $(rhs)"
-                    while -Mub * gj <= rhs
+                    while -0.99 * (Mub * gj + μ/2 * Mub^2) <= rhs
                         Mub += 1
                         if ub - Mub + 1 == lb
                             bound_tightened = false
