@@ -280,6 +280,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             extra_vertex_storage=node.discarded_vertices,
             callback=tree.root.options[:callback],
             lazy=true,
+            timeout=tree.root.options[:time_limit],
         )
     elseif tree.root.options[:variant] == AFW
         # call away_frank_wolfe
@@ -293,6 +294,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             line_search=tree.root.options[:lineSearch],
             callback=tree.root.options[:callback],
             lazy=true,
+            timeout=tree.root.options[:time_limit],
         )
     end
 

@@ -237,7 +237,6 @@ function solve(
     )
 
     if start_solution !== nothing
-        println("Start solution given by user")
         if size(start_solution) != size(v)
             error("size of starting solution differs from vertices: $(size(start_solution)), $(size(v))")
         end
