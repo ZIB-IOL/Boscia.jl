@@ -212,6 +212,10 @@ function solve(
         node = tree.nodes[1]
         sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
         push!(tree.solutions, sol)
+        if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+            tree.incumbent_solution = sol
+            tree.incumbent = sol.objective
+        end
     end
 
     # build callbacks
