@@ -570,6 +570,7 @@ Prints solution statistics if verbose is true.
 """
 function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)
+    @show x
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
