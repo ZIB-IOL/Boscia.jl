@@ -246,7 +246,7 @@ function solve(
         push!(tree.solutions, sol)
         if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
             tree.incumbent_solution = sol
-            tree.incumebnt = sol.objective
+            tree.incumbent = sol.objective
         end
     end
 
