@@ -295,6 +295,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             callback=tree.root.options[:callback],
             lazy=true,
             timeout=tree.root.options[:time_limit],
+            verbose=true,
         )
     end
 
