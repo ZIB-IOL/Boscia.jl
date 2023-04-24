@@ -268,6 +268,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     x=FrankWolfe.compute_active_set_iterate!(node.active_set)
     domain_oracle = tree.root.options[:domainOracle]
     @show domain_oracle(x)
+    @show x
     if tree.root.options[:variant] == BPCG
         # call blended_pairwise_conditional_gradient
         x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
