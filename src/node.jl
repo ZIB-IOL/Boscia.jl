@@ -167,6 +167,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     domain_oracle = tree.root.options[:domainOracle]
     @show domain_oracle(x_left)
     @show domain_oracle(x_right)
+    @show x_right
+    @show x_left
 
     nodes = if !prune_left && !prune_right && domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
