@@ -51,6 +51,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
+    domain_oracle = tree.root.options[:domainOracle]
+    @show domain_oracle(x)
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
