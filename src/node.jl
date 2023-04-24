@@ -55,6 +55,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
 
+    @show vidx
     prune_left = false
     prune_right = false
     # if strong convexity, potentially remove one of two children
