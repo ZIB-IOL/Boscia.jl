@@ -157,11 +157,21 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_potential_tightenings=0,
         dual_gap=NaN,
     )
-    nodes = if !prune_left && !prune_right
+
+    # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+    x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
+    x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+    domain_oracle = tree.root.options[:domainOracle]
+
+    nodes = if !prune_left && !prune_right && domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
-    elseif prune_left
+    elseif prune_left 
         [node_info_right]
-    else
+    elseif prune_right 
+        [node_info_left]
+    elseif domain_oracle(x_right) 
+        [node_info_right]
+    elseif domain_oracle(x_left)
         [node_info_left]
     end
     return nodes
