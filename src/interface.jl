@@ -40,6 +40,7 @@ global_dual_tightening - dual tightening maintained globally valid (when new sol
 bnb_callback          - an optional callback called at every node of the tree, for example for heuristics
 strong_convexity      - strong convexity of the function, used for tighter dual bound at every node
 start_solution        - initial solution to start with an incumbent
+fw_verbose            - if true, FrankWolfe logs are printed
 """
 function solve(
     f,
@@ -69,6 +70,7 @@ function solve(
     strong_convexity=0.0,
     domain_oracle= x->true,
     start_solution=nothing,
+    fw_verbose = false,
     kwargs...,
 )
     if verbose
@@ -214,6 +216,7 @@ function solve(
                 :lineSearch => line_search,
                 :domainOracle => domain_oracle,
                 :usePostsolve => use_postsolve,
+                :fwVerbose => fw_verbose,
             ),
         ),
         branch_strategy=branching_strategy,

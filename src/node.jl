@@ -162,6 +162,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domainOracle]
+    @show domain_oracle(x_left)
+    @show domain_oracle(x_right)
 
     nodes = if !prune_left && !prune_right && domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
@@ -295,6 +297,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             callback=tree.root.options[:callback],
             lazy=true,
             timeout=tree.root.options[:time_limit],
+            verbose=tree.root.options[:fwVerbose],
         )
     elseif tree.root.options[:variant] == AFW
         # call away_frank_wolfe
@@ -309,7 +312,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             callback=tree.root.options[:callback],
             lazy=true,
             timeout=tree.root.options[:time_limit],
-            verbose=true,
+            verbose=tree.root.options[:fwVerbose],
         )
     end
 
