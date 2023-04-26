@@ -51,13 +51,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
     # update splitting index
     x = Bonobo.get_relaxed_values(tree, node)
-    domain_oracle = tree.root.options[:domainOracle]
-    @show domain_oracle(x)
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
 
-    @show vidx
     prune_left = false
     prune_right = false
     # if strong convexity, potentially remove one of two children
@@ -165,10 +162,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domainOracle]
-    @show domain_oracle(x_left)
-    @show domain_oracle(x_right)
-    @show x_right
-    @show x_left
 
     nodes = if !prune_left && !prune_right #&& domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
@@ -284,8 +277,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     active_set = FrankWolfe.ActiveSet([(1.0, x)])
     x=FrankWolfe.compute_active_set_iterate!(node.active_set)
     domain_oracle = tree.root.options[:domainOracle]
-    @show domain_oracle(x)
-    @show x
     if tree.root.options[:variant] == BPCG
         # call blended_pairwise_conditional_gradient
         x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
