@@ -9,6 +9,11 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
+seed = rand(UInt64)
+seed = 0x2f4d1823f7c6e01c
+@show seed
+Random.seed!(seed)
+
 n = 30
 const ri = rand(n)
 const ai = rand(n)
@@ -53,8 +58,8 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    @test dot(ai, x) <= bi + 1e-1
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=1800)
+    @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
