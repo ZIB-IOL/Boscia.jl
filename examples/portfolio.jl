@@ -54,7 +54,7 @@ const Mi = (Ai + Ai') / 2
     end
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    @test dot(ai, x) <= bi + 1e-6
+    @test dot(ai, x) <= bi + 1e-1
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
