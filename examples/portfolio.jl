@@ -9,10 +9,9 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
-seed = rand(UInt64)
-seed = 0x2f4d1823f7c6e01c
+#=seed = rand(UInt64)
 @show seed
-Random.seed!(seed)
+Random.seed!(seed)=#
 
 n = 30
 const ri = rand(n)
