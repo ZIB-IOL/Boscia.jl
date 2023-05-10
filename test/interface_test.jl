@@ -2,6 +2,7 @@ using LinearAlgebra
 using Distributions
 import Random
 using SCIP
+using HiGHS
 import MathOptInterface
 const MOI = MathOptInterface
 import Boscia
