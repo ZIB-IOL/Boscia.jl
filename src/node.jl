@@ -72,11 +72,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         end
         new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
         new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
-        if new_bound_left >= tree.incumbent
+        if new_bound_left > tree.incumbent
             @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
             prune_left = true
         end
-        if new_bound_right >= tree.incumbent
+        if new_bound_right > tree.incumbent
             @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
