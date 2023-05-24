@@ -36,6 +36,7 @@ In case lazification is activated, the FW vertex is only computed if not enough 
 struct AwayFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
+    frank_wolfe_variant::AwayFrankWolfe,
     f,
     grad!, 
     lmo,
@@ -77,6 +78,7 @@ Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 struct BPCG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
+    frank_wolfe_variant::BPCG,
     f,
     grad!, 
     lmo,
@@ -112,3 +114,50 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
+
+"""
+    Vanilla-Frank-Wolfe
+
+The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing ∇f * (x-v) is computed. 
+
+Lazification cannot be used in this setting.
+"""
+struct VanillaFrankWolfe <: FrankWolfeVariant end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::VanillaFrankWolfe,
+    f,
+    grad!, 
+    lmo,
+    active_set,
+    line_search,
+    epsilon,
+    max_iteration,
+    added_dropped_vertices,
+    use_extra_vertex_storage,
+    callback,
+    lazy, 
+    timeout,
+    verbose,
+    workspace
+)
+    # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
+    # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+        f,
+        grad!,
+        lmo,
+        active_set,
+        away_steps=false, 
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        line_search=line_search,
+        callback=callback,
+        timeout=timeout,
+        verbose=verbose,
+    )
+
+    return x, primal, dual_gap, active_set
+end
+
+Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
