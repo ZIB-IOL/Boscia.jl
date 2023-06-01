@@ -15,6 +15,7 @@ import MathOptSetDistances as MOD
 include("defs.jl")
 include("time_tracking_lmo.jl")
 include("bounds.jl")
+include("frank_wolfe_variants.jl")
 include("node.jl")
 include("custom_bonobo.jl")
 include("callbacks.jl")
