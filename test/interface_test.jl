@@ -171,3 +171,107 @@ Ns = 0.1
     @test sum(x2[p+1:2p]) <= k
     @test f(x2) == f(x)
 end
+
+n = 20
+diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+
+@testset "Different FW variants" begin
+
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    direction = rand(n)
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    x_afw, _, result_afw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.AwayFrankWolfe())
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    x_blended, _, result_blended = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    x_vfw, _, result_vfw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.VanillaFrankWolfe())
+
+    @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_bpcg), f(result_bpcg[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_vfw), f(result_vfw[:raw_solution]), atol=1e-6, rtol=1e-3)
+
+    @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_blended, x_bpcg, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
+end
+
+@testset "Different line search types" begin
+
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    direction = rand(n)
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    line_search = FrankWolfe.Adaptive()
+    x_adaptive, _, result_adaptive = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search)
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    line_search = FrankWolfe.MonotonicStepSize()
+    x_monotonic, _, result_monotonic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
+
+    lmo = build_model()
+    v = FrankWolfe.compute_extreme_point(lmo, direction)
+    line_search = FrankWolfe.Agnostic()
+    x_agnostic, _, result_agnostic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
+
+    @test isapprox(f(x_adaptive), f(result_adaptive[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_monotonic), f(result_monotonic[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_agnostic), f(result_agnostic[:raw_solution]), atol=1e-6, rtol=1e-3)
+
+    @test sum(isapprox.(x_adaptive, x_monotonic, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_agnostic, x_monotonic, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_adaptive, x_agnostic, atol=1e-6, rtol=1e-3)) == n
+end
