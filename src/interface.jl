@@ -1,46 +1,42 @@
 """
     solve
    
-f                     - objective function oracle. 
-g                     - oracle for the gradient of the objective. 
-lmo                   - a MIP solver instance (SCIP) encoding the feasible region.    
-traverse_strategy     - encodes how to choose the next node for evaluation. 
+f                      - objective function oracle. 
+g                      - oracle for the gradient of the objective. 
+lmo                    - a MIP solver instance (SCIP) encoding the feasible region.    
+traverse_strategy      - encodes how to choose the next node for evaluation. 
                         By default the node with the best lower bound is picked.
-branching_strategy    - by default we branch on the entry which is the farthest 
+branching_strategy     - by default we branch on the entry which is the farthest 
                         away from being an integer.
-variant               - variant of FrankWolfe to be used to solve the node problem.
-                        Options: FW   -- Vanilla FrankWolfe
+variant                - variant of FrankWolfe to be used to solve the node problem.
+                         Options: FW   -- Vanilla FrankWolfe
                                  AFW  -- Away FrankWolfe
                                  BPCG -- Blended Pairwise Conditional Gradient  
-line_search           - specifies the Line Search method used in the FrankWolfe variant.
+line_search            - specifies the Line Search method used in the FrankWolfe variant.
                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
-fw_epsilon            - the tolerance for FrankWolfe in the root node.
-verbose               - if true, a log and solution statistics are printed.
-dual_gap              - if this absolute dual gap is reached, the algorithm stops.
-rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
-time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
+fw_epsilon             - the tolerance for FrankWolfe in the root node.
+verbose                - if true, a log and solution statistics are printed.
+dual_gap               - if this absolute dual gap is reached, the algorithm stops.
+rel_dual_gap           - if this relative dual gap is reached, the algorithm stops.
+time_limit             - algorithm will stop if the time limit is reached. Depending on the problem
                         it is possible that no feasible solution has been found yet.     
-print_iter            - encodes after how many proccessed nodes the current node and solution status 
+print_iter             - encodes after how many proccessed nodes the current node and solution status 
                         is printed. Will always print if a new integral solution has been found. 
-dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
+dual_gap_decay_factor  - the FrankWolfe tolerance at a given level i in the tree is given by 
                         fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
-max_fw_iter           - maximum number of iterations in a FrankWolfe run.
-min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
+max_fw_iter            - maximum number of iterations in a FrankWolfe run.
+min_number_lower       - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
                         lower bound.
-min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
-min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
-max_iteration_post    - maximum number of iterations in a FrankWolfe run during postsolve
-dual_tightening
-global_dual_tightening
-bnb_callback
-strong_convexity
-domain_oracle         - For a point x: returns true if x is in the domain of f, else false. Per default is true.
-dual_tightening       - whether to use dual tightening techniques (make sure your function is convex!)
+min_node_fw_epsilon    - smallest fw epsilon possible, see dual_gap_decay_factor.
+min_fw_iterations      - the minimum number of FrankWolfe iterations in the node evaluation. 
+max_iteration_post     - maximum number of iterations in a FrankWolfe run during postsolve
+dual_tightening        - whether to use dual tightening techniques (make sure your function is convex!)
 global_dual_tightening - dual tightening maintained globally valid (when new solutions are found)
-bnb_callback          - an optional callback called at every node of the tree, for example for heuristics
-strong_convexity      - strong convexity of the function, used for tighter dual bound at every node
-start_solution        - initial solution to start with an incumbent
-fw_verbose            - if true, FrankWolfe logs are printed
+bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
+strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
+domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
+start_solution         - initial solution to start with an incumbent
+fw_verbose             - if true, FrankWolfe logs are printed
 """
 function solve(
     f,
@@ -48,7 +44,7 @@ function solve(
     lmo;
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    variant=BPCG,
+    variant::FrankWolfeVariant=BPCG(),
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
     fw_epsilon=1e-2,
@@ -78,7 +74,7 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
-        println("\t FrankWolfe variant: ", print_variant(variant))
+        println("\t FrankWolfe variant: $(variant)")
         println("\t Line Search Method: $(line_search)")
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
