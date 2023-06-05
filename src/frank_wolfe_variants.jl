@@ -40,17 +40,18 @@ function solve_frank_wolfe(
     f,
     grad!, 
     lmo,
-    active_set,
-    line_search,
-    epsilon,
-    max_iteration,
-    added_dropped_vertices,
-    use_extra_vertex_storage,
-    callback,
-    lazy, 
-    timeout,
-    verbose,
-    workspace
+    active_set;    
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing, 
+    callback=nothing,
+    lazy=false, 
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
@@ -61,8 +62,11 @@ function solve_frank_wolfe(
         max_iteration=max_iteration,
         line_search=line_search,
         callback=callback,
-        lazy=lazy,
+        lazy=lazy,        
         timeout=timeout,
+        add_dropped_vertices=add_dropped_vertices,
+        use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
     )
 
@@ -71,6 +75,50 @@ end
 
 Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 
+
+"""
+    Blended Conditional Gradient
+"""
+struct Blended <: FrankWolfeVariant end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::Blended,
+    f,
+    grad!, 
+    lmo,
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing, 
+    callback=nothing,
+    lazy=false, 
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing
+)
+    x,_, primal, dual_gap,_, active_set = blended_conditional_gradient(
+        f,
+        grad!,
+        lmo,
+        active_set,
+        line_search=line_search,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        add_dropped_vertices=add_dropped_vertices,
+        use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
+        callback=callback,
+        timeout=timeout,
+        verbose=verbose,
+    )
+
+    return x, primal, dual_gap, active_set
+end
+
+Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
 
 """
     Blended Pairwise Conditional Gradient
@@ -82,17 +130,18 @@ function solve_frank_wolfe(
     f,
     grad!, 
     lmo,
-    active_set,
-    line_search,
-    epsilon,
-    max_iteration,
-    added_dropped_vertices,
-    use_extra_vertex_storage,
-    callback,
-    lazy, 
-    timeout,
-    verbose,
-    workspace
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing, 
+    callback=nothing,
+    lazy=false, 
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         f,
@@ -101,9 +150,10 @@ function solve_frank_wolfe(
         active_set,
         line_search=line_search,
         epsilon=epsilon,
-        max_iteration=max_iteration.
-        added_dropped_vertices=added_dropped_vertices,
+        max_iteration=max_iteration,
+        add_dropped_vertices=add_dropped_vertices,
         use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
         callback=callback,
         lazy=lazy,
         timeout=timeout,
@@ -129,17 +179,18 @@ function solve_frank_wolfe(
     f,
     grad!, 
     lmo,
-    active_set,
-    line_search,
-    epsilon,
-    max_iteration,
-    added_dropped_vertices,
-    use_extra_vertex_storage,
-    callback,
-    lazy, 
-    timeout,
-    verbose,
-    workspace
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing, 
+    callback=nothing,
+    lazy=false, 
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing
 )
     # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
@@ -154,10 +205,13 @@ function solve_frank_wolfe(
         line_search=line_search,
         callback=callback,
         timeout=timeout,
+        add_dropped_vertices=add_dropped_vertices,
+        use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
     )
 
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
