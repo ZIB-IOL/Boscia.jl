@@ -272,11 +272,29 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
     end
 
-    x = zeros(tree.root.problem.nvars)
-    dual_gap = primal = 0
-    active_set = FrankWolfe.ActiveSet([(1.0, x)])
+   # x = zeros(tree.root.problem.nvars)
+    #dual_gap = primal = 0
+    #active_set = FrankWolfe.ActiveSet([(1.0, x)])
     x=FrankWolfe.compute_active_set_iterate!(node.active_set)
     domain_oracle = tree.root.options[:domainOracle]
+
+    x, primal, dual_gap, active_set = solve_frank_wolfe(
+        tree.root.options[:variant],
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.lmo,
+        node.active_set;
+        epsilon=node.fw_dual_gap_limit,
+        max_iteration=tree.root.options[:max_fw_iter],
+        line_search=tree.root.options[:lineSearch],
+        lazy=true,
+        timeout=tree.root.options[:time_limit],
+        add_dropped_vertices=true,
+        use_extra_vertex_storage=true,
+        extra_vertex_storage=node.discarded_vertices,
+        callback=tree.root.options[:callback],
+        verbose=tree.root.options[:fwVerbose],
+    )#=
     if tree.root.options[:variant] == BPCG
         # call blended_pairwise_conditional_gradient
         x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
@@ -310,7 +328,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             timeout=tree.root.options[:time_limit],
             verbose=tree.root.options[:fwVerbose],
         )
-    end
+    end=#
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
