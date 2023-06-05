@@ -26,23 +26,25 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             @assert is_linear_feasible(tree.root.problem.lmo, state.v)
         end
         # @assert is_linear_feasible(tree.root.problem.lmo, state.x)
-
         push!(fw_iterations, state.t)
-        if ncalls != state.lmo.ncalls
-            ncalls = state.lmo.ncalls
-            (best_v, best_val) =
-                find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars, tree.root.options[:domainOracle])
-            if best_val < tree.incumbent
-                tree.root.updated_incumbent[] = true
-                node = tree.nodes[tree.root.current_node_id[]]
-                sol = FrankWolfeSolution(best_val, best_v, node, :SCIP)
-                push!(tree.solutions, sol)
-                if tree.incumbent_solution === nothing ||
-                   sol.objective < tree.incumbent_solution.objective
-                    tree.incumbent_solution = sol
+
+        if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
+            if ncalls != state.lmo.ncalls
+                ncalls = state.lmo.ncalls
+                (best_v, best_val) =
+                    find_best_solution(tree.root.problem.f, tree.root.problem.lmo.lmo.o, vars, tree.root.options[:domainOracle])
+                if best_val < tree.incumbent
+                    tree.root.updated_incumbent[] = true
+                    node = tree.nodes[tree.root.current_node_id[]]
+                    sol = FrankWolfeSolution(best_val, best_v, node, :SCIP)
+                    push!(tree.solutions, sol)
+                    if tree.incumbent_solution === nothing ||
+                        sol.objective < tree.incumbent_solution.objective
+                        tree.incumbent_solution = sol
+                    end
+                    tree.incumbent = best_val
+                    Bonobo.bound!(tree, node.id)
                 end
-                tree.incumbent = best_val
-                Bonobo.bound!(tree, node.id)
             end
         end
 
