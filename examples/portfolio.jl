@@ -57,7 +57,7 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=1800)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=600)
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
