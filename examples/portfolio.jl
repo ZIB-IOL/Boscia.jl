@@ -9,10 +9,6 @@ import MathOptInterface
 const MOI = MathOptInterface
 
 
-#=seed = rand(UInt64)
-@show seed
-Random.seed!(seed)=#
-
 n = 30
 const ri = rand(n)
 const ai = rand(n)
