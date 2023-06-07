@@ -1,34 +1,44 @@
 """
     solve
    
-f                     - objective function oracle. 
-g                     - oracle for the gradient of the objective. 
-lmo                   - a MIP solver instance (SCIP) encoding the feasible region.    
-traverse_strategy     - encodes how to choose the next node for evaluation. 
+f                      - objective function oracle. 
+g                      - oracle for the gradient of the objective. 
+lmo                    - a MIP solver instance (SCIP) encoding the feasible region.    
+traverse_strategy      - encodes how to choose the next node for evaluation. 
                         By default the node with the best lower bound is picked.
-branching_strategy    - by default we branch on the entry which is the farthest 
+branching_strategy     - by default we branch on the entry which is the farthest 
                         away from being an integer.
-fw_epsilon            - the tolerance for FrankWolfe in the root node.
-verbose               - if true, a log and solution statistics are printed.
-dual_gap              - if this absolute dual gap is reached, the algorithm stops.
-rel_dual_gap          - if this relative dual gap is reached, the algorithm stops.
-time_limit            - algorithm will stop if the time limit is reached. Depending on the problem
+variant                - variant of FrankWolfe to be used to solve the node problem.
+                         Options: FW   -- Vanilla FrankWolfe
+                                 AFW  -- Away FrankWolfe
+                                 BPCG -- Blended Pairwise Conditional Gradient  
+line_search            - specifies the Line Search method used in the FrankWolfe variant.
+                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
+fw_epsilon             - the tolerance for FrankWolfe in the root node.
+verbose                - if true, a log and solution statistics are printed.
+dual_gap               - if this absolute dual gap is reached, the algorithm stops.
+rel_dual_gap           - if this relative dual gap is reached, the algorithm stops.
+time_limit             - algorithm will stop if the time limit is reached. Depending on the problem
                         it is possible that no feasible solution has been found yet.     
-print_iter            - encodes after how many proccessed nodes the current node and solution status 
+print_iter             - encodes after how many proccessed nodes the current node and solution status 
                         is printed. Will always print if a new integral solution has been found. 
-dual_gap_decay_factor - the FrankWolfe tolerance at a given level i in the tree is given by 
+dual_gap_decay_factor  - the FrankWolfe tolerance at a given level i in the tree is given by 
                         fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
-max_fw_iter           - maximum number of iterations in a FrankWolfe run.
-min_number_lower      - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
+max_fw_iter            - maximum number of iterations in a FrankWolfe run.
+min_number_lower       - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
                         lower bound.
-min_node_fw_epsilon   - smallest fw epsilon possible, see dual_gap_decay_factor.
-min_fw_iterations     - the minimum number of FrankWolfe iterations in the node evaluation. 
-max_iteration_post    - maximum number of iterations in a FrankWolfe run during postsolve
-dual_tightening       - whether to use dual tightening techniques (make sure your function is convex!)
+min_node_fw_epsilon    - smallest fw epsilon possible, see dual_gap_decay_factor.
+min_fw_iterations      - the minimum number of FrankWolfe iterations in the node evaluation. 
+max_iteration_post     - maximum number of iterations in a FrankWolfe run during postsolve
+dual_tightening        - whether to use dual tightening techniques (make sure your function is convex!)
 global_dual_tightening - dual tightening maintained globally valid (when new solutions are found)
-bnb_callback          - an optional callback called at every node of the tree, for example for heuristics
-strong_convexity      - strong convexity of the function, used for tighter dual bound at every node
-start_solution        - initial solution to start with an incumbent
+bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
+strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
+domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
+                         In case of the non trivial domain oracle, the starting point has to be feasible for f. Also, depending 
+                         on the Line Search method, you might have to provide the domain oracle to it, too.
+start_solution         - initial solution to start with an incumbent
+fw_verbose             - if true, FrankWolfe logs are printed
 """
 function solve(
     f,
@@ -36,6 +46,9 @@ function solve(
     lmo;
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    variant::FrankWolfeVariant=BPCG(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -53,7 +66,9 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
+    domain_oracle= x->true,
     start_solution=nothing,
+    fw_verbose = false,
     kwargs...,
 )
     if verbose
@@ -61,6 +76,8 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
+        println("\t FrankWolfe variant: $(variant)")
+        println("\t Line Search Method: $(line_search)")
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
@@ -136,10 +153,20 @@ function solve(
         global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
     end
 
-    direction = collect(1.0:n)
-    v = compute_extreme_point(lmo, direction)
-    v[integer_variables] = round.(v[integer_variables])
-    active_set = FrankWolfe.ActiveSet([(1.0, v)])
+    v = []
+    if active_set === nothing
+        direction = collect(1.0:n)
+        v = compute_extreme_point(lmo, direction)
+        v[integer_variables] = round.(v[integer_variables])
+        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+    else
+        @assert FrankWolfe.active_set_validate(active_set)
+        for a in active_set.atoms
+            @assert is_linear_feasible(lmo.o, a)
+        end
+        v = active_set.atoms[1]
+    end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
@@ -183,6 +210,11 @@ function solve(
                 :dual_tightening => dual_tightening,
                 :global_dual_tightening => global_dual_tightening,
                 :strong_convexity => strong_convexity,
+                :variant => variant,
+                :lineSearch => line_search,
+                :domain_oracle => domain_oracle,
+                :usePostsolve => use_postsolve,
+                :fwVerbose => fw_verbose,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -269,22 +301,24 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
+    x = postsolve(tree, result, time_ref, verbose, max_iteration_post)
 
     # Check solution and polish
     x_polished = x
-    if !is_linear_feasible(tree.root.problem.lmo, x)
-        error("Reported solution not linear feasbile!")
-    end
-    if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16)
-        @info "Polish solution"
-        for i in tree.root.problem.integer_variables
-            x_polished[i] = round(x_polished[i])
+    if x !== nothing
+        if !is_linear_feasible(tree.root.problem.lmo, x) 
+            error("Reported solution not linear feasbile!")
         end
-        if !is_linear_feasible(tree.root.problem.lmo, x_polished)
-            @warn "Polished solution not linear feasible"
-        else
-            x = x_polished
+        if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16) && x !== nothing
+            @info "Polish solution"
+            for i in tree.root.problem.integer_variables
+                x_polished[i] = round(x_polished[i])
+            end
+            if !is_linear_feasible(tree.root.problem.lmo, x_polished)
+                @warn "Polished solution not linear feasible"
+            else
+                x = x_polished
+            end
         end
     end
     println() # cleaner output
@@ -492,7 +526,13 @@ function build_bnb_callback(
         if Bonobo.terminated(tree)
             Bonobo.sort_solutions!(tree.solutions, tree.sense)
             x = Bonobo.get_solution(tree)
-            primal_value = tree.root.problem.f(x)
+            # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
+            if x === nothing
+                @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+            end 
+            primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
+            # deactivate postsolve if there is no solution
+            tree.root.options[:usePostsolve] = x === nothing ? false : tree.root.options[:usePostsolve]
 
             # TODO: here we need to calculate the actual state
 
@@ -533,9 +573,9 @@ Runs the post solve both for a cleaner solutiona and to optimize
 for the continuous variables if present.
 Prints solution statistics if verbose is true.        
 """
-function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration_post)
+function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)
-    primal = tree.incumbent_solution.objective
+    primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
@@ -549,7 +589,7 @@ function postsolve(tree, result, time_ref, verbose, use_postsolve, max_iteration
     end
 
     only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
-    if use_postsolve && !only_integer_vars
+    if tree.root.options[:usePostsolve] && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables

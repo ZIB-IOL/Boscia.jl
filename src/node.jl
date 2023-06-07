@@ -72,11 +72,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         end
         new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
         new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
-        if new_bound_left >= tree.incumbent
+        if new_bound_left > tree.incumbent
             @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
             prune_left = true
         end
-        if new_bound_right >= tree.incumbent
+        if new_bound_right > tree.incumbent
             @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
@@ -157,11 +157,21 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_potential_tightenings=0,
         dual_gap=NaN,
     )
-    nodes = if !prune_left && !prune_right
+
+    # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+    x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
+    x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+    domain_oracle = tree.root.options[:domain_oracle]
+
+    nodes = if !prune_left && !prune_right #&& domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
-    elseif prune_left
+    elseif prune_left 
         [node_info_right]
-    else
+    elseif prune_right 
+        [node_info_left]
+    elseif domain_oracle(x_right) 
+        [node_info_right]
+    elseif domain_oracle(x_left)
         [node_info_left]
     end
     return nodes
@@ -262,21 +272,63 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
     end
 
-    # call blended_pairwise_conditional_gradient
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+   # x = zeros(tree.root.problem.nvars)
+    #dual_gap = primal = 0
+    #active_set = FrankWolfe.ActiveSet([(1.0, x)])
+    x=FrankWolfe.compute_active_set_iterate!(node.active_set)
+    domain_oracle = tree.root.options[:domain_oracle]
+
+    x, primal, dual_gap, active_set = solve_frank_wolfe(
+        tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
         tree.root.problem.lmo,
-        node.active_set,
+        node.active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
-        line_search=FrankWolfe.Adaptive(verbose=false),
+        line_search=tree.root.options[:lineSearch],
+        lazy=true,
+        timeout=tree.root.options[:time_limit],
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
-        lazy=true,
-    )
+        verbose=tree.root.options[:fwVerbose],
+    )#=
+    if tree.root.options[:variant] == BPCG
+        # call blended_pairwise_conditional_gradient
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=tree.root.options[:lineSearch],
+            add_dropped_vertices=true,
+            use_extra_vertex_storage=true,
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:callback],
+            lazy=true,
+            timeout=tree.root.options[:time_limit],
+            verbose=tree.root.options[:fwVerbose],
+        )
+    elseif tree.root.options[:variant] == AFW
+        # call away_frank_wolfe
+        x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.lmo,
+            node.active_set,
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=tree.root.options[:lineSearch],
+            callback=tree.root.options[:callback],
+            lazy=true,
+            timeout=tree.root.options[:time_limit],
+            verbose=tree.root.options[:fwVerbose],
+        )
+    end=#
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
