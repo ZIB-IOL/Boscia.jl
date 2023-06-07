@@ -161,7 +161,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
     x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
-    domain_oracle = tree.root.options[:domainOracle]
+    domain_oracle = tree.root.options[:domain_oracle]
 
     nodes = if !prune_left && !prune_right #&& domain_oracle(x_left) && domain_oracle(x_right) 
         [node_info_left, node_info_right]
@@ -276,7 +276,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     #dual_gap = primal = 0
     #active_set = FrankWolfe.ActiveSet([(1.0, x)])
     x=FrankWolfe.compute_active_set_iterate!(node.active_set)
-    domain_oracle = tree.root.options[:domainOracle]
+    domain_oracle = tree.root.options[:domain_oracle]
 
     x, primal, dual_gap, active_set = solve_frank_wolfe(
         tree.root.options[:variant],

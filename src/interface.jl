@@ -13,7 +13,7 @@ variant                - variant of FrankWolfe to be used to solve the node prob
                                  AFW  -- Away FrankWolfe
                                  BPCG -- Blended Pairwise Conditional Gradient  
 line_search            - specifies the Line Search method used in the FrankWolfe variant.
-                        Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
+                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
 fw_epsilon             - the tolerance for FrankWolfe in the root node.
 verbose                - if true, a log and solution statistics are printed.
 dual_gap               - if this absolute dual gap is reached, the algorithm stops.
@@ -35,6 +35,8 @@ global_dual_tightening - dual tightening maintained globally valid (when new sol
 bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
 strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
 domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
+                         In case of the non trivial domain oracle, the starting point has to be feasible for f. Also, depending 
+                         on the Line Search method, you might have to provide the domain oracle to it, too.
 start_solution         - initial solution to start with an incumbent
 fw_verbose             - if true, FrankWolfe logs are printed
 """
@@ -210,7 +212,7 @@ function solve(
                 :strong_convexity => strong_convexity,
                 :variant => variant,
                 :lineSearch => line_search,
-                :domainOracle => domain_oracle,
+                :domain_oracle => domain_oracle,
                 :usePostsolve => use_postsolve,
                 :fwVerbose => fw_verbose,
             ),
