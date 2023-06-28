@@ -1,22 +1,20 @@
 using Boscia
 using FrankWolfe
-using Test
 using Random
 using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
-import HiGHS
 using DataFrames
 using CSV
+
+example = "birkhoff"
+seed=3
+Random.seed!(seed)
 
 # Example on the Birkhoff polytope but using permutation matrices directly
 # https://arxiv.org/pdf/2011.02752.pdf
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
-
-# For bug hunting:
-seed = 0x3eb09305cecf69f0
-Random.seed!(seed)
 
 
 # min_{X, θ} 1/2 * || ∑_{i in [k]} θ_i X_i - Xhat ||^2
@@ -33,7 +31,7 @@ Random.seed!(seed)
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
 # Small dimensions since the size of the problem grows quickly (2 k n^2 + k variables)
-n = 2
+n = 3
 k = 3
 
 # generate random doubly stochastic matrix
@@ -46,7 +44,7 @@ end
 function f(x)
     s = zero(eltype(x))
     for i in eachindex(Xstar)
-        s += 0.5 * (sum(x[(j-1)*n^2+i] for j in 1:k) - Xstar[i])^2
+        s += 0.5 * (sum(x[(j-1) * n^2 + i] for j in 1:k) - Xstar[i])^2
     end
     return s
 end
@@ -55,87 +53,85 @@ end
 function grad!(storage, x)
     storage .= 0
     for j in 1:k
-        Sk = reshape(@view(storage[(j-1)*n^2+1:j*n^2]), n, n)
-        @. Sk = -Xstar
+        Sk = reshape(@view(storage[(j-1) * n^2 + 1 : j * n^2]), n, n)
+        @. Sk = - Xstar
         for m in 1:k
-            Yk = reshape(@view(x[(m-1)*n^2+1:m*n^2]), n, n)
+            Yk = reshape(@view(x[(m-1) * n^2 + 1 : m * n^2]), n, n)
             @. Sk += Yk
         end
     end
-    return storage
+    storage
 end
 
-function build_birkhoff_lmo()
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    Y = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
-    X = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
-    theta = MOI.add_variables(o, k)
+o = SCIP.Optimizer()
+MOI.set(o, MOI.Silent(), true)
+MOI.empty!(o)
+Y = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
+X = [reshape(MOI.add_variables(o, n^2), n, n) for _ in 1:k]
+theta = MOI.add_variables(o, k)
 
-    for i in 1:k
-        MOI.add_constraint.(o, Y[i], MOI.GreaterThan(0.0))
-        MOI.add_constraint.(o, Y[i], MOI.LessThan(1.0))
-        MOI.add_constraint.(o, X[i], MOI.ZeroOne())
-        MOI.add_constraint(o, theta[i], MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, theta[i], MOI.LessThan(1.0))
-        # doubly stochastic constraints
-        MOI.add_constraint.(
-            o,
-            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
-            MOI.EqualTo(1.0),
-        )
-        MOI.add_constraint.(
-            o,
-            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
-            MOI.EqualTo(1.0),
-        )
-        # 0 ≤ Y_i ≤ X_i
-        MOI.add_constraint.(o, 1.0 * Y[i] - X[i], MOI.LessThan(0.0))
-        # 0 ≤ θ_i - Y_i ≤ 1 - X_i
-        MOI.add_constraint.(o, 1.0 * theta[i] .- Y[i] .+ X[i], MOI.LessThan(1.0))
+for i in 1:k
+    MOI.add_constraint.(o, Y[i], MOI.GreaterThan(0.0))
+    MOI.add_constraint.(o, Y[i], MOI.LessThan(1.0))
+    MOI.add_constraint.(o, X[i], MOI.ZeroOne())
+    MOI.add_constraint(o, theta[i], MOI.GreaterThan(0.0))
+    MOI.add_constraint(o, theta[i], MOI.LessThan(1.0))
+    # doubly stochastic constraints
+    MOI.add_constraint.(
+        o, vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+        MOI.EqualTo(1.0),
+    )
+    MOI.add_constraint.(
+        o, vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+        MOI.EqualTo(1.0),
+    )
+    # 0 ≤ Y_i ≤ X_i
+    MOI.add_constraint.(
+        o, 1.0 * Y[i] - X[i],
+        MOI.LessThan(0.0),
+    )
+    # 0 ≤ θ_i - Y_i ≤ 1 - X_i
+    MOI.add_constraint.(
+        o, 1.0 * theta[i] .- Y[i] .+ X[i],
+        MOI.LessThan(1.0),
+    )
+end
+MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
+lmo = FrankWolfe.MathOptLMO(o)
+
+# min_number_lower = Inf
+# dual_gap_decay_factor = 0.7
+# fw_epsilon = 1e-3
+# x, _, result= Boscia.solve(f, grad!, lmo; verbose=true, dual_gap_decay_factor=0.7, min_number_lower=Inf, fw_epsilon = fw_epsilon, print_iter=1) 
+
+# df = DataFrame(lmo_calls=result[:lmo_calls_per_layer], active_set_size=result[:active_set_size_per_layer], discarded_set_size=result[:discarded_set_size_per_layer])
+# file_name = "experiments/csv/" * example * "_per_layer_" * string(n) * "_" * string(k) * "_" * string(seed) * "_" * string(min_number_lower) * "_" * string(dual_gap_decay_factor) * "_" * string(fw_epsilon) * ".csv"
+# CSV.write(file_name, df, append=false)
+
+Boscia.solve(f, grad!, lmo; verbose=true)
+
+values = [0.9, 1.0]
+fw_epsilon_values = [1e-3, 5e-3, 1e-4, 1e-7]
+min_num_lower_values = [20, 40, 60, 80, 100, 200, Inf]
+seeds = [1]#,2,3]
+
+iter = 1#3
+
+for (seed_idx, seed_val) in enumerate(seeds)
+    for (index,value) in enumerate(values)
+        for i in 1:iter
+            for (idx,eps) in enumerate(fw_epsilon_values)
+                for (idx2, min_num_lower_val) in enumerate(min_num_lower_values)
+                    dual_gap_decay_factor = value
+                    min_number_lower = min_num_lower_val
+                    fw_epsilon = eps
+                    seed = seed_val
+                    data = @timed _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = fw_epsilon, print_iter=1)
+                    df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
+                    file_name = "experiments/csv/early_stopping_" * example * "_" * string(n) * "_" * string(k) * "_" * string(seed) * "_" * string(min_number_lower) * "_" * string(dual_gap_decay_factor) * "_" * string(fw_epsilon) * "_" * string(i) *".csv"
+                    CSV.write(file_name, df, append=false)
+                end
+            end
+        end
     end
-    MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
-    return FrankWolfe.MathOptLMO(o)
-end
-
-lmo = build_birkhoff_lmo()
-# x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
-x, _, result = Boscia.solve(f, grad!, lmo; verbose=true)
-
-total_time_in_sec=result[:total_time_in_sec]
-status = result[:status]
-lb_list = result[:list_lb]
-ub_list = result[:list_ub]
-time_list = result[:list_time]
-list_lmo_calls = result[:list_lmo_calls_acc]
-list_open_nodes = result[:open_nodes]
-list_local_tightening = result[:local_tightenings]
-list_global_tightening = result[:global_tightenings]
-
-df = DataFrame(seed=seed, dimension=n, k=k, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
-file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_birkhoff_open_nodes_" * string(n) * "_" * string(k) * "_" *string(seed) *".csv")
-CSV.write(file_name, df, append=false)
-
-# TODO the below needs to be fixed
-# TODO can use the min_via_enum function if not too many solutions
-# build optimal solution
-# xopt = zeros(n)
-# for i in 1:n
-#     if diffi[i] > 0.5
-#         xopt[i] = 1
-#     end
-# end
-
-# @testset "Birkhoff" begin
-#     lmo = build_birkhoff_lmo()
-#     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
-#     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
-#     lmo = build_birkhoff_lmo()
-#     branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
-#     MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
-#     x_strong, _, result_strong =
-#         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
-#     @test f(x) ≈ f(x_strong)
-#     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
-# end
+end 
