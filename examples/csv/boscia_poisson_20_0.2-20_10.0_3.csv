@@ -1,0 +1,3 @@
+seed,dimension,p,k,Ns,time,lowerBound,upperBound,termination,LMOcalls,openNodes,localTighteings,globalTightenings
+3,20,20,10.0,0.2,71.0,-5.226779904777761,-5.226779904777761,OPTIMAL,8,0,0,0
+3,20,20,10.0,0.2,71.0,-5.226779904777761,-5.226779904777761,OPTIMAL,8,0,0,0

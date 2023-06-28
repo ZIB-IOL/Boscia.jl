@@ -3,11 +3,29 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
     vars = [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
-    return function fw_callback(state, active_set)
+    return function fw_callback(state, active_set, args...)
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
-        @assert is_linear_feasible(tree.root.problem.lmo, state.v)
-        @assert is_linear_feasible(tree.root.problem.lmo, state.x)
+        # TODO deal with vertices becoming infeasible with conflicts
+        if !is_linear_feasible(tree.root.problem.lmo, state.v)
+            @info "$(state.v)"
+            node = tree.nodes[tree.root.current_node_id[]]
+            node_bounds = node.local_bounds
+            for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
+                for (idx, set) in list
+                    c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+                    @assert MOI.is_valid(state.lmo.lmo.o, c_idx)
+                    set2 = MOI.get(state.lmo.lmo.o, MOI.ConstraintSet(), c_idx)
+                    if !(set == set2)
+                        MOI.set(lmo.lmo.o, MOI.ConstraintSet(), c_idx, set)
+                        set3 = MOI.get(lmo.lmo.o, MOI.ConstraintSet(), c_idx)
+                        @assert (set3 == set) "$((idx, set3, set))"
+                    end
+                end
+            end
+            @assert is_linear_feasible(tree.root.problem.lmo, state.v)
+        end
+        # @assert is_linear_feasible(tree.root.problem.lmo, state.x)
 
         push!(fw_iterations, state.t)
         if ncalls != state.lmo.ncalls
@@ -69,7 +87,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 x_rounded[idx] = round(state.x[idx])
             end
             # check linear feasibility
-            if is_linear_feasible(tree.root.problem.lmo, x_rounded)
+            if is_linear_feasible(tree.root.problem.lmo, x_rounded) && is_integer_feasible(tree, x_rounded)
                 # evaluate f(rounded)
                 val = tree.root.problem.f(x_rounded)
                 if val < tree.incumbent
@@ -84,6 +102,12 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                     tree.incumbent = val
                     Bonobo.bound!(tree, node.id)
                 end
+            end
+        end
+
+        if tree.root.options[:time_limit] != Inf
+            if state.time >= tree.root.options[:time_limit] && tree.incumbent != Inf
+                return false
             end
         end
 

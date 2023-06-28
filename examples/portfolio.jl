@@ -1,31 +1,123 @@
 using Boscia
 using FrankWolfe
-using Test
 using Random
 using SCIP
+# using Statistics
 using LinearAlgebra
 using Distributions
 import MathOptInterface
-const MOI = MathOptInterface
+MOI = MathOptInterface
+using CSV
+using DataFrames
+include("scip_oa.jl")
+include("BnB_Ipopt.jl")
 
+function portfolio(seed=1, dimension=5, full_callback=false; mode, bo_mode)
+    limit = 1800
 
-n = 30
-const ri = rand(n)
-const ai = rand(n)
-const Ωi = rand(Float64)
-const bi = sum(ai)
-Ai = randn(n, n)
-Ai = Ai' * Ai
-const Mi = (Ai + Ai') / 2
-@assert isposdef(Mi)
-
-
-@testset "Buchheim et. al. example" begin
+    f, grad!, n = build_function(seed, dimension)
     o = SCIP.Optimizer()
+    lmo, _ = build_optimizer(o, mode, n)
+
+    Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
+    
+    if bo_mode == "afw"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, afw=true)
+    elseif bo_mode == "as_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=false)
+    elseif bo_mode == "as"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
+    elseif bo_mode == "ss"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
+    elseif bo_mode == "boscia"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1)
+    elseif bo_mode == "local_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
+    elseif bo_mode == "global_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, print_iter=1) 
+    elseif bo_mode == "no_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, print_iter=1) 
+    elseif bo_mode == "ss_local_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, warmstart_shadow_set=false, print_iter=1) 
+    elseif bo_mode == "ss_global_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, warmstart_shadow_set=false,print_iter=1) 
+    elseif bo_mode == "ss_no_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, warmstart_shadow_set=false, print_iter=1) 
+    end     
+    
+    total_time_in_sec=result[:total_time_in_sec]
+    status = result[:status]
+    if occursin("Optimal", result[:status])
+        status = "OPTIMAL"
+    end
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
+        list_local_tightening = result[:local_tightenings]
+        list_global_tightening = result[:global_tightenings]
+        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * string(n) * "_" *string(seed) * "_" * mode * "_portfolio.csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        if bo_mode ==  "afw"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
+        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening"
+            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
+        else 
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_" * mode * "_portfolio.csv")
+        end
+        if !isfile(file_name)
+            CSV.write(file_name, df, append=true, writeheader=true)
+        else 
+            CSV.write(file_name, df, append=true)
+        end
+    end
+end
+
+function portfolio_scip(seed=1, dimension=5; mode)
+    limit = 1800
+    f, grad!, n = build_function(seed, dimension)
+
+    lmo, epigraph_ch, x, lmo_check = build_scip_optimizer(mode, limit, n, f, grad!)
+    MOI.optimize!(lmo.o)
+    time_scip = MOI.get(lmo.o, MOI.SolveTimeSec())
+    vars_scip = MOI.get(lmo.o, MOI.VariablePrimal(), x)
+    @assert Boscia.is_linear_feasible(lmo_check.o, vars_scip)
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_scip = f(vars_scip)
+    termination_scip = String(string(MOI.get(lmo.o, MOI.TerminationStatus())))
+    ncalls_scip = epigraph_ch.ncalls
+
+    df = DataFrame(seed=seed, dimension=n, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
+    file_name = joinpath(@__DIR__,"csv/scip_oa_portfolio_" * mode * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_optimizer(o, mode, n)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
+
+    ai = rand(n)
+    bi = sum(ai)
+
+    # MOI.set(o, MOI.TimeLimitSec(), limit)
     x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    
+    # integer set
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = 1:(n÷2)
+    end
+
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
@@ -43,6 +135,37 @@ const Mi = (Ai + Ai') / 2
         MOI.GreaterThan(1.0),
     )
     lmo = FrankWolfe.MathOptLMO(o)
+    return lmo, x
+end
+
+function build_scip_optimizer(mode, limit, n, f, grad!)
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.TimeLimitSec(), limit)
+    MOI.set(o, MOI.Silent(), true)
+    lmo, x = build_optimizer(o, mode, n)
+    z_i = MOI.add_variable(lmo.o)
+    epigraph_ch = GradientCutHandler(lmo.o, f, grad!, zeros(length(x)), z_i, x, 0)
+    SCIP.include_conshdlr(lmo.o, epigraph_ch; needs_constraints=false, name="handler_gradient_cuts")
+    MOI.set(lmo.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
+    
+    # lmo to verify feasibility of solution after optimization
+    o_check = SCIP.Optimizer()
+    lmo_check, _ = build_optimizer(o_check, mode, n)
+    z_i = MOI.add_variable(lmo_check.o)
+    MOI.set(lmo_check.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
+    
+    return lmo, epigraph_ch, x, lmo_check
+end
+
+function build_function(seed, dimension)
+    Random.seed!(seed)
+    n = dimension
+    ri = rand(n)
+    Ωi = rand()
+    Ai = randn(n, n)
+    Ai = Ai' * Ai
+    Mi = (Ai + Ai') / 2
+    @assert isposdef(Mi)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -52,11 +175,97 @@ const Mi = (Ai + Ai') / 2
         storage .-= ri
         return storage
     end
-
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
-    @test dot(ai, x) <= bi + 1e-6
-    @test f(x) <= f(result[:raw_solution]) + 1e-6
+    return f, grad!, n
 end
 
+# BnB tree with Ipopt
+function portfolio_ipopt(seed = 1, n = 20; mode="mixed")
+    # build tree
+    bnb_model, expr = build_bnb_ipopt_model(seed, n; mode=mode)
+    list_lb = []
+    list_ub = []
+    list_time = []
+    list_number_nodes = []
+    callback = build_callback(list_lb, list_ub, list_time, list_number_nodes)
+    time_ref = Dates.now()
+    data = @timed BB.optimize!(bnb_model, callback=callback)
+    push!(list_lb, bnb_model.lb)
+    push!(list_ub, bnb_model.incumbent)
+    push!(list_time, float(Dates.value(Dates.now()-time_ref)))
+    push!(list_number_nodes, bnb_model.num_nodes)
+    total_time_in_sec= list_time[end]
+    status = ""
+    if bnb_model.root.solving_stage == Boscia.TIME_LIMIT_REACHED
+        status = "Time limit reached"
+    else
+        status = "Optimal"
+    end    
 
-# seed = 0x946d4b7835e92ffa takes 90 minutes to solve!
+    o_check = SCIP.Optimizer()
+    lmo_check, _ = build_optimizer(o_check, mode, n)
+    x = Bonobo.get_solution(bnb_model)
+    
+    @assert Boscia.is_linear_feasible(lmo_check.o, x)
+
+    df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
+    file_name = joinpath(@__DIR__,"csv/ipopt_portfolio_ " * mode * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+# build tree 
+function build_bnb_ipopt_model(seed, n; mode="mixed")
+    Random.seed!(seed)
+    time_limit = 1800
+    
+    ri = rand(n)
+    Ωi = rand()
+    Ai = randn(n, n)
+    Ai = Ai' * Ai
+    Mi = (Ai + Ai') / 2
+    @assert isposdef(Mi)
+
+    m = Model(Ipopt.Optimizer)
+    set_silent(m)
+
+    ai = rand(n)
+    bi = sum(ai)
+    # integer set
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = collect(1:(n÷2))
+    end
+
+    @variable(m, x[1:n])
+    for i in 1:n
+        @constraint(m, x[i] >= 0)
+    end
+    lbs = fill(0.0, n)
+    ubs = fill(Inf, n)
+
+    @constraint(m, dot(ai, x) <= bi)
+    @constraint(m, dot(x, ones(n)) >= 1.0)
+
+    expr = @expression(m, 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x))
+    @objective(m, Min, expr)
+
+    model = IpoptOptimizationProblem(I, m, Boscia.SOLVING, time_limit, lbs, ubs)
+    bnb_model = BB.initialize(;
+    traverse_strategy = BB.BFS(),
+    Node = MIPNode,
+    root = model,
+    sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,
+    rtol = 1e-2,
+    )
+    BB.set_root!(bnb_model, (
+    lbs = fill(-Inf, length(x)),#zeros(length(x)),
+    ubs = fill(Inf, length(x)),
+    status = MOI.OPTIMIZE_NOT_CALLED)
+    )
+    return bnb_model, expr
+
+end

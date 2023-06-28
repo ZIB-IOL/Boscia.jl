@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 seed,num_v,time,lowerBound,upperBound,termination,LMOcalls
 1,8,183.0,-4.9066186235985025,-2.737265394412579,Time limit reached,45
 1,8,337.0,-4.9066186235985025,-2.737265394412579,Time limit reached,85
@@ -10434,6 +10435,8 @@ seed,num_v,time,lowerBound,upperBound,termination,LMOcalls
 1,8,1.799846e6,-2.9590284653726684,-2.7372978550326286,Time limit reached,417025
 1,8,1.800047e6,-2.9590204690988515,-2.7372978550326286,Time limit reached,417073
 =======
+=======
+>>>>>>> ablation
 seed,num_v,time,lowerBound,upperBound,termination,LMOcalls,openNodes
 1,8,184.0,-4.9066186235985025,-2.737265394412579,Time limit reached,45,2
 1,8,330.0,-4.9066186235985025,-2.737265394412579,Time limit reached,85,3
@@ -13825,4 +13828,7 @@ seed,num_v,time,lowerBound,upperBound,termination,LMOcalls,openNodes
 1,8,599765.0,-3.21439232447064,-2.737297846963894,Time limit reached,144726,3389
 1,8,599941.0,-3.2143711616877257,-2.737297846963894,Time limit reached,144764,3390
 1,8,600130.0,-3.2143711616877257,-2.737297846963894,Time limit reached,144814,3391
+<<<<<<< HEAD
 >>>>>>> 091fe0e222ff4a08d5b36e6c883f57e2a64e0b62
+=======
+>>>>>>> ablation

@@ -1,0 +1,80 @@
+using Statistics
+using Boscia
+using FrankWolfe
+using Random
+using SCIP
+import Bonobo
+import MathOptInterface
+const MOI = MathOptInterface
+using DataFrames
+using CSV
+using PyPlot
+
+function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
+    file_name_boscia = joinpath(@__DIR__, "csv/boscia_mip_lib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
+    file_name_ipopt = joinpath(@__DIR__, "csv/ipopt_" * example  * "_" * string(num_v) * "_" * string(seed) * ".csv")
+
+
+    df_boscia = DataFrame(CSV.File(file_name_boscia))
+    df_ipopt = DataFrame(CSV.File(file_name_ipopt))
+
+    file_name = joinpath(@__DIR__, "images/boscia_vs_ipopt_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv") 
+    file_name = replace(file_name, ".csv" => ".pdf")
+    
+    colors = ["b", "m", "c", "r", "g", "y", "k"]
+    markers = ["o", "s", "^", "P", "X", "H", "D"]
+    
+    #fig = plt.figure(figsize=(7.3, 5))
+    fig, axs = plt.subplots(2, sharex=false)
+    PyPlot.matplotlib[:rc]("text", usetex=true)
+    PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
+    PyPlot.matplotlib[:rc]("axes", labelsize=14)
+    PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
+    \usepackage{libertine}
+    \usepackage{libertinust1math}
+    """)
+    #ax = fig.add_subplot(111)
+
+    df_boscia[!,"time"] ./= 1000
+    df_ipopt[!,"time"] ./= 1000
+
+    len_boscia = length(df_boscia[!, "lowerBound"])
+    len_ipopt = length(df_ipopt[!, "lowerBound"])
+
+    ub_ipopt_int = findfirst(isfinite, df_ipopt[!,"upperBound"])
+
+    if example == "22433" || example == "pg5_34"
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Boscia LB", color=colors[1], marker=markers[1], linestyle="dashed", linewidth=1.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Boscia UB", color=colors[1], linestyle="dashdot", linewidth=3.0)
+    else
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Boscia LB", color=colors[1], marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Boscia UB", color=colors[1], linestyle="dashdot", markevery=0.05, linewidth=2.0)
+    end
+    axs[1].plot(df_ipopt[1:end-1,"time"], df_ipopt[1:end-1,"lowerBound"], label="Ipopt LB", color=colors[2], marker=markers[2], markevery=0.05, linewidth=1.0)
+    if ub_ipopt_int !== nothing
+        axs[1].plot(df_ipopt[ub_ipopt_int:end-1,"time"], df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="Ipopt UB", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
+    end
+    axs[1].set(xlabel="Time (s)", ylabel ="Lower bound")
+    axs[1].grid()
+
+    if example == "22433" || example == "pg5_34"
+        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=colors[1], marker=markers[1], linestyle="dashed", linewidth=1.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=colors[1], linestyle="dashdot", linewidth=3.0)
+    else
+        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=colors[1], marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=colors[1], linestyle="dashdot", markevery=0.05, linewidth=2.0)
+    end
+    axs[2].plot(1:len_ipopt-1, df_ipopt[1:end-1,"lowerBound"], label="", color=colors[2], marker=markers[2], markevery=0.05, linewidth=1.0)
+    if ub_ipopt_int !== nothing
+        axs[2].plot(ub_ipopt_int:len_ipopt-1, df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
+    end
+    axs[2].set(xlabel="Numder of nodes", ylabel ="Lower bound")
+    axs[2].grid()
+
+    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=11,   # bbox_to_anchor=(0.5, 0.05)
+            fancybox=true, shadow=false, ncol=6)
+    
+    fig.tight_layout()
+
+        savefig(file_name,  bbox_extra_artists=(lgd,), bbox_inches="tight")
+end
