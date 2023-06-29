@@ -112,5 +112,5 @@ function per_layer_plot(file_name)
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
 end 
 
-file_name = "examples/csv/birkhoff_per_layer_3_3_2_Inf_0.7_0.001.csv"
+file_name = "csv/birkhoff_per_layer_3_3_3_Inf_0.7_0.001.csv"
 per_layer_plot(file_name)
