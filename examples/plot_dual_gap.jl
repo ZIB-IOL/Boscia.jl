@@ -97,12 +97,12 @@ function dual_gap_plot(file_name)
 end
 
 
-file_name = "examples/csv/early_stopping_birkhoff_3_2_3_Inf_0.7_0.001_1.csv"
+# file_name = "csv/early_stopping_birkhoff_3_2_3_Inf_0.7_0.001_1.csv"
 # file_name = "examples/csv/early_stopping_birkhoff_3_3_1_Inf_0.7_0.001_1.csv"
 #file_name = "examples/csv/early_stopping_worst_case_16_1_Inf_0.7_0.001_3.csv"
 #file_name = "examples/csv/early_stopping_low_dim_100_5_1_Inf_1.0_0.001_1.csv"
 #file_name = "examples/csv/early_stopping_portfolio_40_2_Inf_0.7_0.001_1.csv"
-# file_name = "examples/csv/early_stopping_int_sparsereg_40_30_20.0_0.6_0.001_1.csv"
+file_name = "csv/early_stopping_int_sparsereg_40_30_20.0_0.6_0.001_1.csv"
 # file_name = "examples/csv/dual_gap_sparse_reg_10_2_most_infeasible.csv"
 
 dual_gap_plot(file_name)
