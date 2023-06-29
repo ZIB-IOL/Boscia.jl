@@ -148,7 +148,7 @@ function plot(example, setup)
         if setup == "50_3"
             ylim((0,6500))
         elseif setup == "40_3"
-            ylim((0,11000))
+            ylim((0,1100))
         end
         ax.grid()
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
