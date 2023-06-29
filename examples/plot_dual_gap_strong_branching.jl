@@ -64,7 +64,7 @@ function dual_gap_plot(example, mode)
         elseif example == "lasso"
             ax.vlines(x=[number_of_nodes[switch]], ymin=210, ymax=260,  label = "Switch", color=colors[7], linestyle = :dotted)
         elseif example == "low_dim_high_dim"
-            ax.vlines(x=[number_of_nodes[switch]], ymin=-5030, ymax=-5010,  label = "Switch", color=colors[7], linestyle = :dotted)
+            ax.vlines(x=[number_of_nodes[switch]], ymin=-5030, ymax=-4950,  label = "Switch", color=colors[7], linestyle = :dotted)
         end
 
     elseif mode == "time"
@@ -78,7 +78,7 @@ function dual_gap_plot(example, mode)
         elseif example == "lasso"
             ax.vlines(x=[df1[1:len, "list_time"][switch]], ymin=210, ymax=260,  label = "Switch", color=colors[7], linestyle = :dotted)
         elseif example == "low_dim_high_dim"
-            ax.vlines(x=[df1[1:len, "list_time"][switch]], ymin=-5030, ymax=-5010,  label = "Switch", color=colors[7], linestyle = :dotted)
+            ax.vlines(x=[df1[1:len, "list_time"][switch]], ymin=-5030, ymax=-4950,  label = "Switch", color=colors[7], linestyle = :dotted)
         end
     end
 
