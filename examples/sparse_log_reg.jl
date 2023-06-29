@@ -318,7 +318,7 @@ function build_bnb_ipopt_model(seed, n, M, k, var_A)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
     bnb_model = BB.initialize(;
-    traverse_strategy = BB.BFS(),
+    traverse_strategy = BB.BestFirstSearch(),
     Node = MIPNode,
     root = model,
     sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,

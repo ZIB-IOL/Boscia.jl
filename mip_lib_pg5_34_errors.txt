@@ -1,6 +1,0 @@
-3 7 boscia : AssertionError("!(isempty(active_set))")
-2 8 boscia : AssertionError("!(isempty(active_set))")
-1 7 ss : AssertionError("!(isempty(active_set))")
-3 7 ss : AssertionError("!(isempty(active_set))")
-2 8 ss : AssertionError("!(isempty(active_set))")
-2 7 afw : AssertionError("!(isempty(active_set))")

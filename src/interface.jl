@@ -29,7 +29,7 @@ function solve(
     f,
     grad!,
     lmo;
-    traverse_strategy=Bonobo.BFS(),
+    traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     fw_epsilon=1e-2,
     verbose=false,
