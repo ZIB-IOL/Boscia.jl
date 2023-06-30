@@ -13,34 +13,39 @@ using DataFrames
 using CSV
 
 
-function build_lasso(dim, fac, seed, use_indicator, time_limit, rtol)
-    example = "lasso"
+# Integer sparse regression
+
+# min norm(y-A x)² 
+# s.t. 0 <= x_i <= r
+# ∑ x_i <= k 
+# x_i ∈ Z for i = 1,..,n
+
+# There A represents the collection of data points and 
+# is a very tall matrix, i.e. number of rows = m >> number of columns = n.
+# y - is the vector of results.
+# r - controls how often we have to maximal split on a index.
+# k - is the sparsity parameter. We only want a few non zero entries.
+
+function build_int_reg(dim, fac, seed, use_indicator, time_limit, rtol)
+    example = "int_reg"
     Random.seed!(seed)
 
     p = dim
-    k = ceil(dim / fac)
-    group_size = convert(Int64, floor(p / k))
-    M = 5.0
-    
-    lambda_0_g = 0.0
-    lambda_2_g = 0.0
-    A_g = rand(Float64, dim, p)
-    β_sol = rand(Distributions.Uniform(-M, M), p)
-    k_int = convert(Int64, k)
-    
-    for i in 1:k_int
-        for _ in 1:group_size-1
-            β_sol[rand(((i-1)*group_size+1):(i*group_size))] = 0
-        end
+    m = 3*p
+    l = 10
+    k = ceil(p/fac)
+
+    sol_x = rand(1:l, p)
+    for _ in 1:(p-k)
+        sol_x[rand(1:p)] = 0
     end
-    y_g = A_g * β_sol
-    k = count(i -> i != 0, β_sol)
-    
-    groups = []
-    for i in 1:(k_int-1)
-        push!(groups, ((i-1)*group_size+1):(i*group_size))
-    end
-    push!(groups, ((k_int-1)*group_size+1):p)
+
+    k = count(i -> i != 0, sol_x)
+
+    D = rand(m, p)
+    y_d = D * sol_x
+    M = 1.0*l
+
 
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
@@ -48,8 +53,9 @@ function build_lasso(dim, fac, seed, use_indicator, time_limit, rtol)
     x = MOI.add_variables(o, p)
     z = MOI.add_variables(o, p)
     for i in 1:p
-        MOI.add_constraint(o, x[i], MOI.GreaterThan(-M))
-        MOI.add_constraint(o, x[i], MOI.LessThan(M))
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, x[i], MOI.LessThan(1.0 * l))
+        MOI.add_constraint(o, x[i], MOI.Integer())
 
         MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
@@ -79,29 +85,20 @@ function build_lasso(dim, fac, seed, use_indicator, time_limit, rtol)
     end
     if use_indicator
         MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0 * (p-k))) # we want less than k zeros
-        for i in 1:k_int
-            MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.LessThan(1.0 * group_size - 1))
-        end
     else
         MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
-        for i in 1:k_int
-            MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
-        end
     end
-    
     lmo = FrankWolfe.MathOptLMO(o)
 
 
     function f(x)
-        return (sum((y_g - A_g * x[1:p]) .^ 2) +
-               lambda_0_g * sum(x[p+1:2p]) +
-               lambda_2_g * FrankWolfe.norm(x[1:p])^2)/10000
+        xv = @view(x[1:p])
+        return 1 / 2 * sum(abs2, y_d - D * xv)  
     end
+
     function grad!(storage, x)
-        storage .= vcat(
-            2 * (transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]),
-            lambda_0_g * ones(p),
-        )./10000
+        storage .= 0
+        @view(storage[1:p]) .= transpose(D) * (D * @view(x[1:p]) - y_d)
         return storage
     end
 
@@ -109,7 +106,7 @@ function build_lasso(dim, fac, seed, use_indicator, time_limit, rtol)
     x = zeros(2p)
     for i in 1:iter
         indicator = use_indicator ? "indicator" : "bigM"
-        data = @timed _, time_lmo, result = Boscia.solve(f, grad!, lmo; print_iter = 100, verbose=true, time_limit = time_limit, rel_dual_gap = rtol, dual_gap = 1e-4, use_postsolve = false, fw_epsilon = 1e-2, min_node_fw_epsilon =1e-5)
+        data = @timed x, time_lmo, result = Boscia.solve(f, grad!, lmo; print_iter = 100, verbose=true, time_limit = time_limit, rel_dual_gap = rtol, dual_gap = 1e-4, use_postsolve = false, fw_epsilon = 1e-2, min_node_fw_epsilon =1e-5)
         df = DataFrame(seed=seed, dimension=dim, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
         file_name = "experiments/csv/bigM_vs_indicator_" * example * "_" * indicator * "_" * string(dim) * "_" * string(fac) * "_" * string(seed) * ".csv"
         CSV.write(file_name, df, append=false)

@@ -1,7 +1,9 @@
-# include("sparse_reg.jl")
-# include("poisson.jl")
-# include("int_regression.jl")
-# include("lasso.jl")
+include("sparse_reg.jl")
+include("poisson_reg.jl")
+include("int_regression.jl")
+include("lasso.jl")
+include("plot_bigM_vs_indicator.jl")
+
 using Statistics
 using Boscia
 using FrankWolfe
@@ -10,8 +12,6 @@ using SCIP
 import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
-# include("build_csv.jl")
-include("plot_bigM_vs_indicator.jl")
 
 function test(example, dimension, fac, seed, use_indicator; time_limit = Inf, rtol = 1e-2)
     if example == "lasso"
@@ -25,11 +25,10 @@ function test(example, dimension, fac, seed, use_indicator; time_limit = Inf, rt
     end
 end
 
-#=
-dimensions = [20,50,70,100,150] # 20, 50, 70, 100, 150
+# creates CSV files
+dimensions = [20,50,70,100,150]
 iter = 1
-factors = [2, 5, 10] # 2, 5, 10
-# "lasso", "int_reg", "sparse_reg", "poisson_reg"
+factors = [2, 5, 10] 
 examples =["lasso", "int_reg", "sparse_reg", "poisson_reg"] 
 not_the_same = 0
 for example in examples
@@ -44,7 +43,6 @@ for example in examples
                 println("Indicator Formulation")
                 x_I, result_I = test(example, dim, fac, seed, true, time_limit = 1800)
                 #@show x_I
-
               
                if !isapprox(result_M, result_I, atol = 1e-3, rtol = 5e-2)
                     @warn "Big M result: $(result_M) Indicator result: $(result_I)"
@@ -55,47 +53,42 @@ for example in examples
    end
 end
 println("There are $(not_the_same) instances with different results") 
-=#
 
-# mode = "lasso"
-# for dim in [20,50,70,100,150]
-#     for factor in [2,5,10]
-#         for seed in [1,2,3]
-#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-#         end
-#     end
-# end
+# creates plots for each csv pair
+mode = "lasso"
+for dim in [20,50,70,100,150]
+    for factor in [2,5,10]
+        for seed in [1,2,3]
+            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+        end
+    end
+end
 
-# mode = "sparse_reg"
-# for dim in [20,50,70,100,150]
-#     for factor in [2,5,10]
-#         for seed in [1,2,3]
-#             println("seed ", seed)
-#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-#         end
-#     end
-# end
+mode = "sparse_reg"
+for dim in [20,50,70,100,150]
+    for factor in [2,5,10]
+        for seed in [1,2,3]
+            println("seed ", seed)
+            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+        end
+    end
+end
 
 
-# mode = "poisson_reg"
-# for dim in [20,50,70,100,150]
-#     for factor in [2,5,10]
-#         for seed in [1,2,3]
-#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-#         end
-#     end
-# end
+mode = "poisson_reg"
+for dim in [20,50,70,100,150]
+    for factor in [2,5,10]
+        for seed in [1,2,3]
+            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+        end
+    end
+end
 
-# mode = "int_reg"
-# for dim in [20,50,70,100,150]
-#     for factor in [2,5,10]
-#         for seed in [1,2,3]
-#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-#         end
-#     end
-# end 
 mode = "int_reg"
-factor = "2"
-dim = "20"
-seed = "3"
-plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+for dim in [20,50,70,100,150]
+    for factor in [2,5,10]
+        for seed in [1,2,3]
+            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+        end
+    end
+end 

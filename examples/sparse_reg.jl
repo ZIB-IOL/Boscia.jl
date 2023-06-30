@@ -265,3 +265,79 @@ function build_bnb_ipopt_model(seed, n)
     return bnb_model, expr, p, k
 
 end
+
+# compare big M with indicator formulation
+function build_sparse_reg(dim, fac, seed, use_indicator, time_limit, rtol)
+    example = "sparse_reg"
+    Random.seed!(seed)
+
+    p = dim # p continuous
+   # integral = 2*p # num integer vars
+    k = ceil(p/fac) 
+    lambda_0 = rand(Float64); lambda_2 = 10.0*rand(Float64);
+    A = rand(Float64, dim, p)
+    y = rand(Float64, dim)
+    M = 2*var(A)
+
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, p)
+    z = MOI.add_variables(o, p)
+    for i in 1:p
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(-M))
+        MOI.add_constraint(o, x[i], MOI.LessThan(M))
+
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne()) 
+    end 
+    for i in 1:p
+        if use_indicator 
+            # Indicator: x[i+p] = 1 => x[i] = 0
+            # Beware: SCIP can only handle MOI.ACTIVATE_ON_ONE with LessThan constraints.
+            # Hence, in the indicator formulation, we ahve zi = 1 => xi = 0. (In bigM zi = 0 => xi = 0)
+            gl = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x[i])),],
+                [0.0, 0.0], )
+            gg = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, x[i])),],
+                [0.0, 0.0], )
+            MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
+            MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
+        else
+            # big M
+            MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,M], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-M], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+        end
+        
+    end
+    if use_indicator
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0 * (p-k))) # we want less than k zeros
+    else
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
+    end
+    lmo = FrankWolfe.MathOptLMO(o)
+
+
+    function f(x)
+        return (sum((y-A*x[1:p]).^2) + lambda_0*sum(x[p+1:2p]) + lambda_2*FrankWolfe.norm(x[1:p])^2)/10000
+    end
+    function grad!(storage, x)
+        storage.=vcat(2*(transpose(A)*A*x[1:p] - transpose(A)*y + lambda_2*x[1:p]), lambda_0*ones(p))./10000
+        return storage
+    end
+
+    iter =1
+    x = zeros(2p)
+    for i in 1:iter
+        indicator = use_indicator ? "indicator" : "bigM"
+        data = @timed x, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, print_iter = 100, time_limit = time_limit, rel_dual_gap = rtol, dual_gap = 1e-4, use_postsolve = false, fw_epsilon = 1e-2, min_node_fw_epsilon =1e-5)
+        df = DataFrame(seed=seed, dimension=dim, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
+        file_name = "experiments/csv/bigM_vs_indicator_" * example * "_" * indicator * "_" * string(dim) * "_" * string(fac) * "_" * string(seed) * ".csv"
+        CSV.write(file_name, df, append=false)
+    end
+    return x, f(x)
+end

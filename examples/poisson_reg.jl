@@ -462,3 +462,113 @@ end
 
 # poisson(1, 30, bo_mode="afw")
 # poisson_scip(1, 30)
+
+# compare big M with indicator formulation
+function build_poisson_reg(dim, fac, seed, use_indicator, time_limit, rtol)
+    example = "poisson_reg"
+    Random.seed!(seed)
+
+    p = dim
+    n = p
+    k = ceil(p/fac)
+
+    # underlying true weights
+    ws = rand(Float64, p)
+    # set 50 entries to 0
+    for _ in 1:(p-k)
+        ws[rand(1:p)] = 0
+    end
+    bs = rand(Float64)
+    Xs = randn(Float64, n, p)
+    ys = map(1:n) do idx
+        a = dot(Xs[idx, :], ws) + bs
+        return rand(Distributions.Poisson(exp(a)))
+    end
+    M = 1.0
+
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, p)
+    z = MOI.add_variables(o, p)
+    b = MOI.add_variable(o)
+    for i in 1:p
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(-M))
+        MOI.add_constraint(o, x[i], MOI.LessThan(M))
+
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne()) 
+    end 
+    for i in 1:p
+        if use_indicator 
+            # Indicator: x[i+p] = 1 => x[i] = 0
+            # Beware: SCIP can only handle MOI.ACTIVATE_ON_ONE with LessThan constraints.
+            # Hence, in the indicator formulation, we ahve zi = 1 => xi = 0. (In bigM zi = 0 => xi = 0)
+            gl = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x[i])),],
+                [0.0, 0.0], )
+            gg = MOI.VectorAffineFunction(
+                [   MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, z[i])),
+                    MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(-1.0, x[i])),],
+                [0.0, 0.0], )
+            MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
+            MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(0.0)))
+        else
+            # big M
+            MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,M], [x[i], z[i]]), 0.0), MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-M], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+        end
+        
+    end
+    if use_indicator
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0 * (p-k))) # we want less than k zeros
+    else
+        MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
+    end
+    MOI.add_constraint(o, b, MOI.LessThan(M))
+    MOI.add_constraint(o, b, MOI.GreaterThan(-M))
+    lmo = FrankWolfe.MathOptLMO(o)
+
+
+    α = 1.3
+    function f(θ)
+        w = @view(θ[1:p])
+        b = θ[end]
+        s = sum(1:n) do i
+            a = dot(w, Xs[:, i]) + b
+            return 1 / n * (exp(a) - ys[i] * a)
+        end
+        return s + α * norm(w)^2
+    end
+    function grad!(storage, θ)
+        w = @view(θ[1:p])
+        b = θ[end]
+        storage[1:p] .= 2α .* w
+        storage[p+1:2p] .= 0
+        storage[end] = 0
+        for i in 1:n
+            xi = @view(Xs[:, i])
+            a = dot(w, xi) + b
+            storage[1:p] .+= 1 / n * xi * exp(a)
+            storage[1:p] .-= 1 / n * ys[i] * xi
+            storage[end] += 1 / n * (exp(a) - ys[i])
+        end
+        storage ./= norm(storage)
+        return storage
+    end
+
+    iter =1
+    x = zeros(2p+1)
+    for i in 1:iter
+        indicator = use_indicator ? "indicator" : "bigM"
+        data = @timed x, time_lmo, result = Boscia.solve(f, grad!, lmo; print_iter = 100, verbose=true, time_limit = time_limit, rel_dual_gap = rtol, dual_gap = 1e-4, use_postsolve = false, fw_epsilon = 1e-2, min_node_fw_epsilon =1e-5, min_fw_iterations = 2)
+        df = DataFrame(seed=seed, dimension=dim, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
+        file_name = "experiments/csv/bigM_vs_indicator_" * example * "_" * indicator * "_" * string(dim) * "_" * string(fac) * "_" * string(seed) * ".csv"
+        CSV.write(file_name, df, append=false)
+    end
+    result = f(x)
+    return x, result
+end
+
