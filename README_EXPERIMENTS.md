@@ -4,6 +4,12 @@
 
 This README summarizes the experiments presented in the manuscript "Convex mixed-integer optimization with Frank-Wolfe methods".
 
+Assuming the `julia` binary is available, first run:
+```shell
+julia --project "using Pkg; Pkg.update()"
+```
+in the `Boscia` folder to download and set up all dependencies.
+
 <!-- ABOUT THE PROJECT -->
 ### About The Project
 
