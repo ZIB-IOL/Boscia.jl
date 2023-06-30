@@ -1,5 +1,6 @@
 include("mip-examples.jl")
 
+# different tightening methods
 example="neos5" #"ran14x18-disj-8" "pg5_34" "neos5" "22433"
 bo_mode = "boscia"
 for num_v in [7,8,9,10]#[4:1:8;]
@@ -109,7 +110,22 @@ end
 #     end
 # end
 
-#=
+# boscia methods and solvers 
+bo_mode = "boscia"
+for num_v in [4:1:8;]
+    for seed in 1:3
+        @show seed, num_v
+        try 
+            mip_lib(seed, num_v, true; example=example, bo_mode=bo_mode)
+        catch e
+            println(e)
+            open("mip_lib_" * example * "_errors.txt","a") do io
+                println(io, seed, " ", num_v, " ", bo_mode, " : ", e)
+            end
+        end
+    end
+end
+
 bo_mode = "as"
 for num_v in [4:1:8;]
     for seed in 1:3
@@ -168,9 +184,8 @@ for num_v in [4:1:8;]
             end
         end
     end
-end=#
+end
 
-#=
 bo_mode = "scip_oa"
 for num_v in [4:1:8;]
    for seed in 1:3
@@ -185,13 +200,10 @@ for num_v in [4:1:8;]
        end
    end
 end
-=#
 
-
-#=
 bo_mode = "ipopt"
-for num_v in [4:1:8;]#[4:1:8;]
-    for seed in 1:3#1:3
+for num_v in [4:1:8;]
+    for seed in 1:3
         @show seed, num_v
         try
             mip_lib_ipopt(seed, num_v; example=example)
@@ -203,7 +215,7 @@ for num_v in [4:1:8;]#[4:1:8;]
         end
     end
 end
-=#
+
 #=
 bo_mode = "boscia"
 num_v = 6
