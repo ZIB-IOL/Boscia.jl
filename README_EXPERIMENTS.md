@@ -2,6 +2,8 @@
 
 <h3 align="center">Experiments</h3>
 
+This README summarizes the experiments presented in the manuscript "Convex mixed-integer optimization with Frank-Wolfe methods".
+
 <!-- ABOUT THE PROJECT -->
 ### About The Project
 
