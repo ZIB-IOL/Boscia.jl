@@ -1,4 +1,6 @@
 using PyPlot
+using DataFrames
+using CSV
 
 function plot_bigM_vs_indicator(mode; dim = 70, factor = 5, seed = 1)
     lmo_calls = false

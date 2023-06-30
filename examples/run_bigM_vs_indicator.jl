@@ -10,8 +10,6 @@ using SCIP
 import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
-using DataFrames
-using CSV
 # include("build_csv.jl")
 include("plot_bigM_vs_indicator.jl")
 
@@ -59,42 +57,45 @@ end
 println("There are $(not_the_same) instances with different results") 
 =#
 
-mode = "lasso"
-for dim in [20,50,70,100,150]
-    for factor in [2,5,10]
-        for seed in [1,2,3]
-            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-        end
-    end
-end
+# mode = "lasso"
+# for dim in [20,50,70,100,150]
+#     for factor in [2,5,10]
+#         for seed in [1,2,3]
+#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+#         end
+#     end
+# end
 
-mode = "sparse_reg"
-for dim in [20,50,70,100,150]
-    for factor in [2,5,10]
-        for seed in [1,2,3]
-            println("seed ", seed)
-            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-        end
-    end
-end
-
-
-mode = "poisson_reg"
-for dim in [20,50,70,100,150]
-    for factor in [2,5,10]
-        for seed in [1,2,3]
-            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-        end
-    end
-end
+# mode = "sparse_reg"
+# for dim in [20,50,70,100,150]
+#     for factor in [2,5,10]
+#         for seed in [1,2,3]
+#             println("seed ", seed)
+#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+#         end
+#     end
+# end
 
 
+# mode = "poisson_reg"
+# for dim in [20,50,70,100,150]
+#     for factor in [2,5,10]
+#         for seed in [1,2,3]
+#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+#         end
+#     end
+# end
+
+# mode = "int_reg"
+# for dim in [20,50,70,100,150]
+#     for factor in [2,5,10]
+#         for seed in [1,2,3]
+#             plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
+#         end
+#     end
+# end 
 mode = "int_reg"
-for dim in [20,50,70,100,150]
-    for factor in [2,5,10]
-        for seed in [1,2,3]
-            plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
-        end
-    end
-end 
-
+factor = "2"
+dim = "20"
+seed = "3"
+plot_bigM_vs_indicator(mode; dim=dim, factor=factor, seed=seed)
