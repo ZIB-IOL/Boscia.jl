@@ -34,7 +34,7 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 ```
 
 ### Images
-Paper:
+#### Paper:
 
 | Figure | File | build required CSV |
 |---|---|---|
@@ -45,7 +45,7 @@ Paper:
 | 8-9 |plot_tightenings.jl | run_portfolio.jl, run_sparse_reg.jl
 | 10 |plot_boscia_vs_scip.jl |run_portfolio.jl, build_csv.jl |
   
-Appendix: 
+#### Appendix: 
 
 | Figure | File | CSV |
 |---|---|---|
