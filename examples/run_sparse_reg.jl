@@ -64,7 +64,7 @@ end
 
 # boscia methods and solvers
 bo_mode="boscia"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
         @show seed, dimension
         try 
@@ -79,7 +79,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "as"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
        @show seed, dimension
        try 
@@ -94,7 +94,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "ss"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
        @show seed, dimension
        try 
@@ -109,7 +109,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "as_ss"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
        @show seed, dimension
        try 
@@ -124,7 +124,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "afw"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
        @show seed, dimension
        try 
@@ -139,7 +139,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "scip_oa"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
         @show seed, dimension
         try 
@@ -154,7 +154,7 @@ for dimension in [75:5:150]
 end
 
 bo_mode = "ipopt"
-for dimension in [75:5:150]
+for dimension in [75:5:150;]
     for seed in 1:10
         @show seed, dimension
         try

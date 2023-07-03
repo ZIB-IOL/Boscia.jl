@@ -336,7 +336,7 @@ function build_sparse_reg(dim, fac, seed, use_indicator, time_limit, rtol)
         indicator = use_indicator ? "indicator" : "bigM"
         data = @timed x, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, print_iter = 100, time_limit = time_limit, rel_dual_gap = rtol, dual_gap = 1e-4, use_postsolve = false, fw_epsilon = 1e-2, min_node_fw_epsilon =1e-5)
         df = DataFrame(seed=seed, dimension=dim, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
-        file_name = "experiments/csv/bigM_vs_indicator_" * example * "_" * indicator * "_" * string(dim) * "_" * string(fac) * "_" * string(seed) * ".csv"
+        file_name = "csv/bigM_vs_indicator_" * example * "_" * indicator * "_" * string(dim) * "_" * string(fac) * "_" * string(seed) * ".csv"
         CSV.write(file_name, df, append=false)
     end
     return x, f(x)
@@ -368,8 +368,8 @@ function sparse_reg_grid_search_data()
     end
     k = n-k =#
 
-    const D = rand(m,n)
-    const y_d = D*sol_x
+    D = rand(m,n)
+    y_d = D*sol_x
 
     # @testset "Integer sparse regression" begin
     o = SCIP.Optimizer()

@@ -76,5 +76,5 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     
     fig.tight_layout()
 
-        savefig(file_name,  bbox_extra_artists=(lgd,), bbox_inches="tight")
+    savefig(file_name,  bbox_extra_artists=(lgd,), bbox_inches="tight")
 end

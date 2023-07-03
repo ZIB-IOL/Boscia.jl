@@ -17,8 +17,8 @@ in the `Boscia` folder to download and set up all dependencies.
 - portfolio -->
 
 ### Tables
-|   Table| File  | tested |
-|---|---|---|
+|   Table| File  |
+|---|---|
 | 1-4 | run_portfolio.jl |
 | 5-6 | run_poisson.jl  |
 | 7-8 | run_sparse_reg.jl |
@@ -44,15 +44,50 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 ### Images
 #### Paper:
 
-| Figure | File | build required CSV |
-|---|---|---|
-| 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl
-| 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl |
-| 6 |plot_dual_gap_strong_branching.jl
-| 7 |plot_boscia_vs_scip.jl | run_sparse_log_reg.jl, run_portfolio.jl, build_csv.jl | run_sparse_reg.jl, run_portfolio.jl
+| Figure | File | build required CSV | issues |
+|---|---|---|---|
+| 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl | wrong julia version ??
+| 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl | |
+| 6 |plot_dual_gap_strong_branching.jl |
+| 7 |plot_boscia_vs_scip.jl | run_sparse_log_reg.jl, run_portfolio.jl, build_csv.jl | |
 | 8-9 |plot_tightenings.jl | run_portfolio.jl, run_sparse_reg.jl
 | 10 |plot_boscia_vs_scip.jl |run_portfolio.jl, build_csv.jl |
-  
+
+To compare Boscia with Ipopt:
+```julia
+julia --project
+include("mip-examples.jl")
+include("plot_boscia_vs_ipopt.jl")
+
+mip_lib(1,4,true, example="22433", bo_mode="boscia")
+mip_lib_ipopt(1,4,true, example="22433")
+plot_boscia_vs_ipopt("22433")
+```
+
+To create a convergence plot:
+```julia
+julia --project
+include("sparse_reg.jl")
+include("plot_dual_gap.jl")
+
+sparse_reg(1,20,1,true;bo_mode="boscia")
+file_name = "csv/boscia_sparse_reg_20_1.csv"
+dual_gap_plot(file_name)
+```
+
+To compare different tightening strategies:
+```julia
+julia --project
+include("sparse_reg.jl")
+include("plot_tightenings.jl")
+
+sparse_reg(5,20,1,true,bo_mode="boscia")
+sparse_reg(5,20,1,true,bo_mode="no_tightening")
+sparse_reg(5,20,1,true,bo_mode="local_tightening")
+sparse_reg(5,20,1,true,bo_mode="global_tightening")
+plot("sparse_reg","20_5")
+```
+
 #### Appendix: 
 
 | Figure | File | CSV |
