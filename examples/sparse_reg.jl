@@ -342,7 +342,6 @@ function build_sparse_reg(dim, fac, seed, use_indicator, time_limit, rtol)
     return x, f(x)
 end
 
-# TODO: test
 function sparse_reg_grid_search_data()
     example = "int_sparsereg"
 
@@ -440,6 +439,7 @@ function sparse_reg_grid_search_data()
                         df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
                         file_name = "csv/early_stopping_" * example * "_" * string(n) * "_" * string(seed) * "_" * string(min_number_lower) * "_" * string(dual_gap_decay_factor) * "_" * string(fw_epsilon) * "_" * string(i) *".csv"
                         CSV.write(file_name, df, append=false)
+                        @show file_name
                     end
                 end
             end

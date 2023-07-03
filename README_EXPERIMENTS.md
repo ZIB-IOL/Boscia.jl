@@ -10,11 +10,6 @@ julia --project "using Pkg; Pkg.update()"
 ```
 in the `Boscia` folder to download and set up all dependencies.
 
-<!-- ABOUT THE PROJECT -->
-### About The Project
-
-<!-- ### Examples
-- portfolio -->
 
 ### Tables
 |   Table| File  |
@@ -44,12 +39,12 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 ### Images
 #### Paper:
 
-| Figure | File | build required CSV | issues |
-|---|---|---|---|
-| 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl | wrong julia version ??
-| 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl | |
-| 6 |plot_dual_gap_strong_branching.jl |
-| 7 |plot_boscia_vs_scip.jl | run_sparse_log_reg.jl, run_portfolio.jl, build_csv.jl | |
+| Figure | File | build required CSV |
+|---|---|---|
+| 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl |
+| 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl |
+| 6 |plot_dual_gap_strong_branching.jl | ???
+| 7 |plot_boscia_vs_scip.jl | run_sparse_log_reg.jl, run_portfolio.jl, build_csv.jl |
 | 8-9 |plot_tightenings.jl | run_portfolio.jl, run_sparse_reg.jl
 | 10 |plot_boscia_vs_scip.jl |run_portfolio.jl, build_csv.jl |
 
@@ -90,16 +85,16 @@ plot("sparse_reg","20_5")
 
 #### Appendix: 
 
-| Figure | File | CSV |
-|---|---|---|
-| 11 | plot_per_layer.jl | birkhoff.jl |
+| Figure | File | CSV | comment |
+|---|---|---|---|
+| 11 | plot_per_layer.jl | birkhoff.jl | ok |
 | 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
 | 13 | plot_dual_gap.jl | run_sparse_reg.jl |
 | 14-15 | plot_dual_gap_strong_branching.jl |
 | 16 | plot_dual_gap_hybrid_branching.jl | check https://git.zib.de/optimization/binary-frankwolfe/-/blob/424a0fa24994feceda3551316868152981fba179/BranchWolfe/experiments/int_sparse_regression.jl
-| 17 | plot_per_layer.jl | birkhoff.jl ??? |
+| 17 | plot_per_layer.jl | birkhoff.jl |
 | 18 | plot_dual_gap_non_accum.jl | birkhoff.jl |
-| 19 | plot_dual_gap.jl | poisson.jl or https://git.zib.de/optimization/binary-frankwolfe/-/blob/pyplot/BranchWolfe/experiments/poisson.jl ?
+| 19 | plot_dual_gap.jl | poisson_reg.jl |
 | 20-26 | plot_boscia_vs_scip.jl | run_portfolio.jl, run_poisson.jl, run_sparse_reg.jl, run_sparse_log_reg.jl, run_tailed_cardinality.jl, run_tailed_cardinality_sparse_log_reg.jl, build_csv.jl |
 | 27-30 | plot_boscia_vs_ipopt.jl | mip-examples.jl |
 | 31-34 | run_bigM_vs_indicator.jl | run_bigM_vs_indicator.jl

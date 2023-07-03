@@ -23,6 +23,8 @@ function dual_gap_plot(file_name)
         example = "portfolio"
     elseif occursin("sparsereg_int", file_name)
         example = "sparsereg_int"
+    elseif occursin("poisson", file_name)
+        example = "poisson"
     end
 
     data = replace(file_name, "examples/csv/early_stopping_" * example * "_" => "")

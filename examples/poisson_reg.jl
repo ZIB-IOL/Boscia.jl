@@ -85,7 +85,7 @@ function poisson(seed=1, n=20, Ns=0.1, iter = 1, full_callback=false; bo_mode)
                 file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson.csv")
             end
         end
-        if !isfile(file_name)
+        if !isfile(file_name) & !full_callback
             CSV.write(file_name, df, append=true, writeheader=true)
         else 
             CSV.write(file_name, df, append=true)

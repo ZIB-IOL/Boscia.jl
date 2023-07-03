@@ -49,18 +49,24 @@ function per_layer_plot(file_name)
     #     title = "Example : birkhoff, n : " * string(dimension) * ", k : " * string(k) * "\n min_number_lower=" * string(min_number_lower) * ", dual_gap_decay_factor=" * string(dual_gap_decay_factor)
     # end
 
-    lmo_calls_per_layer = df[!,:lmo_calls]
-    active_set_size_per_layer = df[!,:active_set_size]
-    discarded_set_size_per_layer = df[!,:discarded_set_size]
+    if !("lmo_calls" in names(df))
+        df[!,"lmo_calls"] = df[!, "list_lmo_calls"]
+        lmo_calls_per_layer = df[!,:lmo_calls]
+        active_set_size = df[!,:active_set_size]
+        discarded_set_size = df[!,:discarded_set_size]
+    else 
+        # parse to array
+        lmo_calls_per_layer = df[!,:lmo_calls]
+        lmo_calls_per_layer = [parse.(Int, split(chop(i; head=1, tail=1), ',')) for i in lmo_calls_per_layer]
+        active_set_size = df[!,:active_set_size]
+        active_set_size = [parse.(Int, split(chop(i; head=1, tail=1), ',')) for i in active_set_size]
+        discarded_set_size = df[!,:discarded_set_size]
+        discarded_set_size = [parse.(Int, split(chop(i; head=1, tail=1), ',')) for i in discarded_set_size]
+    end
 
-    # parse to array
-    lmo_calls_per_layer = [parse.(Int, split(chop(i; head=1, tail=1), ',')) for i in lmo_calls_per_layer]
-
-    lmo_calls_per_layer_mean = [mean(i) for i in lmo_calls_per_layer]
-    #lmo_calls_per_layer_std_below = [mean(i) - std(i) for i in lmo_calls_per_layer]
-    #lmo_calls_per_layer_std_above = [mean(i) + std(i) for i in lmo_calls_per_layer]
-    active_set_size_per_layer_mean = [mean(parse.(Int, split(chop(i; head=1, tail=1), ','))) for i in active_set_size_per_layer]
-    discarded_set_size_per_layer_mean = [mean(parse.(Int, split(chop(i; head=1, tail=1), ','))) for i in discarded_set_size_per_layer]
+    lmo_calls_per_layer_mean = [sum(i) for i in lmo_calls_per_layer]
+    active_set_size_per_layer_mean = [mean(i) for i in active_set_size]
+    discarded_set_size_per_layer_mean = [mean(i) for i in discarded_set_size]
     # @show lmo_calls_per_layer
 
     len = length(lmo_calls_per_layer_mean)
@@ -110,7 +116,9 @@ function per_layer_plot(file_name)
     file_name = replace(file_name, ".csv" => ".pdf")
     file_name = replace(file_name, "csv" => "images")
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+    @show file_name
 end 
 
-file_name = "csv/birkhoff_per_layer_3_3_3_Inf_0.7_0.001.csv"
+file_name = "csv/birkhoff_per_layer_3_3_1_Inf_0.7_0.001.csv"
+# file_name = "csv/early_stopping_birkhoff_2_3_3_Inf_0.7_0.001_2.csv"
 per_layer_plot(file_name)
