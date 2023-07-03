@@ -17,8 +17,8 @@ in the `Boscia` folder to download and set up all dependencies.
 - portfolio -->
 
 ### Tables
-|   Table| File  |
-|---|---|
+|   Table| File  | tested |
+|---|---|---|
 | 1-4 | run_portfolio.jl |
 | 5-6 | run_poisson.jl  |
 | 7-8 | run_sparse_reg.jl |
@@ -58,17 +58,17 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 | Figure | File | CSV |
 |---|---|---|
 | 11 | plot_per_layer.jl | birkhoff.jl |
-| 12 | plot_grid_search_sparse_reg.jl |
+| 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
 | 13 | plot_dual_gap.jl | run_sparse_reg.jl |
 | 14-15 | plot_dual_gap_strong_branching.jl |
-| 16 | plot_dual_gap_hybrid_branching.jl |
+| 16 | plot_dual_gap_hybrid_branching.jl | check https://git.zib.de/optimization/binary-frankwolfe/-/blob/424a0fa24994feceda3551316868152981fba179/BranchWolfe/experiments/int_sparse_regression.jl
 | 17 | plot_per_layer.jl | birkhoff.jl ??? |
 | 18 | plot_dual_gap_non_accum.jl | birkhoff.jl |
-| 19 | ?
+| 19 | plot_dual_gap.jl | poisson.jl or https://git.zib.de/optimization/binary-frankwolfe/-/blob/pyplot/BranchWolfe/experiments/poisson.jl ?
 | 20-26 | plot_boscia_vs_scip.jl | run_portfolio.jl, run_poisson.jl, run_sparse_reg.jl, run_sparse_log_reg.jl, run_tailed_cardinality.jl, run_tailed_cardinality_sparse_log_reg.jl, build_csv.jl |
 | 27-30 | plot_boscia_vs_ipopt.jl | mip-examples.jl |
 | 31-34 | run_bigM_vs_indicator.jl | run_bigM_vs_indicator.jl
-| 35 | ? | mip-lib.jl |
+| 35 | plot_tightening.jl | mip-lib.jl |
 | 36-38 | plot_tightening.jl | run_sparse_reg.jl, run_portfolio.jl |
 | 39-40 | plot_tightening.jl | run_portfolio.jl |
  
