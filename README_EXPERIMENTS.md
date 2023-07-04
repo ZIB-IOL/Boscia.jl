@@ -12,7 +12,7 @@ in the `Boscia` folder to download and set up all dependencies.
 
 
 ### Tables
-|   Table| File  |
+|   Table| build CSV file with   |
 |---|---|
 | 1-4 | run_portfolio.jl |
 | 5-6 | run_poisson.jl  |
@@ -39,7 +39,7 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 ### Images
 #### Paper:
 
-| Figure | File | build required CSV |
+| Figure | create figure with | build required CSV with|
 |---|---|---|
 | 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl |
 | 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl |
@@ -85,7 +85,7 @@ plot("sparse_reg","20_5")
 
 #### Appendix: 
 
-| Figure | File | CSV |
+| Figure | create figure with | build required CSV with |
 |---|---|---|
 | 11 | plot_per_layer.jl | birkhoff.jl |
 | 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
