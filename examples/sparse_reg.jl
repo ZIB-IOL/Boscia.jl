@@ -446,3 +446,146 @@ function sparse_reg_grid_search_data()
         end
     end
 end
+
+
+function strong_branching_data()
+    example = "int_sparse_reg"
+
+    seed=2 # 19 (29 is too long!) 30
+    Random.seed!(seed)
+    # n=10 seed = 1 produces good example
+    
+    n =50
+    m = 80
+    l = 5
+    k = 15
+    
+    sol_x = rand(1:l, n)
+    for _ in 1:(n-k)
+        sol_x[rand(1:n)] = 0
+    end 
+    
+    D = rand(m,n)
+    y_d = D*sol_x
+    
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o,n)
+    z = MOI.add_variables(o,n)
+    for i in 1:n
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, x[i], MOI.LessThan(1.0*l))
+        MOI.add_constraint(o, x[i], MOI.Integer())
+    
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne())
+    
+        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+    end 
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+    lmo = FrankWolfe.MathOptLMO(o)
+    
+    function f(x)
+        return sum((y_d-D*x[1:n]).^2)  #+ lambda_2*FrankWolfe.norm(x)^2 + lambda_0*sum(x[p+1:2p]) 
+    end
+        
+    function grad!(storage, x)
+        storage.=vcat(2*(transpose(D)*D*x[1:n] - transpose(D)*y_d), zeros(n))  #vcat(..,zeros(n))
+        return storage
+    end
+    
+    
+    min_number_lower = Inf
+    dual_gap_decay_factor = 0.8
+    Boscia.solve(f, grad!, lmo; verbose=true, min_number_lower=min_number_lower, fw_epsilon = 1e-3, print_iter=10)
+    
+    ## Different strong branching
+    iterations = [5, 10, 50, 100]
+    iter = 2
+    for (index,value) in enumerate(iterations)
+        for i in 0:iter
+            max_iter = value
+            branching_strategy = Boscia.PartialStrongBranching(max_iter, 10^i*1e-3, SCIP.Optimizer())
+            MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+
+            Boscia.solve(f, grad!, lmo; verbose=true, branching_strategy = branching_strategy, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = 1e-4, print_iter=10)
+            data = @timed _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, branching_strategy = branching_strategy, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = 1e-4, print_iter=10)
+            df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size], node_level = result[:node_level])
+            file_name = "csv/strong_branching_" * example * "_" * string(n) * "_" * string(seed) * "_" * string(max_iter) * "1e-"*string(3-i)*".csv"
+            CSV.write(file_name, df, append=false)
+        end
+    end 
+end
+
+function hybrid_branching_data()
+    example = "int_sparse_reg"
+
+    seed=2 # 19 (29 is too long!) 30
+    Random.seed!(seed)
+    # n=10 seed = 1 produces good example
+    
+    n =50
+    m = 80
+    l = 5
+    k = 15
+    
+    sol_x = rand(1:l, n)
+    for _ in 1:(n-k)
+        sol_x[rand(1:n)] = 0
+    end 
+    
+    D = rand(m,n)
+    y_d = D*sol_x
+    
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o,n)
+    z = MOI.add_variables(o,n)
+    for i in 1:n
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, x[i], MOI.LessThan(1.0*l))
+        MOI.add_constraint(o, x[i], MOI.Integer())
+    
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne())
+    
+        MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0,-1.0*l], [x[i], z[i]]), 0.0), MOI.LessThan(0.0))
+    end 
+    MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.LessThan(1.0*k))
+    lmo = FrankWolfe.MathOptLMO(o)
+    
+    function f(x)
+        return sum((y_d-D*x[1:n]).^2)  #+ lambda_2*FrankWolfe.norm(x)^2 + lambda_0*sum(x[p+1:2p]) 
+    end
+        
+    function grad!(storage, x)
+        storage.=vcat(2*(transpose(D)*D*x[1:n] - transpose(D)*y_d), zeros(n))  #vcat(..,zeros(n))
+        return storage
+    end
+    
+    
+    min_number_lower = Inf
+    dual_gap_decay_factor = 0.8
+    Boscia.solve(f, grad!, lmo; verbose=true, min_number_lower=min_number_lower, fw_epsilon = 1e-3, print_iter=10, time_limit=10)
+    
+    ## Different hybrid branching
+    for i in [1, 5, 10, 20]
+        function perform_strong_branch(tree, node)
+            node.level <= length(tree.root.problem.integer_variables)/i ? println("Strong") : println("most infeasible")
+            return node.level <= length(tree.root.problem.integer_variables)/i
+        end
+        branching_strategy = Boscia.HybridStrongBranching(5, 1e-3, SCIP.Optimizer(), perform_strong_branch)
+        MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+
+        Boscia.solve(f, grad!, lmo; verbose=true, branching_strategy = branching_strategy, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = 1e-4, print_iter=10, time_limit=10)
+        data = @timed _, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, branching_strategy = branching_strategy, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = 1e-4, print_iter=10)
+        df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size], node_level = result[:node_level])
+        file_name = "csv/hybrid_branching_" * example * "_" * string(n) * "_" * string(seed) * "_num_integer_dividedby" * string(i) * ".csv"
+        @show file_name
+        CSV.write(file_name, df, append=false)
+    end
+end 

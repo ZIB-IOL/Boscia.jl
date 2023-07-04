@@ -43,7 +43,7 @@ portfolio(1, 20, true; bo_mode="boscia",mode="mixed")
 |---|---|---|
 | 4 |plot_boscia_vs_ipopt.jl | mip-examples.jl |
 | 5 |plot_dual_gap.jl | sparse_reg.jl, birkhoff.jl |
-| 6 |plot_dual_gap_strong_branching.jl | ???
+| 6 |plot_dual_gap_strong_branching.jl | sparse_reg.jl |
 | 7 |plot_boscia_vs_scip.jl | run_sparse_log_reg.jl, run_portfolio.jl, build_csv.jl |
 | 8-9 |plot_tightenings.jl | run_portfolio.jl, run_sparse_reg.jl
 | 10 |plot_boscia_vs_scip.jl |run_portfolio.jl, build_csv.jl |
@@ -85,13 +85,13 @@ plot("sparse_reg","20_5")
 
 #### Appendix: 
 
-| Figure | File | CSV | comment |
-|---|---|---|---|
-| 11 | plot_per_layer.jl | birkhoff.jl | ok |
+| Figure | File | CSV |
+|---|---|---|
+| 11 | plot_per_layer.jl | birkhoff.jl |
 | 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
 | 13 | plot_dual_gap.jl | run_sparse_reg.jl |
-| 14-15 | plot_dual_gap_strong_branching.jl |
-| 16 | plot_dual_gap_hybrid_branching.jl | check https://git.zib.de/optimization/binary-frankwolfe/-/blob/424a0fa24994feceda3551316868152981fba179/BranchWolfe/experiments/int_sparse_regression.jl
+| 14-15 | plot_dual_gap_strong_branching.jl | low_dim_in_high_dim.jl, sparse_reg.jl | 
+| 16 | plot_dual_gap_hybrid_branching.jl | sparse_reg.jl |
 | 17 | plot_per_layer.jl | birkhoff.jl |
 | 18 | plot_dual_gap_non_accum.jl | birkhoff.jl |
 | 19 | plot_dual_gap.jl | poisson_reg.jl |
