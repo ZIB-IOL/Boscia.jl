@@ -21,7 +21,6 @@ function Bonobo.get_branching_variable(
         end
         return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
     end
-    @show filtered_src
     index_map = MOI.copy_to(branching.optimizer, filtered_src)
     # sanity check, otherwise the functions need permuted indices
     for (v1, v2) in index_map
