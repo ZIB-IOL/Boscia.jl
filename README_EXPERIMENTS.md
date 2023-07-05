@@ -90,7 +90,7 @@ plot("sparse_reg","20_5")
 | 11 | plot_per_layer.jl | birkhoff.jl |
 | 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
 | 13 | plot_dual_gap.jl | run_sparse_reg.jl |
-| 14-15 | plot_dual_gap_strong_branching.jl | low_dim_in_high_dim.jl, sparse_reg.jl | 
+| 14-15 | plot_dual_gap_strong_branching.jl | low_dim_in_high_dim.jl, lasso.jl | 
 | 16 | plot_dual_gap_hybrid_branching.jl | sparse_reg.jl |
 | 17 | plot_per_layer.jl | birkhoff.jl |
 | 18 | plot_dual_gap_non_accum.jl | birkhoff.jl |
