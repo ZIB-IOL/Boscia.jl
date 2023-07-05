@@ -24,12 +24,8 @@ function Bonobo.get_branching_variable(
     @show filtered_src
     index_map = MOI.copy_to(branching.optimizer, filtered_src)
     # sanity check, otherwise the functions need permuted indices
-    # @show [(v1,v2) for (v1,v2) in index_map if v1 isa MOI.VariableIndex]
-    @show MOI.get(tree.root.problem.lmo.lmo.o, MOI.NumberOfVariables())
-    @show MOI.get(branching.op, MOI.NumberOfVariables())
     for (v1, v2) in index_map
         if v1 isa MOI.VariableIndex
-            @show v1, v2
             @assert v1 == v2
         end
     end
