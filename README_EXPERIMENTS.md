@@ -10,6 +10,12 @@ julia --project "using Pkg; Pkg.update()"
 ```
 in the `Boscia` folder to download and set up all dependencies.
 
+To run some examples, run `test` in the REPL: 
+```shell
+julia --project
+] test
+```
+The examples tested are all included in the test folder.
 
 ### Tables
 |   Table| build CSV file with   |
