@@ -15,7 +15,7 @@ To run some examples, run `test` in the REPL:
 julia --project
 ] test
 ```
-The examples tested are all included in the test folder.
+The examples tested are all included in the test folder, see `runtests.jl`.
 
 ### Tables
 |   Table| build CSV file with   |
