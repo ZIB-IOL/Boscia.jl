@@ -241,6 +241,8 @@ function solve(
         if size(start_solution) != size(v)
             error("size of starting solution differs from vertices: $(size(start_solution)), $(size(v))")
         end
+        # Sanity check that the provided solution is in fact feasible.
+        @assert is_linear_feasible(lmo, start_solution) && is_integer_feasible(tree, start_solution)
         node = tree.nodes[1]
         sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
         push!(tree.solutions, sol)
