@@ -165,6 +165,8 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         if dist > 5000.0 * scip_tol
             @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
             @debug("Distance to set: $(dist)")
+            @debug("SCIP tolerance: $(scip_tol)")
+            @debug("Loosened tolerance: $(5000.0 * scip_tol)")
             return false
         end
     end
