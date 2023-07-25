@@ -121,6 +121,10 @@ function is_indicator_feasible(o, x, atol = 1e-6, rtol=1e-6)
     return true
 end
 
+is_indicator_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_indicator_feasible(lmo.lmo.o, v)
+is_indicator_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
+    is_indicator_feasible(lmo.o, v)
+
 
 """
 Return the underlying optimizer
