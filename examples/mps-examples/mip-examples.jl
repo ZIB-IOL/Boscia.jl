@@ -25,7 +25,10 @@ seed = rand(UInt64)
 @show seed
 Random.seed!(seed)
 
-example = "neos5"
+# To see debug statements
+#ENV["JULIA_DEBUG"] = "Boscia"
+
+example = "n5-3"
 
 function build_example(example, num_v)
     file_name = string(example, ".mps")
@@ -37,6 +40,11 @@ function build_example(example, num_v)
     MOI.set(o, MOI.Silent(), true)
     n = MOI.get(o, MOI.NumberOfVariables())
     lmo = FrankWolfe.MathOptLMO(o)
+
+    # Set tolerance of SCIP
+    MOI.set(o, MOI.RawOptimizerAttribute("numerics/feastol"), 1e-6)
+    # Disable Presolving
+    MOI.set(o, MOI.RawOptimizerAttribute("presolving/maxrounds"), 0)
 
     #trick to push the optimum towards the interior
     vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]   
@@ -88,7 +96,7 @@ test_instance = string("MPS ", example, " instance")
 @testset "$test_instance" begin
     println("Example $(example)")
     lmo, f, grad! = build_example(example, num_v)
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=2000)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=600)
     @test f(x) <= f(result[:raw_solution])
 end
 
