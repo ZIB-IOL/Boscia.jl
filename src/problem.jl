@@ -121,6 +121,10 @@ function is_indicator_feasible(o, x, atol = 1e-6, rtol=1e-6)
     return true
 end
 
+is_indicator_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_indicator_feasible(lmo.lmo.o, v)
+is_indicator_feasible(lmo::FrankWolfe.LinearMinimizationOracle, v::AbstractVector) =
+    is_indicator_feasible(lmo.o, v)
+
 
 """
 Return the underlying optimizer
@@ -162,9 +166,11 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         if o isa SCIP.Optimizer
             scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
         end
-        if dist > 5000.0 * scip_tol
+        if dist > 100.0 * scip_tol
             @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
             @debug("Distance to set: $(dist)")
+            @debug("SCIP tolerance: $(scip_tol)")
+            @debug("Loosened tolerance: $(100.0 * scip_tol)")
             return false
         end
     end

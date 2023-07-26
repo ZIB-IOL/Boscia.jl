@@ -294,41 +294,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
-    )#=
-    if tree.root.options[:variant] == BPCG
-        # call blended_pairwise_conditional_gradient
-        x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            node.active_set,
-            epsilon=node.fw_dual_gap_limit,
-            max_iteration=tree.root.options[:max_fw_iter],
-            line_search=tree.root.options[:lineSearch],
-            add_dropped_vertices=true,
-            use_extra_vertex_storage=true,
-            extra_vertex_storage=node.discarded_vertices,
-            callback=tree.root.options[:callback],
-            lazy=true,
-            timeout=tree.root.options[:time_limit],
-            verbose=tree.root.options[:fwVerbose],
-        )
-    elseif tree.root.options[:variant] == AFW
-        # call away_frank_wolfe
-        x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            node.active_set,
-            epsilon=node.fw_dual_gap_limit,
-            max_iteration=tree.root.options[:max_fw_iter],
-            line_search=tree.root.options[:lineSearch],
-            callback=tree.root.options[:callback],
-            lazy=true,
-            timeout=tree.root.options[:time_limit],
-            verbose=tree.root.options[:fwVerbose],
-        )
-    end=#
+    )
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
@@ -523,6 +489,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if is_integer_feasible(tree, x)
         node.ub = primal
         return lower_bound, primal
+    # Sanity check: If the incumbent is better than the lower bound of the root node
+    # and the root node is not integer feasible, something is off!
+    elseif node.id == 1  
+        @assert lower_bound <= tree.incumbent + 1e-5
     end
 
     return lower_bound, NaN
