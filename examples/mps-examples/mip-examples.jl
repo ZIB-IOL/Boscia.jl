@@ -41,8 +41,6 @@ function build_example(example, num_v)
     n = MOI.get(o, MOI.NumberOfVariables())
     lmo = FrankWolfe.MathOptLMO(o)
 
-    # Set tolerance of SCIP
-    MOI.set(o, MOI.RawOptimizerAttribute("numerics/feastol"), 1e-6)
     # Disable Presolving
     MOI.set(o, MOI.RawOptimizerAttribute("presolving/maxrounds"), 0)
 
