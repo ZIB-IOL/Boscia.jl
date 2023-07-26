@@ -166,11 +166,11 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         if o isa SCIP.Optimizer
             scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
         end
-        if dist > 5000.0 * scip_tol
+        if dist > 100.0 * scip_tol
             @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
             @debug("Distance to set: $(dist)")
             @debug("SCIP tolerance: $(scip_tol)")
-            @debug("Loosened tolerance: $(5000.0 * scip_tol)")
+            @debug("Loosened tolerance: $(100.0 * scip_tol)")
             return false
         end
     end
