@@ -489,6 +489,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if is_integer_feasible(tree, x)
         node.ub = primal
         return lower_bound, primal
+    # Sanity check: If the incumbent is better than the lower bound of the root node
+    # and the root node is not integer feasible, something is off!
+    elseif node.id == 1  
+        @assert lower_bound <= tree.incumbent + 1e-5
     end
 
     return lower_bound, NaN
