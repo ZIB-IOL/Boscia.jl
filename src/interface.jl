@@ -13,7 +13,13 @@ variant                - variant of FrankWolfe to be used to solve the node prob
                                  AFW  -- Away FrankWolfe
                                  BPCG -- Blended Pairwise Conditional Gradient  
 line_search            - specifies the Line Search method used in the FrankWolfe variant.
-                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package.                               
+                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package. 
+active_set             - can be used to specify a starting point, e.g. if the feasible region is not completely
+                         contained in the domain of the objective. By default, the direction (1,..,n) where n is 
+                         the size of the problem is used to find a start vertex. Beware that the active set may 
+                         only contain actual vertices of the feasible region.   
+lazy                   - specifies whether the lazification shoud be used. Per default true. 
+                         Beware that it has no effect with Vanilla Frank-Wolfe.                                     
 fw_epsilon             - the tolerance for FrankWolfe in the root node.
 verbose                - if true, a log and solution statistics are printed.
 dual_gap               - if this absolute dual gap is reached, the algorithm stops.
@@ -49,6 +55,7 @@ function solve(
     variant::FrankWolfeVariant=BPCG(),
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    lazy=true,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -201,20 +208,21 @@ function solve(
             ),
             global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(
-                :dual_gap_decay_factor => dual_gap_decay_factor,
-                :dual_gap => dual_gap,
-                :print_iter => print_iter,
-                :max_fw_iter => max_fw_iter,
-                :min_node_fw_epsilon => min_node_fw_epsilon,
-                :time_limit => time_limit,
-                :dual_tightening => dual_tightening,
-                :global_dual_tightening => global_dual_tightening,
-                :strong_convexity => strong_convexity,
-                :variant => variant,
-                :lineSearch => line_search,
                 :domain_oracle => domain_oracle,
-                :usePostsolve => use_postsolve,
+                :dual_gap => dual_gap,
+                :dual_gap_decay_factor => dual_gap_decay_factor, 
+                :dual_tightening => dual_tightening,
                 :fwVerbose => fw_verbose,
+                :global_dual_tightening => global_dual_tightening,
+                :lazy => lazy,
+                :lineSearch => line_search,
+                :min_node_fw_epsilon => min_node_fw_epsilon,
+                :max_fw_iter => max_fw_iter,
+                :print_iter => print_iter,
+                :strong_convexity => strong_convexity,
+                :time_limit => time_limit,
+                :usePostsolve => use_postsolve,
+                :variant => variant,
             ),
         ),
         branch_strategy=branching_strategy,
