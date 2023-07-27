@@ -288,6 +288,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         max_iteration=tree.root.options[:max_fw_iter],
         line_search=tree.root.options[:lineSearch],
         lazy=tree.root.options[:lazy],
+        lazy_tolerance=tree.root.options[:lazy_tolerance],
         timeout=tree.root.options[:time_limit],
         add_dropped_vertices=true,
         use_extra_vertex_storage=true,

@@ -19,7 +19,8 @@ active_set             - can be used to specify a starting point, e.g. if the fe
                          the size of the problem is used to find a start vertex. Beware that the active set may 
                          only contain actual vertices of the feasible region.   
 lazy                   - specifies whether the lazification shoud be used. Per default true. 
-                         Beware that it has no effect with Vanilla Frank-Wolfe.                                     
+                         Beware that it has no effect with Vanilla Frank-Wolfe. 
+lazy_tolerance         - decides how much progress is deemed enough to not have to call the LMO.                                                             
 fw_epsilon             - the tolerance for FrankWolfe in the root node.
 verbose                - if true, a log and solution statistics are printed.
 dual_gap               - if this absolute dual gap is reached, the algorithm stops.
@@ -56,6 +57,7 @@ function solve(
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
     lazy=true,
+    lazy_tolerance = 2.0,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -85,6 +87,8 @@ function solve(
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
         println("\t FrankWolfe variant: $(variant)")
         println("\t Line Search Method: $(line_search)")
+        println("\t Lazification: $(lazy)")
+        lazy ? println("\t Lazification Tolerance: $(lazy_tolerance)") : nothing
         @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
         @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
@@ -215,6 +219,7 @@ function solve(
                 :fwVerbose => fw_verbose,
                 :global_dual_tightening => global_dual_tightening,
                 :lazy => lazy,
+                :lazy_tolerance => lazy_tolerance,
                 :lineSearch => line_search,
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :max_fw_iter => max_fw_iter,
