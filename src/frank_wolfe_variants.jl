@@ -49,7 +49,7 @@ function solve_frank_wolfe(
     extra_vertex_storage=nothing, 
     callback=nothing,
     lazy=false, 
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
     workspace=nothing
@@ -64,7 +64,7 @@ function solve_frank_wolfe(
         line_search=line_search,
         callback=callback,
         lazy=lazy,  
-        lazy_tolerance = lazy_tolerance,      
+        lazy_tolerance=lazy_tolerance,      
         timeout=timeout,
         add_dropped_vertices=add_dropped_vertices,
         use_extra_vertex_storage=use_extra_vertex_storage,
@@ -97,7 +97,7 @@ function solve_frank_wolfe(
     extra_vertex_storage=nothing, 
     callback=nothing,
     lazy=false, 
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
     workspace=nothing
@@ -116,7 +116,7 @@ function solve_frank_wolfe(
         callback=callback,
         timeout=timeout,
         verbose=verbose,
-        lazy_tolerance = lazy_tolerance,
+        lazy_tolerance=lazy_tolerance,
     )
 
     return x, primal, dual_gap, active_set
@@ -143,7 +143,7 @@ function solve_frank_wolfe(
     extra_vertex_storage=nothing, 
     callback=nothing,
     lazy=false, 
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
     workspace=nothing
@@ -161,7 +161,7 @@ function solve_frank_wolfe(
         extra_vertex_storage=extra_vertex_storage,
         callback=callback,
         lazy=lazy,
-        lazy_tolerance = lazy_tolerance,
+        lazy_tolerance=lazy_tolerance,
         timeout=timeout,
         verbose=verbose
     )
@@ -194,7 +194,7 @@ function solve_frank_wolfe(
     extra_vertex_storage=nothing, 
     callback=nothing,
     lazy=false, 
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
     workspace=nothing
