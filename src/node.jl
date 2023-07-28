@@ -49,46 +49,22 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
-    # update splitting index
+
+    # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
 
-    prune_left = false
-    prune_right = false
-    # if strong convexity, potentially remove one of two children
-    μ = tree.root.options[:strong_convexity]
-    if μ > 0
-        @debug "Using strong convexity $μ"
-        for j in tree.root.problem.integer_variables
-            if vidx == j
-                continue
-            end
-            lower_bound_base += μ/2 * min(
-                (x[j] - floor(x[j]))^2,
-                (ceil(x[j]) - x[j])^2,
-            )
-        end
-        new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
-        new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
-        if new_bound_left > tree.incumbent
-            @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
-            prune_left = true
-        end
-        if new_bound_right > tree.incumbent
-            @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
-            prune_right = true
-        end
-    end
-
-    @assert !(prune_left && prune_right) "both sides should not be pruned"
-
-    # split active set
+    # In case of strong convexity, check if a child can be pruned
+    prune_left, prune_right = prune_children(tree, node, x, vidx)
+    
+    # Split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
+    # Sanity check
     @assert isapprox(sum(active_set_left.weights), 1.0)
     @assert sum(active_set_left.weights .< 0) == 0
     @assert isapprox(sum(active_set_right.weights), 1.0)
@@ -108,10 +84,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
     push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
 
-    # compute new dual gap
+    # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
+    # Sanity check
     for v in active_set_left.atoms
         if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
             error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
@@ -132,6 +109,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
             error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
         end
     end
+
     # update the LMO
     node_info_left = (
         active_set=active_set_left,
@@ -163,7 +141,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domain_oracle]
 
-    nodes = if !prune_left && !prune_right #&& domain_oracle(x_left) && domain_oracle(x_right) 
+    nodes = if !prune_left && !prune_right 
         [node_info_left, node_info_right]
     elseif prune_left 
         [node_info_right]
@@ -178,10 +156,46 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 end
 
 """
+Use strong convexity to potentially remove one of the children nodes 
+"""
+function prune_children(tree, node, x, vidx)
+    prune_left = false
+    prune_right = false
+    
+    μ = tree.root.options[:strong_convexity]
+    if μ > 0
+        @debug "Using strong convexity $μ"
+        for j in tree.root.problem.integer_variables
+            if vidx == j
+                continue
+            end
+            lower_bound_base += μ/2 * min(
+                (x[j] - floor(x[j]))^2,
+                (ceil(x[j]) - x[j])^2,
+            )
+        end
+        new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
+        new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
+        if new_bound_left > tree.incumbent
+            @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
+            prune_left = true
+        end
+        if new_bound_right > tree.incumbent
+            @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
+            prune_right = true
+        end
+    end
+
+    @assert !(prune_left && prune_right) "both sides should not be pruned"
+
+    return prune_left, prune_right
+end
+
+"""
 Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
-    # check if conflict between local bounds and global tightening
+    # check that local bounds and global tightening don't conflict
     for (j, ub) in tree.root.global_tightenings.upper_bounds
         if !haskey(node.local_bounds.lower_bounds, j)
             continue
