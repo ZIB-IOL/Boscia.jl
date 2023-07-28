@@ -57,7 +57,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     @assert isfinite(lower_bound_base)
 
     # In case of strong convexity, check if a child can be pruned
-    prune_left, prune_right = prune_children(tree, node, x, vidx)
+    prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
     
     # Split active set
     active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
@@ -158,7 +158,7 @@ end
 """
 Use strong convexity to potentially remove one of the children nodes 
 """
-function prune_children(tree, node, x, vidx)
+function prune_children(tree, node, lower_bound_base, x, vidx)
     prune_left = false
     prune_right = false
     
@@ -241,40 +241,46 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     #     MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     # end
 
-    if isempty(node.active_set)
-        consI_list = MOI.get(
-            tree.root.problem.lmo.lmo.o,
-            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-        ) + MOI.get(
-            tree.root.problem.lmo.lmo.o,
-            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
-        )
-        if !isempty(consI_list)
-            @error "Unreachable node! Active set is empty!"
-        end
-        restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
+    #if isempty(node.active_set)
+     #   consI_list = MOI.get(
+      #      tree.root.problem.lmo.lmo.o,
+       #     MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
+       # ) + MOI.get(
+        #    tree.root.problem.lmo.lmo.o,
+         #   MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
+        #)
+        #if !isempty(consI_list)
+         #   @error "Unreachable node! Active set is empty!"
+        #end
+        #restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
+    #end
+
+    # Check feasibility of the iterate
+    active_set = node.active_set
+    x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+    @assert is_linear_feasible(tree.root.problem.lmo, x)
+    for (_,v) in node.active_set
+        @assert is_linear_feasible(tree.root.problem.lmo, v)
     end
 
-    # time tracking FW
-    active_set = node.active_set
-    time_ref = Dates.now()
-    FrankWolfe.compute_active_set_iterate!(node.active_set)
-    x = node.active_set.x
-    for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
+    #x = node.active_set.x
+    #=for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
         for (idx, set) in list
             dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
             if dist > 0.01
-                @warn "infeas x $dist"
+                @warn "Iterate x infeasible for node bounds. Distance to set: $dist"
             end
             for v_idx in eachindex(node.active_set)
                 dist_v = MOD.distance_to_set(MOD.DefaultDistance(), node.active_set.atoms[v_idx][idx], set)
                 if dist_v > 0.01
-                    error("vertex beginning")
+                    @debug "distance: $(dist_v)"
+                    @debug "set: $(set)"
+                    @debug "vertex: $(v)"
+                    error("Vertex is not respecting the node bounds.")
                 end
             end
             if dist > 0.01
-                @warn "infeas x $dist"
-                @error("infeasible but vertex okay")
+                @error("Infeasible iterate but vertices are feasible.")
                 FrankWolfe.compute_active_set_iterate!(active_set)
                 dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
                 if dist2 > 0.01
@@ -284,12 +290,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
                 end
             end
         end
-    end
+    end=#
 
-   # x = zeros(tree.root.problem.nvars)
-    #dual_gap = primal = 0
-    #active_set = FrankWolfe.ActiveSet([(1.0, x)])
-    x=FrankWolfe.compute_active_set_iterate!(node.active_set)
+    # time tracking FW
+    time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
     x, primal, dual_gap, active_set = solve_frank_wolfe(
@@ -317,6 +321,34 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # update active set of the node
     node.active_set = active_set
 
+    # tightening bounds at node level
+    dual_tightening(tree, node, x, dual_gap)
+
+    # tightening the global bounds
+    store_data_global_tightening(tree, node, x, dual_gap)
+    global_tightening(tree, node)
+
+    lower_bound = primal - dual_gap
+    # improvement of the lower bound using strong convexity
+    lower_bound = tightening_strong_convexity(tree, x, lower_bound)
+
+    # Found an upper bound
+    if is_integer_feasible(tree, x)
+        node.ub = primal
+        return lower_bound, primal
+    # Sanity check: If the incumbent is better than the lower bound of the root node
+    # and the root node is not integer feasible, something is off!
+    elseif node.id == 1  
+        @assert lower_bound <= tree.incumbent + 1e-5
+    end
+
+    return lower_bound, NaN
+end
+
+"""
+Tightening of the bounds at node level. Children node inherit the updated bounds.
+"""
+function dual_tightening(tree, node, x, dual_gap)
     if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
         grad = similar(x)
         tree.root.problem.g(grad, x)
@@ -393,7 +425,13 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.local_tightenings = num_tightenings
         node.local_potential_tightenings = num_potential_tightenings
     end
+end
 
+"""
+Save the gradient of the root solution (i.e. the relaxed solution) and the 
+corresponding lower and upper bounds.
+"""
+function store_data_global_tightening(tree, node, x, dual_gap)
     # store gradient, dual gap and relaxation
     if tree.root.options[:global_dual_tightening] && node.std.id == 1
         @debug "storing root node info for tightening"
@@ -416,7 +454,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             end
         end
     end
+end
 
+"""
+Use the gradient of the root node to tighten the global bounds.
+"""
+function global_tightening(tree, node)
     # new incumbent: check global fixings
     if tree.root.options[:global_dual_tightening] && tree.root.updated_incumbent[]
         num_tightenings = 0
@@ -478,9 +521,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
         node.global_tightenings = num_tightenings
     end
+end
 
-    lower_bound = primal - dual_gap
-
+"""
+Tighten the lower bound using strong convexity of the objective.
+"""
+function tightening_strong_convexity(tree, x, lower_bound)
     μ = tree.root.options[:strong_convexity]
     if μ > 0
         @debug "Using strong convexity $μ"
@@ -499,18 +545,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         lower_bound = strong_convexity_bound
     end
-
-    # Found an upper bound?
-    if is_integer_feasible(tree, x)
-        node.ub = primal
-        return lower_bound, primal
-    # Sanity check: If the incumbent is better than the lower bound of the root node
-    # and the root node is not integer feasible, something is off!
-    elseif node.id == 1  
-        @assert lower_bound <= tree.incumbent + 1e-5
-    end
-
-    return lower_bound, NaN
+    return lower_bound
 end
 
 
