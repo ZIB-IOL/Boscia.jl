@@ -241,19 +241,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     #     MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
     # end
 
-    #if isempty(node.active_set)
-     #   consI_list = MOI.get(
-      #      tree.root.problem.lmo.lmo.o,
-       #     MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-       # ) + MOI.get(
-        #    tree.root.problem.lmo.lmo.o,
-         #   MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
-        #)
-        #if !isempty(consI_list)
-         #   @error "Unreachable node! Active set is empty!"
-        #end
-        #restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
-    #end
 
     # Check feasibility of the iterate
     active_set = node.active_set
@@ -262,35 +249,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     for (_,v) in node.active_set
         @assert is_linear_feasible(tree.root.problem.lmo, v)
     end
-
-    #x = node.active_set.x
-    #=for list in (node.local_bounds.lower_bounds, node.local_bounds.upper_bounds)
-        for (idx, set) in list
-            dist = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
-            if dist > 0.01
-                @warn "Iterate x infeasible for node bounds. Distance to set: $dist"
-            end
-            for v_idx in eachindex(node.active_set)
-                dist_v = MOD.distance_to_set(MOD.DefaultDistance(), node.active_set.atoms[v_idx][idx], set)
-                if dist_v > 0.01
-                    @debug "distance: $(dist_v)"
-                    @debug "set: $(set)"
-                    @debug "vertex: $(v)"
-                    error("Vertex is not respecting the node bounds.")
-                end
-            end
-            if dist > 0.01
-                @error("Infeasible iterate but vertices are feasible.")
-                FrankWolfe.compute_active_set_iterate!(active_set)
-                dist2 = MOD.distance_to_set(MOD.DefaultDistance(), x[idx], set)
-                if dist2 > 0.01
-                    error("$dist, $idx, $set")
-                else
-                    error("recovered")
-                end
-            end
-        end
-    end=#
 
     # time tracking FW
     time_ref = Dates.now()
@@ -432,7 +390,6 @@ Save the gradient of the root solution (i.e. the relaxed solution) and the
 corresponding lower and upper bounds.
 """
 function store_data_global_tightening(tree, node, x, dual_gap)
-    # store gradient, dual gap and relaxation
     if tree.root.options[:global_dual_tightening] && node.std.id == 1
         @debug "storing root node info for tightening"
         grad = similar(x)
