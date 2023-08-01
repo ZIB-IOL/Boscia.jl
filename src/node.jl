@@ -297,6 +297,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Sanity check: If the incumbent is better than the lower bound of the root node
     # and the root node is not integer feasible, something is off!
     elseif node.id == 1  
+        @debug "Lower bound of root node: $(lower_bound)"
+        @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + 1e-5
     end
 
