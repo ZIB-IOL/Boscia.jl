@@ -7,25 +7,26 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         # TODO deal with vertices becoming infeasible with conflicts
-        if !is_linear_feasible(tree.root.problem.lmo, state.v)
-            @info "$(state.v)"
-            node = tree.nodes[tree.root.current_node_id[]]
-            node_bounds = node.local_bounds
-            for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
-                for (idx, set) in list
-                    c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
-                    @assert MOI.is_valid(state.lmo.lmo.o, c_idx)
-                    set2 = MOI.get(state.lmo.lmo.o, MOI.ConstraintSet(), c_idx)
-                    if !(set == set2)
-                        MOI.set(lmo.lmo.o, MOI.ConstraintSet(), c_idx, set)
-                        set3 = MOI.get(lmo.lmo.o, MOI.ConstraintSet(), c_idx)
-                        @assert (set3 == set) "$((idx, set3, set))"
+        @debug begin
+            if !is_linear_feasible(tree.root.problem.lmo, state.v)
+                @info "$(state.v)"
+                node = tree.nodes[tree.root.current_node_id[]]
+                node_bounds = node.local_bounds
+                for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
+                    for (idx, set) in list
+                        c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+                        @assert MOI.is_valid(state.lmo.lmo.o, c_idx)
+                        set2 = MOI.get(state.lmo.lmo.o, MOI.ConstraintSet(), c_idx)
+                        if !(set == set2)
+                            MOI.set(lmo.lmo.o, MOI.ConstraintSet(), c_idx, set)
+                            set3 = MOI.get(lmo.lmo.o, MOI.ConstraintSet(), c_idx)
+                            @assert (set3 == set) "$((idx, set3, set))"
+                        end
                     end
                 end
+                @assert is_linear_feasible(tree.root.problem.lmo, state.v)
             end
-            @assert is_linear_feasible(tree.root.problem.lmo, state.v)
         end
-        # @assert is_linear_feasible(tree.root.problem.lmo, state.x)
         push!(fw_iterations, state.t)
 
         if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
