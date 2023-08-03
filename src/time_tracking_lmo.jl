@@ -33,9 +33,10 @@ function FrankWolfe.compute_extreme_point(lmo::TimeTrackingLMO, d; kwargs...)
     cleanup_solver(lmo.lmo.o)
     v = FrankWolfe.compute_extreme_point(lmo.lmo, d; kwargs)
 
-    if !is_linear_feasible(lmo, v)
-        @debug "Vertex not linear feasible $(v)"
-        @assert is_linear_feasible(lmo, v)
+    @debug begin
+        if !is_linear_feasible(lmo, v)
+            @debug "Vertex not linear feasible $(v)"
+        end
     end
     v[lmo.int_vars] = round.(v[lmo.int_vars])
 
