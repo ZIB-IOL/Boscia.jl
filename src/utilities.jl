@@ -17,14 +17,7 @@ end
 Check feasibility and boundedness
 """
 function check_feasibility(lmo::TimeTrackingLMO)
-    MOI.set(
-        lmo.lmo.o,
-        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
-        MOI.ScalarAffineFunction{Float64}([], 0.0),
-    )
-    MOI.optimize!(lmo)
-    status = MOI.get(lmo.lmo.o, MOI.TerminationStatus())
-    return status
+    return check_feasibility(lmo.blmo)
 end
 
 
