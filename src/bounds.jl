@@ -80,6 +80,7 @@ end
     return -1
 end =#
 
+#=
 """
 Build node LMO from global LMO
 
@@ -181,4 +182,86 @@ function build_LMO(
 end
 
 build_LMO(lmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) =
-    build_LMO(lmo.lmo, gb, nb, int_vars)
+    build_LMO(lmo.lmo, gb, nb, int_vars)=#
+
+
+    """
+Build node LMO from global LMO
+
+Four action can be taken:
+KEEP   - constraint is as saved in the global bounds
+CHANGE - lower/upper bound is changed to the node specific one
+DELETE - custom bound from the previous node that is invalid at current node and has to be deleted
+ADD    - bound has to be added for this node because it does not exist in the global bounds (e.g. variable bound is a half open interval globally) 
+"""
+function build_LMO(
+    blmo::BoundedLinearMinimizationOracle,
+    global_bounds::IntegerBounds,
+    node_bounds::IntegerBounds,
+    int_vars::Vector{Int},
+)
+    # free model data from previous nodes
+    free_model(lmo.o)
+
+    consLB_list = get_lower_bounds_list(blmo)
+    consUB_list = get_upper_bounds_list(blmo)
+    cons_delete = []
+
+    # Lower bounds
+    for c_idx in consLB_list
+        v_idx = get_variable_index(blmo, c_idx)
+        if is_constraint_on_int_var(c_idx, int_vars)
+            if is_constraint_in(global_bounds.lower_bounds, c_idx)
+                # change
+                if is_constraint_in(node.lower_bounds, c_idx)
+                    set_lower_bound(blmo, c_idx, node_bounds.lower_bounds[v_idx])
+                # keep    
+                else
+                    set_lower_bound(blmo, c_idx, global_bounds.lower_bounds[v_idx])
+                end
+            else
+                # delete
+                push!(cons_delete, c_idx)
+            end
+        end
+    end
+
+    # Upper bounds
+    for c_idx in consUB_list
+        v_idx = get_variable_index(blmo, c_idx)
+        if is_constraint_on_int_var(c_idx, int_vars)
+            if is_constraint_in(global_bounds.uppers_bounds, c_idx)
+                # change
+                if is_constraint_in(node.uppers_bounds, c_idx)
+                    set_upper_bound(blmo, c_idx, node_bounds.upper_bounds[v_idx])
+                # keep    
+                else
+                    set_upper_bound(blmo, c_idx, global_bounds.upper_bounds[v_idx])
+                end
+            else
+                # delete
+                push!(cons_delete, c_idx)
+            end
+        end
+    end
+
+    # delete constraints
+    delete_constraints!(blmo, cons_delete)
+
+    # add node specific constraints
+    for key in keys(node_bounds.lower_bounds)
+        if !is_constraint_in(global_bounds.lower_bounds, key)
+            add_constraint!(blmo, key, node_bounds.lower_bounds[key])
+        end
+    end
+    for key in keys(node_bounds.upper_bounds)
+        if !is_constraint_in(global_bounds.upper_bounds, key)
+            add_constraint!(blmo, key, node_bounds.upper_bounds[key])
+        end
+    end
+
+    @assert check_bounds(lmo, node_bounds)
+end
+
+build_LMO(tt_lmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) =
+    build_LMO(tt_lmo.blmo, gb, nb, int_vars)
