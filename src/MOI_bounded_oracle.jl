@@ -210,3 +210,77 @@ function get_BLMO_solve_data(blmo::MathOptBLMO)
     simplex_iterations = MOI.get(blmo.o, MOI.SimplexIterations())
     return opt_times, numberofnodes, simplex_iterations
 end
+
+"""
+Is a given point v linear feasible for the model?
+"""
+function is_linear_feasible(blmo::MathOptBLMO)
+    return is_linear_feasible(blmo.o)
+end
+function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
+    valvar(f) = v[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        isfeasible = is_linear_feasible_subroutine(o, F, S, valvar)
+        if !isfeasible
+            return false
+        end
+    end
+    # satisfies all constraints
+    return true
+end
+# function barrier for performance
+function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F,S}
+    if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
+        return true
+    end
+    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+    for c_idx in cons_list
+        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+        val = MOIU.eval_variables(valvar, func)
+        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+       # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+        dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
+        scip_tol = 1e-6
+        if o isa SCIP.Optimizer
+            scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
+        end
+        if dist > 5000.0 * scip_tol
+            @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+            @debug("Distance to set: $(dist)")
+            return false
+        end
+    end
+    return true
+end
+
+"""
+Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
+"""
+function is_indicator_feasible(blmo::MathOptBLMO, v; atol= 1e-6, rtol=1e-6)
+    return is_indicator_feasible(blmo.o, v, atol, rtol)
+end
+
+"""
+Are indicator constraints present?
+"""
+function indicator_present(blmo::BoundedLinearMinimizationOracle)
+    for (_, S) in MOI.get(blmo.o, MOI.ListOfConstraintTypesPresent())
+        if S <: MOI.Indicator
+            return true
+        end
+    end
+    return false
+end
+
+"""
+Get solving tolerance for the BLMO.
+"""
+function get_tol(blmo::BoundedLinearMinimizationOracle)
+    return get_tol(blmo.o)
+end
+function get_tol(o::SCIP.Optimizer)
+    return MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
+end
+function get_tol(o::MOI.AbstractOptimizer)
+    return 1e-06
+end

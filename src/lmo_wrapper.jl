@@ -74,6 +74,9 @@ function is_integer_constraint end
 
 #################### Optional to implement ####################
 
+# These are safety check function, performance and log functions, ..
+# They are not strictly necessary for Boscia to run but would be beneficial to add, especially in the case of the safety functions.
+
 """
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
@@ -108,4 +111,33 @@ Get solve time, number of nodes and number of iterations, if applicable.
 """
 function get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)
     return 0.0, 0.0, 0.0
+end
+
+"""
+Is a given point v linear feasible for the model?
+"""
+function is_linear_feasible(blmo::BoundedLinearMinimizationOracle)
+    return true
+end
+
+"""
+Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
+"""
+function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol= 1e-6, rtol=1e-6)
+    return true
+end
+
+"""
+Are indicator constraints present?
+"""
+function indicator_present(blmo::BoundedLinearMinimizationOracle)
+    return false
+end
+
+
+"""
+Get solving tolerance for the BLMO.
+"""
+function get_tol(blmo::BoundedLinearMinimizationOracle)
+    return 1e-6
 end
