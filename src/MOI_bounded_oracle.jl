@@ -17,6 +17,13 @@ function MathOptBLMO(lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modfify)
 end
 
+"""
+Convert object of Type MathOptLMO into MathOptBLMO
+"""
+function convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
+    return MathOptBLMO(lmo.o, lmo.use_modify)
+end
+
 ################## Necessary to implement ####################
 """
     compute_extreme_point
