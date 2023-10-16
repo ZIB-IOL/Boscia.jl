@@ -689,11 +689,3 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     return x
 end
 
-# cleanup internal SCIP model
-function free_model(o::SCIP.Optimizer)
-    SCIP.SCIPfreeTransform(o)
-end
-
-# no-op by default
-function free_model(o::MOI.AbstractOptimizer)   
-end
