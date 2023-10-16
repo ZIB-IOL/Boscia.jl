@@ -20,10 +20,10 @@ end
 """
 Convert object of Type MathOptLMO into MathOptBLMO and viceversa.
 """
-function convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
+function Base.convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modify)
 end
-function convert(::Type{FrankWolfe.MathOptLMO}, nlmo::MathOptBLMO) 
+function Base.convert(::Type{FrankWolfe.MathOptLMO}, nlmo::MathOptBLMO) 
     return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modfify)
 end
 

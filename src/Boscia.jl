@@ -12,7 +12,6 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
-import Base: convert
 import MathOptSetDistances as MOD
 
 include("integer_bounds.jl")
