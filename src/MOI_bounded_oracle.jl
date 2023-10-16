@@ -10,6 +10,13 @@ struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
     end
 end
 
+"""
+Build MathOptBLMO from FrankWolfe.MathOptLMO.
+"""
+function MathOptBLMO(lmo::FrankWolfe.MathOptLMO)
+    return MathOptBLMO(lmo.o, lmo.use_modfify)
+end
+
 ################## Necessary to implement ####################
 """
     compute_extreme_point
@@ -162,7 +169,7 @@ function check_feasibility(blmo::BoundedLinearMinimizationOracle)
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
         MOI.ScalarAffineFunction{Float64}([], 0.0),
     )
-    MOI.optimize!(blmo)
+    MOI.optimize!(blmo.o)
     status = MOI.get(blmo.o, MOI.TerminationStatus())
     return status
 end
@@ -192,4 +199,14 @@ function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
         @debug "No binary or integer constraint here."
         return true
     end
+end
+
+"""
+Get solve time, number of nodes and number of simplex iterations.
+"""
+function get_BLMO_solve_data(blmo::MathOptBLMO)
+    opt_times = MOI.get(blmo.o, MOI.SolveTimeSec())
+    numberofnodes = MOI.get(blmo.o, MOI.NodeCount())
+    simplex_iterations = MOI.get(blmo.o, MOI.SimplexIterations())
+    return opt_times, numberofnodes, simplex_iterations
 end

@@ -4,9 +4,9 @@
 An LMO wrapping another one tracking the time, number of nodes and number of calls.
 
 """
-mutable struct TimeTrackingLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <:
+mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <:
                FrankWolfe.LinearMinimizationOracle
-    lmo::LMO
+    blmo::BLMO
     optimizing_times::Vector{Float64}
     optimizing_nodes::Vector{Int}
     simplex_iterations::Vector{Int}
@@ -14,41 +14,39 @@ mutable struct TimeTrackingLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <:
     int_vars::Vector{Int}
 end
 
-TimeTrackingLMO(lmo::FrankWolfe.LinearMinimizationOracle) =
-    TimeTrackingLMO(lmo, Float64[], Int[], Int[], 0, Int[])
+TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
+    TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, Int[])
   
-TimeTrackingLMO(lmo::FrankWolfe.LinearMinimizationOracle, int_vars) =
-    TimeTrackingLMO(lmo, Float64[], Int[], Int[], 0, int_vars)
+TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
+    TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
 # if we want to reset the info between nodes in Bonobo
-function reset!(lmo::TimeTrackingLMO)
-    empty!(lmo.optimizing_times)
-    empty!(lmo.optimizing_nodes)
-    empty!(lmo.simplex_iterations)
-    return lmo.ncalls = 0
+function reset!(tlmo::TimeTrackingLMO)
+    empty!(tlmo.optimizing_times)
+    empty!(tlmo.optimizing_nodes)
+    empty!(tlmo.simplex_iterations)
+    return tlmo.ncalls = 0
 end
 
-function FrankWolfe.compute_extreme_point(lmo::TimeTrackingLMO, d; kwargs...)
-    lmo.ncalls += 1
-    cleanup_solver(lmo.lmo.o)
-    v = FrankWolfe.compute_extreme_point(lmo.lmo, d; kwargs)
+function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
+    tlmo.ncalls += 1
+    free_model(tlmo.blmo)
+    v = FrankWolfe.compute_extreme_point(tlmo.blmo, d; kwargs)
 
-    if !is_linear_feasible(lmo, v)
+    if !is_linear_feasible(tlmo, v)
         @debug "Vertex not linear feasible $(v)"
-        @assert is_linear_feasible(lmo, v)
+        @assert is_linear_feasible(tlmo, v)
     end
-    v[lmo.int_vars] = round.(v[lmo.int_vars])
+    v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
-    push!(lmo.optimizing_times, MOI.get(lmo.lmo.o, MOI.SolveTimeSec()))
-    numberofnodes = MOI.get(lmo.lmo.o, MOI.NodeCount())
+    opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.blmo)
+
+    push!(tlmo.optimizing_times, opt_times)
     push!(lmo.optimizing_nodes, numberofnodes)
-    push!(lmo.simplex_iterations, MOI.get(lmo.lmo.o, MOI.SimplexIterations()))
+    push!(lmo.simplex_iterations, simplex_iterations)
 
-    cleanup_solver(lmo.lmo.o)
+    free_model(tlmo.blmo)
     return v
 end
 
-cleanup_solver(o) = nothing
-cleanup_solver(o::SCIP.Optimizer) = SCIP.SCIPfreeTransform(o)
-
-MOI.optimize!(time_lmo::TimeTrackingLMO) = MOI.optimize!(time_lmo.lmo.o)
+#MOI.optimize!(time_lmo::TimeTrackingLMO) = MOI.optimize!(time_lmo.lmo.o)
