@@ -152,6 +152,48 @@ function is_integer_constraint(blmo::MathOptBLMO, idx::Int)
     return false, -1
 end
 
+"""
+Is a given point v linear feasible for the model?
+"""
+function is_linear_feasible(blmo::MathOptBLMO, v::AbstractVector)
+    return is_linear_feasible(blmo.o, v)
+end
+function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
+    valvar(f) = v[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        isfeasible = is_linear_feasible_subroutine(o, F, S, valvar)
+        if !isfeasible
+            return false
+        end
+    end
+    # satisfies all constraints
+    return true
+end
+# function barrier for performance
+function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F,S}
+    if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
+        return true
+    end
+    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+    for c_idx in cons_list
+        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+        val = MOIU.eval_variables(valvar, func)
+        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+       # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+        dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
+        scip_tol = 1e-6
+        if o isa SCIP.Optimizer
+            scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
+        end
+        if dist > 5000.0 * scip_tol
+            @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+            @debug("Distance to set: $(dist)")
+            return false
+        end
+    end
+    return true
+end
+
 
 ##################### Optional to implement ################
 
@@ -244,48 +286,6 @@ function get_BLMO_solve_data(blmo::MathOptBLMO)
 end
 
 """
-Is a given point v linear feasible for the model?
-"""
-function is_linear_feasible(blmo::MathOptBLMO)
-    return is_linear_feasible(blmo.o)
-end
-function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
-    valvar(f) = v[f.value]
-    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
-        isfeasible = is_linear_feasible_subroutine(o, F, S, valvar)
-        if !isfeasible
-            return false
-        end
-    end
-    # satisfies all constraints
-    return true
-end
-# function barrier for performance
-function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, valvar) where {F,S}
-    if S == MOI.ZeroOne || S <: MOI.Indicator || S == MOI.Integer
-        return true
-    end
-    cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
-    for c_idx in cons_list
-        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
-        val = MOIU.eval_variables(valvar, func)
-        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
-       # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
-        dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
-        scip_tol = 1e-6
-        if o isa SCIP.Optimizer
-            scip_tol = MOI.get(o, MOI.RawOptimizerAttribute("numerics/feastol"))
-        end
-        if dist > 5000.0 * scip_tol
-            @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
-            @debug("Distance to set: $(dist)")
-            return false
-        end
-    end
-    return true
-end
-
-"""
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
 function is_indicator_feasible(blmo::MathOptBLMO, v; atol= 1e-6, rtol=1e-6)
@@ -343,4 +343,33 @@ Find best solution from the solving process.
 """
 function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
     return  find_best_solution(f, blmo.o, vars, domain_oracle)
+end
+
+"""
+List of all variable pointers. Depends on how you save your variables internally.
+
+Is used in `find_best_solution`.
+"""
+function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
+    return [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
+end
+
+"""
+Deal with infeasible vertex if necessary, e.g. check what caused it etc.
+"""
+function check_infeasible_vertex(blmo::MathOptBLMO, tree)
+    node = tree.nodes[tree.root.current_node_id[]]
+    node_bounds = node.local_bounds
+    for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
+        for (idx, set) in list
+            c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+            @assert MOI.is_valid(state.tlmo.blmo.o, c_idx)
+            set2 = MOI.get(state.tlmo.blmo.o, MOI.ConstraintSet(), c_idx)
+            if !(set == set2)
+                MOI.set(tlmo.blmo.o, MOI.ConstraintSet(), c_idx, set)
+                set3 = MOI.get(tlmo.blmo.o, MOI.ConstraintSet(), c_idx)
+                @assert (set3 == set) "$((idx, set3, set))"
+            end
+        end
+    end
 end

@@ -82,6 +82,12 @@ Has variable an integer constraint?
 """
 function is_integer_constraint end
 
+"""
+Is a given point v linear feasible for the model?
+That means does v satisfy all bounds and other linear constraints?
+"""
+function is_linear_feasible end
+
 
 #################### Optional to implement ####################
 
@@ -125,13 +131,6 @@ function get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)
 end
 
 """
-Is a given point v linear feasible for the model?
-"""
-function is_linear_feasible(blmo::BoundedLinearMinimizationOracle)
-    return true
-end
-
-"""
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
 function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol= 1e-6, rtol=1e-6)
@@ -157,4 +156,20 @@ Find best solution from the solving process.
 """
 function find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
     return (nothing, Inf)
+end
+
+"""
+List of all variable pointers. Depends on how you save your variables internally. In the easy case, this is simply `collect(1:N)`.
+
+Is used in `find_best_solution`.
+"""
+function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
+    N = tree.root.problem.nvars
+    return collect(1:N)
+end
+
+"""
+Deal with infeasible vertex if necessary, e.g. check what caused it etc.
+"""
+function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree)
 end
