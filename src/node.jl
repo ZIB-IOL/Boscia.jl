@@ -205,14 +205,14 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # build up node LMO
     build_LMO(
-        tree.root.problem.lmo,
+        tree.root.problem.tlmo,
         tree.root.problem.integer_variable_bounds,
         node.local_bounds,
         tree.root.problem.integer_variables,
     )
 
     # check for feasibility and boundedness
-    status = check_feasibility(tree.root.problem.lmo)
+    status = check_feasibility(tree.root.problem.tlmo)
     if status == MOI.INFEASIBLE
         return NaN, NaN
     end
@@ -221,25 +221,19 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    # set relative accurary for the IP solver
-    # accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
-    # if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
-    #     MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
-    # end
-
-    if isempty(node.active_set)
+   #= if isempty(node.active_set)
         consI_list = MOI.get(
-            tree.root.problem.lmo.lmo.o,
+            tree.root.problem.tlmo.blmo.o,
             MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
         ) + MOI.get(
-            tree.root.problem.lmo.lmo.o,
+            tree.root.problem.tlmo.blmo.o,
             MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
         )
         if !isempty(consI_list)
             @error "Unreachable node! Active set is empty!"
         end
-        restart_active_set(node, tree.root.problem.lmo.lmo, tree.root.problem.nvars)
-    end
+        restart_active_set(node, tree.root.problem.tlmo.blmo, tree.root.problem.nvars)
+    end =#
 
     # time tracking FW
     active_set = node.active_set
@@ -282,7 +276,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
-        tree.root.problem.lmo,
+        tree.root.problem.tlmo,
         node.active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
@@ -294,41 +288,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
-    )#=
-    if tree.root.options[:variant] == BPCG
-        # call blended_pairwise_conditional_gradient
-        x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            node.active_set,
-            epsilon=node.fw_dual_gap_limit,
-            max_iteration=tree.root.options[:max_fw_iter],
-            line_search=tree.root.options[:lineSearch],
-            add_dropped_vertices=true,
-            use_extra_vertex_storage=true,
-            extra_vertex_storage=node.discarded_vertices,
-            callback=tree.root.options[:callback],
-            lazy=true,
-            timeout=tree.root.options[:time_limit],
-            verbose=tree.root.options[:fwVerbose],
-        )
-    elseif tree.root.options[:variant] == AFW
-        # call away_frank_wolfe
-        x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.lmo,
-            node.active_set,
-            epsilon=node.fw_dual_gap_limit,
-            max_iteration=tree.root.options[:max_fw_iter],
-            line_search=tree.root.options[:lineSearch],
-            callback=tree.root.options[:callback],
-            lazy=true,
-            timeout=tree.root.options[:time_limit],
-            verbose=tree.root.options[:fwVerbose],
-        )
-    end=#
+    )
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
