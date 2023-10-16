@@ -10,6 +10,7 @@ struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
     end
 end
 
+################## Necessary to implement ####################
 """
     compute_extreme_point
 
@@ -81,6 +82,41 @@ function add_bound_constraint!(blmo::MathOptBLMO, key, value)
 end
 
 """
+Has variable a binary constraint?
+"""
+function is_binary_constraint(blmo::MathOptBLMO, idx::Int) 
+    consB_list = MOI.get(
+        blmo.o,
+        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
+    )
+    for c_idx in consB_list
+        if c_idx.value == idx
+            return true, c_idx
+        end
+    end
+    return false, -1
+end
+
+"""
+Has variable an integer constraint?
+"""
+function is_integer_constraint(blmo::MathOptBLMO, idx::Int) 
+    consB_list = MOI.get(
+        blmo.o,
+        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
+    )
+    for c_idx in consB_list
+        if c_idx.value == idx
+            return true, c_idx
+        end
+    end
+    return false, -1
+end
+
+
+##################### Optional to implement ################
+
+"""
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
@@ -115,4 +151,45 @@ end
 # no-op by default
 function free_model(o::MOI.AbstractOptimizer)   
     return true
+end
+
+"""
+Check if problem is bounded and feasible, i.e. no contradicting constraints.
+"""
+function check_feasibility(blmo::BoundedLinearMinimizationOracle)
+    MOI.set(
+        blmo.o,
+        MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
+        MOI.ScalarAffineFunction{Float64}([], 0.0),
+    )
+    MOI.optimize!(blmo)
+    status = MOI.get(blmo.o, MOI.TerminationStatus())
+    return status
+end
+
+"""
+Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
+"""
+function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
+    bin_var, _ = is_binary_constraint(tree, vidx)
+    int_var, _ = is_integer_constraint(tree, vidx)
+    if int_var || bin_var
+        l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
+        u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
+        l_bound =
+            MOI.is_valid(blmo.o, l_idx) ?
+            MOI.get(blmo.o, MOI.ConstraintSet(), l_idx) : nothing
+        u_bound =
+            MOI.is_valid(blmo.o, u_idx) ?
+            MOI.get(blmo.o, MOI.ConstraintSet(), u_idx) : nothing
+        if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
+            @debug l_bound.lower, u_bound.upper
+            return false
+        else
+            return true
+        end
+    else #!bin_var && !int_var
+        @debug "No binary or integer constraint here."
+        return true
+    end
 end

@@ -5,6 +5,8 @@ Supertype for the Bounded Linear Minimization Oracles
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end 
 
+################## Necessary to implement ##################
+
 """
 Given a direction d solves the problem
     min_x d^T x
@@ -62,18 +64,44 @@ Add bound constraint.
 function add_bound_constraint! end
 
 """
+Has variable a binary constraint?
+"""
+function is_binary_constraint end
+
+"""
+Has variable an integer constraint?
+"""
+function is_integer_constraint end
+
+
+#################### Optional to implement ####################
+
+"""
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
-function build_LMO_correct(blmo, node_bounds)
+function build_LMO_correct(blmo::BoundedLinearMinimizationOracle, node_bounds)
     return true
 end
 
 """
 Free model data from previous solve (if necessary).
 """
-function free_model(blmo)
+function free_model(blmo::BoundedLinearMinimizationOracle)
     return true
 end
 
+"""
+Check if problem is bounded and feasible, i.e. no contradicting constraints.
+"""
+function check_feasibility(blmo::BoundedLinearMinimizationOracle)
+    return MOI.OPTIMAL
+end
+
+"""
+Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
+"""
+function is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, vidx::Int)
+    return true
+end
 
