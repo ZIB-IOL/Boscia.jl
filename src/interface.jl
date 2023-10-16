@@ -1,4 +1,18 @@
 """
+Solve function in case of MathOptLMO. 
+Converts the lmo into a MathOptBLMO and calls the solve function below.
+"""
+function solve(
+    f,
+    g,
+    lmo::FrankWolfe.MathOptLMO;
+    kwargs...
+)
+    blmo = convert(MathOptBLMO, lmo)
+    solve(f, g, blmo; kwargs)
+end
+
+"""
     solve
    
 f                      - objective function oracle. 
