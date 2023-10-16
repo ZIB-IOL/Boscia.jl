@@ -15,10 +15,10 @@ const MOIU = MOI.Utilities
 import Base: convert
 import MathOptSetDistances as MOD
 
-include("time_tracking_lmo.jl")
+include("integer_bounds.jl")
 include("lmo_wrapper.jl")
-include("MOI_bounded_oracle.jl")
-include("bounds.jl")
+include("time_tracking_lmo.jl")
+include("build_lmo.jl")
 include("frank_wolfe_variants.jl")
 include("node.jl")
 include("custom_bonobo.jl")
@@ -28,5 +28,6 @@ include("heuristics.jl")
 include("strong_branching.jl")
 include("utilities.jl")
 include("interface.jl")
+include("MOI_bounded_oracle.jl")
 
 end # module
