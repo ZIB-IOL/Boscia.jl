@@ -1,42 +1,31 @@
 
-struct PartialStrongBranching{O} <: Bonobo.AbstractBranchStrategy
+struct PartialStrongBranching{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
     max_iteration::Int
     solving_epsilon::Float64
-    optimizer::O
+    bounded_lmo::BLMO
 end
 
+"""
+Get branching variable using strong branching.
+Create all possible subproblems, solve them and pick the one with the most progress.
+"""
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
-    branching::PartialStrongBranching,
-    node::Bonobo.AbstractNode,
+    branching::PartialStrongBranching{BoundedLinearMinimizationOracle},
+    node::Bonbo.AbstractNode,
 )
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
-    # copy problem and remove integer constraints
-    filtered_src = MOI.Utilities.ModelFilter(tree.root.problem.lmo.lmo.o) do item
-        if item isa Tuple
-            (_, S) = item
-            if S <: Union{MOI.Indicator,MOI.Integer,MOI.ZeroOne}
-                return false
-            end
-        end
-        return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
-    end
-    index_map = MOI.copy_to(branching.optimizer, filtered_src)
-    # sanity check, otherwise the functions need permuted indices
-    for (v1, v2) in index_map
-        if v1 isa MOI.VariableIndex
-            @assert v1 == v2
-        end
-    end
-    relaxed_lmo = FrankWolfe.MathOptLMO(branching.optimizer)
+    # copy problem
+    relaxed_blmo = copy(branching.bounded_lmo)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
     for idx in Bonobo.get_branching_indices(tree.root)
         if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
+
             # left node: x_i <=  floor(̂x_i)
             fxi = floor(xrel[idx])
             # create LMO
@@ -46,14 +35,13 @@ function Bonobo.get_branching_variable(
             end
             push!(boundsLeft.upper_bounds, (idx => MOI.LessThan(fxi)))
             build_LMO(
-                relaxed_lmo,
+                relaxed_blmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsLeft,
                 Bonobo.get_branching_indices(tree.root),
             )
-            MOI.optimize!(relaxed_lmo.o)
-            #MOI.set(relaxed_lmo.o, MOI.Silent(), false)
-            if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
+            status = check_feasibility(relaxed_blmo)
+            if status == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] <= xrel[idx]
@@ -66,7 +54,7 @@ function Bonobo.get_branching_variable(
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
-                        relaxed_lmo,
+                        relaxed_blmo,
                         active_set,
                         verbose=false,
                         epsilon=branching.solving_epsilon,
@@ -74,9 +62,10 @@ function Bonobo.get_branching_variable(
                     )
                 left_relaxed = primal_relaxed - dual_gap_relaxed
             else
-                @debug "Left non-optimal status $(MOI.get(relaxed_lmo.o, MOI.TerminationStatus()))"
+                @debug "Left non-optimal status $(status)"
                 left_relaxed = Inf
             end
+
             #right node: x_i >=  floor(̂x_i)
             cxi = ceil(xrel[idx])
             boundsRight = copy(node.local_bounds)
@@ -85,13 +74,13 @@ function Bonobo.get_branching_variable(
             end
             push!(boundsRight.lower_bounds, (idx => MOI.GreaterThan(cxi)))
             build_LMO(
-                relaxed_lmo,
+                relaxed_blmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsRight,
                 Bonobo.get_branching_indices(tree.root),
             )
-            MOI.optimize!(relaxed_lmo.o)
-            if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL
+            status = check_feasibility(relaxed_blmo)
+            if status == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] >= xrel[idx]
@@ -109,7 +98,7 @@ function Bonobo.get_branching_variable(
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
-                        relaxed_lmo,
+                        relaxed_blmo,
                         active_set,
                         verbose=false,
                         epsilon=branching.solving_epsilon,
@@ -117,7 +106,7 @@ function Bonobo.get_branching_variable(
                     )
                 right_relaxed = primal_relaxed - dual_gap_relaxed
             else
-                @debug "Right non-optimal status $(MOI.get(relaxed_lmo.o, MOI.TerminationStatus()))"
+                @debug "Right non-optimal status $(status)"
                 right_relaxed = Inf
             end
             # lowest lower bound on the two branches
@@ -144,9 +133,9 @@ end
 Hybrid between partial strong branching and another strategy.
 `perform_strong_branch(tree, node) -> Bool` decides whether to perform strong branching or not.
 """
-struct HybridStrongBranching{O,F<:Function,B<:Bonobo.AbstractBranchStrategy} <:
+struct HybridStrongBranching{BLMO::BoundedLinearMinimizationOracle,F<:Function,B<:Bonobo.AbstractBranchStrategy} <:
        Bonobo.AbstractBranchStrategy
-    pstrong::PartialStrongBranching{O}
+    pstrong::PartialStrongBranching{BLMO}
     perform_strong_branch::F
     alternative_branching::B
 end
@@ -154,12 +143,12 @@ end
 function HybridStrongBranching(
     max_iteration::Int,
     solving_epsilon::Float64,
-    optimizer::O,
+    bounded_lmo::BLMO,
     perform_strong_branch::Function,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) where {O}
+) where {BLMO<:BoundedLinearMinimizationOracle}
     return HybridStrongBranching(
-        PartialStrongBranching(max_iteration, solving_epsilon, optimizer),
+        PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),
         perform_strong_branch,
         alternative,
     )
@@ -184,13 +173,13 @@ strong_up_to_depth performs strong branching on nodes up to a predetermined dept
 function strong_up_to_depth(
     max_iteration::Int,
     solving_epsilon::Float64,
-    optimizer::O,
+    bounded_lmo::BLMO,
     max_depth::Int,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) where {O}
+) where {BLMO<:BoundedLinearMinimizationOracle}
     perform_strong_while_depth(_, node) = node.level <= max_depth
     return HybridStrongBranching(
-        PartialStrongBranching(max_iteration, solving_epsilon, optimizer),
+        PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),
         perform_strong_while_depth,
         alternative,
     )

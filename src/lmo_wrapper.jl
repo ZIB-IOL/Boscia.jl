@@ -88,6 +88,11 @@ That means does v satisfy all bounds and other linear constraints?
 """
 function is_linear_feasible end
 
+"""
+Define a copy function for strong branching
+"""
+function copy end
+
 
 #################### Optional to implement ####################
 
