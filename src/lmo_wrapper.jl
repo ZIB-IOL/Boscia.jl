@@ -145,10 +145,16 @@ function indicator_present(blmo::BoundedLinearMinimizationOracle)
     return false
 end
 
-
 """
 Get solving tolerance for the BLMO.
 """
 function get_tol(blmo::BoundedLinearMinimizationOracle)
     return 1e-6
+end
+
+"""
+Find best solution from the solving process.
+"""
+function find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
+    return (nothing, Inf)
 end

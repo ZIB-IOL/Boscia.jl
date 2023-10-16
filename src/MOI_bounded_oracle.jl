@@ -337,3 +337,10 @@ end
 function get_tol(o::MOI.AbstractOptimizer)
     return 1e-06
 end
+
+"""
+Find best solution from the solving process.
+"""
+function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
+    return  find_best_solution(f, blmo.o, vars, domain_oracle)
+end
