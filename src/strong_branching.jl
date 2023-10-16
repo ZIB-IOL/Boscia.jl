@@ -12,7 +12,7 @@ Create all possible subproblems, solve them and pick the one with the most progr
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
     branching::PartialStrongBranching{BoundedLinearMinimizationOracle},
-    node::Bonbo.AbstractNode,
+    node::Bonobo.AbstractNode,
 )
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
@@ -133,7 +133,7 @@ end
 Hybrid between partial strong branching and another strategy.
 `perform_strong_branch(tree, node) -> Bool` decides whether to perform strong branching or not.
 """
-struct HybridStrongBranching{BLMO::BoundedLinearMinimizationOracle,F<:Function,B<:Bonobo.AbstractBranchStrategy} <:
+struct HybridStrongBranching{BLMO<:BoundedLinearMinimizationOracle,F<:Function,B<:Bonobo.AbstractBranchStrategy} <:
        Bonobo.AbstractBranchStrategy
     pstrong::PartialStrongBranching{BLMO}
     perform_strong_branch::F
@@ -143,10 +143,10 @@ end
 function HybridStrongBranching(
     max_iteration::Int,
     solving_epsilon::Float64,
-    bounded_lmo::BLMO,
+    bounded_lmo::BoundedLinearMinimizationOracle,
     perform_strong_branch::Function,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) where {BLMO<:BoundedLinearMinimizationOracle}
+) 
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),
         perform_strong_branch,
@@ -173,10 +173,10 @@ strong_up_to_depth performs strong branching on nodes up to a predetermined dept
 function strong_up_to_depth(
     max_iteration::Int,
     solving_epsilon::Float64,
-    bounded_lmo::BLMO,
+    bounded_lmo::BoundedLinearMinimizationOracle,
     max_depth::Int,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) where {BLMO<:BoundedLinearMinimizationOracle}
+) 
     perform_strong_while_depth(_, node) = node.level <= max_depth
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),
