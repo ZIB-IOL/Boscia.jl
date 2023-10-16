@@ -257,7 +257,28 @@ end
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
 function is_indicator_feasible(blmo::MathOptBLMO, v; atol= 1e-6, rtol=1e-6)
-    return is_indicator_feasible(blmo.o, v, atol, rtol)
+    return is_indicator_feasible(blmo.o, v; atol, rtol)
+end
+function is_indicator_feasible(o, x; atol = 1e-6, rtol=1e-6)
+    valvar(f) = x[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        if S <: MOI.Indicator
+            cons_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+            for c_idx in cons_list
+                func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+                val = MOIU.eval_variables(valvar, func)
+                set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+               # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+                dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
+                if dist > atol
+                    @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+                    @debug("Distance to set: $(dist)")
+                    return false
+                end
+            end
+        end
+    end
+    return true
 end
 
 """
