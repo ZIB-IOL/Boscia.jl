@@ -89,9 +89,19 @@ That means does v satisfy all bounds and other linear constraints?
 function is_linear_feasible end
 
 """
-Define a copy function for strong branching
+Define a copy function for strong branching. Originally from Base.
 """
 function copy end
+
+"""
+Read global bounds from the problem.
+"""
+function build_global_bounds end
+
+"""
+Add explicit bounds for binary variables.
+"""
+function explicit_bounds_binary_var end
 
 
 #################### Optional to implement ####################

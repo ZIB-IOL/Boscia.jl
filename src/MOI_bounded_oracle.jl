@@ -27,6 +27,7 @@ function convert(::Type{FrankWolfe.MathOptLMO}, nlmo::MathOptBLMO)
     return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modfify)
 end
 
+
 ################## Necessary to implement ####################
 """
     compute_extreme_point
@@ -192,6 +193,62 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         end
     end
     return true
+end
+
+"""
+Define a copy function for strong branching
+"""
+function Base.copy(blmo::MathOptBLMO)
+    return MathOptBLMO(blmo.o, blmo.use_modify)
+end
+
+"""
+Read global bounds from the problem
+"""
+function build_global_bounds(blmo::MathOptBLMO)
+    global_bounds = Boscia.IntegerBounds()
+    for idx in integer_variables
+        for ST in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
+            cidx = MOI.ConstraintIndex{MOI.VariableIndex,ST}(idx)
+            # Variable constraints to not have to be explicitly given, see Buchheim example
+            if MOI.is_valid(blmo.o, cidx)
+                s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
+                push!(global_bounds, (idx, s))
+            end
+        end
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(idx)
+        if MOI.is_valid(blmo.o, cidx)
+            x = MOI.VariableIndex(idx)
+            s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
+            MOI.delete(blmo.o, cidx)
+            MOI.add_constraint(blmo.o, x, MOI.GreaterThan(s.lower))
+            MOI.add_constraint(blmo.o, x, MOI.LessThan(s.upper))
+            push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
+            push!(global_bounds, (idx, MOI.LessThan(s.upper)))
+        end
+        @assert !MOI.is_valid(lmo.o, cidx)
+    end 
+    return global_bounds
+end
+
+"""
+Add explicit bounds for binary variables.
+"""
+function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds, binary_variables)
+    # adding binary bounds explicitly
+    for idx in binary_variables
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
+        if !MOI.is_valid(blmo.o, cidx)
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
+        end
+        @assert MOI.is_valid(blmo.o, cidx)
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
+        if !MOI.is_valid(blmo.o, cidx)
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
+        end
+        global_bounds[idx, :greaterthan] = MOI.GreaterThan(0.0)
+        global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
+    end 
 end
 
 

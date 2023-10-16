@@ -3,7 +3,7 @@
    
 f                      - objective function oracle. 
 g                      - oracle for the gradient of the objective. 
-lmo                    - a MIP solver instance (SCIP) encoding the feasible region.    
+blmo                    - a MIP solver instance (e.g.SCIP) encoding the feasible region. Has to be of type BoundedLinearMinimizationOracle (see lmo_wrapper).    
 traverse_strategy      - encodes how to choose the next node for evaluation. 
                         By default the node with the best lower bound is picked.
 branching_strategy     - by default we branch on the entry which is the farthest 
@@ -43,7 +43,7 @@ fw_verbose             - if true, FrankWolfe logs are printed
 function solve(
     f,
     grad!,
-    lmo;
+    blmo::BoundedLinearMinimizationOracle;
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
@@ -85,26 +85,24 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
-    v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
-    n = length(v_indices)
-    if v_indices != MOI.VariableIndex.(1:n)
-        error("Variables are expected to be contiguous and ordered from 1 to N")
-    end
+    v_indices = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
     num_bin = 0
-    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        push!(integer_variables, cidx.value)
+    for c_idx in get_integer_variables(blmo)
+        v_idx = get_int_var(blmo, c_idx)
+        push!(integer_variables, v_idx)
         num_int += 1
     end
     binary_variables = BitSet()
-    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
-        push!(integer_variables, cidx.value)
-        push!(binary_variables, cidx.value)
+    for c_idx in get_binary_variables(blmo)
+        v_idx = get_int_var(blmo, c_idx)
+        push!(integer_variables, v_idx)
+        push!(binary_variables, v_idx)
         num_bin += 1
     end
-    time_lmo = Boscia.TimeTrackingLMO(lmo, integer_variables)
+    time_lmo = Boscia.TimeTrackingLMO(blmo, integer_variables)
 
     if num_bin == 0 && num_int == 0
         error("No integer or binary variables detected! Please use an IP solver!")
@@ -116,54 +114,20 @@ function solve(
         println("\t Number of binary variables: $(num_bin)\n")
     end
 
-    global_bounds = Boscia.IntegerBounds()
-    for idx in integer_variables
-        for ST in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
-            cidx = MOI.ConstraintIndex{MOI.VariableIndex,ST}(idx)
-            # Variable constraints to not have to be explicitly given, see Buchheim example
-            if MOI.is_valid(lmo.o, cidx)
-                s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
-                push!(global_bounds, (idx, s))
-            end
-        end
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(idx)
-        if MOI.is_valid(lmo.o, cidx)
-            x = MOI.VariableIndex(idx)
-            s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
-            MOI.delete(lmo.o, cidx)
-            MOI.add_constraint(lmo.o, x, MOI.GreaterThan(s.lower))
-            MOI.add_constraint(lmo.o, x, MOI.LessThan(s.upper))
-            push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
-            push!(global_bounds, (idx, MOI.LessThan(s.upper)))
-        end
-        @assert !MOI.is_valid(lmo.o, cidx)
-    end
-    # adding binary bounds explicitly
-    for idx in binary_variables
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
-        if !MOI.is_valid(lmo.o, cidx)
-            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
-        end
-        @assert MOI.is_valid(lmo.o, cidx)
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
-        if !MOI.is_valid(lmo.o, cidx)
-            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
-        end
-        global_bounds[idx, :greaterthan] = MOI.GreaterThan(0.0)
-        global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
-    end
+    global_bounds = build_global_bounds(blmo)
+    explicit_bounds_binary_var(blmo, global_bounds, binary_variables)
 
     v = []
     if active_set === nothing
         direction = collect(1.0:n)
-        v = compute_extreme_point(lmo, direction)
+        v = compute_extreme_point(blmo, direction)
         v[integer_variables] = round.(v[integer_variables])
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
     else
         @assert FrankWolfe.active_set_validate(active_set)
         for a in active_set.atoms
-            @assert is_linear_feasible(lmo.o, a)
+            @assert is_linear_feasible(blmo.o, a)
         end
         v = active_set.atoms[1]
     end
@@ -306,7 +270,7 @@ function solve(
     # Check solution and polish
     x_polished = x
     if x !== nothing
-        if !is_linear_feasible(tree.root.problem.lmo, x) 
+        if !is_linear_feasible(tree.root.problem.tlmo, x) 
             error("Reported solution not linear feasbile!")
         end
         if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16) && x !== nothing
@@ -314,7 +278,7 @@ function solve(
             for i in tree.root.problem.integer_variables
                 x_polished[i] = round(x_polished[i])
             end
-            if !is_linear_feasible(tree.root.problem.lmo, x_polished)
+            if !is_linear_feasible(tree.root.problem.tlmo, x_polished)
                 @warn "Polished solution not linear feasible"
             else
                 x = x_polished
@@ -323,7 +287,7 @@ function solve(
     end
     println() # cleaner output
 
-    return x, tree.root.problem.lmo, result
+    return x, tree.root.problem.tlmo, result
 end
 
 """
@@ -433,13 +397,13 @@ function build_bnb_callback(
             else
                 0
             end
-            if !isempty(tree.root.problem.lmo.optimizing_times)
-                LMO_time = sum(1000 * tree.root.problem.lmo.optimizing_times)
-                empty!(tree.root.problem.lmo.optimizing_times)
+            if !isempty(tree.root.problem.tlmo.optimizing_times)
+                LMO_time = sum(1000 * tree.root.problem.tlmo.optimizing_times)
+                empty!(tree.root.problem.tlmo.optimizing_times)
             else
                 LMO_time = 0
             end
-            LMO_calls_c = tree.root.problem.lmo.ncalls
+            LMO_calls_c = tree.root.problem.tlmo.ncalls
             push!(list_lmo_calls_cb, copy(LMO_calls_c))
 
             if !isempty(tree.node_queue)
@@ -597,23 +561,23 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
         end
 
-        MOI.set(tree.root.problem.lmo.lmo.o, MOI.Silent(), true)
-        free_model(tree.root.problem.lmo.lmo.o)
+        MOI.set(tree.root.problem.tlmo.blmo.o, MOI.Silent(), true)
+        free_model(tree.root.problem.tlmo.blmo.o)
         build_LMO(
-            tree.root.problem.lmo,
+            tree.root.problem.tlmo,
             tree.root.problem.integer_variable_bounds,
             fix_bounds,
             tree.root.problem.integer_variables,
         )
         # Postprocessing
         direction = ones(length(x))
-        v = compute_extreme_point(tree.root.problem.lmo, direction)
+        v = compute_extreme_point(tree.root.problem.tlmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         verbose && println("Postprocessing")
         x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
             tree.root.problem.f,
             tree.root.problem.g,
-            tree.root.problem.lmo,
+            tree.root.problem.tlmo,
             active_set,
             line_search=FrankWolfe.Adaptive(verbose=false),
             lazy=true,
@@ -680,7 +644,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     # Reset LMO
     int_bounds = IntegerBounds()
     build_LMO(
-        tree.root.problem.lmo,
+        tree.root.problem.tlmo,
         tree.root.problem.integer_variable_bounds,
         int_bounds,
         tree.root.problem.integer_variables,
