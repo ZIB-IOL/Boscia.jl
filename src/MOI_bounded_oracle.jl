@@ -18,10 +18,13 @@ function MathOptBLMO(lmo::FrankWolfe.MathOptLMO)
 end
 
 """
-Convert object of Type MathOptLMO into MathOptBLMO
+Convert object of Type MathOptLMO into MathOptBLMO and viceversa.
 """
 function convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modify)
+end
+function convert(::Type{FrankWolfe.MathOptLMO}, nlmo::MathOptBLMO) 
+    return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modfify)
 end
 
 ################## Necessary to implement ####################
@@ -30,6 +33,28 @@ end
 
 Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
+
+"""
+Get list of variables indices. 
+If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
+"""
+function get_list_of_variables(blmo::MathOptBLMO) 
+    v_indices = MOI.get(blmo.o, MOI.ListOfVariableIndices())
+    if v_indices != MOI.VariableIndex.(1:n)
+        error("Variables are expected to be contiguous and ordered from 1 to N")
+    end
+    return v_indices
+end
+
+"""
+Get list of binary and integer variables, respectively.
+"""
+function get_binary_variables(blmo::MathOptBLMO) 
+    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
+end
+function get_integer_variables(blmo::MathOptBLMO) 
+    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+end 
 
 """
 Get the index of the integer variable the bound is working on.
