@@ -203,13 +203,6 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
 end
 
 """
-Define a copy function for strong branching
-"""
-function Base.copy(blmo::MathOptBLMO)
-    return MathOptBLMO(blmo.o, blmo.use_modify)
-end
-
-"""
 Read global bounds from the problem
 """
 function build_global_bounds(blmo::MathOptBLMO, integer_variables)

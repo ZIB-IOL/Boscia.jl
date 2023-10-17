@@ -89,13 +89,6 @@ That means does v satisfy all bounds and other linear constraints?
 function is_linear_feasible end
 
 """
-Define a copy function for strong branching. Originally from Base.
-
-Hence, implement as `Base.copy(..)`.
-"""
-function copy end
-
-"""
 Read global bounds from the problem.
 """
 function build_global_bounds end

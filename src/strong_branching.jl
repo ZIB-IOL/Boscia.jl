@@ -17,8 +17,6 @@ function Bonobo.get_branching_variable(
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
-    # copy problem
-    relaxed_blmo = copy(branching.bounded_lmo)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
@@ -35,12 +33,12 @@ function Bonobo.get_branching_variable(
             end
             push!(boundsLeft.upper_bounds, (idx => MOI.LessThan(fxi)))
             build_LMO(
-                relaxed_blmo,
+                branching.bounded_lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsLeft,
                 Bonobo.get_branching_indices(tree.root),
             )
-            status = check_feasibility(relaxed_blmo)
+            status = check_feasibility(branching.bounded_lmo)
             if status == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
@@ -54,7 +52,7 @@ function Bonobo.get_branching_variable(
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
-                        relaxed_blmo,
+                        branching.bounded_lmo,
                         active_set,
                         verbose=false,
                         epsilon=branching.solving_epsilon,
@@ -74,12 +72,12 @@ function Bonobo.get_branching_variable(
             end
             push!(boundsRight.lower_bounds, (idx => MOI.GreaterThan(cxi)))
             build_LMO(
-                relaxed_blmo,
+                branching.bounded_lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsRight,
                 Bonobo.get_branching_indices(tree.root),
             )
-            status = check_feasibility(relaxed_blmo)
+            status = check_feasibility(branching.bounded_lmo)
             if status == MOI.OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
@@ -98,7 +96,7 @@ function Bonobo.get_branching_variable(
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
-                        relaxed_blmo,
+                        branching.bounded_lmo,
                         active_set,
                         verbose=false,
                         epsilon=branching.solving_epsilon,
