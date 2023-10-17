@@ -3,6 +3,8 @@ module Boscia
 using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
+import Base: copy
+export copy 
 using Random
 using SCIP
 import MathOptInterface

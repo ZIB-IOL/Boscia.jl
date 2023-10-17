@@ -90,6 +90,8 @@ function is_linear_feasible end
 
 """
 Define a copy function for strong branching. Originally from Base.
+
+Hence, implement as `Base.copy(..)`.
 """
 function copy end
 
