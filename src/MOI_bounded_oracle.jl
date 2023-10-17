@@ -117,7 +117,7 @@ Delete bounds.
 """
 function delete_bounds!(blmo::MathOptBLMO, cons_delete) 
     for d_idx in cons_delete
-        MOI.delete(lmo.o, d_idx)
+        MOI.delete(blmo.o, d_idx)
     end
 end
 
