@@ -459,7 +459,7 @@ function Bonobo.get_branching_variable(
             @assert v1 == v2
         end
     end
-    relaxed_lmo = FrankWolfe.MathOptLMO(branching.optimizer)
+    relaxed_lmo = FrankWolfe.MathOptLMO(branching.bounded_lmo.optimizer)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)

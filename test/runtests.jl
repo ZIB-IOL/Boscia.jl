@@ -78,8 +78,9 @@ const diff1 = rand(Bool, n) * 0.8 .+ 1.1
     )
     lmo = FrankWolfe.MathOptLMO(o)
    
-    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
-    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
+    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
     x, _, result_strong_branching =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
@@ -122,9 +123,9 @@ end
     function perform_strong_branch(tree, node)
         return node.level <= length(tree.root.problem.integer_variables) / 3
     end
-    branching_strategy =
-        Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
-    MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
+    MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
 
     x,_,result = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy=branching_strategy) 
     
