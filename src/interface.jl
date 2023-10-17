@@ -520,7 +520,7 @@ function build_bnb_callback(
             end
 
             result[:number_nodes] = tree.num_nodes
-            result[:lmo_calls] = tree.root.problem.lmo.ncalls
+            result[:lmo_calls] = tree.root.problem.tlmo.ncalls
             result[:list_num_nodes] = list_num_nodes_cb
             result[:list_lmo_calls_acc] = list_lmo_calls_cb
             result[:list_active_set_size] = list_active_set_size_cb
