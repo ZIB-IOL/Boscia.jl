@@ -17,7 +17,7 @@ end
    
 f                      - objective function oracle. 
 g                      - oracle for the gradient of the objective. 
-blmo                    - a MIP solver instance (e.g.SCIP) encoding the feasible region. Has to be of type BoundedLinearMinimizationOracle (see lmo_wrapper).    
+blmo                    - a MIP solver instance (e.g., SCIP) encoding the feasible region. Has to be of type `BoundedLinearMinimizationOracle` (see `lmo_wrapper.jl`).    
 traverse_strategy      - encodes how to choose the next node for evaluation. 
                         By default the node with the best lower bound is picked.
 branching_strategy     - by default we branch on the entry which is the farthest 
