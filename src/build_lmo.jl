@@ -59,18 +59,18 @@ function build_LMO(
     end
 
     # delete constraints
-    delete_bounds(blmo, cons_delete)
+    delete_bounds!(blmo, cons_delete)
 
     # add node specific constraints 
     # These are bounds constraints where there is no corresponding global bound
     for key in keys(node_bounds.lower_bounds)
         if !haskey(global_bounds.lower_bounds, key)
-            add_bound_constraint(blmo, key, node_bounds.lower_bounds[key])
+            add_bound_constraint!(blmo, key, node_bounds.lower_bounds[key])
         end
     end
     for key in keys(node_bounds.upper_bounds)
         if !haskey(global_bounds.upper_bounds, key)
-            add_bound_constraint(blmo, key, node_bounds.upper_bounds[key])
+            add_bound_constraint!(blmo, key, node_bounds.upper_bounds[key])
         end
     end
 
