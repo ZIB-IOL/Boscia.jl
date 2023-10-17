@@ -294,7 +294,7 @@ end
 """
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
-function check_feasibility(blmo::BoundedLinearMinimizationOracle)
+function check_feasibility(blmo::MathOptBLMO)
     MOI.set(
         blmo.o,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -373,7 +373,7 @@ end
 """
 Are indicator constraints present?
 """
-function indicator_present(blmo::BoundedLinearMinimizationOracle)
+function indicator_present(blmo::MathOptBLMO)
     for (_, S) in MOI.get(blmo.o, MOI.ListOfConstraintTypesPresent())
         if S <: MOI.Indicator
             return true
@@ -385,7 +385,7 @@ end
 """
 Get solving tolerance for the BLMO.
 """
-function get_tol(blmo::BoundedLinearMinimizationOracle)
+function get_tol(blmo::MathOptBLMO)
     return get_tol(blmo.o)
 end
 function get_tol(o::SCIP.Optimizer)
@@ -407,7 +407,7 @@ List of all variable pointers. Depends on how you save your variables internally
 
 Is used in `find_best_solution`.
 """
-function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
+function get_variables_pointers(blmo::MathOptBLMO, tree)
     return [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
 end
 
