@@ -36,7 +36,7 @@ Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
 
 """
-Get list of variables indices. 
+Get list of variables indices and the total number of variables. 
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
 function get_list_of_variables(blmo::MathOptBLMO) 
@@ -45,7 +45,7 @@ function get_list_of_variables(blmo::MathOptBLMO)
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
-    return v_indices
+    return n, v_indices
 end
 
 """
@@ -227,7 +227,7 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
             push!(global_bounds, (idx, MOI.LessThan(s.upper)))
         end
-        @assert !MOI.is_valid(lmo.o, cidx)
+        @assert !MOI.is_valid(blmo.o, cidx)
     end 
     return global_bounds
 end

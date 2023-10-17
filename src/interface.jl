@@ -99,7 +99,7 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
-    v_indices = get_list_of_variables(blmo)
+    n, v_indices = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
