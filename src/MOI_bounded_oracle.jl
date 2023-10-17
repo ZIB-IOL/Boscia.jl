@@ -23,8 +23,8 @@ Convert object of Type MathOptLMO into MathOptBLMO and viceversa.
 function Base.convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modify)
 end
-function Base.convert(::Type{FrankWolfe.MathOptLMO}, nlmo::MathOptBLMO) 
-    return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modfify)
+function Base.convert(::Type{FrankWolfe.MathOptLMO}, blmo::MathOptBLMO) 
+    return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modify)
 end
 
 
@@ -34,6 +34,12 @@ end
 
 Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
+function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
+    lmo = convert(FrankWolfe.MathOptLMO, blmo)
+    v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
+    @assert blmo isa MathOptBLMO
+    return v
+end
 
 """
 Get list of variables indices and the total number of variables. 
