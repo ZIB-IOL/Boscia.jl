@@ -41,6 +41,7 @@ If the problem has n variables, they are expected to contiguous and ordered from
 """
 function get_list_of_variables(blmo::MathOptBLMO) 
     v_indices = MOI.get(blmo.o, MOI.ListOfVariableIndices())
+    n = length(v_indices)
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
     end
@@ -205,7 +206,7 @@ end
 """
 Read global bounds from the problem
 """
-function build_global_bounds(blmo::MathOptBLMO)
+function build_global_bounds(blmo::MathOptBLMO, integer_variables)
     global_bounds = Boscia.IntegerBounds()
     for idx in integer_variables
         for ST in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
@@ -408,7 +409,7 @@ List of all variable pointers. Depends on how you save your variables internally
 Is used in `find_best_solution`.
 """
 function get_variables_pointers(blmo::MathOptBLMO, tree)
-    return [MOI.VariableIndex(var) for var in 1:tree.root.problem.nvars]
+    return [MOI.VariableIndex(var) for var in 1:(tree.root.problem.nvars)]
 end
 
 """

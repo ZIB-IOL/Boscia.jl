@@ -128,7 +128,7 @@ function solve(
         println("\t Number of binary variables: $(num_bin)\n")
     end
 
-    global_bounds = build_global_bounds(blmo)
+    global_bounds = build_global_bounds(blmo, integer_variables)
     explicit_bounds_binary_var(blmo, global_bounds, binary_variables)
 
     v = []
