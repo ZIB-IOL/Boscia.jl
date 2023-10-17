@@ -42,8 +42,8 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.blmo)
 
     push!(tlmo.optimizing_times, opt_times)
-    push!(lmo.optimizing_nodes, numberofnodes)
-    push!(lmo.simplex_iterations, simplex_iterations)
+    push!(tlmo.optimizing_nodes, numberofnodes)
+    push!(tlmo.simplex_iterations, simplex_iterations)
 
     free_model(tlmo.blmo)
     return v
