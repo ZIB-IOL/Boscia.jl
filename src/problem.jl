@@ -66,7 +66,7 @@ function is_integer_feasible(
 end
 
 function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
-    indicator_feasible = indicator_present(tree) ? is_indicator_feasible(tree.root.problem.lmo.lmo.o, x) : true
+    indicator_feasible = indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.blmo.o, x) : true
     return is_integer_feasible(
         tree.root.problem.integer_variables,
         x;
