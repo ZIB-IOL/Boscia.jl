@@ -24,12 +24,12 @@ end
 """
 Check if at a given index we have a binary and integer constraint respectivily.
 """
-function is_binary_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return is_binary_constraint(tree.root.problem.tlmo.blmo, idx)
+function has_binary_constraint(tree::Bonobo.BnBTree, idx::Int)
+    return has_binary_constraint(tree.root.problem.tlmo.blmo, idx)
 end
 
-function is_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return is_integer_constraint(tree.root.problem.tlmo.blmo, idx)
+function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
+    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
 end
 
 

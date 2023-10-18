@@ -131,7 +131,7 @@ end
 """
 Has variable a binary constraint?
 """
-function is_binary_constraint(blmo::MathOptBLMO, idx::Int) 
+function has_binary_constraint(blmo::MathOptBLMO, idx::Int) 
     consB_list = MOI.get(
         blmo.o,
         MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
@@ -147,7 +147,7 @@ end
 """
 Has variable an integer constraint?
 """
-function is_integer_constraint(blmo::MathOptBLMO, idx::Int) 
+function has_integer_constraint(blmo::MathOptBLMO, idx::Int) 
     consB_list = MOI.get(
         blmo.o,
         MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
@@ -309,8 +309,8 @@ end
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
-    bin_var, _ = is_binary_constraint(tree, vidx)
-    int_var, _ = is_integer_constraint(tree, vidx)
+    bin_var, _ = has_binary_constraint(tree, vidx)
+    int_var, _ = has_integer_constraint(tree, vidx)
     if int_var || bin_var
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
         u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
