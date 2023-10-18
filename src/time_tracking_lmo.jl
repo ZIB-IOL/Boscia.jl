@@ -48,5 +48,3 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     free_model(tlmo.blmo)
     return v
 end
-
-#MOI.optimize!(time_lmo::TimeTrackingLMO) = MOI.optimize!(time_lmo.lmo.o)
