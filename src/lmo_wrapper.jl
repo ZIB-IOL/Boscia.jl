@@ -16,7 +16,6 @@ where x has to be an integer feasible point
 """
 function compute_extreme_point end
 
-## 
 """
 Read global bounds from the problem.
 """
