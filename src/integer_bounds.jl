@@ -65,9 +65,9 @@ end
 
 function Base.haskey(ib::IntegerBounds, (idx, sense))
     if sense == :lessthan
-        haskey(ib.upper_bounds, idx)
+        return haskey(ib.upper_bounds, idx)
     else
-        haskey(ib.lower_bounds, idx)
+        return haskey(ib.lower_bounds, idx)
     end
 end
 
