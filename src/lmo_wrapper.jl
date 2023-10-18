@@ -32,10 +32,15 @@ Get list of variables indices.
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
 function get_list_of_variables end
+
 """
-Get list of binary and integer variables, respectively.
+Get list of binary variables.
 """
 function get_binary_variables end
+
+"""
+Get list of integer variables.
+"""
 function get_integer_variables end 
 """
 Get the index of the integer variable the bound is working on.
