@@ -27,10 +27,10 @@ function build_LMO(
             if is_bound_in(blmo, c_idx, global_bounds.lower_bounds)
                 # change
                 if is_bound_in(blmo, c_idx, node_bounds.lower_bounds)
-                    set_bound!(blmo, c_idx, node_bounds.lower_bounds[v_idx])
+                    set_bound!(blmo, c_idx, node_bounds[v_idx, :greaterthan])
                 # keep
                 else
-                    set_bound!(blmo, c_idx, global_bounds.lower_bounds[v_idx])
+                    set_bound!(blmo, c_idx, global_bounds[v_idx, :greaterthan])
                 end
             else
                 # Delete
@@ -46,10 +46,10 @@ function build_LMO(
             if is_bound_in(blmo, c_idx, global_bounds.upper_bounds)
                 # change
                 if is_bound_in(blmo, c_idx, node_bounds.upper_bounds)
-                    set_bound!(blmo, c_idx, node_bounds.upper_bounds[v_idx])
+                    set_bound!(blmo, c_idx, node_bounds[v_idx, :lessthan])
                 # keep
                 else
-                    set_bound!(blmo, c_idx, global_bounds.upper_bounds[v_idx])
+                    set_bound!(blmo, c_idx, global_bounds[v_idx, :lessthan])
                 end
             else
                 # Delete
