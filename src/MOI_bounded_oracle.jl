@@ -94,7 +94,10 @@ end
 """
 Read bound value for c_idx.
 """
-function get_bound(blmo, c_idx) 
+function get_lower_bound(blmo, c_idx) 
+    return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+end
+function get_upper_bound(blmo, c_idx) 
     return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
 end
 
