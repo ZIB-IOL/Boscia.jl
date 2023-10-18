@@ -6,10 +6,62 @@ function solve(
     f,
     g,
     lmo::FrankWolfe.MathOptLMO;
+    traverse_strategy=Bonobo.BestFirstSearch(),
+    branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    variant::FrankWolfeVariant=BPCG(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    fw_epsilon=1e-2,
+    verbose=false,
+    dual_gap=1e-6,
+    rel_dual_gap=1.0e-2,
+    time_limit=Inf,
+    print_iter=100,
+    dual_gap_decay_factor=0.8,
+    max_fw_iter=10000,
+    min_number_lower=Inf,
+    min_node_fw_epsilon=1e-6,
+    use_postsolve=true,
+    min_fw_iterations=5,
+    max_iteration_post=10000,
+    dual_tightening=true,
+    global_dual_tightening=true,
+    bnb_callback=nothing,
+    strong_convexity=0.0,
+    domain_oracle= x->true,
+    start_solution=nothing,
+    fw_verbose = false,
     kwargs...
 )
     blmo = convert(MathOptBLMO, lmo)
-    solve(f, g, blmo; kwargs)
+    return solve(f, g, blmo; 
+    traverse_strategy=traverse_strategy,
+    branching_strategy=branching_strategy,
+    variant=variant,
+    line_search=line_search,
+    active_set=active_set,
+    fw_epsilon=fw_epsilon,
+    verbose=verbose,
+    dual_gap=dual_gap,
+    rel_dual_gap=rel_dual_gap,
+    time_limit=time_limit,
+    print_iter=print_iter,
+    dual_gap_decay_factor=dual_gap_decay_factor,
+    max_fw_iter=max_fw_iter,
+    min_number_lower=min_number_lower,
+    min_node_fw_epsilon=min_node_fw_epsilon,
+    use_postsolve=use_postsolve,
+    min_fw_iterations=min_fw_iterations,
+    max_iteration_post=max_iteration_post,
+    dual_tightening=dual_tightening,
+    global_dual_tightening=global_dual_tightening,
+    bnb_callback=bnb_callback,
+    strong_convexity=strong_convexity,
+    domain_oracle=domain_oracle,
+    start_solution=start_solution,
+    fw_verbose=fw_verbose,
+    kwargs 
+    )
 end
 
 """
@@ -461,7 +513,7 @@ function build_bnb_callback(
                         tree.num_nodes / time * 1000.0,
                         fw_time,
                         LMO_time,
-                        tree.root.problem.lmo.ncalls,
+                        tree.root.problem.tlmo.ncalls,
                         fw_iter,
                         active_set_size,
                         discarded_set_size,
@@ -639,11 +691,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)
-        println("\t Total number of lmo calls: ", tree.root.problem.lmo.ncalls)
+        println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
         println("\t Total time (s): ", total_time_in_sec)
-        println("\t LMO calls / sec: ", tree.root.problem.lmo.ncalls / total_time_in_sec)
+        println("\t LMO calls / sec: ", tree.root.problem.tlmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
-        println("\t LMO calls / node: $(tree.root.problem.lmo.ncalls / tree.num_nodes)\n")
+        println("\t LMO calls / node: $(tree.root.problem.tlmo.ncalls / tree.num_nodes)\n")
         if tree.root.options[:global_dual_tightening]
             println("\t Total number of global tightenings: ", sum(result[:global_tightenings]))
             println("\t Global tightenings / node: ", round(sum(result[:global_tightenings])/length(result[:global_tightenings]), digits=2))
