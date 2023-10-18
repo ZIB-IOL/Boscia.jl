@@ -19,7 +19,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             if ncalls != state.lmo.ncalls
                 ncalls = state.lmo.ncalls
                 (best_v, best_val) =
-                    find_best_solution(tree.root.problem.f, tree.root.problem.tlmo.blmo.o, vars, tree.root.options[:domain_oracle])
+                    find_best_solution(tree.root.problem.f, tree.root.problem.tlmo.blmo, vars, tree.root.options[:domain_oracle])
                 if best_val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
