@@ -436,14 +436,14 @@ Behavior for strong branching.
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
-    branching::PartialStrongBranching{MathOptBLMO},
+    branching::PartialStrongBranching{MathOptBLMO{OT}},
     node::Bonobo.AbstractNode,
-)
+) where OT <: MOI.AbstractOptimizer
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
     # copy problem and remove integer constraints
-    filtered_src = MOI.Utilities.ModelFilter(tree.root.problem.lmo.lmo.o) do item
+    filtered_src = MOI.Utilities.ModelFilter(tree.root.problem.tlmo.blmo.o) do item
         if item isa Tuple
             (_, S) = item
             if S <: Union{MOI.Indicator,MOI.Integer,MOI.ZeroOne}
@@ -452,14 +452,14 @@ function Bonobo.get_branching_variable(
         end
         return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
     end
-    index_map = MOI.copy_to(branching.optimizer, filtered_src)
+    index_map = MOI.copy_to(branching.bounded_lmo.o, filtered_src)
     # sanity check, otherwise the functions need permuted indices
     for (v1, v2) in index_map
         if v1 isa MOI.VariableIndex
             @assert v1 == v2
         end
     end
-    relaxed_lmo = FrankWolfe.MathOptLMO(branching.bounded_lmo.optimizer)
+    relaxed_lmo = MathOptBLMO(branching.bounded_lmo.o)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
