@@ -60,7 +60,7 @@ function solve(
     domain_oracle=domain_oracle,
     start_solution=start_solution,
     fw_verbose=fw_verbose,
-    kwargs 
+    kwargs...
     )
 end
 
