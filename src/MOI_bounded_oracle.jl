@@ -148,7 +148,7 @@ function has_binary_constraint(blmo::MathOptBLMO, idx::Int)
 end
 
 """
-Has variable an integer constraint?
+Does the variable have an integer constraint?
 """
 function has_integer_constraint(blmo::MathOptBLMO, idx::Int) 
     consB_list = MOI.get(
