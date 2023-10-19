@@ -37,8 +37,6 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-
-        x_scip = x
     end
 
     @testset "Using Cube LMO" begin
