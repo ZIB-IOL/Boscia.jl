@@ -154,7 +154,7 @@ function Boscia.is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     return true
 end
 """
-Has variable a binary constraint?
+Does the variable have a binary constraint?
 """
 function Boscia.has_binary_constraint(blmo::CubeBLMO, idx) 
     return idx in blmo.int_vars
