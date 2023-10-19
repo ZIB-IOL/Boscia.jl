@@ -199,22 +199,16 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         @. storage = x - diffi
     end
 
-    direction = rand(n)
-
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     x_afw, _, result_afw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.AwayFrankWolfe())
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     x_blended, _, result_blended = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     x_vfw, _, result_vfw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.VanillaFrankWolfe())
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -251,20 +245,16 @@ end
         @. storage = x - diffi
     end
 
-    direction = rand(n)
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     line_search = FrankWolfe.Adaptive()
     x_adaptive, _, result_adaptive = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search)
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     line_search = FrankWolfe.MonotonicStepSize()
     x_monotonic, _, result_monotonic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
 
     lmo = build_model()
-    v = FrankWolfe.compute_extreme_point(lmo, direction)
     line_search = FrankWolfe.Agnostic()
     x_agnostic, _, result_agnostic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
 
@@ -276,3 +266,46 @@ end
     @test sum(isapprox.(x_agnostic, x_monotonic, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_adaptive, x_agnostic, atol=1e-6, rtol=1e-3)) == n
 end
+
+n = 20
+diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+
+@testset "Lazification" begin
+
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    lmo = build_model()
+    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, verbose=false)
+
+    lmo = build_model()
+    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, lazy=false)
+
+    lmo = build_model()
+    x_mid, _, result_mid = Boscia.solve(f, grad!, lmo, verbose=false, lazy=true, lazy_tolerance=1.5)
+
+    @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_mid), f(result_mid[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_lazy, x_mid, atol=1e-6, rtol=1e-2)) == n
+end
+

@@ -76,14 +76,6 @@ function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
 end
 
 """
-Return the underlying optimizer
-For better access and readability
-"""
-#function get_optimizer(tree::Bonobo.BnBTree)
-#    return tree.root.problem.lmo.lmo.o
-#end
-
-"""
 Checks if x is valid for all linear and variable bound constraints 
 """
 is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.blmo, v)

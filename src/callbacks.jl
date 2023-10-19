@@ -12,7 +12,6 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
             @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
         end
-        # @assert is_linear_feasible(tree.root.problem.lmo, state.x)
         push!(fw_iterations, state.t)
 
         if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
