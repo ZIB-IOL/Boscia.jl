@@ -28,5 +28,6 @@ include("strong_branching.jl")
 include("utilities.jl")
 include("interface.jl")
 include("MOI_bounded_oracle.jl")
+include("cube_blmo.jl")
 
 end # module
