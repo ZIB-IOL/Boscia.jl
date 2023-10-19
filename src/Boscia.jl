@@ -1,6 +1,8 @@
 module Boscia
 
 using FrankWolfe
+import FrankWolfe: compute_extreme_point
+export compute_extreme_point
 using Random
 using SCIP
 import MathOptInterface
@@ -12,17 +14,20 @@ const MOIU = MOI.Utilities
 
 import MathOptSetDistances as MOD
 
+include("integer_bounds.jl")
+include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
-include("bounds.jl")
 include("frank_wolfe_variants.jl")
+include("build_lmo.jl")
 include("node.jl")
 include("custom_bonobo.jl")
 include("callbacks.jl")
 include("problem.jl")
-include("infeasible_pairwise.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
 include("utilities.jl")
 include("interface.jl")
+include("MOI_bounded_oracle.jl")
+include("cube_blmo.jl")
 
 end # module

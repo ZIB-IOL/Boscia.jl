@@ -63,8 +63,9 @@ end
         @. storage = x - diffi
     end
 
-    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
-    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
+    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, branching_strategy = branching_strategy)
 

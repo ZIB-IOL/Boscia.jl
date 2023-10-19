@@ -118,8 +118,9 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
     lmo = build_birkhoff_lmo()
-    branching_strategy = Boscia.PartialStrongBranching(20, 1e-4, HiGHS.Optimizer())
-    MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
+    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
     x_strong, _, result_strong =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
     @test f(x) ≈ f(x_strong)

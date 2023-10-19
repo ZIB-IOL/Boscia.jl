@@ -184,9 +184,14 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
+        @assert !((new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) && (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])) "both sides should not be pruned"
     end
 
-    @assert !(prune_left && prune_right) "both sides should not be pruned"
+    # If both nodes are pruned, when one of them has to be equal to the incumbent.
+    # Thus, we have proof of optimality by strong convexity.
+    if prune_left && prune_right
+        tree.lb = min(new_bound_left, new_bound_right)
+    end
 
     return prune_left, prune_right
 end
@@ -219,14 +224,14 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # build up node LMO
     build_LMO(
-        tree.root.problem.lmo,
+        tree.root.problem.tlmo,
         tree.root.problem.integer_variable_bounds,
         node.local_bounds,
         tree.root.problem.integer_variables,
     )
 
     # check for feasibility and boundedness
-    status = check_feasibility(tree.root.problem.lmo)
+    status = check_feasibility(tree.root.problem.tlmo)
     if status == MOI.INFEASIBLE
         return NaN, NaN
     end
@@ -235,19 +240,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    # set relative accurary for the IP solver
-    # accurary = node.level >= 2 ? 0.1 / (floor(node.level / 2) * (3 / 4)) : 0.10
-    # if MOI.get(tree.root.problem.lmo.lmo.o, MOI.SolverName()) == "SCIP"
-    #     MOI.set(tree.root.problem.lmo.lmo.o, MOI.RawOptimizerAttribute("limits/gap"), accurary)
-    # end
-
-
     # Check feasibility of the iterate
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-    @assert is_linear_feasible(tree.root.problem.lmo, x)
+    @assert is_linear_feasible(tree.root.problem.tlmo, x)
     for (_,v) in node.active_set
-        @assert is_linear_feasible(tree.root.problem.lmo, v)
+        @assert is_linear_feasible(tree.root.problem.tlmo, v)
     end
 
     # time tracking FW
@@ -258,7 +256,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
-        tree.root.problem.lmo,
+        tree.root.problem.tlmo,
         node.active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
