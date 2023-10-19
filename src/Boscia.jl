@@ -15,7 +15,7 @@ const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
 
 include("integer_bounds.jl")
-include("lmo_wrapper.jl")
+include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
 include("build_lmo.jl")
 include("frank_wolfe_variants.jl")

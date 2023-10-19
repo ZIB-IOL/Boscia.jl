@@ -240,20 +240,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-   #= if isempty(node.active_set)
-        consI_list = MOI.get(
-            tree.root.problem.tlmo.blmo.o,
-            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-        ) + MOI.get(
-            tree.root.problem.tlmo.blmo.o,
-            MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
-        )
-        if !isempty(consI_list)
-            @error "Unreachable node! Active set is empty!"
-        end
-        restart_active_set(node, tree.root.problem.tlmo.blmo, tree.root.problem.nvars)
-    end =#
-
     # Check feasibility of the iterate
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
