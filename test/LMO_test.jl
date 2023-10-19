@@ -36,7 +36,7 @@ const MOD = MathOptSetDistances
             MOI.add_constraint(o, xi, MOI.LessThan(5.0))
         end
     end
-    lmo = FrankWolfe.MathOptLMO(o)
+    lmo = Boscia.MathOptBLMO(o)
 
     global_bounds = Boscia.IntegerBounds()
     @test isempty(global_bounds)

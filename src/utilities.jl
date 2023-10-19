@@ -16,66 +16,28 @@ end
 """
 Check feasibility and boundedness
 """
-function check_feasibility(lmo::TimeTrackingLMO)
-    return check_feasibility(lmo.blmo)
+function check_feasibility(tlmo::TimeTrackingLMO)
+    return check_feasibility(tlmo.blmo)
 end
 
 
 """
 Check if at a given index we have a binary and integer constraint respectivily.
 """
-function is_binary_constraint(tree::Bonobo.BnBTree, idx::Int)
-    consB_list = MOI.get(
-        tree.root.problem.lmo.lmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
-    )
-    for c_idx in consB_list
-        if c_idx.value == idx
-            return true, c_idx
-        end
-    end
-    return false, -1
+function has_binary_constraint(tree::Bonobo.BnBTree, idx::Int)
+    return has_binary_constraint(tree.root.problem.tlmo.blmo, idx)
 end
 
-function is_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    consB_list = MOI.get(
-        tree.root.problem.lmo.lmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-    )
-    for c_idx in consB_list
-        if c_idx.value == idx
-            return true, c_idx
-        end
-    end
-    return false, -1
+function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
+    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
 end
 
 
 """
-Check wether a split is valid. It is 
+Check wether a split is valid. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
-    bin_var, _ = is_binary_constraint(tree, vidx)
-    int_var, _ = is_integer_constraint(tree, vidx)
-    if int_var || bin_var
-        l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
-        u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
-        l_bound =
-            MOI.is_valid(get_optimizer(tree), l_idx) ?
-            MOI.get(get_optimizer(tree), MOI.ConstraintSet(), l_idx) : nothing
-        u_bound =
-            MOI.is_valid(get_optimizer(tree), u_idx) ?
-            MOI.get(get_optimizer(tree), MOI.ConstraintSet(), u_idx) : nothing
-        if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
-            @debug l_bound.lower, u_bound.upper
-            return false
-        else
-            return true
-        end
-    else #!bin_var && !int_var
-        @debug "No binary or integer constraint here."
-        return true
-    end
+    return is_valid_split(tree, tree.root.problem.tlmo.blmo, vidx)
 end
 
 

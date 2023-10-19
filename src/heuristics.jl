@@ -22,6 +22,10 @@ function find_best_solution(f::Function, o::SCIP.Optimizer, vars::Vector{MOI.Var
     return (best_v, best_val)
 end
 
+"""
+Finds the best solution in the Optimizer's solution storage, based on the objective function `f`.
+Returns the solution vector and the corresponding best value.
+"""
 function find_best_solution(f::Function, o::MOI.AbstractOptimizer, vars::Vector{MOI.VariableIndex}, domain_oracle)
     nsols = MOI.get(o, MOI.ResultCount())
     @assert nsols > 0
