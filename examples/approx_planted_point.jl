@@ -9,8 +9,6 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-include("cube_blmo.jl")
-
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
@@ -50,9 +48,9 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         bounds = Boscia.IntegerBounds()
         for i in 1:n 
             push!(bounds, (i, MOI.GreaterThan(0.0)))
-            push!(bounds, (i, MOI.LessThan(0.0)))
+            push!(bounds, (i, MOI.LessThan(1.0)))
         end
-        blmo = CubeBLMO(n, int_vars, bin_vars, bounds)
+        blmo = Boscia.CubeBLMO(n, int_vars, bin_vars, bounds)
 
         x, _, result = Boscia.solve(f, grad!, blmo, verbose =true)
 
