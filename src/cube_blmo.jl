@@ -60,6 +60,7 @@ If the problem has n variables, they are expected to contiguous and ordered from
 function Boscia.get_list_of_variables(blmo::CubeBLMO)
     return blmo.n, collect(1:blmo.n)
  end
+
 """
 Get list of binary and integer variables, respectively.
 """
