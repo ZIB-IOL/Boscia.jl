@@ -146,7 +146,7 @@ That means does v satisfy all bounds and other linear constraints?
 """
 function Boscia.is_linear_feasible(blmo::CubeBLMO, v::AbstractVector) 
     for i in eachindex(v)
-        if !(blmo.bounds[i, :greaterthan].lower ≤ v[i] ≤ blmo.bounds[i, :lessthan].upper)
+        if !(blmo.bounds[i, :greaterthan].lower ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.bounds[i, :lessthan].upper))
             @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan].lower) Upper bound: $(blmo.bounds[i, :lessthan].upper))")
             return false
         end
