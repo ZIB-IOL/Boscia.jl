@@ -184,9 +184,14 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
+        @assert !((new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) && (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])) "both sides should not be pruned"
     end
 
-    @assert !(prune_left && prune_right) "both sides should not be pruned"
+    # If both nodes are pruned, when one of them has to be equal to the incumbent.
+    # Thus, we have proof of optimality by strong convexity.
+    if prune_left && prune_right
+        tree.lb = min(new_bound_left, new_bound_right)
+    end
 
     return prune_left, prune_right
 end
