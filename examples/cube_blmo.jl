@@ -1,4 +1,5 @@
 using Dates 
+using Bonobo
 
 """
     CubeBLMO
@@ -178,7 +179,7 @@ Safety check only.
 """
 function Boscia.build_LMO_correct(blmo::CubeBLMO, node_bounds)
     for key in keys(node_bounds.lower_bounds)
-        if !haskey(blmo.bounds, (i, :greaterthan)) || blmo.bounds[key, :greaterthan] != node_bounds[key, :greaterthan]
+        if !haskey(blmo.bounds, (key, :greaterthan)) || blmo.bounds[key, :greaterthan] != node_bounds[key, :greaterthan]
             return false
         end
     end
@@ -205,7 +206,7 @@ end
 """
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
-function Boscia.is_valid_split(tree, blmo::CubeBLMO, vidx::Int)
+function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
     return blmo.bounds[vidx, :lessthan] != blmo.bounds[vidx, :greaterthan]
 end
 
