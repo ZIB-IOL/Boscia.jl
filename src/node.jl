@@ -81,8 +81,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if haskey(varbounds_right.lower_bounds, vidx)
         delete!(varbounds_right.lower_bounds, vidx)
     end
-    push!(varbounds_left.upper_bounds, (vidx => MOI.LessThan(floor(x[vidx]))))
-    push!(varbounds_right.lower_bounds, (vidx => MOI.GreaterThan(ceil(x[vidx]))))
+    push!(varbounds_left.upper_bounds, (vidx => floor(x[vidx])))
+    push!(varbounds_right.lower_bounds, (vidx => ceil(x[vidx])))
 
     # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
@@ -151,6 +151,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         [node_info_right]
     elseif domain_oracle(x_left)
         [node_info_left]
+    else
+        warn("No childern nodes can be created.")
     end
     return nodes
 end

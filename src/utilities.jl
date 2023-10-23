@@ -147,14 +147,20 @@ end
 
 function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
     for (idx, set) in bounds.lower_bounds
-        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
-            return false
-        end
+       # if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+       #     return false
+       # end
+       if v[idx] < set - atol
+        return false
+       end
     end
     for (idx, set) in bounds.upper_bounds
-        if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+        if v[idx] > set + atol
             return false
         end
+   #     if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
+   #         return false
+   #     end
     end
     return true
 end

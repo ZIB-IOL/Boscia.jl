@@ -638,8 +638,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
-            push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-            push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+            push!(fix_bounds, (i => round(x[i])))
+            push!(fix_bounds, (i => round(x[i])))
         end
 
         MOI.set(tree.root.problem.tlmo.blmo.o, MOI.Silent(), true)
