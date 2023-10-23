@@ -89,13 +89,19 @@ end
 Change the value of the bound c_idx.
 """
 function set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol) 
-    MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, value)
+    if sense == :lessthan
+        MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, MOI.LessThan(value))
+    elseif sense == :greaterthan
+        MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, MOI.GreaterThan(value))
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan!")
+    end
 end
 
 """
 Read bound value for c_idx.
 """
-function get_bound(blmo, c_idx, sense::Symbol)
+function get_bound(blmo::MathOptBLMO, c_idx, sense::Symbol)
     return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
 end
 #function get_lower_bound(blmo, c_idx) 
@@ -225,9 +231,9 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             if MOI.is_valid(blmo.o, cidx)
                 s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
                 if ST == MOI.LessThan{Float64}
-                    push!(global_bounds, (idx, s.upper))
+                    push!(global_bounds, (idx, s.upper), :lessthan)
                 else
-                    push!(global_bounds, (idx, s.lower))
+                    push!(global_bounds, (idx, s.lower), :greaterthan)
                 end
             end
         end
@@ -238,8 +244,8 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             MOI.delete(blmo.o, cidx)
             MOI.add_constraint(blmo.o, x, MOI.GreaterThan(s.lower))
             MOI.add_constraint(blmo.o, x, MOI.LessThan(s.upper))
-            push!(global_bounds, (idx, s.lower))
-            push!(global_bounds, (idx, s.upper))
+            push!(global_bounds, (idx, s.lower), :greaterthan)
+            push!(global_bounds, (idx, s.upper), :lessthan)
         end
         @assert !MOI.is_valid(blmo.o, cidx)
     end 
@@ -488,7 +494,7 @@ function Bonobo.get_branching_variable(
             if haskey(boundsLeft.upper_bounds, idx)
                 delete!(boundsLeft.upper_bounds, idx)
             end
-            push!(boundsLeft.upper_bounds, (idx => MOI.LessThan(fxi)))
+            push!(boundsLeft.upper_bounds, (idx => fxi))
             build_LMO(
                 relaxed_lmo,
                 tree.root.problem.integer_variable_bounds,
@@ -527,7 +533,7 @@ function Bonobo.get_branching_variable(
             if haskey(boundsRight.lower_bounds, idx)
                 delete!(boundsRight.lower_bounds, idx)
             end
-            push!(boundsRight.lower_bounds, (idx => MOI.GreaterThan(cxi)))
+            push!(boundsRight.lower_bounds, (idx => cxi))
             build_LMO(
                 relaxed_lmo,
                 tree.root.problem.integer_variable_bounds,

@@ -15,7 +15,7 @@ end
 IntegerBounds() =
     IntegerBounds(Dict{Int, Float64}(), Dict{Int, Float64}())
 
-function Base.push!(ib::IntegerBounds, (idx, bound, sense::Symbol))
+function Base.push!(ib::IntegerBounds, (idx, bound), sense::Symbol)
     if sense == :greaterthan
         ib.lower_bounds[idx] = bound
     elseif sense == :lessthan

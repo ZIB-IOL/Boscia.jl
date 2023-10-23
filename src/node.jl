@@ -316,12 +316,12 @@ function dual_tightening(tree, node, x, dual_gap)
         num_potential_tightenings = 0
         μ = tree.root.options[:strong_convexity]
         for j in tree.root.problem.integer_variables
-            lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), MOI.GreaterThan(-Inf))
-            ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), MOI.LessThan(Inf))
-            lb = get(node.local_bounds.lower_bounds, j, lb_global).lower
-            ub = get(node.local_bounds.upper_bounds, j, ub_global).upper
-            @assert lb >= lb_global.lower
-            @assert ub <= ub_global.upper
+            lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), -Inf)
+            ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), Inf)
+            lb = get(node.local_bounds.lower_bounds, j, lb_global)
+            ub = get(node.local_bounds.upper_bounds, j, ub_global)
+            @assert lb >= lb_global
+            @assert ub <= ub_global
             if lb ≈ ub
                 # variable already fixed
                 continue
@@ -347,10 +347,10 @@ function dual_tightening(tree, node, x, dual_gap)
                     if bound_tightened
                         new_bound = lb + Mlb - 1
                         @debug "found UB tightening $ub -> $new_bound"
-                        node.local_bounds[j, :lessthan] = MOI.LessThan(new_bound)
+                        node.local_bounds[j, :lessthan] = new_bound
                         num_tightenings += 1
                         if haskey(tree.root.problem.integer_variable_bounds, (j, :lessthan))
-                            @assert node.local_bounds[j, :lessthan].upper <= tree.root.problem.integer_variable_bounds[j, :lessthan].upper
+                            @assert node.local_bounds[j, :lessthan] <= tree.root.problem.integer_variable_bounds[j, :lessthan]
                         end
                     end
                 end
@@ -372,10 +372,10 @@ function dual_tightening(tree, node, x, dual_gap)
                     if bound_tightened
                         new_bound = ub - Mub + 1
                         @debug "found LB tightening $lb -> $new_bound"
-                        node.local_bounds[j, :greaterthan] = MOI.GreaterThan(new_bound)
+                        node.local_bounds[j, :greaterthan] = new_bound
                         num_tightenings += 1
                         if haskey(tree.root.problem.integer_variable_bounds, (j, :greaterthan))
-                            @assert node.local_bounds[j, :greaterthan].lower >= tree.root.problem.integer_variable_bounds[j, :greaterthan].lower
+                            @assert node.local_bounds[j, :greaterthan] >= tree.root.problem.integer_variable_bounds[j, :greaterthan]
                         end
                     end
                 end
@@ -401,13 +401,13 @@ function store_data_global_tightening(tree, node, x, dual_gap)
         for j in tree.root.problem.integer_variables
             if haskey(tree.root.problem.integer_variable_bounds.upper_bounds, j)
                 ub = tree.root.problem.integer_variable_bounds[j, :lessthan]
-                if ≈(x[j], ub.upper, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] < 0
+                if ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] < 0
                     tree.root.global_tightening_root_info.upper_bounds[j] = (grad[j], ub)
                 end
             end
             if haskey(tree.root.problem.integer_variable_bounds.lower_bounds, j)
                 lb = tree.root.problem.integer_variable_bounds[j, :greaterthan]
-                if ≈(x[j], lb.lower, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] > 0
+                if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol) && grad[j] > 0
                     tree.root.global_tightening_root_info.lower_bounds[j] = (grad[j], lb)
                 end
             end

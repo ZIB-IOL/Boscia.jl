@@ -33,8 +33,8 @@ function build_global_bounds(blmo::CubeBLMO, integer_variables)
     global_bounds = IntegerBounds()
     for i in 1:blmo.n
         if i in integer_variables
-            push!(global_bounds, (i, blmo.bounds[i, :lessthan]))
-            push!(global_bounds, (i, blmo.bounds[i, :greaterthan]))
+            push!(global_bounds, (i, blmo.bounds[i, :lessthan]), :lessthan)
+            push!(global_bounds, (i, blmo.bounds[i, :greaterthan]), :greaterthan)
         end
     end
     return global_bounds
@@ -70,7 +70,7 @@ function get_upper_bound_list(blmo::CubeBLMO)
     return keys(blmo.bounds.upper_bounds)
 end
 
-function get_bound(blmo, c_idx, sense::Symbol)
+function get_bound(blmo::CubeBLMO, c_idx, sense::Symbol)
     @assert sense == :lessthan || sense == :greaterthan
     return blmo[c_idx, sense]
 end
