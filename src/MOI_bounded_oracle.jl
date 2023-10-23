@@ -88,19 +88,22 @@ end
 """
 Change the value of the bound c_idx.
 """
-function set_bound!(blmo::MathOptBLMO, c_idx, value) 
+function set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol) 
     MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, value)
 end
 
 """
 Read bound value for c_idx.
 """
-function get_lower_bound(blmo, c_idx) 
+function get_bound(blmo, c_idx, sense::Symbol)
     return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
 end
-function get_upper_bound(blmo, c_idx) 
-    return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
-end
+#function get_lower_bound(blmo, c_idx) 
+#    return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+#end
+#function get_upper_bound(blmo, c_idx) 
+#    return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+#end
 
 """
 Check if the subject of the bound c_idx is an integer variable (recorded in int_vars).
@@ -128,8 +131,12 @@ end
 """
 Add bound constraint.
 """
-function add_bound_constraint!(blmo::MathOptBLMO, key, value)
-    MOI.add_constraint(blmo.o, MOI.VariableIndex(key), value)
+function add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
+    if sense == :lessthan
+        MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.LessThan(value))
+    elseif sense == :greaterthan 
+        MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.GreaterThan(value))
+    end
 end
 
 """
@@ -217,7 +224,11 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             # Variable constraints to not have to be explicitly given, see Buchheim example
             if MOI.is_valid(blmo.o, cidx)
                 s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
-                push!(global_bounds, (idx, s))
+                if ST == MOI.LessThan{Float64}
+                    push!(global_bounds, (idx, s.upper))
+                else
+                    push!(global_bounds, (idx, s.lower))
+                end
             end
         end
         cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(idx)
@@ -227,8 +238,8 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             MOI.delete(blmo.o, cidx)
             MOI.add_constraint(blmo.o, x, MOI.GreaterThan(s.lower))
             MOI.add_constraint(blmo.o, x, MOI.LessThan(s.upper))
-            push!(global_bounds, (idx, MOI.GreaterThan(s.lower)))
-            push!(global_bounds, (idx, MOI.LessThan(s.upper)))
+            push!(global_bounds, (idx, s.lower))
+            push!(global_bounds, (idx, s.upper))
         end
         @assert !MOI.is_valid(blmo.o, cidx)
     end 
@@ -250,8 +261,8 @@ function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBou
         if !MOI.is_valid(blmo.o, cidx)
             MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
         end
-        global_bounds[idx, :greaterthan] = MOI.GreaterThan(0.0)
-        global_bounds[idx, :lessthan] = MOI.LessThan(1.0)
+        global_bounds[idx, :greaterthan] = 0.0
+        global_bounds[idx, :lessthan] = 1.0
     end 
 end
 
