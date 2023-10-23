@@ -237,8 +237,8 @@ function solve(
             updated_incumbent=Ref{Bool}(false),
             global_tightening_rhs=Ref(-Inf),
             global_tightening_root_info = (
-                lower_bounds = Dict{Int, Tuple{Float64, MOI.GreaterThan{Float64}}}(),
-                upper_bounds = Dict{Int, Tuple{Float64, MOI.LessThan{Float64}}}(),
+                lower_bounds = Dict{Int, Tuple{Float64, Float64}}(),
+                upper_bounds = Dict{Int, Tuple{Float64, Float64}}(),
             ),
             global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(

@@ -208,8 +208,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             continue
         end
         lb = node.local_bounds.lower_bounds[j]
-        if ub.upper < lb.lower
-            @debug "local lb $(lb.lower) conflicting with global tightening $(ub.upper)"
+        if ub < lb
+            @debug "local lb $(lb) conflicting with global tightening $(ub)"
             return NaN, NaN
         end
     end
@@ -218,8 +218,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             continue
         end
         ub = node.local_bounds.upper_bounds[j]
-        if ub.upper < lb.lower
-            @debug "local ub $(ub.upper) conflicting with global tightening $(lb.lower)"
+        if ub < lb
+            @debug "local ub $(ub) conflicting with global tightening $(lb)"
             return NaN, NaN
         end
     end
@@ -425,12 +425,12 @@ function global_tightening(tree, node)
         rhs = tree.incumbent + tree.root.global_tightening_rhs[]
         @assert isfinite(rhs)
         for (j, (gj, lb)) in tree.root.global_tightening_root_info.lower_bounds
-            ub = get(tree.root.problem.integer_variable_bounds.upper_bounds, j, MOI.LessThan(Inf)).upper
-            ub_new = get(tree.root.global_tightening_root_info.upper_bounds, j, MOI.LessThan(Inf)).upper
+            ub = get(tree.root.problem.integer_variable_bounds.upper_bounds, j, Inf)
+            ub_new = get(tree.root.global_tightening_root_info.upper_bounds, j, Inf)
             ub = min(ub, ub_new)
             Mlb = 0
             bound_tightened = true
-            lb = lb.lower
+            lb = lb
             while Mlb * gj <= rhs
                 Mlb += 1
                 if lb + Mlb -1 == ub
@@ -442,22 +442,22 @@ function global_tightening(tree, node)
                 new_bound = lb + Mlb - 1
                 @debug "found global UB tightening $ub -> $new_bound"
                 if haskey(tree.root.global_tightenings.upper_bounds,j)
-                    if tree.root.global_tightenings.upper_bounds[j] != MOI.LessThan(new_bound)
+                    if tree.root.global_tightenings.upper_bounds[j] != new_bound
                         num_tightenings +=1
                     end
                 else 
                     num_tightenings += 1
                 end
-                tree.root.global_tightenings.upper_bounds[j] = MOI.LessThan(new_bound)
+                tree.root.global_tightenings.upper_bounds[j] = new_bound
             end
         end
         for (j, (gj, ub)) in tree.root.global_tightening_root_info.upper_bounds
-            lb = get(tree.root.problem.integer_variable_bounds.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
-            lb_new = get(tree.root.global_tightening_root_info.lower_bounds, j, MOI.GreaterThan(-Inf)).lower
+            lb = get(tree.root.problem.integer_variable_bounds.lower_bounds, j, -Inf)
+            lb_new = get(tree.root.global_tightening_root_info.lower_bounds, j, -Inf)
             lb = max(lb, lb_new)
             Mub = 0
             bound_tightened = true
-            ub = ub.upper
+            ub = ub
             while -Mub * gj <= rhs
                 Mub += 1
                 if ub - Mub + 1 == lb
