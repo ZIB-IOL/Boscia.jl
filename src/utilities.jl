@@ -43,7 +43,7 @@ end
 
 """
 Call this if the active set is empty after splitting.
-Remark: This should not happen when using SCIP as IP solver for the nodes!
+Remark: This should not happen when using a MIP solver for the nodes!
 """
 function restart_active_set(
     node::FrankWolfeNode,
@@ -147,20 +147,14 @@ end
 
 function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
     for (idx, set) in bounds.lower_bounds
-       # if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
-       #     return false
-       # end
        if v[idx] < set - atol
-        return false
+            return false
        end
     end
     for (idx, set) in bounds.upper_bounds
         if v[idx] > set + atol
             return false
         end
-   #     if MOD.distance_to_set(MOD.DefaultDistance(), v[idx], set) > atol
-   #         return false
-   #     end
     end
     return true
 end

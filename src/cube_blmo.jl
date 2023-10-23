@@ -156,10 +156,13 @@ end
 function check_feasibility(blmo::CubeBLMO)
     for i in 1:blmo.n
         if !haskey(blmo.bounds, (i, :greaterthan)) || !haskey(blmo.bounds, (i, :lessthan))
-            return MOI.DUAL_INFEASIBLE
+            return UNBOUNDED
+        end
+        if blmo.bounds[i, :greaterthan] > blmo.bounds[i, :lessthan]
+            return INFEASIBLE
         end
     end
-    return MOI.OPTIMAL
+    return SOLVABLE
 end
 
 function is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)

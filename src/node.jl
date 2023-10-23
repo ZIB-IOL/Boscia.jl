@@ -234,10 +234,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.tlmo)
-    if status == MOI.INFEASIBLE
+    if status == INFEASIBLE
         return NaN, NaN
     end
-    if status == MOI.DUAL_INFEASIBLE
+    if status == UNBOUNDED
         error("Feasible region unbounded! Please check your constraints!")
         return NaN, NaN
     end
@@ -469,13 +469,13 @@ function global_tightening(tree, node)
                 new_bound = ub - Mub + 1
                 @debug "found global LB tightening $lb -> $new_bound"
                 if haskey(tree.root.global_tightenings.lower_bounds,j)
-                    if tree.root.global_tightenings.lower_bounds[j] != MOI.GreaterThan(new_bound)
+                    if tree.root.global_tightenings.lower_bounds[j] != new_bound
                         num_tightenings +=1
                     end
                 else 
                     num_tightenings += 1
                 end
-                tree.root.global_tightenings.lower_bounds[j] = MOI.GreaterThan(new_bound)
+                tree.root.global_tightenings.lower_bounds[j] = new_bound
             end
         end
         node.global_tightenings = num_tightenings

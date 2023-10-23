@@ -31,7 +31,7 @@ function Bonobo.get_branching_variable(
             if haskey(boundsLeft.upper_bounds, idx)
                 delete!(boundsLeft.upper_bounds, idx)
             end
-            push!(boundsLeft.upper_bounds, (idx => MOI.LessThan(fxi)))
+            push!(boundsLeft.upper_bounds, (idx => fxi))
             build_LMO(
                 branching.bounded_lmo,
                 tree.root.problem.integer_variable_bounds,
@@ -39,7 +39,7 @@ function Bonobo.get_branching_variable(
                 Bonobo.get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.bounded_lmo)
-            if status == MOI.OPTIMAL
+            if status == SOLVABLE
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] <= xrel[idx]
@@ -70,7 +70,7 @@ function Bonobo.get_branching_variable(
             if haskey(boundsRight.lower_bounds, idx)
                 delete!(boundsRight.lower_bounds, idx)
             end
-            push!(boundsRight.lower_bounds, (idx => MOI.GreaterThan(cxi)))
+            push!(boundsRight.lower_bounds, (idx => cxi))
             build_LMO(
                 branching.bounded_lmo,
                 tree.root.problem.integer_variable_bounds,
@@ -78,7 +78,7 @@ function Bonobo.get_branching_variable(
                 Bonobo.get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.bounded_lmo)
-            if status == MOI.OPTIMAL
+            if status == SOLVABLES
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] >= xrel[idx]

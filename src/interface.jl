@@ -642,7 +642,6 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             push!(fix_bounds, (i => round(x[i])), :greaterthan)
         end
 
-        MOI.set(tree.root.problem.tlmo.blmo.o, MOI.Silent(), true)
         free_model(tree.root.problem.tlmo.blmo.o)
         build_LMO(
             tree.root.problem.tlmo,

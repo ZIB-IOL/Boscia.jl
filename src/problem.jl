@@ -31,9 +31,6 @@ mutable struct SimpleOptimizationProblem{
     tlmo::TLMO
     integer_variable_bounds::IB
     solving_stage::Solve_Stage
-    #constraints_lessthan::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.LessThan{T}}}
-    #constraints_greaterthan::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.GreaterThan{T}}}
-    #constraints_equalto::Vector{Tuple{MOI.ScalarAffineFunction{T}, MOI.EqualTo{T}}}
 end
 
 SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds) =

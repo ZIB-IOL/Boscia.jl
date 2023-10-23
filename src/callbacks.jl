@@ -22,7 +22,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 if best_val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
-                    sol = FrankWolfeSolution(best_val, best_v, node, :SCIP)
+                    sol = FrankWolfeSolution(best_val, best_v, node, :Solver)
                     push!(tree.solutions, sol)
                     if tree.incumbent_solution === nothing ||
                         sol.objective < tree.incumbent_solution.objective
