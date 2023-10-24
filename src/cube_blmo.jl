@@ -40,20 +40,13 @@ function build_global_bounds(blmo::CubeBLMO, integer_variables)
     return global_bounds
 end
 
-function explicit_bounds_binary_var(blmo::CubeBLMO, gb::IntegerBounds, binary_vars)
-    nothing
-end
 
 ## Read information from problem
 function get_list_of_variables(blmo::CubeBLMO)
     return blmo.n, collect(1:blmo.n)
  end
 
-# Get list of binary and integer variables, respectively.
-function get_binary_variables(blmo::CubeBLMO)
-    return blmo.bin_vars
-end
-
+# Get list of integer variables, respectively.
 function get_integer_variables(blmo::CubeBLMO)
     return blmo.int_vars
 end
@@ -126,12 +119,8 @@ function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     return true
 end
 
-function has_binary_constraint(blmo::CubeBLMO, idx)
-    return idx in blmo.int_vars
-end
-
 function has_integer_constraint(blmo::CubeBLMO, idx)
-    return idx in blmo.bin_vars
+    return idx in blmo.int_vars
 end
 
 

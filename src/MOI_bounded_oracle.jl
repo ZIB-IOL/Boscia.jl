@@ -57,7 +57,7 @@ end
 """
 Get list of binary and integer variables, respectively.
 """
-function Boscia.get_binary_variables(blmo::MathOptBLMO) 
+function get_binary_variables(blmo::MathOptBLMO) 
     return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
 end
 function Boscia.get_integer_variables(blmo::MathOptBLMO) 
@@ -142,7 +142,7 @@ end
 """
 Has variable a binary constraint?
 """
-function Boscia.has_binary_constraint(blmo::MathOptBLMO, idx::Int) 
+function has_binary_constraint(blmo::MathOptBLMO, idx::Int) 
     consB_list = MOI.get(
         blmo.o,
         MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
@@ -211,6 +211,27 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
 end
 
 """
+Add explicit bounds for binary variables.
+"""
+function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::Boscia.IntegerBounds)
+    # adding binary bounds explicitly
+    binary_variables = get_binary_variables(blmo)
+    for idx in binary_variables
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
+        if !MOI.is_valid(blmo.o, cidx)
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
+        end
+        @assert MOI.is_valid(blmo.o, cidx)
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
+        if !MOI.is_valid(blmo.o, cidx)
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
+        end
+        global_bounds[idx, :greaterthan] = 0.0
+        global_bounds[idx, :lessthan] = 1.0
+    end 
+end
+
+"""
 Read global bounds from the problem
 """
 function Boscia.build_global_bounds(blmo::MathOptBLMO, integer_variables)
@@ -240,27 +261,8 @@ function Boscia.build_global_bounds(blmo::MathOptBLMO, integer_variables)
         end
         @assert !MOI.is_valid(blmo.o, cidx)
     end 
+    explicit_bounds_binary_var(blmo, global_bounds)
     return global_bounds
-end
-
-"""
-Add explicit bounds for binary variables.
-"""
-function Boscia.explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::Boscia.IntegerBounds, binary_variables)
-    # adding binary bounds explicitly
-    for idx in binary_variables
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
-        if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
-        end
-        @assert MOI.is_valid(blmo.o, cidx)
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
-        if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
-        end
-        global_bounds[idx, :greaterthan] = 0.0
-        global_bounds[idx, :lessthan] = 1.0
-    end 
 end
 
 
@@ -316,7 +318,7 @@ end
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
 function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
-    bin_var, _ = Boscia.has_binary_constraint(blmo, vidx)
+    bin_var, _ = has_binary_constraint(blmo, vidx)
     int_var, _ = Boscia.has_integer_constraint(blmo, vidx)
     if int_var || bin_var
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)

@@ -30,12 +30,6 @@ Read global bounds from the problem.
 """
 function build_global_bounds end
 
-"""
-Add explicit bounds for binary variables, if not already done from the get-go.
-"""
-function explicit_bounds_binary_var end
-
-
 ## Read information from problem
 
 """
@@ -43,11 +37,6 @@ Get list of variables indices.
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
 function get_list_of_variables end
-
-"""
-Get list of binary variables.
-"""
-function get_binary_variables end
 
 """
 Get list of integer variables.
@@ -108,11 +97,6 @@ Is a given point v linear feasible for the model?
 That means does v satisfy all bounds and other linear constraints?
 """
 function is_linear_feasible end
-
-"""
-Has variable a binary constraint?
-"""
-function has_binary_constraint end
 
 """
 Has variable an integer constraint?

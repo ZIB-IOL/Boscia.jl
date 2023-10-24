@@ -51,22 +51,12 @@ function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     return global_bounds
 end
 
-# Add explicit_bounds_binary_var
-function explicit_bounds_binary_var(blmo::ManagedBoundedLMO, gb::IntegerBouds, binary_vars)
-    nothing
-end
-
 ## Read information from problem 
 
 # Get list of variables indices. 
 # If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 function get_list_of_variables(blmo::ManagedBoundedLMO)
     return blmo.n, collect(1:blmo.n)
-end
-
-# Get list of binary and integer variables, respectively.
-function get_binary_variables(blmo::ManagedBoundedLMO)
-    return nothing
 end
 
 # Get list of integer variables
@@ -158,10 +148,6 @@ function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
         end
     end
     return is_linear_feasible(blmo.simple_lmo, v)
-end
-
-function has_binary_constraint(blmo::ManagedBoundedLMO, idx)
-    return idx in blmo.int_vars
 end
 
 # Has variable an integer constraint?
