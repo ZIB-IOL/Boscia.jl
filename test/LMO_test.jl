@@ -17,11 +17,11 @@ const MOD = MathOptSetDistances
     n = 10
     integer_bound = Boscia.IntegerBounds()
     @test isempty(integer_bound)
-    push!(integer_bound, (1, MOI.GreaterThan(5.0)))
-    push!(integer_bound, (2, MOI.LessThan(0.0)))
-    push!(integer_bound, (3, MOI.LessThan(4.0)))
-    push!(integer_bound, (4, MOI.LessThan(0.0)))
-    push!(integer_bound, (5, MOI.GreaterThan(5.0)))
+    push!(integer_bound, (1, 5.0), :greaterthan)
+    push!(integer_bound, (2, 0.0), :lessthan)
+    push!(integer_bound, (3, 4.0), :lessthan)
+    push!(integer_bound, (4, 0.0), :lessthan)
+    push!(integer_bound, (5, 5.0), :greaterthan)
     @test haskey(integer_bound.lower_bounds, 2) == false
     @test haskey(integer_bound.upper_bounds, 4)
     @test haskey(integer_bound.lower_bounds, 1)
@@ -41,9 +41,9 @@ const MOD = MathOptSetDistances
     global_bounds = Boscia.IntegerBounds()
     @test isempty(global_bounds)
     for i in 1:n
-        push!(global_bounds, (i, MOI.GreaterThan(0.0)))
+        push!(global_bounds, (i, 0.0), :greaterthan)
         if i != 3
-            push!(global_bounds, (i, MOI.LessThan(5.0)))
+            push!(global_bounds, (i, 5.0), :lessthan)
         end
     end
 

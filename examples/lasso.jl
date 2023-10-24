@@ -106,10 +106,10 @@ push!(groups, ((k_int-1)*group_size+1):p)
     lmo = FrankWolfe.MathOptLMO(o)
     global_bounds = Boscia.IntegerBounds()
     for i in 1:p
-        push!(global_bounds, (i + p, MOI.GreaterThan(0.0)))
-        push!(global_bounds, (i + p, MOI.LessThan(1.0)))
-        push!(global_bounds, (i, MOI.GreaterThan(-M_g)))
-        push!(global_bounds, (i, MOI.LessThan(M_g)))
+        push!(global_bounds, (i + p, 0.0), :greaterthan)
+        push!(global_bounds, (i + p, 1.0), :lessthan)
+        push!(global_bounds, (i, -M_g), :greaterthan)
+        push!(global_bounds, (i, M_g), :lessthan)
     end
 
     function f(x)

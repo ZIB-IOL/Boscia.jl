@@ -59,7 +59,7 @@ const M1 = (A1 + A1') / 2
         return storage
     end
 
-    x,_,result = Boscia.solve(f, grad!, lmo, verbose= true)
+    x,_,result = Boscia.solve(f, grad!, lmo, verbose= true, time_limit=300)
     
     @test dot(a,x) <= b + 1e-4
     @test f(x) <= f(result[:raw_solution]) + 1e-6

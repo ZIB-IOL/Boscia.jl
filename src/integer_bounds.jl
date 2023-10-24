@@ -4,22 +4,24 @@
 
 Keeps track of the bounds of the integer (binary) variables.
 
-`lower_bounds` dictionary of the MOI.GreaterThan, index is the key.
-`upper_bounds` dictionary of the MOI.LessThan, index is the key.
+`lower_bounds` dictionary of Float64, index is the key.
+`upper_bounds` dictionary of Float64, index is the key.
 """
 mutable struct IntegerBounds
-    lower_bounds::Dict{Int,MOI.GreaterThan{Float64}}
-    upper_bounds::Dict{Int,MOI.LessThan{Float64}}
+    lower_bounds::Dict{Int, Float64}
+    upper_bounds::Dict{Int, Float64}
 end
 
 IntegerBounds() =
-    IntegerBounds(Dict{Int,MOI.GreaterThan{Float64}}(), Dict{Int,MOI.LessThan{Float64}}())
+    IntegerBounds(Dict{Int, Float64}(), Dict{Int, Float64}())
 
-function Base.push!(ib::IntegerBounds, (idx, bound))
-    if bound isa MOI.GreaterThan{Float64}
+function Base.push!(ib::IntegerBounds, (idx, bound), sense::Symbol)
+    if sense == :greaterthan
         ib.lower_bounds[idx] = bound
-    elseif bound isa MOI.LessThan{Float64}
+    elseif sense == :lessthan
         ib.upper_bounds[idx] = bound
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
     return ib
 end
@@ -35,31 +37,39 @@ Base.copy(ib::IntegerBounds) = IntegerBounds(copy(ib.lower_bounds), copy(ib.uppe
 function Base.getindex(ib::IntegerBounds, idx::Int, sense::Symbol)
     if sense == :lessthan
         ib.upper_bounds[idx]
-    else
+    elseif sense == :greaterthan
         ib.lower_bounds[idx]
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end
 
 function Base.get(ib::IntegerBounds, (idx, sense), default)
     if sense == :lessthan
         get(ib.upper_bounds, idx, default)
-    else
+    elseif sense == :greaterthan
         get(ib.lower_bounds, idx, default)
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end
 
 function Base.setindex!(ib::IntegerBounds, val, idx::Int, sense::Symbol)
     if sense == :lessthan
         ib.upper_bounds[idx] = val
-    else
+    elseif sense == :greaterthan
         ib.lower_bounds[idx] = val
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end
 
 function Base.haskey(ib::IntegerBounds, (idx, sense))
     if sense == :lessthan
         return haskey(ib.upper_bounds, idx)
-    else
+    elseif sense == :greaterthan
         return haskey(ib.lower_bounds, idx)
+    else
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end

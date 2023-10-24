@@ -45,8 +45,8 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         
         bounds = Boscia.IntegerBounds()
         for i in 1:n 
-            push!(bounds, (i, MOI.GreaterThan(0.0)))
-            push!(bounds, (i, MOI.LessThan(1.0)))
+            push!(bounds, (i, 0.0), :greaterthan)
+            push!(bounds, (i, 1.0), :lessthan)
         end
         blmo = Boscia.CubeBLMO(n, int_vars, bin_vars, bounds)
 

@@ -1,70 +1,4 @@
 """
-Solve function in case of MathOptLMO. 
-Converts the lmo into a MathOptBLMO and calls the solve function below.
-"""
-function solve(
-    f,
-    g,
-    lmo::FrankWolfe.MathOptLMO;
-    traverse_strategy=Bonobo.BestFirstSearch(),
-    branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
-    fw_epsilon=1e-2,
-    verbose=false,
-    dual_gap=1e-6,
-    rel_dual_gap=1.0e-2,
-    time_limit=Inf,
-    print_iter=100,
-    dual_gap_decay_factor=0.8,
-    max_fw_iter=10000,
-    min_number_lower=Inf,
-    min_node_fw_epsilon=1e-6,
-    use_postsolve=true,
-    min_fw_iterations=5,
-    max_iteration_post=10000,
-    dual_tightening=true,
-    global_dual_tightening=true,
-    bnb_callback=nothing,
-    strong_convexity=0.0,
-    domain_oracle= x->true,
-    start_solution=nothing,
-    fw_verbose = false,
-    kwargs...
-)
-    blmo = convert(MathOptBLMO, lmo)
-    return solve(f, g, blmo; 
-    traverse_strategy=traverse_strategy,
-    branching_strategy=branching_strategy,
-    variant=variant,
-    line_search=line_search,
-    active_set=active_set,
-    fw_epsilon=fw_epsilon,
-    verbose=verbose,
-    dual_gap=dual_gap,
-    rel_dual_gap=rel_dual_gap,
-    time_limit=time_limit,
-    print_iter=print_iter,
-    dual_gap_decay_factor=dual_gap_decay_factor,
-    max_fw_iter=max_fw_iter,
-    min_number_lower=min_number_lower,
-    min_node_fw_epsilon=min_node_fw_epsilon,
-    use_postsolve=use_postsolve,
-    min_fw_iterations=min_fw_iterations,
-    max_iteration_post=max_iteration_post,
-    dual_tightening=dual_tightening,
-    global_dual_tightening=global_dual_tightening,
-    bnb_callback=bnb_callback,
-    strong_convexity=strong_convexity,
-    domain_oracle=domain_oracle,
-    start_solution=start_solution,
-    fw_verbose=fw_verbose,
-    kwargs...
-    )
-end
-
-"""
     solve
    
 f                      - objective function oracle. 
@@ -237,8 +171,8 @@ function solve(
             updated_incumbent=Ref{Bool}(false),
             global_tightening_rhs=Ref(-Inf),
             global_tightening_root_info = (
-                lower_bounds = Dict{Int, Tuple{Float64, MOI.GreaterThan{Float64}}}(),
-                upper_bounds = Dict{Int, Tuple{Float64, MOI.LessThan{Float64}}}(),
+                lower_bounds = Dict{Int, Tuple{Float64, Float64}}(),
+                upper_bounds = Dict{Int, Tuple{Float64, Float64}}(),
             ),
             global_tightenings = IntegerBounds(),
             options=Dict{Symbol,Any}(
@@ -638,11 +572,10 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
-            push!(fix_bounds, (i => MOI.LessThan(round(x[i]))))
-            push!(fix_bounds, (i => MOI.GreaterThan(round(x[i]))))
+            push!(fix_bounds, (i => round(x[i])), :lessthan)
+            push!(fix_bounds, (i => round(x[i])), :greaterthan)
         end
 
-        MOI.set(tree.root.problem.tlmo.blmo.o, MOI.Silent(), true)
         free_model(tree.root.problem.tlmo.blmo.o)
         build_LMO(
             tree.root.problem.tlmo,

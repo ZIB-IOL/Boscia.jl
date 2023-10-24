@@ -25,12 +25,12 @@ function build_LMO(
         if is_constraint_on_int_var(blmo, c_idx, int_vars)
             v_idx = get_int_var(blmo, c_idx)
             if is_bound_in(blmo, c_idx, global_bounds.lower_bounds)
-                # change
+                # Change
                 if is_bound_in(blmo, c_idx, node_bounds.lower_bounds)
-                    set_bound!(blmo, c_idx, node_bounds[v_idx, :greaterthan])
-                # keep
+                    set_bound!(blmo, c_idx, node_bounds.lower_bounds[v_idx], :greaterthan)
+                # Keep
                 else
-                    set_bound!(blmo, c_idx, global_bounds[v_idx, :greaterthan])
+                    set_bound!(blmo, c_idx, global_bounds.lower_bounds[v_idx], :greaterthan)
                 end
             else
                 # Delete
@@ -44,12 +44,12 @@ function build_LMO(
         if is_constraint_on_int_var(blmo, c_idx, int_vars)
             v_idx = get_int_var(blmo, c_idx)
             if is_bound_in(blmo, c_idx, global_bounds.upper_bounds)
-                # change
+                # Change
                 if is_bound_in(blmo, c_idx, node_bounds.upper_bounds)
-                    set_bound!(blmo, c_idx, node_bounds[v_idx, :lessthan])
-                # keep
+                    set_bound!(blmo, c_idx, node_bounds.upper_bounds[v_idx], :lessthan)
+                # Keep
                 else
-                    set_bound!(blmo, c_idx, global_bounds[v_idx, :lessthan])
+                    set_bound!(blmo, c_idx, global_bounds.upper_bounds[v_idx], :lessthan)
                 end
             else
                 # Delete
@@ -65,12 +65,12 @@ function build_LMO(
     # These are bounds constraints where there is no corresponding global bound
     for key in keys(node_bounds.lower_bounds)
         if !haskey(global_bounds.lower_bounds, key)
-            add_bound_constraint!(blmo, key, node_bounds.lower_bounds[key])
+            add_bound_constraint!(blmo, key, node_bounds.lower_bounds[key], :greaterthan)
         end
     end
     for key in keys(node_bounds.upper_bounds)
         if !haskey(global_bounds.upper_bounds, key)
-            add_bound_constraint!(blmo, key, node_bounds.upper_bounds[key])
+            add_bound_constraint!(blmo, key, node_bounds.upper_bounds[key], :lessthan)
         end
     end
 

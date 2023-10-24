@@ -5,6 +5,15 @@ Supertype for the Bounded Linear Minimization Oracles
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end 
 
+"""
+Enum encoding the status of the Bounded Linear Minimization Oracle.
+"""
+@enum BLMOStatus begin
+    OPTIMAL = 0
+    INFEASIBLE = 1
+    UNBOUNDED = 2
+end
+
 ###################################### Necessary to implement ####################################
 
 """
@@ -130,7 +139,7 @@ end
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::BoundedLinearMinimizationOracle)
-    return MOI.OPTIMAL
+    return OPTIMAL
 end
 
 """

@@ -21,7 +21,7 @@ function compute_extreme_point(blmo::CubeBLMO, d; kwargs...)
     time_ref = Dates.now()
     v = zeros(length(d))
     for i in eachindex(d)
-        v[i] = d[i] > 0 ? blmo.bounds[i, :greaterthan].lower : blmo.bounds[i, :lessthan].upper
+        v[i] = d[i] > 0 ? blmo.bounds[i, :greaterthan] : blmo.bounds[i, :lessthan]
     end
     blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return v
@@ -33,8 +33,8 @@ function build_global_bounds(blmo::CubeBLMO, integer_variables)
     global_bounds = IntegerBounds()
     for i in 1:blmo.n
         if i in integer_variables
-            push!(global_bounds, (i, blmo.bounds[i, :lessthan]))
-            push!(global_bounds, (i, blmo.bounds[i, :greaterthan]))
+            push!(global_bounds, (i, blmo.bounds[i, :lessthan]), :lessthan)
+            push!(global_bounds, (i, blmo.bounds[i, :greaterthan]), :greaterthan)
         end
     end
     return global_bounds
@@ -70,33 +70,38 @@ function get_upper_bound_list(blmo::CubeBLMO)
     return keys(blmo.bounds.upper_bounds)
 end
 
-function get_lower_bound(blmo::CubeBLMO, c_idx)
-    return blmo.bounds[c_idx, :greaterthan]
+function get_bound(blmo::CubeBLMO, c_idx, sense::Symbol)
+    @assert sense == :lessthan || sense == :greaterthan
+    return blmo[c_idx, sense]
 end
 
-function get_upper_bound(blmo::CubeBLMO, c_idx)
-    return blmo.bounds[c_idx, :lessthan]
-end
+#function get_lower_bound(blmo::CubeBLMO, c_idx)
+#    return blmo.bounds[c_idx, :greaterthan]
+#end
+
+#function get_upper_bound(blmo::CubeBLMO, c_idx)
+#    return blmo.bounds[c_idx, :lessthan]
+#end
 
 ## Changing the bounds constraints.
-function set_bound!(blmo::CubeBLMO, c_idx, value)
-    if value isa MOI.GreaterThan{Float64}
+function set_bound!(blmo::CubeBLMO, c_idx, value, sense::Symbol)
+    if sense == :greaterthan
         blmo.bounds.lower_bounds[c_idx] = value
-    elseif value isa MOI.LessThan{Float64}
+    elseif sense == :lessthan
         blmo.bounds.upper_bounds[c_idx] = value
     else
-        error("We expect the value to be of type MOI.GreaterThan or Moi.LessThan!")
+        error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end
 
-function delete_bounds!(::CubeBLMO, cons_delete)
+function delete_bounds!(blmo::CubeBLMO, cons_delete)
     # For the cube this shouldn't happen! Otherwise we get unbounded!
     if !isempty(cons_delete)
         error("Trying to delete bounds of the cube!")
     end
 end
 
-function add_bound_constraint!(::CubeBLMO, key, value)
+function add_bound_constraint!(blmo::CubeBLMO, key, value, sense::Symbol)
     # Should not be necessary
     error("Trying to add bound constraints of the cube!")
 end
@@ -113,8 +118,8 @@ end
 
 function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     for i in eachindex(v)
-        if !(blmo.bounds[i, :greaterthan].lower ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.bounds[i, :lessthan].upper))
-            @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan].lower) Upper bound: $(blmo.bounds[i, :lessthan].upper))")
+        if !(blmo.bounds[i, :greaterthan] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.bounds[i, :lessthan]))
+            @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))")
             return false
         end
     end
@@ -151,10 +156,13 @@ end
 function check_feasibility(blmo::CubeBLMO)
     for i in 1:blmo.n
         if !haskey(blmo.bounds, (i, :greaterthan)) || !haskey(blmo.bounds, (i, :lessthan))
-            return MOI.DUAL_INFEASIBLE
+            return UNBOUNDED
+        end
+        if blmo.bounds[i, :greaterthan] > blmo.bounds[i, :lessthan]
+            return INFEASIBLE
         end
     end
-    return MOI.OPTIMAL
+    return OPTIMAL
 end
 
 function is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)

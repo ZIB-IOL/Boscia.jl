@@ -4,16 +4,13 @@ using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
 using Random
-using SCIP
-import MathOptInterface
 import Bonobo
 using Printf
 using Dates
+using MathOptInterface
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
-
 import MathOptSetDistances as MOD
-
 include("integer_bounds.jl")
 include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
@@ -29,5 +26,11 @@ include("utilities.jl")
 include("interface.jl")
 include("MOI_bounded_oracle.jl")
 include("cube_blmo.jl")
+
+# For extensions
+if !isdefined(Base, :get_extension)
+    include("../ext/BosciaSCIPExt.jl")
+    include("../ext/BosciaHiGHSExt.jl")
+end
 
 end # module
