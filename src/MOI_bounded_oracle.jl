@@ -123,7 +123,7 @@ end
 Delete bounds.
 """
 function Boscia.delete_bounds!(blmo::MathOptBLMO, cons_delete) 
-    for d_idx in cons_delete
+    for (d_idx, _) in cons_delete
         MOI.delete(blmo.o, d_idx)
     end
 end
