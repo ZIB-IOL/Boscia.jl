@@ -31,6 +31,6 @@ include("cube_blmo.jl")
 if !isdefined(Base, :get_extension)
     include("../ext/BosciaSCIPExt.jl")
     include("../ext/BosciaHiGHSExt.jl")
-  end
+end
 
 end # module
