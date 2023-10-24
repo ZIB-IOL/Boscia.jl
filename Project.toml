@@ -41,4 +41,4 @@ HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "HiGHS", "Distributions", "SCIP"]
+test = ["Test", "HiGHS", "Distributions"]
