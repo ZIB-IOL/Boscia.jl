@@ -39,7 +39,7 @@ function Bonobo.get_branching_variable(
                 Bonobo.get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.bounded_lmo)
-            if status == SOLVABLE
+            if status == OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] <= xrel[idx]
@@ -78,7 +78,7 @@ function Bonobo.get_branching_variable(
                 Bonobo.get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.bounded_lmo)
-            if status == SOLVABLES
+            if status == OPTIMALS
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] >= xrel[idx]

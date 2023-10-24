@@ -9,7 +9,7 @@ abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOr
 Enum encoding the status of the Bounded Linear Minimization Oracle.
 """
 @enum BLMOStatus begin
-    SOLVABLE = 0
+    OPTIMAL = 0
     INFEASIBLE = 1
     UNBOUNDED = 2
 end
@@ -139,7 +139,7 @@ end
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::BoundedLinearMinimizationOracle)
-    return SOLVABLE
+    return OPTIMAL
 end
 
 """

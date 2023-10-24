@@ -162,7 +162,7 @@ function check_feasibility(blmo::CubeBLMO)
             return INFEASIBLE
         end
     end
-    return SOLVABLE
+    return OPTIMAL
 end
 
 function is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
