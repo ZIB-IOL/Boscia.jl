@@ -7,7 +7,11 @@ using Random
 import Bonobo
 using Printf
 using Dates
-
+using MathOptInterface
+const MOI = MathOptInterface
+const MOIU = MOI.Utilities
+import MathOptSetDistances as MOD
+  
 include("integer_bounds.jl")
 include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
@@ -21,11 +25,11 @@ include("heuristics.jl")
 include("strong_branching.jl")
 include("utilities.jl")
 include("interface.jl")
+include("MOI_bounded_oracle.jl")
 include("cube_blmo.jl")
 
 # For extensions
 if !isdefined(Base, :get_extension)
-    include("../ext/BosciaMathOptInterfaceExt.jl")
     include("../ext/BosciaSCIPExt.jl")
     include("../ext/BosciaHiGHSExt.jl")
   end
