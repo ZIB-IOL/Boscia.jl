@@ -40,8 +40,8 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     end
 
     @testset "Using Cube LMO" begin
-        int_vars = []
-        bin_vars = collect(1:n)
+        int_vars = collect(1:n)
+        bin_vars = []
         
         bounds = Boscia.IntegerBounds()
         for i in 1:n 

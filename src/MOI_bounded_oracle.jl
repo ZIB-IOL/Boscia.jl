@@ -61,7 +61,8 @@ function get_binary_variables(blmo::MathOptBLMO)
     return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
 end
 function Boscia.get_integer_variables(blmo::MathOptBLMO) 
-    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+    bin_var = get_binary_variables(blmo)
+    return vcat(MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}()), bin_var)
 end 
 
 """
@@ -217,17 +218,17 @@ function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::Boscia.Int
     # adding binary bounds explicitly
     binary_variables = get_binary_variables(blmo)
     for idx in binary_variables
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx)
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx.value)
         if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.LessThan(1.0))
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx.value), MOI.LessThan(1.0))
         end
         @assert MOI.is_valid(blmo.o, cidx)
-        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx)
+        cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx.value)
         if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx), MOI.GreaterThan(0.0))
+            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx.value), MOI.GreaterThan(0.0))
         end
-        global_bounds[idx, :greaterthan] = 0.0
-        global_bounds[idx, :lessthan] = 1.0
+        global_bounds[idx.value, :greaterthan] = 0.0
+        global_bounds[idx.value, :lessthan] = 1.0
     end 
 end
 
