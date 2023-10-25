@@ -321,7 +321,7 @@ Check whether a split is valid, i.e. the upper and lower on variable vidx are no
 """
 function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
     bin_var, _ = has_binary_constraint(blmo, vidx)
-    int_var, _ = Boscia.has_integer_constraint(blmo, vidx)
+    int_var, _ = has_integer_constraint(blmo, vidx)
     if int_var || bin_var
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
         u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
