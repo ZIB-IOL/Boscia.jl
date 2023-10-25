@@ -164,7 +164,9 @@ end
 
 ########################################################################
 """
-    Cube SimpleBoundableLMO
+    CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
+
+Hypercube with lower and upper bounds implementing the `SimpleBoundableLMO` interface.
 """
 struct CubeSimBLMO <: SimpleBoundableLMO
     lower_bounds::Vector{Float64}
@@ -172,7 +174,7 @@ struct CubeSimBLMO <: SimpleBoundableLMO
     int_vars::Vector{Int}
 end
 
-function bounded_compute_extreme_point(sblmo::CubeSimBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
