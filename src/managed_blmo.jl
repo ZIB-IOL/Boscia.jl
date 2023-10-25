@@ -160,7 +160,6 @@ function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
             return false
         end
     end
-    update_integer_bounds!(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
     return is_linear_feasible(blmo.simple_lmo, v)
 end
 
