@@ -166,7 +166,7 @@ end
 """
     CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
 
-Hypercube with lower and upper bounds implementing the SimpleBoundableLMO interface
+Hypercube with lower and upper bounds implementing the `SimpleBoundableLMO` interface.
 """
 mutable struct CubeSimpleBLMO{T} <: SimpleBoundableLMO
     lower_bounds::Vector{T}
