@@ -102,8 +102,7 @@ function solve(
     num_int = 0
     num_bin = 0
     for c_idx in get_integer_variables(blmo)
-        v_idx = get_int_var(blmo, c_idx)
-        push!(integer_variables, v_idx)
+        push!(integer_variables, c_idx)
         num_int += 1
     end
     time_lmo = Boscia.TimeTrackingLMO(blmo, integer_variables)
@@ -567,7 +566,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             push!(fix_bounds, (i => round(x[i])), :greaterthan)
         end
 
-        free_model(tree.root.problem.tlmo.blmo.o)
+        free_model(tree.root.problem.tlmo.blmo)
         build_LMO(
             tree.root.problem.tlmo,
             tree.root.problem.integer_variable_bounds,

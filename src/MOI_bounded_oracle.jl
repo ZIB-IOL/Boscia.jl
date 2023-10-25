@@ -62,7 +62,8 @@ function get_binary_variables(blmo::MathOptBLMO)
 end
 function Boscia.get_integer_variables(blmo::MathOptBLMO) 
     bin_var = get_binary_variables(blmo)
-    return vcat(MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}()), bin_var)
+    int_var = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+    return vcat(getproperty.(int_var, :value), getproperty.(bin_var, :value))
 end 
 
 """
