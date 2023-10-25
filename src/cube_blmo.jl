@@ -7,12 +7,11 @@ A Bounded Linear Minimization Oracle over a cube.
 mutable struct CubeBLMO <: BoundedLinearMinimizationOracle
     n::Int
     int_vars::Vector{Int}
-    bin_vars::Vector{Int}
     bounds::IntegerBounds
     solving_time::Float64
 end
 
-CubeBLMO(n, int_vars, bin_vars, bounds) = CubeBLMO(n, int_vars, bin_vars, bounds, 0.0)
+CubeBLMO(n, int_vars, bounds) = CubeBLMO(n, int_vars, bounds, 0.0)
 
 ## Necessary
 
@@ -40,20 +39,13 @@ function build_global_bounds(blmo::CubeBLMO, integer_variables)
     return global_bounds
 end
 
-function explicit_bounds_binary_var(blmo::CubeBLMO, gb::IntegerBounds, binary_vars)
-    nothing
-end
 
 ## Read information from problem
 function get_list_of_variables(blmo::CubeBLMO)
     return blmo.n, collect(1:blmo.n)
  end
 
-# Get list of binary and integer variables, respectively.
-function get_binary_variables(blmo::CubeBLMO)
-    return blmo.bin_vars
-end
-
+# Get list of integer variables, respectively.
 function get_integer_variables(blmo::CubeBLMO)
     return blmo.int_vars
 end
@@ -126,12 +118,8 @@ function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     return true
 end
 
-function has_binary_constraint(blmo::CubeBLMO, idx)
-    return idx in blmo.int_vars
-end
-
 function has_integer_constraint(blmo::CubeBLMO, idx)
-    return idx in blmo.bin_vars
+    return idx in blmo.int_vars
 end
 
 
@@ -172,4 +160,39 @@ end
 ## Logs
 function get_BLMO_solve_data(blmo::CubeBLMO)
     return blmo.solving_time, 0.0, 0.0
+end
+
+########################################################################
+"""
+    CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
+
+Hypercube with lower and upper bounds implementing the `SimpleBoundableLMO` interface.
+"""
+struct CubeSimBLMO <: SimpleBoundableLMO
+    lower_bounds::Vector{Float64}
+    upper_bounds::Vector{Float64}
+    int_vars::Vector{Int}
+end
+
+function bounded_compute_extreme_point(sblmo::CubeSimBLMO, d, lb, ub, int_vars; kwargs...)
+    v = zeros(length(d))
+    for i in eachindex(d)
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            v[i] = d[i] > 0 ? lb[idx] : ub[idx] 
+        else
+            v[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
+        end
+    end
+    return v
+end
+
+function is_linear_feasible(sblmo::CubeSimBLMO, v)
+    for i in setdiff(eachindex(v), sblmo.int_vars)
+        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
+            @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))")
+            return false
+        end
+    end
+    return true
 end

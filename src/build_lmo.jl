@@ -34,7 +34,7 @@ function build_LMO(
                 end
             else
                 # Delete
-                push!(cons_delete, c_idx)         
+                push!(cons_delete, (c_idx, :greaterthan))         
             end
         end
     end
@@ -53,7 +53,7 @@ function build_LMO(
                 end
             else
                 # Delete
-                push!(cons_delete, c_idx)         
+                push!(cons_delete, (c_idx, :lessthan))         
             end
         end
     end

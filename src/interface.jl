@@ -102,31 +102,21 @@ function solve(
     num_int = 0
     num_bin = 0
     for c_idx in get_integer_variables(blmo)
-        v_idx = get_int_var(blmo, c_idx)
-        push!(integer_variables, v_idx)
+        push!(integer_variables, c_idx)
         num_int += 1
-    end
-    binary_variables = BitSet()
-    for c_idx in get_binary_variables(blmo)
-        v_idx = get_int_var(blmo, c_idx)
-        push!(integer_variables, v_idx)
-        push!(binary_variables, v_idx)
-        num_bin += 1
     end
     time_lmo = Boscia.TimeTrackingLMO(blmo, integer_variables)
 
-    if num_bin == 0 && num_int == 0
-        error("No integer or binary variables detected! Please use an IP solver!")
+    if num_int == 0
+        error("No integer variables detected! Please use an MIP solver!")
     end
 
     if verbose
         println("\t Total number of variables: ", n)
-        println("\t Number of integer variables: ", num_int)
-        println("\t Number of binary variables: $(num_bin)\n")
+        println("\t Number of integer variables: $(num_int)\n")
     end
 
     global_bounds = build_global_bounds(blmo, integer_variables)
-    explicit_bounds_binary_var(blmo, global_bounds, binary_variables)
 
     v = []
     if active_set === nothing
@@ -576,7 +566,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             push!(fix_bounds, (i => round(x[i])), :greaterthan)
         end
 
-        free_model(tree.root.problem.tlmo.blmo.o)
+        free_model(tree.root.problem.tlmo.blmo)
         build_LMO(
             tree.root.problem.tlmo,
             tree.root.problem.integer_variable_bounds,
