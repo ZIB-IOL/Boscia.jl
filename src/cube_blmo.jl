@@ -164,14 +164,16 @@ end
 
 ########################################################################
 """
-    Cube SimpleBoundableLMO
+    CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
+
+Hypercube with lower and upper bounds implementing the SimpleBoundableLMO interface
 """
-mutable struct CubeSimBLMO <: SimpleBoundableLMO
-    lower_bounds::Vector{Float64}
-    upper_bounds::Vector{Float64}
+mutable struct CubeSimpleBLMO{T} <: SimpleBoundableLMO
+    lower_bounds::Vector{T}
+    upper_bounds::Vector{T}
 end
 
-function bounded_compute_extreme_point(sblmo::CubeSimBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     sblmo.lower_bounds[int_vars] = lb
     sblmo.upper_bounds[int_vars] = ub
@@ -181,12 +183,12 @@ function bounded_compute_extreme_point(sblmo::CubeSimBLMO, d, lb, ub, int_vars; 
     return v
 end
 
-function update_integer_bounds!(sblmo::CubeSimBLMO, lb, ub, int_vars)
+function update_integer_bounds!(sblmo::CubeSimpleBLMO, lb, ub, int_vars)
     sblmo.lower_bounds[int_vars] = lb
     sblmo.upper_bounds[int_vars] = ub
 end
 
-function is_linear_feasible(sblmo::CubeSimBLMO, v)
+function is_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in eachindex(v)
         if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
             @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))")
