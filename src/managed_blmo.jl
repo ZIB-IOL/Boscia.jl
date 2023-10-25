@@ -5,9 +5,12 @@ TO DO: Documentation
 """
 abstract type SimpleBoundableLMO end
 
+function update_integer_bounds! end
+
 function bounded_compute_extreme_point end
 
 function is_linear_feasible end
+
 
 """
     ManagedBoundedLinearMinimizationOracle
@@ -20,7 +23,7 @@ n            - Total number of variables.
 int_vars     - List of indices of the integer variables.
 solving_time - The time evaluate `compute_extreme_point`.
 """
-struct ManagedBoundedLMO{
+mutable struct ManagedBoundedLMO{
     SBLMO<:SimpleBoundableLMO
 } <: BoundedLinearMinimizationOracle
     simple_lmo::SBLMO
@@ -31,7 +34,19 @@ struct ManagedBoundedLMO{
     solving_time::Float64
 end
 
-ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars) = ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
+function ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars)
+    if length(lb) != length(ub) || length(ub) != length(int_vars) ||length(lb) != length(int_vars)
+        error("Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!")
+    end
+    # Check that we have integer bounds
+    for (i,_) in enumerate(int_vars)
+        @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
+        @assert isapprox(ub[i], round(ub[i]), atol=1e-6, rtol=1e-2)
+    end
+    return ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
+end
+
+#ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars) = ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
 
 # Overload FrankWolfe.compute_extreme_point
 function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
@@ -45,8 +60,8 @@ end
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()
     for (idx, int_var) in enumerate(blmo.int_vars)
-        push!(global_bounds, (int_var, lower_bounds(idx)), :greaterthan)
-        push!(global_bounds, (int_var, upper_bounds(idx)), :lessthan)
+        push!(global_bounds, (int_var, blmo.lower_bounds[idx]), :greaterthan)
+        push!(global_bounds, (int_var, blmo.upper_bounds[idx]), :lessthan)
     end
     return global_bounds
 end
@@ -147,6 +162,7 @@ function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
             return false
         end
     end
+    update_integer_bounds!(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
     return is_linear_feasible(blmo.simple_lmo, v)
 end
 
@@ -188,4 +204,79 @@ end
 # Get solve time, number of nodes and number of iterations, if applicable.
 function get_BLMO_solve_data(blmo::ManagedBoundedLMO)
     return blmo.solving_time, 0.0, 0.0
+end
+
+# Solve function that just get a SimpleBoundableLMO and builds the corresponding
+# ManagedBoundedLMO
+function solve(
+    f,
+    grad!,
+    sblmo::SimpleBoundableLMO,
+    lower_bounds::Vector{Float64},
+    upper_bounds::Vector{Float64},
+    int_vars::Vector{Int},
+    n::Int;
+    traverse_strategy=Bonobo.BestFirstSearch(),
+    branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    variant::FrankWolfeVariant=BPCG(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    lazy=true,
+    lazy_tolerance = 2.0,
+    fw_epsilon=1e-2,
+    verbose=false,
+    dual_gap=1e-6,
+    rel_dual_gap=1.0e-2,
+    time_limit=Inf,
+    print_iter=100,
+    dual_gap_decay_factor=0.8,
+    max_fw_iter=10000,
+    min_number_lower=Inf,
+    min_node_fw_epsilon=1e-6,
+    use_postsolve=true,
+    min_fw_iterations=5,
+    max_iteration_post=10000,
+    dual_tightening=true,
+    global_dual_tightening=true,
+    bnb_callback=nothing,
+    strong_convexity=0.0,
+    domain_oracle= x->true,
+    start_solution=nothing,
+    fw_verbose = false,
+    kwargs...,
+)
+    blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, n, int_vars)
+    return solve(
+        f,
+        grad!, 
+        blmo,
+        traverse_strategy=traverse_strategy,
+        branching_strategy=branching_strategy,
+        variant=variant,
+        line_search=line_search,
+        active_set=active_set,
+        lazy=lazy,
+        lazy_tolerance=lazy_tolerance,
+        fw_epsilon=fw_epsilon,
+        verbose=verbose,
+        dual_gap=dual_gap,
+        rel_dual_gap=rel_dual_gap,
+        time_limit=time_limit,
+        print_iter=print_iter,
+        dual_gap_decay_factor=dual_gap_decay_factor,
+        max_fw_iter=max_fw_iter,
+        min_number_lower=min_number_lower,
+        min_node_fw_epsilon=min_node_fw_epsilon,
+        use_postsolve=use_postsolve,
+        min_fw_iterations=min_fw_iterations,
+        max_iteration_post=max_iteration_post,
+        dual_tightening=dual_tightening,
+        global_dual_tightening=global_dual_tightening,
+        bnb_callback=bnb_callback,
+        strong_convexity=strong_convexity,
+        domain_oracle=domain_oracle,
+        start_solution=start_solution,
+        fw_verbose=fw_verbose,
+        kwargs...
+    )
 end
