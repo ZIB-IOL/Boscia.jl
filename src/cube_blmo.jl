@@ -174,7 +174,7 @@ struct CubeSimBLMO <: SimpleBoundableLMO
     int_vars::Vector{Int}
 end
 
-function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(sblmo::CubeSimBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
