@@ -60,7 +60,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         lbs = zeros(n)
         ubs = ones(n)
         
-        sblmo = Boscia.CubeSimBLMO(lbs, ubs)
+        sblmo = Boscia.CubeSimBLMO(lbs, ubs, int_vars)
 
         x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose =true)
 
@@ -123,7 +123,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
         
-        sblmo = Boscia.CubeSimBLMO(lbs, ubs)
+        sblmo = Boscia.CubeSimBLMO(lbs, ubs, int_vars)
 
         x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose =true)
 

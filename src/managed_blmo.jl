@@ -5,8 +5,6 @@ TO DO: Documentation
 """
 abstract type SimpleBoundableLMO end
 
-function update_integer_bounds! end
-
 function bounded_compute_extreme_point end
 
 function is_linear_feasible end
