@@ -1,20 +1,29 @@
 """
     SimpleBoundableLinearMinimizationOracle
 
-TO DO: Documentation    
+A simple LMO that computes the extreme point given the node specific bounds on the integer variables.
+Can be stateless since all of the bound management is done by the ManagedBoundedLMO.   
 """
 abstract type SimpleBoundableLMO end
 
+"""
+Computes the extreme point given an direction d, the current lower and upper bounds on the integer variables, and the set of integer variables.
+"""
 function bounded_compute_extreme_point end
 
+"""
+Checks whether a given point v is satisfying the linear constraints on the problem.
+Note that the bounds on the integer variables are being checked by the ManagedBoundedLMO and do not have to be check here. 
+"""
 function is_linear_feasible end
 
 
 """
     ManagedBoundedLinearMinimizationOracle
 
-TO DO: Documentation
+A Bounded Linear Minimization Oracle that manages the bounds.
 
+simple_lmo   - An LMO of type Simple Boundable LMO (see above).  
 lower_bounds - List of lower bounds for the integer variables recorded in int_vars. If there is no specific lower bound, set corresponding entry to `-Inf`.
 upper_bounds - List of upper bounds for the integer variables recorded in int_vars. If there is no specific upper bound, set corresponding entry to `Inf`.
 n            - Total number of variables.
