@@ -14,9 +14,6 @@ using FrankWolfe
 # s.t. -Mz_i<=β_i <= Mz_i
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p 
-seed = rand(UInt64)
-@show seed
-Random.seed!(seed)
 
 n0 = 10;
 p = 5 * n0;
