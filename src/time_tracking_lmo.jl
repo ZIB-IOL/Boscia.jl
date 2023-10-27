@@ -16,7 +16,7 @@ end
 
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, Int[])
-  
+
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 

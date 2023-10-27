@@ -1,5 +1,6 @@
 
-struct PartialStrongBranching{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
+struct PartialStrongBranching{BLMO<:BoundedLinearMinimizationOracle} <:
+       Bonobo.AbstractBranchStrategy
     max_iteration::Int
     solving_epsilon::Float64
     bounded_lmo::BLMO
@@ -131,8 +132,11 @@ end
 Hybrid between partial strong branching and another strategy.
 `perform_strong_branch(tree, node) -> Bool` decides whether to perform strong branching or not.
 """
-struct HybridStrongBranching{BLMO<:BoundedLinearMinimizationOracle,F<:Function,B<:Bonobo.AbstractBranchStrategy} <:
-       Bonobo.AbstractBranchStrategy
+struct HybridStrongBranching{
+    BLMO<:BoundedLinearMinimizationOracle,
+    F<:Function,
+    B<:Bonobo.AbstractBranchStrategy,
+} <: Bonobo.AbstractBranchStrategy
     pstrong::PartialStrongBranching{BLMO}
     perform_strong_branch::F
     alternative_branching::B
@@ -144,7 +148,7 @@ function HybridStrongBranching(
     bounded_lmo::BoundedLinearMinimizationOracle,
     perform_strong_branch::Function,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) 
+)
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),
         perform_strong_branch,
@@ -174,7 +178,7 @@ function strong_up_to_depth(
     bounded_lmo::BoundedLinearMinimizationOracle,
     max_depth::Int,
     alternative=Bonobo.MOST_INFEASIBLE(),
-) 
+)
     perform_strong_while_depth(_, node) = node.level <= max_depth
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, bounded_lmo),

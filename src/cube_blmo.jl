@@ -43,7 +43,7 @@ end
 ## Read information from problem
 function get_list_of_variables(blmo::CubeBLMO)
     return blmo.n, collect(1:blmo.n)
- end
+end
 
 # Get list of integer variables, respectively.
 function get_integer_variables(blmo::CubeBLMO)
@@ -95,7 +95,7 @@ end
 
 function add_bound_constraint!(blmo::CubeBLMO, key, value, sense::Symbol)
     # Should not be necessary
-    error("Trying to add bound constraints of the cube!")
+    return error("Trying to add bound constraints of the cube!")
 end
 
 ## Checks
@@ -110,8 +110,13 @@ end
 
 function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     for i in eachindex(v)
-        if !(blmo.bounds[i, :greaterthan] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.bounds[i, :lessthan]))
-            @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))")
+        if !(
+            blmo.bounds[i, :greaterthan] ≤ v[i] + 1e-6 ||
+            !(v[i] - 1e-6 ≤ blmo.bounds[i, :lessthan])
+        )
+            @debug(
+                "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
+            )
             return false
         end
     end
@@ -129,12 +134,14 @@ end
 
 function build_LMO_correct(blmo::CubeBLMO, node_bounds)
     for key in keys(node_bounds.lower_bounds)
-        if !haskey(blmo.bounds, (key, :greaterthan)) || blmo.bounds[key, :greaterthan] != node_bounds[key, :greaterthan]
+        if !haskey(blmo.bounds, (key, :greaterthan)) ||
+           blmo.bounds[key, :greaterthan] != node_bounds[key, :greaterthan]
             return false
         end
     end
     for key in keys(node_bounds.upper_bounds)
-        if !haskey(blmo.bounds, (key, :lessthan)) || blmo.bounds[key, :lessthan] != node_bounds[key, :lessthan]
+        if !haskey(blmo.bounds, (key, :lessthan)) ||
+           blmo.bounds[key, :lessthan] != node_bounds[key, :lessthan]
             return false
         end
     end
@@ -179,7 +186,7 @@ function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_var
     for i in eachindex(d)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] = d[i] > 0 ? lb[idx] : ub[idx] 
+            v[i] = d[i] > 0 ? lb[idx] : ub[idx]
         else
             v[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
         end
@@ -190,7 +197,9 @@ end
 function is_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
         if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
-            @debug("Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))")
+            @debug(
+                "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
+            )
             return false
         end
     end

@@ -45,7 +45,7 @@ const M = 2 * var(A)
             MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M], [x[i], x[i+p]]), 0.0),
             MOI.LessThan(0.0),
         )
-  end
+    end
     MOI.add_constraint(
         o,
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
@@ -64,7 +64,7 @@ const M = 2 * var(A)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=100)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=100)
     # println("Solution: $(x[1:p])")
     @test sum(x[1+p:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -129,8 +129,8 @@ end
 @testset "Sparse Regression Group" begin
     function f(x)
         return sum(abs2, y_g - A_g * x[1:p]) +
-        lambda_0_g * norm(x[p+1:2p])^2 +
-        lambda_2_g * norm(x[1:p])^2
+               lambda_0_g * norm(x[p+1:2p])^2 +
+               lambda_2_g * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
@@ -139,9 +139,9 @@ end
         )
         return storage
     end
-    
+
     lmo = build_sparse_lmo_grouped()
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon = 1e-3)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3)
 
     @test sum(x[p+1:2p]) <= k
     for i in 1:k_int
@@ -158,7 +158,7 @@ end
     μ = 2lambda_0_g
 
     lmo = build_sparse_lmo_grouped()
-    x2, _, result2 = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon = 1e-3, strong_convexity=μ)
+    x2, _, result2 = Boscia.solve(f, grad!, lmo, verbose=true, fw_epsilon=1e-3, strong_convexity=μ)
     @test sum(x2[p+1:2p]) <= k
     for i in 1:k_int
         @test sum(x2[groups[i]]) >= 1

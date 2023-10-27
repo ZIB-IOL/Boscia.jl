@@ -45,7 +45,7 @@ function build_example(example, num_v)
     MOI.set(o, MOI.RawOptimizerAttribute("presolving/maxrounds"), 0)
 
     #trick to push the optimum towards the interior
-    vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]   
+    vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]
     # done to avoid one vertex being systematically selected
     unique!(vs)
 
@@ -62,10 +62,10 @@ function build_example(example, num_v)
     end
 
     function grad!(storage, x)
-        mul!(storage, length(vs)/max_norm * I, x)
+        mul!(storage, length(vs) / max_norm * I, x)
         storage .+= b_mps
         for v in vs
-            @. storage -= 1/max_norm * v
+            @. storage -= 1 / max_norm * v
         end
     end
 
@@ -94,7 +94,15 @@ test_instance = string("MPS ", example, " instance")
 @testset "$test_instance" begin
     println("Example $(example)")
     lmo, f, grad! = build_example(example, num_v)
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, print_iter = 10, fw_epsilon = 1e-1, min_node_fw_epsilon = 1e-3, time_limit=600)
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=true,
+        print_iter=10,
+        fw_epsilon=1e-1,
+        min_node_fw_epsilon=1e-3,
+        time_limit=600,
+    )
     @test f(x) <= f(result[:raw_solution])
 end
-

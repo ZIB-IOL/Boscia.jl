@@ -30,9 +30,7 @@ n            - Total number of variables.
 int_vars     - List of indices of the integer variables.
 solving_time - The time evaluate `compute_extreme_point`.
 """
-mutable struct ManagedBoundedLMO{
-    SBLMO<:SimpleBoundableLMO
-} <: BoundedLinearMinimizationOracle
+mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
     simple_lmo::SBLMO
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
@@ -42,11 +40,13 @@ mutable struct ManagedBoundedLMO{
 end
 
 function ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars)
-    if length(lb) != length(ub) || length(ub) != length(int_vars) ||length(lb) != length(int_vars)
-        error("Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!")
+    if length(lb) != length(ub) || length(ub) != length(int_vars) || length(lb) != length(int_vars)
+        error(
+            "Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!",
+        )
     end
     # Check that we have integer bounds
-    for (i,_) in enumerate(int_vars)
+    for (i, _) in enumerate(int_vars)
         @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
         @assert isapprox(ub[i], round(ub[i]), atol=1e-6, rtol=1e-2)
     end
@@ -58,11 +58,17 @@ end
 # Overload FrankWolfe.compute_extreme_point
 function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
     time_ref = Dates.now()
-    v = bounded_compute_extreme_point(blmo.simple_lmo, d, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
+    v = bounded_compute_extreme_point(
+        blmo.simple_lmo,
+        d,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+    )
     blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return v
 end
- 
+
 # Read global bounds from the problem.
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()
@@ -164,8 +170,12 @@ end
 # That means does v satisfy all bounds and other linear constraints?
 function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
     for (i, int_var) in enumerate(blmo.int_vars)
-        if !(blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ blmo.upper_bounds[i]))
-            @debug("Vertex entry: $(v[int_var]) Lower bound: $(blmo.lower_bounds[i]) Upper bound: $(blmo.upper_bounds[i]))")
+        if !(
+            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
+        )
+            @debug(
+                "Vertex entry: $(v[int_var]) Lower bound: $(blmo.lower_bounds[i]) Upper bound: $(blmo.upper_bounds[i]))"
+            )
             return false
         end
     end
@@ -186,13 +196,13 @@ end
 # Safety check only.
 function build_LMO_correct(blmo::ManagedBoundedLMO, node_bounds)
     for key in keys(node_bounds.lower_bounds)
-        idx = findfirst(x -> x== key, blmo.int_vars)
-        if  idx === nothing || blmo.lower_bounds[idx] != node_bounds[key, :greaterthan]
+        idx = findfirst(x -> x == key, blmo.int_vars)
+        if idx === nothing || blmo.lower_bounds[idx] != node_bounds[key, :greaterthan]
             return false
         end
     end
     for key in keys(node_bounds.upper_bounds)
-        idx = findfirst(x -> x== key, blmo.int_vars)
+        idx = findfirst(x -> x == key, blmo.int_vars)
         if idx === nothing || blmo.upper_bounds[idx] != node_bounds[key, :lessthan]
             return false
         end
@@ -202,7 +212,7 @@ end
 
 # Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 function is_valid_split(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO, vidx::Int)
-    idx = findfirst(x-> x==vidx, blmo.int_vars)
+    idx = findfirst(x -> x == vidx, blmo.int_vars)
     return blmo.lower_bounds[idx] != blmo.upper_bounds[idx]
 end
 
@@ -226,9 +236,9 @@ function solve(
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     lazy=true,
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -246,15 +256,15 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    domain_oracle= x->true,
+    domain_oracle=x -> true,
     start_solution=nothing,
-    fw_verbose = false,
+    fw_verbose=false,
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, n, int_vars)
     return solve(
         f,
-        grad!, 
+        grad!,
         blmo,
         traverse_strategy=traverse_strategy,
         branching_strategy=branching_strategy,
@@ -283,6 +293,6 @@ function solve(
         domain_oracle=domain_oracle,
         start_solution=start_solution,
         fw_verbose=fw_verbose,
-        kwargs...
+        kwargs...,
     )
 end

@@ -21,7 +21,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     function grad!(storage, x)
         @. storage = x - diffi
     end
-    
+
     function build_norm_lmo()
         o = SCIP.Optimizer()
         MOI.set(o, MOI.Silent(), true)
@@ -34,9 +34,18 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         end
         return FrankWolfe.MathOptLMO(o)
     end
-    x_baseline, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=false)
-    x_tighten, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=true)
-    x_strong, _, result = Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=true, strong_convexity=1.0)
+    x_baseline, _, result =
+        Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=false)
+    x_tighten, _, result =
+        Boscia.solve(f, grad!, build_norm_lmo(), verbose=false, dual_tightening=true)
+    x_strong, _, result = Boscia.solve(
+        f,
+        grad!,
+        build_norm_lmo(),
+        verbose=false,
+        dual_tightening=true,
+        strong_convexity=1.0,
+    )
 
     @test x_baseline == round.(diffi)
     @test f(x_tighten) == f(result[:raw_solution])
@@ -67,7 +76,7 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, branching_strategy = branching_strategy)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, branching_strategy=branching_strategy)
 
     @test x == round.(diffi)
     @test f(x) == f(result[:raw_solution])
@@ -200,16 +209,19 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     end
 
     lmo = build_model()
-    x_afw, _, result_afw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.AwayFrankWolfe())
+    x_afw, _, result_afw =
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.AwayFrankWolfe())
 
     lmo = build_model()
-    x_blended, _, result_blended = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
+    x_blended, _, result_blended =
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
 
     lmo = build_model()
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
-    x_vfw, _, result_vfw = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.VanillaFrankWolfe())
+    x_vfw, _, result_vfw =
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.VanillaFrankWolfe())
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -248,15 +260,18 @@ end
 
     lmo = build_model()
     line_search = FrankWolfe.Adaptive()
-    x_adaptive, _, result_adaptive = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search)
+    x_adaptive, _, result_adaptive =
+        Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search)
 
     lmo = build_model()
     line_search = FrankWolfe.MonotonicStepSize()
-    x_monotonic, _, result_monotonic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
+    x_monotonic, _, result_monotonic =
+        Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
 
     lmo = build_model()
     line_search = FrankWolfe.Agnostic()
-    x_agnostic, _, result_agnostic = Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
+    x_agnostic, _, result_agnostic =
+        Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, time_limit=120)
 
     @test isapprox(f(x_adaptive), f(result_adaptive[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_monotonic), f(result_monotonic[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -308,4 +323,3 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_lazy, x_mid, atol=1e-6, rtol=1e-2)) == n
 end
-

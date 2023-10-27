@@ -7,5 +7,5 @@ const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
 import MathOptSetDistances as MOD
-    
+
 end # module

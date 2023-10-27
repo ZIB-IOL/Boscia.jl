@@ -1,5 +1,11 @@
 # FW callback
-function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, fw_iterations, min_fw_iterations)
+function build_FW_callback(
+    tree,
+    min_number_lower,
+    check_rounding_value::Bool,
+    fw_iterations,
+    min_fw_iterations,
+)
     vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
@@ -17,15 +23,19 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
         if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
             if ncalls != state.lmo.ncalls
                 ncalls = state.lmo.ncalls
-                (best_v, best_val) =
-                    find_best_solution(tree.root.problem.f, tree.root.problem.tlmo.blmo, vars, tree.root.options[:domain_oracle])
+                (best_v, best_val) = find_best_solution(
+                    tree.root.problem.f,
+                    tree.root.problem.tlmo.blmo,
+                    vars,
+                    tree.root.options[:domain_oracle],
+                )
                 if best_val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
                     sol = FrankWolfeSolution(best_val, best_v, node, :Solver)
                     push!(tree.solutions, sol)
                     if tree.incumbent_solution === nothing ||
-                        sol.objective < tree.incumbent_solution.objective
+                       sol.objective < tree.incumbent_solution.objective
                         tree.incumbent_solution = sol
                     end
                     tree.incumbent = best_val
@@ -34,7 +44,9 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
             end
         end
 
-        if (state.primal - state.dual_gap > tree.incumbent + 1e-2) && tree.num_nodes != 1 && state.t > min_fw_iterations
+        if (state.primal - state.dual_gap > tree.incumbent + 1e-2) &&
+           tree.num_nodes != 1 &&
+           state.t > min_fw_iterations
             return false
         end
 
@@ -47,7 +59,7 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
                 push!(tree.solutions, sol)
                 if tree.incumbent_solution === nothing ||
-                    sol.objective < tree.incumbent_solution.objective
+                   sol.objective < tree.incumbent_solution.objective
                     tree.incumbent_solution = sol
                 end
                 tree.incumbent = val
@@ -77,7 +89,8 @@ function build_FW_callback(tree, min_number_lower, check_rounding_value::Bool, f
                 x_rounded[idx] = round(state.x[idx])
             end
             # check linear feasibility
-            if is_linear_feasible(tree.root.problem.tlmo, x_rounded) && is_integer_feasible(tree, x_rounded)
+            if is_linear_feasible(tree.root.problem.tlmo, x_rounded) &&
+               is_integer_feasible(tree, x_rounded)
                 # evaluate f(rounded)
                 val = tree.root.problem.f(x_rounded)
                 if val < tree.incumbent

@@ -60,4 +60,3 @@ end
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution])
 end
-
