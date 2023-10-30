@@ -41,15 +41,15 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     @testset "Using Cube LMO" begin
         int_vars = collect(1:n)
-        
+
         bounds = Boscia.IntegerBounds()
-        for i in 1:n 
+        for i in 1:n
             push!(bounds, (i, 0.0), :greaterthan)
             push!(bounds, (i, 1.0), :lessthan)
         end
         blmo = Boscia.CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, verbose =true)
+        x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -59,14 +59,15 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         int_vars = collect(1:n)
         lbs = zeros(n)
         ubs = ones(n)
-        
+
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose =true)
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    end 
+    end
 end
 
 
@@ -79,7 +80,7 @@ end
         @. storage = x - diffi
     end
 
-    int_vars = unique!(rand(collect(1:n), Int(floor(n/2))))
+    int_vars = unique!(rand(collect(1:n), Int(floor(n / 2))))
 
     @testset "Using SCIP" begin
         o = SCIP.Optimizer()
@@ -99,37 +100,38 @@ end
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
-        @test sum(isapprox.(x, sol, atol =1e-6, rtol=1e-2)) == n
+        @test sum(isapprox.(x, sol, atol=1e-6, rtol=1e-2)) == n
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
-    @testset "Using Cube LMO" begin        
+    @testset "Using Cube LMO" begin
         bounds = Boscia.IntegerBounds()
-        for i in 1:n 
+        for i in 1:n
             push!(bounds, (i, 0.0), :greaterthan)
             push!(bounds, (i, 1.0), :lessthan)
         end
         blmo = Boscia.CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, verbose =true)
+        x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
-        @test sum(isapprox.(x, sol, atol =1e-6, rtol=1e-2)) == n
+        @test sum(isapprox.(x, sol, atol=1e-6, rtol=1e-2)) == n
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Using Cube Simple LMO" begin
         lbs = zeros(n)
         ubs = ones(n)
-        
+
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose =true)
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
-        @test sum(isapprox.(x, sol, atol =1e-6, rtol=1e-2)) == n
+        @test sum(isapprox.(x, sol, atol=1e-6, rtol=1e-2)) == n
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
-end 
+end

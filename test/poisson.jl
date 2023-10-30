@@ -22,13 +22,13 @@ n0 = 30
 p = n0
 
 # underlying true weights
-const w0 = rand(Float64, p) 
+const w0 = rand(Float64, p)
 # set 50 entries to 0
 for _ in 1:20
     w0[rand(1:p)] = 0
 end
-const b0 = rand(Float64) 
-const X0 = rand(Float64, n0, p) 
+const b0 = rand(Float64)
+const X0 = rand(Float64, n0, p)
 const y0 = map(1:n0) do idx
     a = dot(X0[idx, :], w0) + b0
     return rand(Distributions.Poisson(exp(a)))
@@ -56,7 +56,7 @@ N = 1.0
     MOI.add_constraint(o, b, MOI.LessThan(N))
     MOI.add_constraint(o, b, MOI.GreaterThan(-N))
     lmo = FrankWolfe.MathOptLMO(o)
-    
+
     α = 1.3
     function f(θ)
         w = @view(θ[1:p])
@@ -84,7 +84,7 @@ N = 1.0
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, time_limit=500)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=500)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -157,8 +157,8 @@ end
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
-    
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose = true, branching_strategy = branching_strategy)
+
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -256,7 +256,7 @@ push!(groups, ((k-1)*group_size+1):pg)
         storage ./= norm(storage)
         return storage
     end
-   
+
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k
@@ -334,8 +334,7 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k

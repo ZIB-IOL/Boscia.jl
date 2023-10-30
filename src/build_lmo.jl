@@ -28,13 +28,13 @@ function build_LMO(
                 # Change
                 if is_bound_in(blmo, c_idx, node_bounds.lower_bounds)
                     set_bound!(blmo, c_idx, node_bounds.lower_bounds[v_idx], :greaterthan)
-                # Keep
+                    # Keep
                 else
                     set_bound!(blmo, c_idx, global_bounds.lower_bounds[v_idx], :greaterthan)
                 end
             else
                 # Delete
-                push!(cons_delete, (c_idx, :greaterthan))         
+                push!(cons_delete, (c_idx, :greaterthan))
             end
         end
     end
@@ -47,13 +47,13 @@ function build_LMO(
                 # Change
                 if is_bound_in(blmo, c_idx, node_bounds.upper_bounds)
                     set_bound!(blmo, c_idx, node_bounds.upper_bounds[v_idx], :lessthan)
-                # Keep
+                    # Keep
                 else
                     set_bound!(blmo, c_idx, global_bounds.upper_bounds[v_idx], :lessthan)
                 end
             else
                 # Delete
-                push!(cons_delete, (c_idx, :lessthan))         
+                push!(cons_delete, (c_idx, :lessthan))
             end
         end
     end
@@ -74,7 +74,7 @@ function build_LMO(
         end
     end
 
-    build_LMO_correct(blmo, node_bounds)
+    return build_LMO_correct(blmo, node_bounds)
 end
 
 build_LMO(tlmo::TimeTrackingLMO, gb::IntegerBounds, nb::IntegerBounds, int_vars::Vector{Int64}) =

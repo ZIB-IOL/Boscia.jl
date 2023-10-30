@@ -58,9 +58,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
-    
+
     # Split active set
-    active_set_left, active_set_right = split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+    active_set_left, active_set_right =
+        split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
@@ -141,13 +142,13 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domain_oracle]
 
-    nodes = if !prune_left && !prune_right 
+    nodes = if !prune_left && !prune_right
         [node_info_left, node_info_right]
-    elseif prune_left 
+    elseif prune_left
         [node_info_right]
-    elseif prune_right 
+    elseif prune_right
         [node_info_left]
-    elseif domain_oracle(x_right) 
+    elseif domain_oracle(x_right)
         [node_info_right]
     elseif domain_oracle(x_left)
         [node_info_left]
@@ -163,7 +164,7 @@ Use strong convexity to potentially remove one of the children nodes
 function prune_children(tree, node, lower_bound_base, x, vidx)
     prune_left = false
     prune_right = false
-    
+
     μ = tree.root.options[:strong_convexity]
     if μ > 0
         @debug "Using strong convexity $μ"
@@ -171,13 +172,10 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             if vidx == j
                 continue
             end
-            lower_bound_base += μ/2 * min(
-                (x[j] - floor(x[j]))^2,
-                (ceil(x[j]) - x[j])^2,
-            )
+            lower_bound_base += μ / 2 * min((x[j] - floor(x[j]))^2, (ceil(x[j]) - x[j])^2)
         end
-        new_bound_left = lower_bound_base + μ/2 *  (x[vidx] - floor(x[vidx]))^2
-        new_bound_right = lower_bound_base + μ/2 * (ceil(x[vidx]) - x[vidx])^2
+        new_bound_left = lower_bound_base + μ / 2 * (x[vidx] - floor(x[vidx]))^2
+        new_bound_right = lower_bound_base + μ / 2 * (ceil(x[vidx]) - x[vidx])^2
         if new_bound_left > tree.incumbent
             @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
             prune_left = true
@@ -186,7 +184,10 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
             prune_right = true
         end
-        @assert !((new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) && (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])) "both sides should not be pruned"
+        @assert !(
+            (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
+            (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
+        ) "both sides should not be pruned"
     end
 
     # If both nodes are pruned, when one of them has to be equal to the incumbent.
@@ -246,7 +247,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
     @assert is_linear_feasible(tree.root.problem.tlmo, x)
-    for (_,v) in node.active_set
+    for (_, v) in node.active_set
         @assert is_linear_feasible(tree.root.problem.tlmo, v)
     end
 
@@ -294,9 +295,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if is_integer_feasible(tree, x)
         node.ub = primal
         return lower_bound, primal
-    # Sanity check: If the incumbent is better than the lower bound of the root node
-    # and the root node is not integer feasible, something is off!
-    elseif node.id == 1  
+        # Sanity check: If the incumbent is better than the lower bound of the root node
+        # and the root node is not integer feasible, something is off!
+    elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + 1e-5
@@ -328,7 +329,10 @@ function dual_tightening(tree, node, x, dual_gap)
             end
             gj = grad[j]
             safety_tolerance = 2.0
-            rhs = tree.incumbent - tree.root.problem.f(x) + safety_tolerance * dual_gap + sqrt(eps(tree.incumbent))
+            rhs =
+                tree.incumbent - tree.root.problem.f(x) +
+                safety_tolerance * dual_gap +
+                sqrt(eps(tree.incumbent))
             if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                 if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
@@ -337,9 +341,9 @@ function dual_tightening(tree, node, x, dual_gap)
                     Mlb = 0
                     bound_tightened = true
                     @debug "starting tightening ub $(rhs)"
-                    while 0.99 * (Mlb * gj + μ/2 * Mlb^2) <= rhs
+                    while 0.99 * (Mlb * gj + μ / 2 * Mlb^2) <= rhs
                         Mlb += 1
-                        if lb + Mlb -1 == ub
+                        if lb + Mlb - 1 == ub
                             bound_tightened = false
                             break
                         end
@@ -350,19 +354,20 @@ function dual_tightening(tree, node, x, dual_gap)
                         node.local_bounds[j, :lessthan] = new_bound
                         num_tightenings += 1
                         if haskey(tree.root.problem.integer_variable_bounds, (j, :lessthan))
-                            @assert node.local_bounds[j, :lessthan] <= tree.root.problem.integer_variable_bounds[j, :lessthan]
+                            @assert node.local_bounds[j, :lessthan] <=
+                                    tree.root.problem.integer_variable_bounds[j, :lessthan]
                         end
                     end
                 end
-            elseif ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol)        
-                if !isapprox(gj,0,atol=1e-5)
+            elseif ≈(x[j], ub, atol=tree.options.atol, rtol=tree.options.rtol)
+                if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
                 end
                 if gj < 0
                     Mub = 0
                     bound_tightened = true
                     @debug "starting tightening lb $(rhs)"
-                    while -0.99 * (Mub * gj + μ/2 * Mub^2) <= rhs
+                    while -0.99 * (Mub * gj + μ / 2 * Mub^2) <= rhs
                         Mub += 1
                         if ub - Mub + 1 == lb
                             bound_tightened = false
@@ -375,7 +380,8 @@ function dual_tightening(tree, node, x, dual_gap)
                         node.local_bounds[j, :greaterthan] = new_bound
                         num_tightenings += 1
                         if haskey(tree.root.problem.integer_variable_bounds, (j, :greaterthan))
-                            @assert node.local_bounds[j, :greaterthan] >= tree.root.problem.integer_variable_bounds[j, :greaterthan]
+                            @assert node.local_bounds[j, :greaterthan] >=
+                                    tree.root.problem.integer_variable_bounds[j, :greaterthan]
                         end
                     end
                 end
@@ -433,7 +439,7 @@ function global_tightening(tree, node)
             lb = lb
             while Mlb * gj <= rhs
                 Mlb += 1
-                if lb + Mlb -1 == ub
+                if lb + Mlb - 1 == ub
                     bound_tightened = false
                     break
                 end
@@ -441,11 +447,11 @@ function global_tightening(tree, node)
             if bound_tightened
                 new_bound = lb + Mlb - 1
                 @debug "found global UB tightening $ub -> $new_bound"
-                if haskey(tree.root.global_tightenings.upper_bounds,j)
+                if haskey(tree.root.global_tightenings.upper_bounds, j)
                     if tree.root.global_tightenings.upper_bounds[j] != new_bound
-                        num_tightenings +=1
+                        num_tightenings += 1
                     end
-                else 
+                else
                     num_tightenings += 1
                 end
                 tree.root.global_tightenings.upper_bounds[j] = new_bound
@@ -468,11 +474,11 @@ function global_tightening(tree, node)
             if bound_tightened
                 new_bound = ub - Mub + 1
                 @debug "found global LB tightening $lb -> $new_bound"
-                if haskey(tree.root.global_tightenings.lower_bounds,j)
+                if haskey(tree.root.global_tightenings.lower_bounds, j)
                     if tree.root.global_tightenings.lower_bounds[j] != new_bound
-                        num_tightenings +=1
+                        num_tightenings += 1
                     end
-                else 
+                else
                     num_tightenings += 1
                 end
                 tree.root.global_tightenings.lower_bounds[j] = new_bound
@@ -494,8 +500,8 @@ function tightening_strong_convexity(tree, x, lower_bound)
         for j in tree.root.problem.integer_variables
             if x[j] > floor(x[j]) + 1e-6 && x[j] < ceil(x[j]) - 1e-6
                 num_fractional += 1
-                new_left_increment = μ/2 *  (x[j] - floor(x[j]))^2
-                new_right_increment = μ/2 * (ceil(x[j]) - x[j])^2
+                new_left_increment = μ / 2 * (x[j] - floor(x[j]))^2
+                new_right_increment = μ / 2 * (ceil(x[j]) - x[j])^2
                 new_increment = min(new_left_increment, new_right_increment)
                 strong_convexity_bound += new_increment
             end

@@ -3,7 +3,7 @@
 
 Supertype for the Bounded Linear Minimization Oracles
 """
-abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end 
+abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end
 
 """
 Enum encoding the status of the Bounded Linear Minimization Oracle.
@@ -41,7 +41,7 @@ function get_list_of_variables end
 """
 Get list of integer variables.
 """
-function get_integer_variables end 
+function get_integer_variables end
 
 """
 Get the index of the integer variable the bound is working on.
@@ -56,7 +56,7 @@ function get_lower_bound_list end
 """
 Get the list of upper bounds.
 """
-function get_upper_bound_list end 
+function get_upper_bound_list end
 
 """
 Read bound value for c_idx.
@@ -136,7 +136,7 @@ end
 """
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
-function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol= 1e-6, rtol=1e-6)
+function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
     return true
 end
 
@@ -150,8 +150,7 @@ end
 """
 Deal with infeasible vertex if necessary, e.g. check what caused it etc.
 """
-function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree)
-end
+function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree) end
 
 
 ## Utility

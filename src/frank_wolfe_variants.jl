@@ -38,21 +38,21 @@ struct AwayFrankWolfe <: FrankWolfeVariant end
 function solve_frank_wolfe(
     frank_wolfe_variant::AwayFrankWolfe,
     f,
-    grad!, 
+    grad!,
     lmo,
-    active_set;    
+    active_set;
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
     use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing, 
+    extra_vertex_storage=nothing,
     callback=nothing,
-    lazy=false, 
+    lazy=false,
     lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
-    workspace=nothing
+    workspace=nothing,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
@@ -63,8 +63,8 @@ function solve_frank_wolfe(
         max_iteration=max_iteration,
         line_search=line_search,
         callback=callback,
-        lazy=lazy,  
-        lazy_tolerance=lazy_tolerance,      
+        lazy=lazy,
+        lazy_tolerance=lazy_tolerance,
         timeout=timeout,
         add_dropped_vertices=add_dropped_vertices,
         use_extra_vertex_storage=use_extra_vertex_storage,
@@ -86,7 +86,7 @@ struct Blended <: FrankWolfeVariant end
 function solve_frank_wolfe(
     frank_wolfe_variant::Blended,
     f,
-    grad!, 
+    grad!,
     lmo,
     active_set;
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
@@ -94,15 +94,15 @@ function solve_frank_wolfe(
     max_iteration=10000,
     add_dropped_vertices=false,
     use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing, 
+    extra_vertex_storage=nothing,
     callback=nothing,
-    lazy=false, 
+    lazy=false,
     lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
-    workspace=nothing
+    workspace=nothing,
 )
-    x,_, primal, dual_gap,_, active_set = blended_conditional_gradient(
+    x, _, primal, dual_gap, _, active_set = blended_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -126,13 +126,13 @@ Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
 
 """
     Blended Pairwise Conditional Gradient
-"""    
+"""
 struct BPCG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
     frank_wolfe_variant::BPCG,
     f,
-    grad!, 
+    grad!,
     lmo,
     active_set;
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
@@ -140,13 +140,13 @@ function solve_frank_wolfe(
     max_iteration=10000,
     add_dropped_vertices=false,
     use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing, 
+    extra_vertex_storage=nothing,
     callback=nothing,
-    lazy=false, 
+    lazy=false,
     lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
-    workspace=nothing
+    workspace=nothing,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         f,
@@ -163,7 +163,7 @@ function solve_frank_wolfe(
         lazy=lazy,
         lazy_tolerance=lazy_tolerance,
         timeout=timeout,
-        verbose=verbose
+        verbose=verbose,
     )
 
     return x, primal, dual_gap, active_set
@@ -183,7 +183,7 @@ struct VanillaFrankWolfe <: FrankWolfeVariant end
 function solve_frank_wolfe(
     frank_wolfe_variant::VanillaFrankWolfe,
     f,
-    grad!, 
+    grad!,
     lmo,
     active_set;
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
@@ -191,13 +191,13 @@ function solve_frank_wolfe(
     max_iteration=10000,
     add_dropped_vertices=false,
     use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing, 
+    extra_vertex_storage=nothing,
     callback=nothing,
-    lazy=false, 
+    lazy=false,
     lazy_tolerance=2.0,
     timeout=Inf,
     verbose=false,
-    workspace=nothing
+    workspace=nothing,
 )
     # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
@@ -206,7 +206,7 @@ function solve_frank_wolfe(
         grad!,
         lmo,
         active_set,
-        away_steps=false, 
+        away_steps=false,
         epsilon=epsilon,
         max_iteration=max_iteration,
         line_search=line_search,

@@ -8,12 +8,11 @@ Keeps track of the bounds of the integer (binary) variables.
 `upper_bounds` dictionary of Float64, index is the key.
 """
 mutable struct IntegerBounds
-    lower_bounds::Dict{Int, Float64}
-    upper_bounds::Dict{Int, Float64}
+    lower_bounds::Dict{Int,Float64}
+    upper_bounds::Dict{Int,Float64}
 end
 
-IntegerBounds() =
-    IntegerBounds(Dict{Int, Float64}(), Dict{Int, Float64}())
+IntegerBounds() = IntegerBounds(Dict{Int,Float64}(), Dict{Int,Float64}())
 
 function Base.push!(ib::IntegerBounds, (idx, bound), sense::Symbol)
     if sense == :greaterthan

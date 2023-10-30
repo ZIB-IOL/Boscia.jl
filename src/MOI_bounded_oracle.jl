@@ -23,7 +23,7 @@ Convert object of Type MathOptLMO into MathOptBLMO and viceversa.
 function Base.convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modify)
 end
-function Base.convert(::Type{FrankWolfe.MathOptLMO}, blmo::MathOptBLMO) 
+function Base.convert(::Type{FrankWolfe.MathOptLMO}, blmo::MathOptBLMO)
     return FrankWolfe.MathOptLMO(blmo.o, blmo.use_modify)
 end
 
@@ -45,7 +45,7 @@ end
 Get list of variables indices and the total number of variables. 
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
-function Boscia.get_list_of_variables(blmo::MathOptBLMO) 
+function Boscia.get_list_of_variables(blmo::MathOptBLMO)
     v_indices = MOI.get(blmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
     if v_indices != MOI.VariableIndex.(1:n)
@@ -57,27 +57,30 @@ end
 """
 Get list of binary and integer variables, respectively.
 """
-function get_binary_variables(blmo::MathOptBLMO) 
+function get_binary_variables(blmo::MathOptBLMO)
     return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
 end
-function Boscia.get_integer_variables(blmo::MathOptBLMO) 
+function Boscia.get_integer_variables(blmo::MathOptBLMO)
     bin_var = get_binary_variables(blmo)
     int_var = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
     return vcat(getproperty.(int_var, :value), getproperty.(bin_var, :value))
-end 
+end
 
 """
 Get the index of the integer variable the bound is working on.
 """
-function Boscia.get_int_var(blmo::MathOptBLMO, c_idx) 
+function Boscia.get_int_var(blmo::MathOptBLMO, c_idx)
     return c_idx.value
 end
 
 """
 Get the list of lower bounds.
 """
-function Boscia.get_lower_bound_list(blmo::MathOptBLMO) 
-    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}())
+function Boscia.get_lower_bound_list(blmo::MathOptBLMO)
+    return MOI.get(
+        blmo.o,
+        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}(),
+    )
 end
 
 """
@@ -85,12 +88,12 @@ Get the list of upper bounds.
 """
 function Boscia.get_upper_bound_list(blmo::MathOptBLMO)
     return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
-end 
+end
 
 """
 Change the value of the bound c_idx.
 """
-function Boscia.set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol) 
+function Boscia.set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol)
     if sense == :lessthan
         MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, MOI.LessThan(value))
     elseif sense == :greaterthan
@@ -110,21 +113,21 @@ end
 """
 Check if the subject of the bound c_idx is an integer variable (recorded in int_vars).
 """
-function Boscia.is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars) 
+function Boscia.is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars)
     return c_idx.value in int_vars
 end
 
 """
 To check if there is bound for the variable in the global or node bounds.
 """
-function Boscia.is_bound_in(blmo::MathOptBLMO, c_idx, bounds) 
+function Boscia.is_bound_in(blmo::MathOptBLMO, c_idx, bounds)
     return haskey(bounds, c_idx.value)
 end
 
 """
 Delete bounds.
 """
-function Boscia.delete_bounds!(blmo::MathOptBLMO, cons_delete) 
+function Boscia.delete_bounds!(blmo::MathOptBLMO, cons_delete)
     for (d_idx, _) in cons_delete
         MOI.delete(blmo.o, d_idx)
     end
@@ -136,7 +139,7 @@ Add bound constraint.
 function Boscia.add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
     if sense == :lessthan
         MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.LessThan(value))
-    elseif sense == :greaterthan 
+    elseif sense == :greaterthan
         MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.GreaterThan(value))
     end
 end
@@ -144,11 +147,8 @@ end
 """
 Has variable a binary constraint?
 """
-function has_binary_constraint(blmo::MathOptBLMO, idx::Int) 
-    consB_list = MOI.get(
-        blmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}(),
-    )
+function has_binary_constraint(blmo::MathOptBLMO, idx::Int)
+    consB_list = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
     for c_idx in consB_list
         if c_idx.value == idx
             return true, c_idx
@@ -160,11 +160,8 @@ end
 """
 Does the variable have an integer constraint?
 """
-function Boscia.has_integer_constraint(blmo::MathOptBLMO, idx::Int) 
-    consB_list = MOI.get(
-        blmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}(),
-    )
+function Boscia.has_integer_constraint(blmo::MathOptBLMO, idx::Int)
+    consB_list = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
     for c_idx in consB_list
         if c_idx.value == idx
             return true, c_idx
@@ -200,7 +197,7 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
         func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
         val = MOIU.eval_variables(valvar, func)
         set = MOI.get(o, MOI.ConstraintSet(), c_idx)
-       # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+        # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
         dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
         solve_tol = get_tol(o)
         if dist > 5000.0 * solve_tol
@@ -230,7 +227,7 @@ function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::Boscia.Int
         end
         global_bounds[idx.value, :greaterthan] = 0.0
         global_bounds[idx.value, :lessthan] = 1.0
-    end 
+    end
 end
 
 """
@@ -262,7 +259,7 @@ function Boscia.build_global_bounds(blmo::MathOptBLMO, integer_variables)
             push!(global_bounds, (idx, s.upper), :lessthan)
         end
         @assert !MOI.is_valid(blmo.o, cidx)
-    end 
+    end
     explicit_bounds_binary_var(blmo, global_bounds)
     return global_bounds
 end
@@ -277,7 +274,7 @@ Safety check only.
 function Boscia.build_LMO_correct(blmo, node_bounds)
     for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
         for (idx, set) in list
-            c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+            c_idx = MOI.ConstraintIndex{MOI.VariableIndex,typeof(set)}(idx)
             @assert MOI.is_valid(blmo.o, c_idx)
             set2 = MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
             if !(set == set2)
@@ -294,11 +291,11 @@ end
 Free model data from previous solve (if necessary).
 """
 function Boscia.free_model(blmo)
-    free_model(blmo.o)
+    return free_model(blmo.o)
 end
 
 # no-op by default
-function free_model(o::MOI.AbstractOptimizer)   
+function free_model(o::MOI.AbstractOptimizer)
     return true
 end
 
@@ -326,11 +323,9 @@ function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::In
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
         u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
         l_bound =
-            MOI.is_valid(blmo.o, l_idx) ?
-            MOI.get(blmo.o, MOI.ConstraintSet(), l_idx) : nothing
+            MOI.is_valid(blmo.o, l_idx) ? MOI.get(blmo.o, MOI.ConstraintSet(), l_idx) : nothing
         u_bound =
-            MOI.is_valid(blmo.o, u_idx) ?
-            MOI.get(blmo.o, MOI.ConstraintSet(), u_idx) : nothing
+            MOI.is_valid(blmo.o, u_idx) ? MOI.get(blmo.o, MOI.ConstraintSet(), u_idx) : nothing
         if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
             @debug l_bound.lower, u_bound.upper
             return false
@@ -356,10 +351,10 @@ end
 """
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
-function Boscia.is_indicator_feasible(blmo::MathOptBLMO, v; atol= 1e-6, rtol=1e-6)
+function Boscia.is_indicator_feasible(blmo::MathOptBLMO, v; atol=1e-6, rtol=1e-6)
     return is_indicator_feasible(blmo.o, v; atol, rtol)
 end
-function is_indicator_feasible(o, x; atol = 1e-6, rtol=1e-6)
+function is_indicator_feasible(o, x; atol=1e-6, rtol=1e-6)
     valvar(f) = x[f.value]
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
         if S <: MOI.Indicator
@@ -368,7 +363,7 @@ function is_indicator_feasible(o, x; atol = 1e-6, rtol=1e-6)
                 func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
                 val = MOIU.eval_variables(valvar, func)
                 set = MOI.get(o, MOI.ConstraintSet(), c_idx)
-               # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
+                # @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
                 dist = MOD.distance_to_set(MOD.DefaultDistance(), val, set)
                 if dist > atol
                     @debug("Constraint: $(F)-$(S) $(func) = $(val) in $(set)")
@@ -407,14 +402,19 @@ end
 Find best solution from the solving process.
 """
 function Boscia.find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
-    return  find_best_solution(f, blmo.o, vars, domain_oracle)
+    return find_best_solution(f, blmo.o, vars, domain_oracle)
 end
 
 """
 Finds the best solution in the Optimizer's solution storage, based on the objective function `f`.
 Returns the solution vector and the corresponding best value.
 """
-function find_best_solution(f::Function, o::MOI.AbstractOptimizer, vars::Vector{MOI.VariableIndex}, domain_oracle)
+function find_best_solution(
+    f::Function,
+    o::MOI.AbstractOptimizer,
+    vars::Vector{MOI.VariableIndex},
+    domain_oracle,
+)
     nsols = MOI.get(o, MOI.ResultCount())
     @assert nsols > 0
     best_val = Inf
@@ -449,7 +449,7 @@ function Boscia.check_infeasible_vertex(blmo::MathOptBLMO, tree)
     node_bounds = node.local_bounds
     for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
         for (idx, set) in list
-            c_idx =  MOI.ConstraintIndex{MOI.VariableIndex, typeof(set)}(idx)
+            c_idx = MOI.ConstraintIndex{MOI.VariableIndex,typeof(set)}(idx)
             @assert MOI.is_valid(state.tlmo.blmo.o, c_idx)
             set2 = MOI.get(state.tlmo.blmo.o, MOI.ConstraintSet(), c_idx)
             if !(set == set2)
@@ -468,7 +468,7 @@ function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
     branching::Boscia.PartialStrongBranching{MathOptBLMO{OT}},
     node::Bonobo.AbstractNode,
-) where OT <: MOI.AbstractOptimizer
+) where {OT<:MOI.AbstractOptimizer}
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
@@ -611,7 +611,7 @@ function Boscia.solve(
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::Boscia.FrankWolfeVariant=Boscia.BPCG(),
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -629,38 +629,41 @@ function Boscia.solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    domain_oracle= x->true,
+    domain_oracle=x -> true,
     start_solution=nothing,
-    fw_verbose = false,
-    kwargs...
+    fw_verbose=false,
+    kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
-    return Boscia.solve(f, g, blmo; 
-    traverse_strategy=traverse_strategy,
-    branching_strategy=branching_strategy,
-    variant=variant,
-    line_search=line_search,
-    active_set=active_set,
-    fw_epsilon=fw_epsilon,
-    verbose=verbose,
-    dual_gap=dual_gap,
-    rel_dual_gap=rel_dual_gap,
-    time_limit=time_limit,
-    print_iter=print_iter,
-    dual_gap_decay_factor=dual_gap_decay_factor,
-    max_fw_iter=max_fw_iter,
-    min_number_lower=min_number_lower,
-    min_node_fw_epsilon=min_node_fw_epsilon,
-    use_postsolve=use_postsolve,
-    min_fw_iterations=min_fw_iterations,
-    max_iteration_post=max_iteration_post,
-    dual_tightening=dual_tightening,
-    global_dual_tightening=global_dual_tightening,
-    bnb_callback=bnb_callback,
-    strong_convexity=strong_convexity,
-    domain_oracle=domain_oracle,
-    start_solution=start_solution,
-    fw_verbose=fw_verbose,
-    kwargs...
+    return Boscia.solve(
+        f,
+        g,
+        blmo;
+        traverse_strategy=traverse_strategy,
+        branching_strategy=branching_strategy,
+        variant=variant,
+        line_search=line_search,
+        active_set=active_set,
+        fw_epsilon=fw_epsilon,
+        verbose=verbose,
+        dual_gap=dual_gap,
+        rel_dual_gap=rel_dual_gap,
+        time_limit=time_limit,
+        print_iter=print_iter,
+        dual_gap_decay_factor=dual_gap_decay_factor,
+        max_fw_iter=max_fw_iter,
+        min_number_lower=min_number_lower,
+        min_node_fw_epsilon=min_node_fw_epsilon,
+        use_postsolve=use_postsolve,
+        min_fw_iterations=min_fw_iterations,
+        max_iteration_post=max_iteration_post,
+        dual_tightening=dual_tightening,
+        global_dual_tightening=global_dual_tightening,
+        bnb_callback=bnb_callback,
+        strong_convexity=strong_convexity,
+        domain_oracle=domain_oracle,
+        start_solution=start_solution,
+        fw_verbose=fw_verbose,
+        kwargs...,
     )
 end

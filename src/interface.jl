@@ -55,9 +55,9 @@ function solve(
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
     line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    active_set::Union{Nothing, FrankWolfe.ActiveSet} = nothing,
+    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     lazy=true,
-    lazy_tolerance = 2.0,
+    lazy_tolerance=2.0,
     fw_epsilon=1e-2,
     verbose=false,
     dual_gap=1e-6,
@@ -75,9 +75,9 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    domain_oracle= x->true,
+    domain_oracle=x -> true,
     start_solution=nothing,
-    fw_verbose = false,
+    fw_verbose=false,
     kwargs...,
 )
     if verbose
@@ -160,15 +160,15 @@ function solve(
             current_node_id=Ref{Int}(0),
             updated_incumbent=Ref{Bool}(false),
             global_tightening_rhs=Ref(-Inf),
-            global_tightening_root_info = (
-                lower_bounds = Dict{Int, Tuple{Float64, Float64}}(),
-                upper_bounds = Dict{Int, Tuple{Float64, Float64}}(),
+            global_tightening_root_info=(
+                lower_bounds=Dict{Int,Tuple{Float64,Float64}}(),
+                upper_bounds=Dict{Int,Tuple{Float64,Float64}}(),
             ),
-            global_tightenings = IntegerBounds(),
+            global_tightenings=IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :domain_oracle => domain_oracle,
                 :dual_gap => dual_gap,
-                :dual_gap_decay_factor => dual_gap_decay_factor, 
+                :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_tightening => dual_tightening,
                 :fwVerbose => fw_verbose,
                 :global_dual_tightening => global_dual_tightening,
@@ -199,17 +199,20 @@ function solve(
             fw_time=Millisecond(0),
             global_tightenings=0,
             local_tightenings=0,
-            local_potential_tightenings=0, 
+            local_potential_tightenings=0,
             dual_gap=-Inf,
         ),
     )
 
     if start_solution !== nothing
         if size(start_solution) != size(v)
-            error("size of starting solution differs from vertices: $(size(start_solution)), $(size(v))")
+            error(
+                "size of starting solution differs from vertices: $(size(start_solution)), $(size(v))",
+            )
         end
         # Sanity check that the provided solution is in fact feasible.
-        @assert is_linear_feasible(blmo, start_solution) && is_integer_feasible(tree, start_solution)
+        @assert is_linear_feasible(blmo, start_solution) &&
+                is_integer_feasible(tree, start_solution)
         node = tree.nodes[1]
         sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
         push!(tree.solutions, sol)
@@ -260,7 +263,7 @@ function solve(
         local_tightenings,
         local_potential_tightenings,
         num_bin,
-        num_int, 
+        num_int,
     )
 
     fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
@@ -275,10 +278,11 @@ function solve(
     # Check solution and polish
     x_polished = x
     if x !== nothing
-        if !is_linear_feasible(tree.root.problem.tlmo, x) 
+        if !is_linear_feasible(tree.root.problem.tlmo, x)
             error("Reported solution not linear feasbile!")
         end
-        if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16) && x !== nothing
+        if !is_integer_feasible(tree.root.problem.integer_variables, x, atol=1e-16, rtol=1e-16) &&
+           x !== nothing
             @info "Polish solution"
             for i in tree.root.problem.integer_variables
                 x_polished[i] = round(x_polished[i])
@@ -368,7 +372,13 @@ function build_bnb_callback(
         lb_update=false,
     )
         if baseline_callback !== nothing
-            baseline_callback(tree, node, worse_than_incumbent=worse_than_incumbent, node_infeasible=node_infeasible, lb_update=lb_update)
+            baseline_callback(
+                tree,
+                node,
+                worse_than_incumbent=worse_than_incumbent,
+                node_infeasible=node_infeasible,
+                lb_update=lb_update,
+            )
         end
         if !node_infeasible
             #update lower bound
@@ -498,10 +508,11 @@ function build_bnb_callback(
             # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
             if x === nothing
                 @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
-            end 
+            end
             primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
             # deactivate postsolve if there is no solution
-            tree.root.options[:usePostsolve] = x === nothing ? false : tree.root.options[:usePostsolve]
+            tree.root.options[:usePostsolve] =
+                x === nothing ? false : tree.root.options[:usePostsolve]
 
             # TODO: here we need to calculate the actual state
 
@@ -593,15 +604,17 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         if primal < tree.incumbent
             tree.root.updated_incumbent[] = true
             tree.incumbent = primal
-            tree.lb = tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
+            tree.lb =
+                tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
             tree.incumbent_solution.objective = tree.solutions[1].objective = primal
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
-        else 
+        else
             if primal < tree.incumbent && tree.lb > primal - dual_gap
                 @info "tree.lb > primal - dual_gap"
-            else 
+            else
                 @info "primal >= tree.incumbent"
-                @assert primal <= tree.incumbent + 1e-3 || isapprox(primal, tree.incumbent, atol =1e-6, rtol=1e-2)
+                @assert primal <= tree.incumbent + 1e-3 ||
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2)
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
@@ -636,12 +649,27 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t LMO calls / node: $(tree.root.problem.tlmo.ncalls / tree.num_nodes)\n")
         if tree.root.options[:global_dual_tightening]
             println("\t Total number of global tightenings: ", sum(result[:global_tightenings]))
-            println("\t Global tightenings / node: ", round(sum(result[:global_tightenings])/length(result[:global_tightenings]), digits=2))
+            println(
+                "\t Global tightenings / node: ",
+                round(
+                    sum(result[:global_tightenings]) / length(result[:global_tightenings]),
+                    digits=2,
+                ),
+            )
         end
         if tree.root.options[:dual_tightening]
             println("\t Total number of local tightenings: ", sum(result[:local_tightenings]))
-            println("\t Local tightenings / node: ", round(sum(result[:local_tightenings])/length(result[:local_tightenings]), digits=2))
-            println("\t Total number of potential local tightenings: ", sum(result[:local_potential_tightenings]))
+            println(
+                "\t Local tightenings / node: ",
+                round(
+                    sum(result[:local_tightenings]) / length(result[:local_tightenings]),
+                    digits=2,
+                ),
+            )
+            println(
+                "\t Total number of potential local tightenings: ",
+                sum(result[:local_potential_tightenings]),
+            )
         end
     end
 
@@ -656,4 +684,3 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
 
     return x
 end
-

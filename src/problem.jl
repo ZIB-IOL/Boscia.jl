@@ -18,12 +18,8 @@ s.t.  x ∈ X (given by the LMO)
       x_j ∈ Z ∀ j in integer_variables
 ```
 """
-mutable struct SimpleOptimizationProblem{
-    F,
-    G,
-    TLMO<:TimeTrackingLMO,
-    IB<:IntegerBounds,
-} <: AbstractSimpleOptimizationProblem
+mutable struct SimpleOptimizationProblem{F,G,TLMO<:TimeTrackingLMO,IB<:IntegerBounds} <:
+               AbstractSimpleOptimizationProblem
     f::F
     g::G
     nvars::Int
@@ -63,7 +59,8 @@ function is_integer_feasible(
 end
 
 function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
-    indicator_feasible = indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.blmo.o, x) : true
+    indicator_feasible =
+        indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.blmo.o, x) : true
     return is_integer_feasible(
         tree.root.problem.integer_variables,
         x;
