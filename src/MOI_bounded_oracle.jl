@@ -632,6 +632,7 @@ function Boscia.solve(
     domain_oracle=x -> true,
     start_solution=nothing,
     fw_verbose=false,
+    use_shadow_set=true,
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
@@ -664,6 +665,7 @@ function Boscia.solve(
         domain_oracle=domain_oracle,
         start_solution=start_solution,
         fw_verbose=fw_verbose,
+        use_shadow_set=use_shadow_set,
         kwargs...,
     )
 end
