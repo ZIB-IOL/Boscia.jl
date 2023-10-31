@@ -48,7 +48,7 @@ domain_oracle          - For a point x: returns true if x is in the domain of f,
                          on the Line Search method, you might have to provide the domain oracle to it, too.
 start_solution         - initial solution to start with an incumbent
 fw_verbose             - if true, FrankWolfe logs are printed
-use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the childern nodes.
+use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
                         It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
                         performance might improve by disabling this option. 
 """
