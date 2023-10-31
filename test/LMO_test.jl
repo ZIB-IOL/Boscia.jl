@@ -77,7 +77,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
 
         x, _, result =
-            Boscia.solve(f, grad!, blmo, verbose=true, branching_strategy=branching_strategy)
+            Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -95,10 +95,8 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         end
         branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
 
-        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo, branching_strategy=branching_strategy)
-
         x, _, result =
-            Boscia.solve(f, grad!, blmo, verbose=true)
+            Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)

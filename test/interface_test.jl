@@ -97,7 +97,7 @@ end
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
         x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -110,7 +110,7 @@ end
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
         x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true, use_shadow_set=false)
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, use_shadow_set=false)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
