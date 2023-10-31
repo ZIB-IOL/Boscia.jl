@@ -12,9 +12,9 @@ Create all possible subproblems, solve them and pick the one with the most progr
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
-    branching::PartialStrongBranching{BoundedLinearMinimizationOracle},
+    branching::PartialStrongBranching{BLMO},
     node::Bonobo.AbstractNode,
-)
+) where BLMO <: BoundedLinearMinimizationOracle 
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
@@ -22,6 +22,8 @@ function Bonobo.get_branching_variable(
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
+    @show branching.bounded_lmo
+    @show xrel
     for idx in Bonobo.get_branching_indices(tree.root)
         if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
 
@@ -79,7 +81,7 @@ function Bonobo.get_branching_variable(
                 Bonobo.get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.bounded_lmo)
-            if status == OPTIMALS
+            if status == OPTIMAL
                 empty!(active_set)
                 for (λ, v) in node.active_set
                     if v[idx] >= xrel[idx]
@@ -125,6 +127,13 @@ function Bonobo.get_branching_variable(
     if max_idx <= 0
         max_idx = -1
     end
+    # reset LMO
+    build_LMO(
+        branching.bounded_lmo,
+        tree.root.problem.integer_variable_bounds,
+        node.local_bounds,
+        Bonobo.get_branching_indices(tree.root),
+    )
     return max_idx
 end
 

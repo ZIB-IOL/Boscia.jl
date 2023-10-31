@@ -55,3 +55,52 @@ const MOD = MathOptSetDistances
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 1.5, 0.0, 3.0], ones(n - 5))) == false
     @test Boscia.is_linear_feasible(o, vcat([5.0, 0.0, 5.5, 0.0, 5.0], ones(n - 5))) == false
 end
+
+n = 20
+diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+
+@testset "Cube LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+    @testset "Partial Strong Branching" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+
+        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
+
+        x, _, result =
+            Boscia.solve(f, grad!, blmo, verbose=true, branching_strategy=branching_strategy)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+    @testset "Hybrid Strong Branching" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+
+        function perform_strong_branch(tree, node)
+            return node.level <= length(tree.root.problem.integer_variables) / 3
+        end
+        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
+
+        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo, branching_strategy=branching_strategy)
+
+        x, _, result =
+            Boscia.solve(f, grad!, blmo, verbose=true)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+end
