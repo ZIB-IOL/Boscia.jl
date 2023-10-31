@@ -22,8 +22,6 @@ function Bonobo.get_branching_variable(
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
-    @show branching.bounded_lmo
-    @show xrel
     for idx in Bonobo.get_branching_indices(tree.root)
         if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
 
