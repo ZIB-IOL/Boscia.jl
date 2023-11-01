@@ -82,6 +82,41 @@ end
     @test f(x) == f(result[:raw_solution])
 end
 
+@testset "Normbox - Shadow set activation" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+    @testset "Using shadow set" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+    @testset "Not using shadow set" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, use_shadow_set=false)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+end
+
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i

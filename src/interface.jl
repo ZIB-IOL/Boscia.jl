@@ -35,6 +35,8 @@ max_fw_iter            - maximum number of iterations in a FrankWolfe run.
 min_number_lower       - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
                         lower bound.
 min_node_fw_epsilon    - smallest fw epsilon possible, see dual_gap_decay_factor.
+use_postsolve          - Runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e.
+                        it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables. 
 min_fw_iterations      - the minimum number of FrankWolfe iterations in the node evaluation. 
 max_iteration_post     - maximum number of iterations in a FrankWolfe run during postsolve
 dual_tightening        - whether to use dual tightening techniques (make sure your function is convex!)
@@ -46,6 +48,9 @@ domain_oracle          - For a point x: returns true if x is in the domain of f,
                          on the Line Search method, you might have to provide the domain oracle to it, too.
 start_solution         - initial solution to start with an incumbent
 fw_verbose             - if true, FrankWolfe logs are printed
+use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
+                        It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
+                        performance might improve by disabling this option. 
 """
 function solve(
     f,
@@ -78,6 +83,7 @@ function solve(
     domain_oracle=x -> true,
     start_solution=nothing,
     fw_verbose=false,
+    use_shadow_set=true,
     kwargs...,
 )
     if verbose
@@ -182,6 +188,7 @@ function solve(
                 :time_limit => time_limit,
                 :usePostsolve => use_postsolve,
                 :variant => variant,
+                :use_shadow_set => use_shadow_set,
             ),
         ),
         branch_strategy=branching_strategy,
