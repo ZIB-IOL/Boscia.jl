@@ -1,6 +1,5 @@
 using Boscia
 using FrankWolfe
-using Bonobo
 using Test
 using Random
 using SCIP
