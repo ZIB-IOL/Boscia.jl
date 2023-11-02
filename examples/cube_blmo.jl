@@ -5,7 +5,7 @@
 
 A Bounded Linear Minimization Oracle over a cube.
 """
-mutable struct CubeBLMO <: BoundedLinearMinimizationOracle
+mutable struct CubeBLMO <: Boscia.BoundedLinearMinimizationOracle
     n::Int
     int_vars::Vector{Int}
     bounds::IntegerBounds
@@ -17,7 +17,7 @@ CubeBLMO(n, int_vars, bounds) = CubeBLMO(n, int_vars, bounds, 0.0)
 ## Necessary
 
 # computing an extreme point for the cube amounts to checking the sign of the gradient
-function compute_extreme_point(blmo::CubeBLMO, d; kwargs...)
+function Boscia.compute_extreme_point(blmo::CubeBLMO, d; kwargs...)
     time_ref = Dates.now()
     v = zeros(length(d))
     for i in eachindex(d)
@@ -29,7 +29,7 @@ end
 
 ##
 
-function build_global_bounds(blmo::CubeBLMO, integer_variables)
+function Boscia.build_global_bounds(blmo::CubeBLMO, integer_variables)
     global_bounds = IntegerBounds()
     for i in 1:blmo.n
         if i in integer_variables
@@ -42,34 +42,34 @@ end
 
 
 ## Read information from problem
-function get_list_of_variables(blmo::CubeBLMO)
+function Boscia.get_list_of_variables(blmo::CubeBLMO)
     return blmo.n, collect(1:blmo.n)
 end
 
 # Get list of integer variables, respectively.
-function get_integer_variables(blmo::CubeBLMO)
+function Boscia.get_integer_variables(blmo::CubeBLMO)
     return blmo.int_vars
 end
 
-function get_int_var(blmo::CubeBLMO, cidx)
+function Boscia.get_int_var(blmo::CubeBLMO, cidx)
     return cidx
 end
 
-function get_lower_bound_list(blmo::CubeBLMO)
+function Boscia.get_lower_bound_list(blmo::CubeBLMO)
     return keys(blmo.bounds.lower_bounds)
 end
 
-function get_upper_bound_list(blmo::CubeBLMO)
+function Boscia.get_upper_bound_list(blmo::CubeBLMO)
     return keys(blmo.bounds.upper_bounds)
 end
 
-function get_bound(blmo::CubeBLMO, c_idx, sense::Symbol)
+function Boscia.get_bound(blmo::CubeBLMO, c_idx, sense::Symbol)
     @assert sense == :lessthan || sense == :greaterthan
     return blmo[c_idx, sense]
 end
 
 ## Changing the bounds constraints.
-function set_bound!(blmo::CubeBLMO, c_idx, value, sense::Symbol)
+function Boscia.set_bound!(blmo::CubeBLMO, c_idx, value, sense::Symbol)
     if sense == :greaterthan
         blmo.bounds.lower_bounds[c_idx] = value
     elseif sense == :lessthan
@@ -79,29 +79,29 @@ function set_bound!(blmo::CubeBLMO, c_idx, value, sense::Symbol)
     end
 end
 
-function delete_bounds!(blmo::CubeBLMO, cons_delete)
+function Boscia.delete_bounds!(blmo::CubeBLMO, cons_delete)
     # For the cube this shouldn't happen! Otherwise we get unbounded!
     if !isempty(cons_delete)
         error("Trying to delete bounds of the cube!")
     end
 end
 
-function add_bound_constraint!(blmo::CubeBLMO, key, value, sense::Symbol)
+function Boscia.add_bound_constraint!(blmo::CubeBLMO, key, value, sense::Symbol)
     # Should not be necessary
     return error("Trying to add bound constraints of the cube!")
 end
 
 ## Checks
 
-function is_constraint_on_int_var(blmo::CubeBLMO, c_idx, int_vars)
+function Boscia.is_constraint_on_int_var(blmo::CubeBLMO, c_idx, int_vars)
     return c_idx in int_vars
 end
 
-function is_bound_in(blmo::CubeBLMO, c_idx, bounds)
+function Boscia.is_bound_in(blmo::CubeBLMO, c_idx, bounds)
     return haskey(bounds, c_idx)
 end
 
-function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
+function Boscia.is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     for i in eachindex(v)
         if !(
             blmo.bounds[i, :greaterthan] ≤ v[i] + 1e-6 ||
@@ -116,7 +116,7 @@ function is_linear_feasible(blmo::CubeBLMO, v::AbstractVector)
     return true
 end
 
-function has_integer_constraint(blmo::CubeBLMO, idx)
+function Boscia.has_integer_constraint(blmo::CubeBLMO, idx)
     return idx in blmo.int_vars
 end
 
@@ -124,7 +124,7 @@ end
 ###################### Optional
 ## Safety Functions
 
-function build_LMO_correct(blmo::CubeBLMO, node_bounds)
+function Boscia.build_LMO_correct(blmo::CubeBLMO, node_bounds)
     for key in keys(node_bounds.lower_bounds)
         if !haskey(blmo.bounds, (key, :greaterthan)) ||
            blmo.bounds[key, :greaterthan] != node_bounds[key, :greaterthan]
@@ -140,7 +140,7 @@ function build_LMO_correct(blmo::CubeBLMO, node_bounds)
     return true
 end
 
-function check_feasibility(blmo::CubeBLMO)
+function Boscia.check_feasibility(blmo::CubeBLMO)
     for i in 1:blmo.n
         if !haskey(blmo.bounds, (i, :greaterthan)) || !haskey(blmo.bounds, (i, :lessthan))
             return UNBOUNDED
@@ -152,11 +152,11 @@ function check_feasibility(blmo::CubeBLMO)
     return OPTIMAL
 end
 
-function is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
+function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
     return blmo.bounds[vidx, :lessthan] != blmo.bounds[vidx, :greaterthan]
 end
 
 ## Logs
-function get_BLMO_solve_data(blmo::CubeBLMO)
+function Boscia.get_BLMO_solve_data(blmo::CubeBLMO)
     return blmo.solving_time, 0.0, 0.0
 end
