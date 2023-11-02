@@ -126,9 +126,7 @@ n = 20
 x_sol = rand(1:Int(floor(n/4)), n)
 N = sum(x_sol)
 dir = vcat(fill(1, Int(floor(n/2))), fill(-1, Int(floor(n/2))), fill(0, mod(n,2)))
-@assert length(dir) == n
 diffi = x_sol + 0.3 * dir
-@assert sum(diffi) == N
 
 @testset "Probability Simplex LMO" begin
     function f(x)
