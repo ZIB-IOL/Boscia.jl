@@ -1,5 +1,6 @@
 using Boscia
 using FrankWolfe
+using Bonobo
 using Test
 using Random
 using SCIP
@@ -49,7 +50,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
             push!(bounds, (i, 0.0), :greaterthan)
             push!(bounds, (i, 1.0), :lessthan)
         end
-        blmo = Boscia.CubeBLMO(n, int_vars, bounds)
+        blmo = CubeBLMO(n, int_vars, bounds)
 
         x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
 
@@ -112,7 +113,7 @@ end
             push!(bounds, (i, 0.0), :greaterthan)
             push!(bounds, (i, 1.0), :lessthan)
         end
-        blmo = Boscia.CubeBLMO(n, int_vars, bounds)
+        blmo = CubeBLMO(n, int_vars, bounds)
 
         x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
 

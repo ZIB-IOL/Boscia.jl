@@ -1,4 +1,7 @@
 ## How to implement the BLMO Interface using the cube as an example
+using Boscia
+using Bonobo
+using Dates 
 
 """
     CubeBLMO
@@ -8,7 +11,7 @@ A Bounded Linear Minimization Oracle over a cube.
 mutable struct CubeBLMO <: Boscia.BoundedLinearMinimizationOracle
     n::Int
     int_vars::Vector{Int}
-    bounds::IntegerBounds
+    bounds::Boscia.IntegerBounds
     solving_time::Float64
 end
 
@@ -30,7 +33,7 @@ end
 ##
 
 function Boscia.build_global_bounds(blmo::CubeBLMO, integer_variables)
-    global_bounds = IntegerBounds()
+    global_bounds = Boscia.IntegerBounds()
     for i in 1:blmo.n
         if i in integer_variables
             push!(global_bounds, (i, blmo.bounds[i, :lessthan]), :lessthan)
@@ -143,13 +146,13 @@ end
 function Boscia.check_feasibility(blmo::CubeBLMO)
     for i in 1:blmo.n
         if !haskey(blmo.bounds, (i, :greaterthan)) || !haskey(blmo.bounds, (i, :lessthan))
-            return UNBOUNDED
+            return Boscia.UNBOUNDED
         end
         if blmo.bounds[i, :greaterthan] > blmo.bounds[i, :lessthan]
-            return INFEASIBLE
+            return Boscia.INFEASIBLE
         end
     end
-    return OPTIMAL
+    return Boscia.OPTIMAL
 end
 
 function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
