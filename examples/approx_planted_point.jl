@@ -9,6 +9,8 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+include("cube_blmo.jl")
+
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
