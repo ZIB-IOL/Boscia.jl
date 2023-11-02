@@ -42,14 +42,14 @@ end
 
 Scaled Probability Simplex: ∑ x = N.
 """
-struct ProbablitySimplexSimpleBLMOSimpleBLMO <: SimpleBoundableLMO
+struct ProbablitySimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
 end
 
 """
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
-function bounded_compute_extreme_point(sblmo::ProbablitySimplexSimpleBLMOSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(sblmo::ProbablitySimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     indices = collect(1:length(d))
     perm = sortperm(d)
@@ -65,7 +65,7 @@ function bounded_compute_extreme_point(sblmo::ProbablitySimplexSimpleBLMOSimpleB
     return v
 end
 
-function is_linear_feasible(sblmo::ProbablitySimplexSimpleBLMOSimpleBLMO, v)
+function is_linear_feasible(sblmo::ProbablitySimplexSimpleBLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
@@ -78,7 +78,7 @@ end
 
 Scaled Unit Simplex: ∑ x ≤ N.
 """
-struct UnitSimplexSimpleBLMOSimpleBLMO <: SimpleBoundableLMO
+struct UnitSimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
 end
 
@@ -86,7 +86,7 @@ end
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
-function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMOSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     # d[i] positive
     idx_pos = findall(x-> x > 0, d)
@@ -112,7 +112,7 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMOSimpleBLMO, d
     return v
 end
 
-function is_linear_feasible(sblmo::UnitSimplexSimpleBLMOSimpleBLMO, v)
+function is_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
