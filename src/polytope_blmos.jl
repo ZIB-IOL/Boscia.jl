@@ -54,12 +54,15 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     indices = collect(1:length(d))
     perm = sortperm(d)
 
+    # The lower bounds always have to be met. 
+    v[int_vars] = lb
+
     for i in indices[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] = min(ub[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
         else
-            v[i] = N - sum(v)
+            v[i] += N - sum(v)
         end
     end
     return v
@@ -88,25 +91,21 @@ For non-positive entries, assign largest possible value in increasing order.
 """
 function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
-    # d[i] positive
-    idx_pos = findall(x-> x > 0, d)
-    for i in idx_pos
-        if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
-            v[i] = lb[idx]
-        else
-            v[i] = 0.0
-        end
+    # The wloer bounds always have to be met.
+    v[int_vars] = lb
+    cont_vars = setdiff(collect(1:length(d)), int_vars)
+    if !isempty(cont_vars)
+        v[cont_vars] .= 0.0
     end
-    # d[i] negative
-    idx_neg = setdiff(eachindex(d), idx_pos)
+    
+    idx_neg = findall(x-> x <= 0, d)
     perm = sortperm(d[idx_neg])
     for i in idx_neg[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] = min(ub[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
         else
-            v[i] = N - sum(v)
+            v[i] += N - sum(v)
         end
     end
     return v
