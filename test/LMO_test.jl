@@ -141,7 +141,7 @@ diffi = x_sol + 0.3 * dir
     sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n, verbose=true)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -163,7 +163,7 @@ diffi = x_sol + 0.3*rand([-1,1], n)
     sblmo = Boscia.UnitSimplexSimpleBLMO(N)
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n, verbose=true)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
