@@ -10,21 +10,36 @@ using Dates
 
 const MOI = MathOptInterface
 
-n = 5
+n = 40
 seed = 10
 
 Random.seed!(seed)
 
-o = SCIP.Optimizer()
-MOI.set(o, MOI.Silent(), true)
-MOI.empty!(o)
-x = MOI.add_variables(o, n)
-for xi in x
-    MOI.add_constraint(o, xi, MOI.ZeroOne())
-    MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
-    MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+################################################################
+# alternative implementation of LMO using MOI and SCIP
+################################################################
+# o = SCIP.Optimizer()
+# MOI.set(o, MOI.Silent(), true)
+# MOI.empty!(o)
+# x = MOI.add_variables(o, n)
+# for xi in x
+#     MOI.add_constraint(o, xi, MOI.ZeroOne())
+#     MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+#     MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+# end
+# lmo = FrankWolfe.MathOptLMO(o)
+
+
+################################################################
+# LMO via CubeBLMO
+################################################################
+int_vars = collect(1:n)
+bounds = Boscia.IntegerBounds()
+for i in 1:n
+    push!(bounds, (i, 0.0), :greaterthan)
+    push!(bounds, (i, 1.0), :lessthan)
 end
-lmo = FrankWolfe.MathOptLMO(o)
+lmo = CubeBLMO(n, int_vars, bounds)
 
 const A = let
     A = randn(n, n)
@@ -47,6 +62,6 @@ function grad!(storage, x)
     return mul!(storage, A, y, -2, 2)
 end
 
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=1)
+x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=500)
 
 @show x
