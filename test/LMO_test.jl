@@ -11,8 +11,6 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
-import MathOptSetDistances
-const MOD = MathOptSetDistances
 @testset "Integer bounds" begin
     n = 10
     integer_bound = Boscia.IntegerBounds()
@@ -66,6 +64,27 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     function grad!(storage, x)
         @. storage = x - diffi
     end
+
+    lbs = zeros(n)
+    ubs = ones(n)
+    int_vars = collect(1:n)
+
+    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
+
+    @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+@testset "BLMO - Strong Branching" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
     @testset "Partial Strong Branching" begin
         int_vars = collect(1:n)
         lbs = zeros(n)
@@ -101,4 +120,49 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
+end
+
+n = 20
+x_sol = rand(1:Int(floor(n/4)), n)
+N = sum(x_sol)
+dir = vcat(fill(1, Int(floor(n/2))), fill(-1, Int(floor(n/2))), fill(0, mod(n,2)))
+diffi = x_sol + 0.3 * dir
+
+@testset "Probability Simplex LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
+
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n)
+
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+n = 20
+x_sol = rand(1:Int(floor(n/4)), n)
+diffi = x_sol + 0.3*rand([-1,1], n)
+
+@testset "Unit Simplex LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    N = sum(x_sol) + floor(n/2)
+    sblmo = Boscia.UnitSimplexSimpleBLMO(N)
+
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
+
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end

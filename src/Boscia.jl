@@ -27,7 +27,7 @@ include("utilities.jl")
 include("interface.jl")
 include("managed_blmo.jl")
 include("MOI_bounded_oracle.jl")
-include("cube_blmo.jl")
+include("polytope_blmos.jl")
 
 # For extensions
 if !isdefined(Base, :get_extension)
