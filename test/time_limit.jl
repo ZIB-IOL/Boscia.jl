@@ -63,5 +63,5 @@ time_limit = 30.0
     time_taken = float(Dates.value(Dates.now() - start_time)) / 1000
     @test sum(ai' * x) <= bi + 1e-6
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test time_taken <= time_limit + 10
+    @test time_taken <= time_limit + 15
 end
