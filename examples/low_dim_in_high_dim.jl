@@ -29,7 +29,7 @@ function grad!(storage, x)
     return mul!(storage, Ws, (x - refpoint))
 end
 
-@testset "Low-dimensional function" begin
+@testset "Low-dimensional function (SCIP)" begin
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
@@ -42,6 +42,26 @@ end
     lmo = FrankWolfe.MathOptLMO(o)
 
     x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+
+    if n < 15  # only do for small n 
+        valopt, xopt = Boscia.min_via_enum(f, n)
+        @test (f(x) - f(xopt)) / abs(f(xopt)) <= 1e-3
+    end
+
+    @test f(x) <= f(result[:raw_solution]) + 1e-6
+end
+
+@testset "Low-dimensional function (CubeBLMO)" begin
+
+    int_vars = collect(1:n)
+    bounds = Boscia.IntegerBounds()
+    for i in 1:n
+        push!(bounds, (i, 0.0), :greaterthan)
+        push!(bounds, (i, 1.0), :lessthan)
+    end
+    blmo = CubeBLMO(n, int_vars, bounds)
+
+    x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)
