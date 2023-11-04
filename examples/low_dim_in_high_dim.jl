@@ -9,6 +9,8 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+include("cube_blmo.jl")
+
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
 # https://arxiv.org/abs/2204.05266. 
