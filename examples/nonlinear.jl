@@ -1,4 +1,3 @@
-using SCIP
 using FrankWolfe
 using LinearAlgebra
 import MathOptInterface
@@ -8,7 +7,10 @@ import Bonobo
 using Printf
 using Dates
 
-const MOI = MathOptInterface
+# using SCIP
+# const MOI = MathOptInterface
+
+include("cube_blmo.jl")
 
 n = 40
 seed = 10
