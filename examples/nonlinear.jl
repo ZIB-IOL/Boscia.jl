@@ -40,7 +40,7 @@ ubs = ones(n)
 
 sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 # wrap the sblmo into a bound manager
-lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
 const A = let
     A = randn(n, n)
