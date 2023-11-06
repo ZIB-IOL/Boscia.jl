@@ -2,7 +2,7 @@ using Boscia
 using FrankWolfe
 using Test
 using Random
-using SCIP
+# using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
@@ -33,16 +33,27 @@ n = 10
 
 @testset "Interface - 2-norm over hypercube -- α = $alpha" for alpha in (0.0, 0.05)
     diff_point = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
-    o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
-    MOI.empty!(o)
-    x = MOI.add_variables(o, n)
-    for xi in x
-        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
-        MOI.add_constraint(o, xi, MOI.LessThan(1.0))
-        MOI.add_constraint(o, xi, MOI.ZeroOne())
-    end
-    lmo = FrankWolfe.MathOptLMO(o)
+
+    # SCIP variant of the LMO
+    # o = SCIP.Optimizer()
+    # MOI.set(o, MOI.Silent(), true)
+    # MOI.empty!(o)
+    # x = MOI.add_variables(o, n)
+    # for xi in x
+    #     MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+    #     MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+    #     MOI.add_constraint(o, xi, MOI.ZeroOne())
+    # end
+    # lmo = FrankWolfe.MathOptLMO(o)
+
+    int_vars = collect(1:n)
+
+    lbs = zeros(n)
+    ubs = ones(n)
+
+    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    # wrap the sblmo into a bound manager
+    lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
 
     function f(x)
         return 0.5 * sum((x .- diff_point) .^ 2)
