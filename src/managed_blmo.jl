@@ -34,12 +34,12 @@ mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMini
     simple_lmo::SBLMO
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
-    n::Int
     int_vars::Vector{Int}
+    n::Int
     solving_time::Float64
 end
 
-function ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars)
+function ManagedBoundedLMO(simple_lmo, lb, ub, int_vars, n)
     if length(lb) != length(ub) || length(ub) != length(int_vars) || length(lb) != length(int_vars)
         error(
             "Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!",
@@ -50,7 +50,7 @@ function ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars)
         @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
         @assert isapprox(ub[i], round(ub[i]), atol=1e-6, rtol=1e-2)
     end
-    return ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
+    return ManagedBoundedLMO(simple_lmo, lb, ub, int_vars, n, 0.0)
 end
 
 #ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars) = ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
@@ -262,7 +262,7 @@ function solve(
     use_shadow_set=true,
     kwargs...,
 )
-    blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, n, int_vars)
+    blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
     return solve(
         f,
         grad!,
