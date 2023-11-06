@@ -29,6 +29,13 @@ Ai = Ai' * Ai
 const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
 
+@show ri
+@show ai
+@show Ωi 
+@show bi
+@show Ai
+@show Mi
+
 function prepare_portfolio_lmo()
     o = SCIP.Optimizer()
     MOI.set(o, MOI.Silent(), false)
