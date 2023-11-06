@@ -10,8 +10,6 @@ using Dates
 # using SCIP
 # const MOI = MathOptInterface
 
-include("cube_blmo.jl")
-
 n = 40
 seed = 10
 
@@ -33,15 +31,16 @@ Random.seed!(seed)
 
 
 ################################################################
-# LMO via CubeBLMO
+# LMO via CubeSimpleBLMO
 ################################################################
 int_vars = collect(1:n)
-bounds = Boscia.IntegerBounds()
-for i in 1:n
-    push!(bounds, (i, 0.0), :greaterthan)
-    push!(bounds, (i, 1.0), :lessthan)
-end
-lmo = CubeBLMO(n, int_vars, bounds)
+
+lbs = zeros(n)
+ubs = ones(n)
+
+sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+# wrap the sblmo into a bound manager
+lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
 
 const A = let
     A = randn(n, n)

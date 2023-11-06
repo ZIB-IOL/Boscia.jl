@@ -9,8 +9,6 @@ using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
-include("cube_blmo.jl")
-
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
 # https://arxiv.org/abs/2204.05266. 
@@ -53,17 +51,17 @@ end
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
-@testset "Low-dimensional function (CubeBLMO)" begin
+@testset "Low-dimensional function (CubeSimpleBLMO)" begin
 
     int_vars = collect(1:n)
-    bounds = Boscia.IntegerBounds()
-    for i in 1:n
-        push!(bounds, (i, 0.0), :greaterthan)
-        push!(bounds, (i, 1.0), :lessthan)
-    end
-    blmo = CubeBLMO(n, int_vars, bounds)
 
-    x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
+    lbs = zeros(n)
+    ubs = ones(n)
+    
+    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    
+    # modified solve call from managed_blmo.jl automatically wraps sblmo into a managed_blmo
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)
