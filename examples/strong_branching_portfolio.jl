@@ -12,6 +12,7 @@ import HiGHS
 
 # For bug hunting:
 seed = rand(UInt64)
+seed = 0xd038b7eafdcb28c1
 @show seed
 #seed = 0xeadb922ca734998b  
 Random.seed!(seed)
@@ -30,7 +31,7 @@ const Mi = (Ai + Ai') / 2
 
 function prepare_portfolio_lmo()
     o = SCIP.Optimizer()
-    MOI.set(o, MOI.Silent(), true)
+    MOI.set(o, MOI.Silent(), false)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
     I = collect(1:n)
