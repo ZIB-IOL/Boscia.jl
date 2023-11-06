@@ -39,7 +39,7 @@ mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMini
     solving_time::Float64
 end
 
-function ManagedBoundedLMO(simple_lmo, lb, ub, int_vars, n)
+function ManagedBoundedLMO(simple_lmo, lb, ub, int_vars::Vector{Int}, n::Int)
     if length(lb) != length(ub) || length(ub) != length(int_vars) || length(lb) != length(int_vars)
         error(
             "Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!",
