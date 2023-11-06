@@ -93,7 +93,7 @@ end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), false)
 
     lmo = prepare_portfolio_lmo()
     x, _, result_strong_branching =
