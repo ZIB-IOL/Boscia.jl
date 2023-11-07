@@ -134,7 +134,7 @@ function solve(
     else
         @assert FrankWolfe.active_set_validate(active_set)
         for a in active_set.atoms
-            @assert is_linear_feasible(blmo.o, a)
+            @assert is_linear_feasible(blmo, a)
         end
         v = active_set.atoms[1]
     end
