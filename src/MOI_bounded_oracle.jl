@@ -36,8 +36,6 @@ Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
 function Boscia.compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
-    @show d
-    print(lmo.o)
     v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
     @assert blmo isa MathOptBLMO
     return v
