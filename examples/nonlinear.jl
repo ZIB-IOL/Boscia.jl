@@ -63,6 +63,9 @@ function grad!(storage, x)
     return mul!(storage, A, y, -2, 2)
 end
 
+# benchmarking Oracles
+FrankWolfe.benchmark_oracles(f, grad!, () -> rand(n), lmo; k=100)
+
 x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=500)
 
 @show x
