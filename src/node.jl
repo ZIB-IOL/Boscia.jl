@@ -300,7 +300,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
-        @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent +1e-5)"
+        @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent)"
     end
 
     return lower_bound, NaN
