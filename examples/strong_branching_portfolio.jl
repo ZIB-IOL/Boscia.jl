@@ -91,8 +91,8 @@ end
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 
-   # blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
-   blmo = Boscia.MathOptBLMO(SCIP.Optimizer())
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+   #blmo = Boscia.MathOptBLMO(SCIP.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
