@@ -19,7 +19,7 @@ jobs:
             os: ubuntu-latest
             arch: x64
           - version: '1'
-            os: mac-latest
+            os: macOS-latest
             arch: x64
     steps:
       - uses: actions/checkout@v2
