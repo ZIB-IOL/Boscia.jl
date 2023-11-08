@@ -53,7 +53,7 @@ n = 10
 
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
     # wrap the sblmo into a bound manager
-    lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+    lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
     function f(x)
         return 0.5 * sum((x .- diff_point) .^ 2)

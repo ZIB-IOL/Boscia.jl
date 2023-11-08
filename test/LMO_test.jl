@@ -91,7 +91,7 @@ end
         ubs = ones(n)
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
 
@@ -107,7 +107,7 @@ end
         ubs = ones(n)
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], n, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         function perform_strong_branch(tree, node)
             return node.level <= length(tree.root.problem.integer_variables) / 3
