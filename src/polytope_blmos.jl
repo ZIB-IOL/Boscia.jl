@@ -77,6 +77,56 @@ function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
 end
 
 """
+Hyperplane aware rounding for the Probability simplex.
+"""
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}, x) 
+    z = copy(x)
+    for idx in tree.branching_indices
+        z[idx] = round(x[idx])
+    end
+    
+    N = blmo.simple_lmo.N
+    if sum(z) < N
+        while sum(z) < N
+            z = add_to_min(z, blmo.upper_bounds, tree.branching_indices)
+        end
+    elseif sum(z) > N
+        while sum(z) > N
+            z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
+        end
+    end
+    return z, true
+end
+function add_to_min(x, ub, int_vars)
+    perm = sortperm(x)
+    j = findfirst(x->x != 0, x[perm])
+    
+    for i in intersect(j:length(x), int_vars)
+        if x[perm[i]] < ub[perm[i]]
+            x[perm[i]] += 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+function remove_from_max(x, lb, int_vars)
+    perm = sortperm(x, rev = true)
+    j = findlast(x->x != 0, x[perm])
+    
+    for i in intersect(1:j, int_vars)
+        if x[perm[i]] > lb[perm[i]]
+            x[perm[i]] -= 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+
+"""
     UnitSimplexSimpleBLMO(N)
 
 Scaled Unit Simplex: ∑ x ≤ N.
@@ -117,4 +167,22 @@ function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
         return false
     end
     return sum(v) ≤ sblmo.N + 1e-3
+end
+
+"""
+Hyperplane aware rounding for the Unit simplex.
+"""
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{UnitSimplexSimpleBLMO}, x) 
+    z = copy(x)
+    for idx in tree.branching_indices
+        z[idx] = round(x[idx])
+    end
+    
+    N = blmo.simple_lmo.N
+    if sum(z) > N
+        while sum(z) > N
+            z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
+        end
+    end
+    return z, true
 end

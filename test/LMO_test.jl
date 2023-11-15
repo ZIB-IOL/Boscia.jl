@@ -173,7 +173,7 @@ N = sum(x_sol)
 dir = vcat(fill(1, Int(floor(n/2))), fill(-1, Int(floor(n/2))), fill(0, mod(n,2)))
 diffi = x_sol + 0.3 * dir
 
-@testset "Custom Heuristic" begin
+@testset "Custom Heuristic - Probability Simplex" begin
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
     end
@@ -181,58 +181,34 @@ diffi = x_sol + 0.3 * dir
         @. storage = x - diffi
     end
 
-    function heuristic(tree, x)
-        k = length(findall(x-> x!= 0.0, x))
-        #    @assert k ≤ s
-        z = round.(x)
-    
-        if sum(z) < N
-            while sum(z) < N
-                z = add_to_min(z, N)
-            end
-        elseif sum(z) > N
-            while sum(z) > N
-                z = remove_from_max(z)
-            end
-        end
-        return z
-    end
-    
-    function add_to_min(x, N)
-        perm = sortperm(x)
-        j = findfirst(x->x != 0, x[perm])
-        
-        for i in j:length(x)
-            if x[perm[i]] < N
-                x[perm[i]] += 1
-                break
-            else
-                continue
-            end
-        end
-        return x
-    end
-    
-    function remove_from_max(x)
-        perm = sortperm(x, rev = true)
-        j = findlast(x->x != 0, x[perm])
-        
-        for i in 1:j
-            if x[perm[i]] > 1
-                x[perm[i]] -= 1
-                break
-            else
-                continue
-            end
-        end
-        return x
-    end
-
     sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
-    heu = Boscia.Heuristic(heuristic, 0.8, :hyperplane_rounding)
+    heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.8, :hyperplane_rounding)
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n, heuristic=heu)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n, custom_heuristics=[heu])
+
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+n = 20
+x_sol = rand(1:Int(floor(n/4)), n)
+diffi = x_sol + 0.3*rand([-1,1], n)
+
+@testset "Custom Heuristic - Unit Simplex" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    N = sum(x_sol) + floor(n/2)
+    sblmo = Boscia.UnitSimplexSimpleBLMO(N)
+    heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.8, :hyperplane_rounding)
+
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n, custom_heuristics=[heu])
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
