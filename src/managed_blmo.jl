@@ -12,10 +12,10 @@ Computes the extreme point given an direction d, the current lower and upper bou
 function bounded_compute_extreme_point end
 
 """
-Checks whether a given point v is satisfying the linear constraints on the problem.
+Checks whether a given point v is satisfying the constraints on the problem.
 Note that the bounds on the integer variables are being checked by the ManagedBoundedLMO and do not have to be check here. 
 """
-function is_linear_feasible end
+function is_simple_linear_feasible end
 
 
 """
@@ -179,7 +179,7 @@ function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
             return false
         end
     end
-    return is_linear_feasible(blmo.simple_lmo, v)
+    return is_simple_linear_feasible(blmo.simple_lmo, v)
 end
 
 # Has variable an integer constraint?
