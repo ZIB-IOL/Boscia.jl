@@ -303,6 +303,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent)"
     end
 
+    # Call heuristic 
+    # Is this necessary everytime?
+    heu = pick_heuristic(tree.root.options[:heuristics])
+    heu.h(tree, x)
+
     return lower_bound, NaN
 end
 
