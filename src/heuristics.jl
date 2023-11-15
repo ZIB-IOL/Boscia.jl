@@ -6,7 +6,8 @@
     Boscia Heuristic
 
 Interface for heuristics in Boscia.    
-`h` is the heuristic function receiving as input ..
+`h` is the heuristic function receiving as input the tree, the bounded LMO and a point x (the current node solution).
+It returns the heuristic solution (can be nothing, we check for that) and whether feasibility still has to be check.
 `prob` is the probability with which it will be called.        
 """
 # Would 'Heuristic' also suffice? Or might we run into Identifer conflicts with other packages?
@@ -50,29 +51,29 @@ Choose which heuristics to run by rolling a dice.
 function run_heuristics(tree, x, heuristic_list)
     for heuristic in heuristic_list
         if flip_coin(heuristic.prob)
-            x_heu = heuristic.h(tree, x)
+            x_heu, check_feasibility = heuristic.h(tree, tree.root.problem.tlmo.blmo, x)
 
             # check feasibility
-            if x_heu !== nothing && is_linear_feasible(tree.root.problem.tlmo, x_heu) &&
-                is_integer_feasible(tree, x_heu)
-                val = tree.root.problem.f(x_heu)
-                if val < tree.incumbent
-                    add_heuristic_solution(tree, x_heu, val, heuristic.identifer)
+            if x_heu !== nothing 
+                feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : true
+                if feasible
+                    val = tree.root.problem.f(x_heu)
+                    if val < tree.incumbent
+                        add_heuristic_solution(tree, x_heu, val, heuristic.identifer)
+                    end
                 end
             end
         end
     end
 end
 
-
 """
 Simple rounding heuristic.
 """
-function rounding_heuristics(tree::Bonobo.BnBTree, x)
+function rounding_heuristic(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, x)
     x_rounded = copy(x)
     for idx in tree.branching_indices
         x_rounded[idx] = round(x[idx])
     end
-    return x_rounded
+    return x_rounded, true
 end
-
