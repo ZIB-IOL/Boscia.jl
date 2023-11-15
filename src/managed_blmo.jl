@@ -260,6 +260,7 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
+    heuristic=Heuristic(),
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
@@ -295,6 +296,7 @@ function solve(
         start_solution=start_solution,
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
+        heuristic=heuristic,
         kwargs...,
     )
 end

@@ -304,9 +304,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     # Call heuristic 
-    # Is this necessary everytime?
-    heu = pick_heuristic(tree.root.options[:heuristics])
-    heu.h(tree, x)
+    run_heuristics(tree, x, tree.root.options[:heuristics])
 
     return lower_bound, NaN
 end

@@ -85,7 +85,7 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
-    heuristic=BosciaHeuristic(),
+    heuristic=Heuristic(),
     kwargs...,
 )
     if verbose
@@ -159,6 +159,7 @@ function solve(
 
     Node = typeof(nodeEx)
     Value = Vector{Float64}
+    heuristics = [Heuristic(rounding_heuristics, 0.7,:rounding),heuristic]
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
@@ -191,7 +192,7 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
-                :heuristics => [BosciaHeuristic(rounding_heuristics, 0.7),heuristic], # Is a vector/list sufficent or would a dictonary be better?
+                :heuristics => heuristics, # Is a vector/list sufficent or would a dictonary be better?
             ),
         ),
         branch_strategy=branching_strategy,
