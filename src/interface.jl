@@ -51,6 +51,7 @@ fw_verbose             - if true, FrankWolfe logs are printed
 use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
                         It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
                         performance might improve by disabling this option. 
+heuristic              - Custom heuristic from the user.                          
 """
 function solve(
     f,
@@ -84,6 +85,7 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
+    heuristic=BosciaHeuristic(),
     kwargs...,
 )
     if verbose
@@ -189,6 +191,7 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
+                :heurtics => [heuristic], # Is a vector/list sufficent or would a dictonary be better?
             ),
         ),
         branch_strategy=branching_strategy,
