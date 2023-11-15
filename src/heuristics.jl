@@ -17,6 +17,8 @@ end
 
 BosciaHeuristic() = BosciaHeuristic(x -> nothing, 0.0)
 
+const MAX_PROB = 0.3
+
 """
 Chooses heuristic by rolling a dice.
 """
