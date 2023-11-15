@@ -51,7 +51,7 @@ fw_verbose             - if true, FrankWolfe logs are printed
 use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
                         It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
                         performance might improve by disabling this option. 
-heuristic              - Custom heuristic from the user.                          
+custom_heuristics      - List of  custom heuristic from the user. The default is a dummy heuristic that return nothing and is, in practice, never called.                          
 """
 function solve(
     f,
@@ -85,7 +85,7 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
-    heuristic=Heuristic(),
+    custom_heuristics=[Heuristic()],
     kwargs...,
 )
     if verbose
@@ -157,9 +157,11 @@ function solve(
         0.0,
     )
 
+    # Create standard heuristics
+    heuristics = vcat([Heuristic(rounding_heuristic, 0.7,:rounding)], custom_heuristics)
+
     Node = typeof(nodeEx)
     Value = Vector{Float64}
-    heuristics = [Heuristic(rounding_heuristics, 0.7,:rounding),heuristic]
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
