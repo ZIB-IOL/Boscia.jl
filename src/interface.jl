@@ -191,7 +191,7 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
-                :heurtics => [heuristic], # Is a vector/list sufficent or would a dictonary be better?
+                :heuristics => [BosciaHeuristic(rounding_heuristics, 0.1),heuristic], # Is a vector/list sufficent or would a dictonary be better?
             ),
         ),
         branch_strategy=branching_strategy,
