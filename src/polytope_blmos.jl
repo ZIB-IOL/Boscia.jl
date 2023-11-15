@@ -25,7 +25,7 @@ function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_var
     return v
 end
 
-function is_linear_feasible(sblmo::CubeSimpleBLMO, v)
+function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
         if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
             @debug(
@@ -68,7 +68,7 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     return v
 end
 
-function is_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
+function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
@@ -111,7 +111,7 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     return v
 end
 
-function is_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
+function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
