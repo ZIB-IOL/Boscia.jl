@@ -11,8 +11,8 @@ It returns the heuristic solution (can be nothing, we check for that) and whethe
 `prob` is the probability with which it will be called.        
 """
 # Would 'Heuristic' also suffice? Or might we run into Identifer conflicts with other packages?
-struct Heuristic
-    h::Function
+struct Heuristic{F<:Function}
+    run_heuristic::F
     prob::Float64
     identifer::Symbol
 end
@@ -30,10 +30,10 @@ end
 """
 Add a new solution found from the heuristic to the tree.
 """
-function add_heuristic_solution(tree, x, val, heu::Symbol)
+function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
     tree.root.updated_incumbent[] = true
     node = tree.nodes[tree.root.current_node_id[]]
-    sol = FrankWolfeSolution(val, x, node, heu)
+    sol = FrankWolfeSolution(val, x, node, heuristic_name)
     push!(tree.solutions, sol)
     if tree.incumbent_solution === nothing ||
         sol.objective < tree.incumbent_solution.objective
@@ -43,15 +43,15 @@ function add_heuristic_solution(tree, x, val, heu::Symbol)
     Bonobo.bound!(tree, node.id)
 end
 
+# TO DO: We might want to change the probability depending on the depth of the tree
+# or have other additional criteria on whether to run a heuristic
 """
 Choose which heuristics to run by rolling a dice.
 """
-# TO DO: We might want to change the probability depending on the depth of the tree
-# or have other additional criteria on whether to run a heuristic
 function run_heuristics(tree, x, heuristic_list)
     for heuristic in heuristic_list
         if flip_coin(heuristic.prob)
-            list_x_heu, check_feasibility = heuristic.h(tree, tree.root.problem.tlmo.blmo, x)
+            list_x_heu, check_feasibility = heuristic.run_heuristic(tree, tree.root.problem.tlmo.blmo, x)
 
             # check feasibility
             if !isempty(list_x_heu)
