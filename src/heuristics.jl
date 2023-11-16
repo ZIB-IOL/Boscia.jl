@@ -51,16 +51,25 @@ Choose which heuristics to run by rolling a dice.
 function run_heuristics(tree, x, heuristic_list)
     for heuristic in heuristic_list
         if flip_coin(heuristic.prob)
-            x_heu, check_feasibility = heuristic.h(tree, tree.root.problem.tlmo.blmo, x)
+            list_x_heu, check_feasibility = heuristic.h(tree, tree.root.problem.tlmo.blmo, x)
 
             # check feasibility
-            if x_heu !== nothing 
-                feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : true
-                if feasible
-                    val = tree.root.problem.f(x_heu)
-                    if val < tree.incumbent
-                        add_heuristic_solution(tree, x_heu, val, heuristic.identifer)
+            if !isempty(list_x_heu)
+                min_val = Inf
+                min_idx = -1
+                for (i, x_heu) in enumerate(list_x_heu)
+                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : true
+                    if feasible
+                        val = tree.root.problem.f(x_heu)
+                        if val < min_val
+                            min_val = val
+                            min_idx = i 
+                        end
                     end
+                end
+
+                if min_val < tree.incumbent # Inf < Inf = false
+                    add_heuristic_solution(tree, list_x_heu[min_idx],min_val, heuristic.identifer)
                 end
             end
         end
@@ -75,5 +84,5 @@ function rounding_heuristic(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizatio
     for idx in tree.branching_indices
         x_rounded[idx] = round(x[idx])
     end
-    return x_rounded, true
+    return [x_rounded], true
 end

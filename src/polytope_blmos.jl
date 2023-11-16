@@ -95,7 +95,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBounde
             z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
         end
     end
-    return z, true
+    return [z], true
 end
 function add_to_min(x, ub, int_vars)
     perm = sortperm(x)
@@ -184,5 +184,5 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBounde
             z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
         end
     end
-    return z, true
+    return [z], true
 end
