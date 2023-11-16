@@ -77,7 +77,7 @@ function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
 end
 
 """
-Hyperplane aware rounding for the Probability simplex.
+Hyperplane-aware rounding for the probability simplex.
 """
 function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}, x) 
     z = copy(x)
@@ -170,7 +170,7 @@ function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
 end
 
 """
-Hyperplane aware rounding for the Unit simplex.
+Hyperplane-aware rounding for the unit simplex.
 """
 function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{UnitSimplexSimpleBLMO}, x) 
     z = copy(x)

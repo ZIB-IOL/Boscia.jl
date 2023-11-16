@@ -51,7 +51,7 @@ fw_verbose             - if true, FrankWolfe logs are printed
 use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
                         It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
                         performance might improve by disabling this option. 
-custom_heuristics      - List of  custom heuristic from the user. The default is a dummy heuristic that return nothing and is, in practice, never called.                          
+custom_heuristics      - List of  custom heuristic from the user.                        
 """
 function solve(
     f,
