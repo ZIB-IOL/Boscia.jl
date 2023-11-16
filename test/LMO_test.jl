@@ -123,9 +123,9 @@ end
 end
 
 n = 20
-x_sol = rand(1:Int(floor(n/4)), n)
+x_sol = rand(1:floor(Int, n/4), n)
 N = sum(x_sol)
-dir = vcat(fill(1, Int(floor(n/2))), fill(-1, Int(floor(n/2))), fill(0, mod(n,2)))
+dir = vcat(fill(1, floor(Int, n/2)), fill(-1, floor(Int, n/2)), fill(0, mod(n,2)))
 diffi = x_sol + 0.3 * dir
 
 @testset "Probability Simplex LMO" begin
@@ -146,7 +146,7 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(1:Int(floor(n/4)), n)
+x_sol = rand(1:floor(Int, n/4), n)
 diffi = x_sol + 0.3*rand([-1,1], n)
 
 @testset "Unit Simplex LMO" begin
@@ -168,9 +168,9 @@ diffi = x_sol + 0.3*rand([-1,1], n)
 end
 
 n = 20
-x_sol = rand(1:Int(floor(n/4)), n)
+x_sol = rand(1:floor(Int, n/4), n)
 N = sum(x_sol)
-dir = vcat(fill(1, Int(floor(n/2))), fill(-1, Int(floor(n/2))), fill(0, mod(n,2)))
+dir = vcat(fill(1, floor(Int, n/2)), fill(-1, floor(Int, n/2)), fill(0, mod(n,2)))
 diffi = x_sol + 0.3 * dir
 
 @testset "Custom Heuristic - Probability Simplex" begin
@@ -192,7 +192,7 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(1:Int(floor(n/4)), n)
+x_sol = rand(1:floor(Int, n/4), n)
 diffi = x_sol + 0.3*rand([-1,1], n)
 
 @testset "Custom Heuristic - Unit Simplex" begin
