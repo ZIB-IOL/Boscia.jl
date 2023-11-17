@@ -311,6 +311,7 @@ function check_feasibility(blmo::MathOptBLMO)
     )
     MOI.optimize!(blmo.o)
     status = MOI.get(blmo.o, MOI.TerminationStatus())
+    free_model(blmo)
     return status
 end
 
