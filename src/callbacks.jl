@@ -9,7 +9,7 @@ function build_FW_callback(
     vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
-    return function fw_callback(state, active_set, args...)
+    return function fw_callback(state, active_set, kwargs...)
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         # TODO deal with vertices becoming infeasible with conflicts
