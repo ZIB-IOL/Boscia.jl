@@ -11,7 +11,6 @@ import HiGHS
 using Dates
 
 seed = rand(UInt64)
-seed = 0x2ec3157eebe40df1
 @show seed
 Random.seed!(seed)
 

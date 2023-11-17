@@ -18,10 +18,6 @@ using Test
 # ∑ z_i <= k 
 # z_i ∈ {0,1} for i = 1,..,p
 
-seed = 0x2ec3157eebe40df1
-@show seed 
-Random.seed!(seed)
-
 n0 = 30
 p = n0
 
@@ -31,16 +27,12 @@ const w0 = rand(Float64, p)
 for _ in 1:20
     w0[rand(1:p)] = 0
 end
-@show w0
 const b0 = rand(Float64)
 const X0 = rand(Float64, n0, p)
 const y0 = map(1:n0) do idx
     a = dot(X0[idx, :], w0) + b0
     return rand(Distributions.Poisson(exp(a)))
 end
-@show b0
-@show X0
-@show y0
 
 N = 1.0
 
