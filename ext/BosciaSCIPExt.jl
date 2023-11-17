@@ -40,7 +40,6 @@ end
 Cleanup internal SCIP model
 """
 function Boscia.free_model(o::SCIP.Optimizer)
-    println("Free model for SCIP")
     return SCIP.SCIPfreeTransform(o)
 end
 

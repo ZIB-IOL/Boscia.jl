@@ -291,13 +291,12 @@ end
 """
 Free model data from previous solve (if necessary).
 """
-function free_model(blmo)
+function free_model(blmo::MathOptBLMO)
     return free_model(blmo.o)
 end
 
 # no-op by default
 function free_model(o::MOI.AbstractOptimizer)
-    println("Free model for AbtractOptimizer")
     return true
 end
 
