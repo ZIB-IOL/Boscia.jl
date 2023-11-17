@@ -36,7 +36,7 @@ Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
 function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
-    free_model(lmo.o)
+  #  free_model(lmo.o)
     v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
     @assert blmo isa MathOptBLMO
     return v
