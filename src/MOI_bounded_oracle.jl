@@ -38,7 +38,6 @@ function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
     free_model(lmo.o)
     v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
-    free_model(lmo.o)
     @assert blmo isa MathOptBLMO
     return v
 end
