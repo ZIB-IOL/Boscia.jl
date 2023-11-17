@@ -36,7 +36,6 @@ Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
 function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
-  #  free_model(lmo.o)
     v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
     @assert blmo isa MathOptBLMO
     return v
@@ -304,7 +303,6 @@ end
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::MathOptBLMO)
-  # free_model(blmo)
     MOI.set(
         blmo.o,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
