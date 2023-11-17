@@ -304,7 +304,7 @@ end
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::MathOptBLMO)
-   # free_model(blmo)
+   free_model(blmo)
     MOI.set(
         blmo.o,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -312,7 +312,7 @@ function check_feasibility(blmo::MathOptBLMO)
     )
     MOI.optimize!(blmo.o)
     status = MOI.get(blmo.o, MOI.TerminationStatus())
-    free_model(blmo)
+    #free_model(blmo)
     return status
 end
 
