@@ -303,6 +303,8 @@ end
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function Boscia.check_feasibility(blmo::MathOptBLMO)
+    # clear previous data
+    free_model(blmo)
     MOI.set(
         blmo.o,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
@@ -310,6 +312,8 @@ function Boscia.check_feasibility(blmo::MathOptBLMO)
     )
     MOI.optimize!(blmo.o)
     status = MOI.get(blmo.o, MOI.TerminationStatus())
+    # clear previous data
+    free_model(blmo)
     return status
 end
 
