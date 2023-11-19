@@ -4,10 +4,12 @@ using Test
 using Random
 using SCIP
 using LinearAlgebra
-using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 
+# seed = 0x946d4b7835e92ffa takes 90 minutes to solve! -> not anymore
+seed = 0x946d4b7835e92ffa
+Random.seed!(seed)
 
 n = 30
 const ri = rand(n)
@@ -53,10 +55,12 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=600)
+    depth = 5
+    heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, depth), 0.2, :follow_gradient)
+    heuristics = [heu]
+    # heuristics = []
+
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=600, custom_heuristics=heuristics)
     @test dot(ai, x) <= bi + 1e-2
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
-
-
-# seed = 0x946d4b7835e92ffa takes 90 minutes to solve!

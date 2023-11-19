@@ -158,7 +158,7 @@ function solve(
     )
 
     # Create standard heuristics
-    heuristics = vcat([Heuristic(rounding_heuristic, 0.7,:rounding)], custom_heuristics)
+    heuristics = vcat([Heuristic(rounding_heuristic, 1.0, :rounding)], custom_heuristics)
 
     Node = typeof(nodeEx)
     Value = Vector{Float64}

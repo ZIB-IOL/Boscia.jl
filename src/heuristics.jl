@@ -86,3 +86,42 @@ function rounding_heuristic(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizatio
     end
     return [x_rounded], true
 end
+
+
+"""
+Follow-the-gradient heuristic.
+"""
+
+#####
+# follow the gradient for a fixed number of steps and collect solutions on the way
+#####
+
+function follow_gradient_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x, k)
+    nabla = similar(x)
+    x_new = copy(x)
+    sols = []
+    for i in 1:k
+        tree.root.problem.g(nabla,x_new)
+        x_new = Boscia.compute_extreme_point(blmo, nabla)
+        push!(sols, x_new)
+    end
+    return sols, false
+end
+
+
+"""
+Advanced lmo-aware rounding for binary vars
+"""
+
+#####
+# rounding respecting the hidden feasible region structure
+#####
+
+function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x)
+    nabla = zeros(length(x))
+    for idx in tree.branching_indices
+        nabla[idx] = 1 - 2*round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
+    end
+    x_rounded = Boscia.compute_extreme_point(blmo, nabla)
+    return [x_rounded], false
+end
