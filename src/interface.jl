@@ -111,7 +111,7 @@ function solve(
         push!(integer_variables, c_idx)
         num_int += 1
     end
-    time_lmo = Boscia.TimeTrackingLMO(blmo, integer_variables)
+    time_lmo = TimeTrackingLMO(blmo, integer_variables)
 
     if num_int == 0
         error("No integer variables detected! Please use an MIP solver!")
@@ -140,12 +140,12 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    m = Boscia.SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
+    m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
         Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         active_set,
         vertex_storage,
-        Boscia.IntegerBounds(),
+        IntegerBounds(),
         1,
         1e-3,
         Millisecond(0),
@@ -200,7 +200,7 @@ function solve(
         (
             active_set=active_set,
             discarded_vertices=vertex_storage,
-            local_bounds=Boscia.IntegerBounds(),
+            local_bounds=IntegerBounds(),
             level=1,
             fw_dual_gap_limit=fw_epsilon,
             fw_time=Millisecond(0),
