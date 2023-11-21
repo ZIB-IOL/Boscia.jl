@@ -290,7 +290,7 @@ end
 """
 Free model data from previous solve (if necessary).
 """
-function free_model(blmo)
+function free_model(blmo::MathOptBLMO)
     return free_model(blmo.o)
 end
 
