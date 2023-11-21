@@ -253,7 +253,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # time tracking FW
     time_ref = Dates.now()
-
     domain_oracle = tree.root.options[:domain_oracle]
 
     x, primal, dual_gap, active_set = solve_frank_wolfe(
