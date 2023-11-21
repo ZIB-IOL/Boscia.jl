@@ -266,7 +266,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         line_search=tree.root.options[:lineSearch],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
-        timeout=tree.root.options[:time_limit],
         add_dropped_vertices=tree.root.options[:use_shadow_set],
         use_extra_vertex_storage=tree.root.options[:use_shadow_set],
         extra_vertex_storage=node.discarded_vertices,
