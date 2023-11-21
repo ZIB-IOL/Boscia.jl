@@ -273,7 +273,7 @@ function solve(
         num_int,
     )
 
-    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations)
+    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations, time_ref, tree.root.options[:time_limit])
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id

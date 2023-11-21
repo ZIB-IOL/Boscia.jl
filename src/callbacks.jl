@@ -5,6 +5,8 @@ function build_FW_callback(
     check_rounding_value::Bool,
     fw_iterations,
     min_fw_iterations,
+    time_ref,
+    time_limit,
 )
     vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
     # variable to only fetch heuristics when the counter increases
@@ -13,10 +15,12 @@ function build_FW_callback(
         @assert isapprox(sum(active_set.weights), 1.0)
         @assert sum(active_set.weights .< 0) == 0
         # TODO deal with vertices becoming infeasible with conflicts
-        if !is_linear_feasible(tree.root.problem.tlmo, state.v)
-            @info "$(state.v)"
-            check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
-            @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
+        @debug begin
+            if !is_linear_feasible(tree.root.problem.tlmo, state.v)
+                @info "$(state.v)"
+                check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
+                @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
+            end
         end
         push!(fw_iterations, state.t)
 
@@ -106,6 +110,11 @@ function build_FW_callback(
                     Bonobo.bound!(tree, node.id)
                 end
             end
+        end
+
+        # check for time limit
+        if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
+            return false
         end
 
         return true
