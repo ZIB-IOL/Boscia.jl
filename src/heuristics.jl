@@ -23,8 +23,8 @@ Heuristic() = Heuristic(x -> nothing, -0.1, :default)
 """
 Flip coin.
 """
-function flip_coin(w=0.5)
-    return rand() ≤ w
+function flip_coin(w=0.5, rng=Random.GLOBAL_RNG)
+    return rand(rng) ≤ w
 end
 
 """
@@ -89,13 +89,9 @@ end
 
 
 """
-Follow-the-gradient heuristic.
+    follow-the-gradient
+Follow the gradient for a fixed number of steps and collect solutions on the way
 """
-
-#####
-# follow the gradient for a fixed number of steps and collect solutions on the way
-#####
-
 function follow_gradient_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x, k)
     nabla = similar(x)
     x_new = copy(x)
@@ -110,13 +106,8 @@ end
 
 
 """
-Advanced lmo-aware rounding for binary vars
+Advanced lmo-aware rounding for binary vars. Rounding respecting the hidden feasible region structure.
 """
-
-#####
-# rounding respecting the hidden feasible region structure
-#####
-
 function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x)
     nabla = zeros(length(x))
     for idx in tree.branching_indices
