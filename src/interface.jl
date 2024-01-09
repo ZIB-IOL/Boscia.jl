@@ -687,7 +687,9 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 sum(result[:local_potential_tightenings]),
             )
         end
-        println("\t LMO calls in the heuristics: $(tree.root.options[:heu_ncalls])")
+        if tree.root.options[:heu_ncalls] != 0
+            println("\t LMO calls in the heuristics: $(tree.root.options[:heu_ncalls])")
+        end
     end
 
     # Reset LMO
