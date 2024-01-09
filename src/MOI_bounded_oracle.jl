@@ -634,6 +634,7 @@ function Boscia.solve(
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
+    rounding_prob=1.0, 
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
@@ -668,6 +669,7 @@ function Boscia.solve(
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
         custom_heuristics=custom_heuristics,
+        rounding_prob=rounding_prob,
         kwargs...,
     )
 end

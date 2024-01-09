@@ -86,6 +86,7 @@ function solve(
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
+    rounding_prob=1.0,
     kwargs...,
 )
     if verbose
@@ -158,7 +159,7 @@ function solve(
     )
 
     # Create standard heuristics
-    heuristics = vcat([Heuristic(rounding_heuristic, 1.0, :rounding)], custom_heuristics)
+    heuristics = vcat([Heuristic(rounding_heuristic, rounding_prob, :rounding)], custom_heuristics)
 
     Node = typeof(nodeEx)
     Value = Vector{Float64}
@@ -194,7 +195,7 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
-                :heuristics => heuristics, # Is a vector/list sufficent or would a dictonary be better?
+                :heuristics => heuristics, 
             ),
         ),
         branch_strategy=branching_strategy,
