@@ -214,6 +214,34 @@ diffi = x_sol + 0.3*rand([-1,1], n)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
+@testset "Following Gradient Heuristic - Unit Simplex" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    N = sum(x_sol) + floor(n/2)
+    sblmo = Boscia.UnitSimplexSimpleBLMO(N)
+    depth = 5
+    heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, depth), 1.0, :follow_gradient)
+
+    x_heu, _, result_heu =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n, custom_heuristics=[heu])
+
+    x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n)    
+
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+
+    @test sum(isapprox.(x_heu, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x_heu), f(result_heu[:raw_solution]), atol=1e-6, rtol=1e-3)
+
+    @test result[:lmo_calls] == result_heu[:lmo_calls]
+    @test result_heu[:heu_lmo_calls] > 0
+end
+
 @testset "Rounding - Unit Simplex" begin
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))

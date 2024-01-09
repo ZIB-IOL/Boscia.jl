@@ -79,20 +79,20 @@ end
 """
 Hyperplane-aware rounding for the probability simplex.
 """
-function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}, x) 
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}}, x) 
     z = copy(x)
     for idx in tree.branching_indices
         z[idx] = round(x[idx])
     end
     
-    N = blmo.simple_lmo.N
+    N = tlmo.blmo.simple_lmo.N
     if sum(z) < N
         while sum(z) < N
-            z = add_to_min(z, blmo.upper_bounds, tree.branching_indices)
+            z = add_to_min(z, tlmo.blmo.upper_bounds, tree.branching_indices)
         end
     elseif sum(z) > N
         while sum(z) > N
-            z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
+            z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
         end
     end
     return [z], true
@@ -172,16 +172,16 @@ end
 """
 Hyperplane-aware rounding for the unit simplex.
 """
-function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO{UnitSimplexSimpleBLMO}, x) 
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}}, x) 
     z = copy(x)
     for idx in tree.branching_indices
         z[idx] = round(x[idx])
     end
     
-    N = blmo.simple_lmo.N
+    N = tlmo.blmo.simple_lmo.N
     if sum(z) > N
         while sum(z) > N
-            z = remove_from_max(z, blmo.lower_bounds, tree.branching_indices)
+            z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
         end
     end
     return [z], true

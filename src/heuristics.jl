@@ -49,9 +49,12 @@ end
 Choose which heuristics to run by rolling a dice.
 """
 function run_heuristics(tree, x, heuristic_list)
+    inner_lmo = tree.root.problem.tlmo.blmo
+    heuristic_lmo = TimeTrackingLMO(inner_lmo, tree.root.problem.integer_variables)
+
     for heuristic in heuristic_list
         if flip_coin(heuristic.prob)
-            list_x_heu, check_feasibility = heuristic.run_heuristic(tree, tree.root.problem.tlmo.blmo, x)
+            list_x_heu, check_feasibility = heuristic.run_heuristic(tree, heuristic_lmo, x)
 
             # check feasibility
             if !isempty(list_x_heu)
@@ -74,12 +77,16 @@ function run_heuristics(tree, x, heuristic_list)
             end
         end
     end
+
+    # collect statistics from heuristic lmo
+    tree.root.options[:heu_ncalls] += heuristic_lmo.ncalls
+    return true
 end
 
 """
 Simple rounding heuristic.
 """
-function rounding_heuristic(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, x)
+function rounding_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.TimeTrackingLMO, x)
     x_rounded = copy(x)
     for idx in tree.branching_indices
         x_rounded[idx] = round(x[idx])
@@ -92,13 +99,13 @@ end
     follow-the-gradient
 Follow the gradient for a fixed number of steps and collect solutions on the way
 """
-function follow_gradient_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x, k)
+function follow_gradient_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x, k)
     nabla = similar(x)
     x_new = copy(x)
     sols = []
     for i in 1:k
         tree.root.problem.g(nabla,x_new)
-        x_new = Boscia.compute_extreme_point(blmo, nabla)
+        x_new = Boscia.compute_extreme_point(tlmo, nabla)
         push!(sols, x_new)
     end
     return sols, false
@@ -108,11 +115,11 @@ end
 """
 Advanced lmo-aware rounding for binary vars. Rounding respecting the hidden feasible region structure.
 """
-function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.BoundedLinearMinimizationOracle, x)
+function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
     nabla = zeros(length(x))
     for idx in tree.branching_indices
         nabla[idx] = 1 - 2*round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
     end
-    x_rounded = Boscia.compute_extreme_point(blmo, nabla)
+    x_rounded = Boscia.compute_extreme_point(tlmo, nabla)
     return [x_rounded], false
 end

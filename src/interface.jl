@@ -196,6 +196,7 @@ function solve(
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
                 :heuristics => heuristics, 
+                :heu_ncalls => 0,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -537,6 +538,7 @@ function build_bnb_callback(
 
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.tlmo.ncalls
+            result[:heu_lmo_calls] = tree.root.options[:heu_ncalls]
             result[:list_num_nodes] = list_num_nodes_cb
             result[:list_lmo_calls_acc] = list_lmo_calls_cb
             result[:list_active_set_size] = list_active_set_size_cb
@@ -685,6 +687,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 sum(result[:local_potential_tightenings]),
             )
         end
+        println("\t LMO calls in the heuristics: $(tree.root.options[:heu_ncalls])")
     end
 
     # Reset LMO
