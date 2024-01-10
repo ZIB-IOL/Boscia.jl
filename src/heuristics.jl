@@ -141,7 +141,7 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         push!(bounds, (i, x_rounded), :greaterthan)
     end
 
-    build_LMO(tlmo, tree.root.problem.global_bounds, bounds, tlmo.blmo.int_vars)
+    build_LMO(tlmo, tree.root.problem.integer_variable_bounds, bounds, tlmo.blmo.int_vars)
 
     # check for feasibility and boundedness
     status = check_feasibility(tlmo)
@@ -173,7 +173,7 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
     )
 
     # reset LMO to node state
-    build_LMO(tlmo, tree.root.problem.global_bounds, original_bounds, tlmo.blmo.int_vars)
+    build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
 
     return [x_rounded], true
 end
