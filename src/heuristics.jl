@@ -123,3 +123,57 @@ function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTracki
     x_rounded = Boscia.compute_extreme_point(tlmo, nabla)
     return [x_rounded], false
 end
+
+"""
+Probability rounding for 0/1 problems.
+It decides based on the fractional value whether to ceil or floor the variable value. 
+Afterward, one call to Frank-Wolfe is performed to optimize the continuous variables.    
+"""
+function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
+    # save original bounds
+    node = tree.nodes[tree.root.current_node_id[]]
+    original_bounds = copy(node.local_bounds)
+
+    bounds = IntegerBounds()
+    for (i,x_i) in enumerate(x[tlmo.blmo.int_vars])
+        x_rounded = flip_coin(x_i) ? ceil(x_i) : floor(x_i)
+        push!(bounds, (i, x_rounded), :lessthan)
+        push!(bounds, (i, x_rounded), :greaterthan)
+    end
+
+    build_LMO(tlmo, tree.root.problem.global_bounds, bounds, tlmo.blmo.int_vars)
+
+    # check for feasibility and boundedness
+    status = check_feasibility(tlmo)
+    if status == INFEASIBLE || status == UNBOUNDED
+        @debug "LMO state in the probability rounding heuristic: $(status)"
+        # just return the point
+        return [x], false
+    end
+
+    v = compute_extreme_point(tlmo, rand(length(x)))
+    active_set = FrankWolfe.ActiveSet([(1.0, v)])
+
+    x_rounded, _, _, _ = solve_frank_wolfe(
+        tree.root.options[:variant],
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.tlmo,
+        active_set;
+        epsilon=node.fw_dual_gap_limit,
+        max_iteration=tree.root.options[:max_fw_iter],
+        line_search=tree.root.options[:lineSearch],
+        lazy=tree.root.options[:lazy],
+        lazy_tolerance=tree.root.options[:lazy_tolerance],
+        add_dropped_vertices=tree.root.options[:use_shadow_set],
+        use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+        extra_vertex_storage=node.discarded_vertices,
+        callback=tree.root.options[:callback],
+        verbose=tree.root.options[:fwVerbose],
+    )
+
+    # reset LMO to node state
+    build_LMO(tlmo, tree.root.problem.global_bounds, original_bounds, tlmo.blmo.int_vars)
+
+    return [x_rounded], true
+end
