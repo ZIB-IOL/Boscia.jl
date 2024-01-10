@@ -658,7 +658,13 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)
-        println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
+        if tree.root.options[:heu_ncalls] != 0
+            println("\t LMO calls over all nodes: ", tree.root.problem.tlmo.ncalls)
+            println("\t LMO calls in the heuristics: ", tree.root.options[:heu_ncalls])
+            println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls + tree.root.options[:heu_ncalls])
+        else
+            println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
+        end
         println("\t Total time (s): ", total_time_in_sec)
         println("\t LMO calls / sec: ", tree.root.problem.tlmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)
@@ -686,9 +692,6 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 "\t Total number of potential local tightenings: ",
                 sum(result[:local_potential_tightenings]),
             )
-        end
-        if tree.root.options[:heu_ncalls] != 0
-            println("\t LMO calls in the heuristics: $(tree.root.options[:heu_ncalls])")
         end
     end
 
