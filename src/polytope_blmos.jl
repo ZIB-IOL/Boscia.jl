@@ -76,6 +76,14 @@ function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
     return isapprox(sum(v), sblmo.N, atol=1e-4, rtol=1e-2)
 end
 
+function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub)
+    if sum(lb) ≤ sblmo.N ≤ sum(ub)
+        return OPTIMAL
+    else
+        INFEASIBLE 
+    end
+end
+
 """
 Hyperplane-aware rounding for the probability simplex.
 """
@@ -167,6 +175,14 @@ function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
         return false
     end
     return sum(v) ≤ sblmo.N + 1e-3
+end
+
+function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub)
+    if sum(lb) ≤ sblmo.N
+        return OPTIMAL
+    else
+        INFEASIBLE 
+    end
 end
 
 """
