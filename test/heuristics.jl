@@ -123,14 +123,16 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     lbs = zeros(n)
     ubs = ones(n)
     int_vars = unique!(rand(1:n, floor(Int, n/2)))
-
+    x_sol = copy(diffi)
+    x_sol[int_vars] = round.(x_sol[int_vars])
+   
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
     heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
     x, _, result =
         Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, custom_heuristics=[heu], rounding_prob=0.0)
 
-    @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
@@ -148,14 +150,21 @@ diffi = x_sol + 0.3 * dir
         @. storage = x - diffi
     end
 
+    int_vars = unique!(rand(1:n, floor(Int, n/2)))
+    m = length(int_vars)
+    cont_vars = setdiff(collect(1:n), int_vars)
+    x_sol[cont_vars] = diffi[cont_vars]
+
     sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
     heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
-    int_vars = unique!(rand(1:n, floor(Int, n/2)))
-
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0, n), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0, verbose=true, print_iter=1)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0, verbose=true, print_iter=1)
 
-    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test f(x) ≥ f(x_sol)
+    if isapprox(sum(x_sol), N)
+        @test isapprox(f(x), f(x_sol))
+    end
+    @test sum(isapprox.(x[int_vars], x_sol[int_vars], atol=1e-6, rtol=1e-2)) == m
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
