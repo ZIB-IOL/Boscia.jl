@@ -135,22 +135,24 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
     original_bounds = copy(node.local_bounds)
 
     bounds = IntegerBounds()
-    for (i,x_i) in enumerate(x[tlmo.blmo.int_vars])
+    for (i,x_i) in zip(tlmo.blmo.int_vars, x[tlmo.blmo.int_vars])
         x_rounded = flip_coin(x_i) ? ceil(x_i) : floor(x_i)
         push!(bounds, (i, x_rounded), :lessthan)
         push!(bounds, (i, x_rounded), :greaterthan)
     end
-@show tlmo
+
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, bounds, tlmo.blmo.int_vars)
 
     # check for feasibility and boundedness
     status = check_feasibility(tlmo)
     if status == INFEASIBLE || status == UNBOUNDED
         @debug "LMO state in the probability rounding heuristic: $(status)"
+        # reset LMO to node state
+        build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
         # just return the point
         return [x], false
     end
-@show tlmo
+
     v = compute_extreme_point(tlmo, rand(length(x)))
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
 
@@ -174,6 +176,6 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
 
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
-@show tlmo
+    
     return [x_rounded], true
 end
