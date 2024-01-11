@@ -216,10 +216,10 @@ function check_feasibility(blmo::ManagedBoundedLMO)
             return INFEASIBLE
         end
     end
-    return check_feasibility(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds)
+    return check_feasibility(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars, blmo.n)
 end
 
-function check_feasibility(simple_lmo::SimpleBoundableLMO, lb, ub)
+function check_feasibility(simple_lmo::SimpleBoundableLMO, lb, ub, int_vars, n)
     return true
 end
 

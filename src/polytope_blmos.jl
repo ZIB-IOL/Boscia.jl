@@ -62,7 +62,7 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
             idx = findfirst(x -> x == i, int_vars)
             v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
         else
-            v[i] += N - sum(v)
+            v[i] += sblmo.N - sum(v)
         end
     end
     return v
@@ -76,8 +76,9 @@ function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
     return isapprox(sum(v), sblmo.N, atol=1e-4, rtol=1e-2)
 end
 
-function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub)
-    if sum(lb) ≤ sblmo.N ≤ sum(ub)
+function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
+    m = n - length(int_vars)
+    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m*sblmo.N
         return OPTIMAL
     else
         INFEASIBLE 
@@ -177,7 +178,7 @@ function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
     return sum(v) ≤ sblmo.N + 1e-3
 end
 
-function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub)
+function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub, int_vars, n)
     if sum(lb) ≤ sblmo.N
         return OPTIMAL
     else
