@@ -62,7 +62,7 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
             idx = findfirst(x -> x == i, int_vars)
             v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
         else
-            v[i] += N - sum(v)
+            v[i] += sblmo.N - sum(v)
         end
     end
     return v
@@ -74,6 +74,65 @@ function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
         return false
     end
     return isapprox(sum(v), sblmo.N, atol=1e-4, rtol=1e-2)
+end
+
+function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
+    m = n - length(int_vars)
+    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m*sblmo.N
+        return OPTIMAL
+    else
+        INFEASIBLE 
+    end
+end
+
+"""
+Hyperplane-aware rounding for the probability simplex.
+"""
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}}, x) 
+    z = copy(x)
+    for idx in tree.branching_indices
+        z[idx] = round(x[idx])
+    end
+    
+    N = tlmo.blmo.simple_lmo.N
+    if sum(z) < N
+        while sum(z) < N
+            z = add_to_min(z, tlmo.blmo.upper_bounds, tree.branching_indices)
+        end
+    elseif sum(z) > N
+        while sum(z) > N
+            z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
+        end
+    end
+    return [z], true
+end
+function add_to_min(x, ub, int_vars)
+    perm = sortperm(x)
+    j = findfirst(x->x != 0, x[perm])
+    
+    for i in intersect(j:length(x), int_vars)
+        if x[perm[i]] < ub[perm[i]]
+            x[perm[i]] += 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+function remove_from_max(x, lb, int_vars)
+    perm = sortperm(x, rev = true)
+    j = findlast(x->x != 0, x[perm])
+    
+    for i in intersect(1:j, int_vars)
+        if x[perm[i]] > lb[perm[i]]
+            x[perm[i]] -= 1
+            break
+        else
+            continue
+        end
+    end
+    return x
 end
 
 """
@@ -117,4 +176,30 @@ function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
         return false
     end
     return sum(v) ≤ sblmo.N + 1e-3
+end
+
+function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub, int_vars, n)
+    if sum(lb) ≤ sblmo.N
+        return OPTIMAL
+    else
+        INFEASIBLE 
+    end
+end
+
+"""
+Hyperplane-aware rounding for the unit simplex.
+"""
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}}, x) 
+    z = copy(x)
+    for idx in tree.branching_indices
+        z[idx] = round(x[idx])
+    end
+    
+    N = tlmo.blmo.simple_lmo.N
+    if sum(z) > N
+        while sum(z) > N
+            z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
+        end
+    end
+    return [z], true
 end

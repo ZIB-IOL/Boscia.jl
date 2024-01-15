@@ -236,6 +236,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.tlmo)
     if status == INFEASIBLE
+        @debug "Problem at node $(node.id) infeasible"
         return NaN, NaN
     end
     if status == UNBOUNDED
@@ -293,6 +294,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Found an upper bound
     if is_integer_feasible(tree, x)
         node.ub = primal
+        @debug "Node $(node.id) has an integer solution."
         return lower_bound, primal
         # Sanity check: If the incumbent is better than the lower bound of the root node
         # and the root node is not integer feasible, something is off!
@@ -301,6 +303,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent)"
     end
+
+    # Call heuristic 
+    run_heuristics(tree, x, tree.root.options[:heuristics])
 
     return lower_bound, NaN
 end

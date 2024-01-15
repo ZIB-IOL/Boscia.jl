@@ -35,6 +35,7 @@ end
 
 include("LMO_test.jl")
 include("indicator_test.jl")
+include("heuristics.jl")
 
 
 # Takes pretty long, only include if you want to test this specifically

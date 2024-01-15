@@ -210,6 +210,19 @@ function build_LMO_correct(blmo::ManagedBoundedLMO, node_bounds)
     return true
 end
 
+function check_feasibility(blmo::ManagedBoundedLMO)
+    for (lb,ub) in zip(blmo.lower_bounds, blmo.upper_bounds)
+        if ub < lb
+            return INFEASIBLE
+        end
+    end
+    return check_feasibility(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars, blmo.n)
+end
+
+function check_feasibility(simple_lmo::SimpleBoundableLMO, lb, ub, int_vars, n)
+    return true
+end
+
 # Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 function is_valid_split(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO, vidx::Int)
     idx = findfirst(x -> x == vidx, blmo.int_vars)
@@ -260,6 +273,8 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
+    custom_heuristics=[Heuristic()],
+    rounding_prob=1.0,
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
@@ -295,6 +310,8 @@ function solve(
         start_solution=start_solution,
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
+        custom_heuristics=custom_heuristics,
+        rounding_prob=rounding_prob,
         kwargs...,
     )
 end

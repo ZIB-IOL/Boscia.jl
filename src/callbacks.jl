@@ -86,32 +86,6 @@ function build_FW_callback(
             end
         end
 
-        if check_rounding_value && state.tt == FrankWolfe.pp
-            # round values
-            x_rounded = copy(state.x)
-            for idx in tree.branching_indices
-                x_rounded[idx] = round(state.x[idx])
-            end
-            # check linear feasibility
-            if is_linear_feasible(tree.root.problem.tlmo, x_rounded) &&
-               is_integer_feasible(tree, x_rounded)
-                # evaluate f(rounded)
-                val = tree.root.problem.f(x_rounded)
-                if val < tree.incumbent
-                    tree.root.updated_incumbent[] = true
-                    node = tree.nodes[tree.root.current_node_id[]]
-                    sol = FrankWolfeSolution(val, x_rounded, node, :rounded)
-                    push!(tree.solutions, sol)
-                    if tree.incumbent_solution === nothing ||
-                       sol.objective < tree.incumbent_solution.objective
-                        tree.incumbent_solution = sol
-                    end
-                    tree.incumbent = val
-                    Bonobo.bound!(tree, node.id)
-                end
-            end
-        end
-
         # check for time limit
         if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
             return false

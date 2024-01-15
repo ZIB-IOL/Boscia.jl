@@ -51,6 +51,9 @@ fw_verbose             - if true, FrankWolfe logs are printed
 use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
                         It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
                         performance might improve by disabling this option. 
+custom_heuristics      - List of  custom heuristic from the user.    
+prob_rounding          - The probability for calling the rounding heuristics. Since the feasibility has to be checked, it might
+                        expensive to do this for every node.                    
 """
 function solve(
     f,
@@ -84,6 +87,8 @@ function solve(
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
+    custom_heuristics=[Heuristic()],
+    rounding_prob=1.0,
     kwargs...,
 )
     if verbose
@@ -155,6 +160,9 @@ function solve(
         0.0,
     )
 
+    # Create standard heuristics
+    heuristics = vcat([Heuristic(rounding_heuristic, rounding_prob, :rounding)], custom_heuristics)
+
     Node = typeof(nodeEx)
     Value = Vector{Float64}
     tree = Bonobo.initialize(;
@@ -189,6 +197,8 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
+                :heuristics => heuristics, 
+                :heu_ncalls => 0,
             ),
         ),
         branch_strategy=branching_strategy,
@@ -530,6 +540,7 @@ function build_bnb_callback(
 
             result[:number_nodes] = tree.num_nodes
             result[:lmo_calls] = tree.root.problem.tlmo.ncalls
+            result[:heu_lmo_calls] = tree.root.options[:heu_ncalls]
             result[:list_num_nodes] = list_num_nodes_cb
             result[:list_lmo_calls_acc] = list_lmo_calls_cb
             result[:list_active_set_size] = list_active_set_size_cb
@@ -649,7 +660,13 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)
-        println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
+        if tree.root.options[:heu_ncalls] != 0
+            println("\t LMO calls over all nodes: ", tree.root.problem.tlmo.ncalls)
+            println("\t LMO calls in the heuristics: ", tree.root.options[:heu_ncalls])
+            println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls + tree.root.options[:heu_ncalls])
+        else
+            println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
+        end
         println("\t Total time (s): ", total_time_in_sec)
         println("\t LMO calls / sec: ", tree.root.problem.tlmo.ncalls / total_time_in_sec)
         println("\t Nodes / sec: ", tree.num_nodes / total_time_in_sec)

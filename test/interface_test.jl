@@ -117,6 +117,30 @@ end
     end
 end
 
+@testset "Start with Active Set" begin
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    int_vars = collect(1:n)
+    lbs = zeros(n)
+    ubs = ones(n)
+
+    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    direction =rand(n)
+    v = Boscia.bounded_compute_extreme_point(sblmo, direction, lbs, ubs, int_vars)
+    active_set = FrankWolfe.ActiveSet([(1.0, v)])
+
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, active_set=active_set)
+
+    @test x == round.(diffi)
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
