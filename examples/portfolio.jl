@@ -2,6 +2,7 @@ using Boscia
 using FrankWolfe
 using Random
 using SCIP
+using Pavito
 # using Statistics
 using LinearAlgebra
 using Distributions
@@ -9,6 +10,7 @@ import MathOptInterface
 MOI = MathOptInterface
 using CSV
 using DataFrames
+
 include("scip_oa.jl")
 include("BnB_Ipopt.jl")
 
@@ -18,7 +20,7 @@ function portfolio(seed=1, dimension=5, full_callback=false; mode, bo_mode)
     f, grad!, n = build_function(seed, dimension)
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, mode, n)
-
+    println(o)
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
     
     if bo_mode == "afw"
@@ -30,7 +32,7 @@ function portfolio(seed=1, dimension=5, full_callback=false; mode, bo_mode)
     elseif bo_mode == "ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, warmstart_active_set=true, warmstart_shadow_set=false)
     elseif bo_mode == "boscia"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
     elseif bo_mode == "global_tightening"
@@ -267,5 +269,75 @@ function build_bnb_ipopt_model(seed, n; mode="mixed")
     status = MOI.OPTIMIZE_NOT_CALLED)
     )
     return bnb_model, expr
+
+end
+
+function build_pavito_model(seed, n; mode="mixed")
+    Random.seed!(seed)
+    time_limit = 1800
+    
+    ri = rand(n)
+    Ωi = rand()
+    Ai = randn(n, n)
+    Ai = Ai' * Ai
+    Mi = (Ai + Ai') / 2
+    @assert isposdef(Mi)
+
+    m = Model(
+        optimizer_with_attributes(
+            Pavito.Optimizer,
+            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000),
+            "cont_solver" =>
+                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+        ),
+    )    
+    set_silent(m)
+    MOI.set(m, MOI.TimeLimitSec(), time_limit)
+
+    ai = rand(n)
+    bi = sum(ai)
+    # integer set
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = collect(1:(n÷2))
+    end
+
+    @variable(m, x[1:n])
+    for i in 1:n
+        @constraint(m, x[i] >= 0)
+        set_integer(x[i])
+    end
+
+    @constraint(m, dot(ai, x) <= bi)
+    @constraint(m, dot(x, ones(n)) >= 1.0)
+
+    expr = @expression(m, 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x))
+    @objective(m, Min, expr)
+
+    return m, x
+
+end
+
+function portfolio_pavito(seed=1, dimension=5; mode)
+    f, grad!, n = build_function(seed, dimension)
+
+    m, x = build_pavito_model(seed, dimension; mode=mode)
+    println(m)
+    optimize!(m)
+    time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    vars_pavito = value.(x)
+    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_pavito = f(vars_pavito)
+    termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
 
 end
