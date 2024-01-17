@@ -5,7 +5,7 @@ using Random
 using SCIP
 using JuMP
 using Ipopt
-using Pavito, GLPK
+using Pavito
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface

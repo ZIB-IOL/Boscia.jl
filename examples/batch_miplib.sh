@@ -23,12 +23,10 @@
 #SBATCH --time=0-23:40:00
 
 # Define the partition on which the job shall run. May be omitted.
-#SBATCH --partition small
-
 # How much memory you need.
 #SBATCH --partition=small  # Specify the desired partition, e.g. gpu, cpu or big (GPU is reserved for ML stuff)
 ## We want to run on htc-cmp[101-148], exlude all others
-#SBATCH --exclude=htc-cmp[001-008,014-022,024-025,501-532]
+#SBATCH --exclude=htc-cmp[001-008,024-025,501-532]
 #SBATCH --exclusive
 
 # Turn on mail notification. There are many possible self-explaining values:
@@ -37,7 +35,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-julia --project run_miplib_setup.jl $1 $2 $3 &> portfolio_$3_$SLURM_JOB_ID.txt
+julia --project run_miplib_setup.jl $1 $2 $3 &> miplib_$1_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0
