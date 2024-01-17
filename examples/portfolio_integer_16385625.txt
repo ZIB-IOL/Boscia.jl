@@ -1,0 +1,132 @@
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for OpenSpecFun_jll [efe28fd5-8261-553b-a9e1-b2916fc3738e]
+│   exception = Required dependency JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for SpecialFunctions [276daf66-3868-5448-9aa4-cd146d93841b]
+│   exception = Required dependency LogExpFunctions [2ab3a3ac-af41-5b50-aa03-7779005ae688] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: Module OrderedCollections with build ID fafbfcfd-f541-71ea-001b-b7a347eec7ec is missing from the cache.
+│ This may mean OrderedCollections [bac558e1-5e72-5ebc-8fee-abe8a469f55d] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1758
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for ForwardDiff [f6369f11-7733-5829-9624-2563aa707210]
+│   exception = Required dependency CommonSubexpressions [bbf7d656-a473-5ed7-a52c-81e309532950] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for CodecBzip2 [523fee87-0ab8-5b00-afb7-3ecf72e48cfd]
+│   exception = Required dependency TranscodingStreams [3bb67fe8-82b1-5028-8e26-92a6c54297fa] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee]
+│   exception = Required dependency MutableArithmetics [d8a4904e-b15c-11e9-3269-09a3773c0cb0] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for Readline_jll [05236dd9-4125-5232-aa7c-9ec0c9b2c25a]
+│   exception = Required dependency Ncurses_jll [68e3532b-a499-55ff-9963-d1c0c0748b3a] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for SCIP_PaPILO_jll [fc9abe76-a5e6-5fed-b0b7-a12f309cf031]
+│   exception = Required dependency oneTBB_jll [1317d2d5-d96f-522e-a858-c73665f53c3e] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: Module MathOptInterface with build ID fafbfcfd-8295-8415-001b-b7c3ebfb922b is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1758
+┌ Warning: Module MathOptInterface with build ID fafbfcfd-8295-8415-001b-b7c3ebfb922b is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1758
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for BlockDiagonals [0a1fb500-61f7-11e9-3c65-f5ef3456f9f0]
+│   exception = Required dependency StaticArrays [90137ffa-7385-5640-81b9-e52037218182] failed to load from a cache file.
+└ @ Base loading.jl:1783
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (1, 5, "integer")
+Min 0.4050142123330367 x[1]² - 0.08083967340431111 x[1]*x[2] - 0.004206425333701069 x[1]*x[3] - 0.14269316571146512 x[1]*x[4] + 0.06088682964130514 x[1]*x[5] + 0.36356210082194823 x[2]² + 0.20774829333384295 x[2]*x[3] + 0.17852724236933948 x[2]*x[4] + 0.029405524355027902 x[2]*x[5] + 0.11284500663934847 x[3]² + 0.26593506289664165 x[3]*x[4] + 0.2939497127358661 x[3]*x[5] + 0.7597700195098711 x[4]² + 0.7941115886750477 x[4]*x[5] + 0.3254511705638093 x[5]² - 0.07336635446929285 x[1] - 0.34924148955718615 x[2] - 0.6988266836914685 x[3] - 0.6282647403425017 x[4] - 0.9149290036628314 x[5]
+Subject to
+ x[1] ≥ 0
+ x[2] ≥ 0
+ x[3] ≥ 0
+ x[4] ≥ 0
+ x[5] ≥ 0
+ x[1] + x[2] + x[3] + x[4] + x[5] ≥ 1
+ 0.9967010737682973 x[1] + 0.6548149913540768 x[2] + 0.42751272221683423 x[3] + 0.8270978423950576 x[4] + 0.3957962734304712 x[5] ≤ 3.301922903164737
+ x[1] integer
+ x[2] integer
+ x[3] integer
+ x[4] integer
+ x[5] integer
+
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -1.086531e+00
+presolving:
+(round 1, fast)       1 del vars, 6 del conss, 0 add conss, 11 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+presolving (2 rounds: 2 fast, 0 medium, 0 exhaustive):
+ 1 deleted vars, 6 deleted constraints, 0 added constraints, 11 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+transformed 1/1 original solutions to the transformed problem space
+Presolving Time: 0.00
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.01
+Solving Nodes      : 0
+Primal Bound       : -1.08653100851377e+00 (1 solutions)
+Dual Bound         : -1.08653100851377e+00
+Gap                : 0.00 %
+  [linear] <>:  -<>[C] (-1.08653101) -0.0775727798<>[I] (+0) -0.141493196<>[I] (+0) -0.47313667<>[I] (+1) -0.362329677<>[I] (+0) -0.620979291<>[I] (+0) <= 0.112845006639348;
+;
+violation: right hand side is violated by 0.500549331461654
+all 1 solutions given by solution candidate storage are infeasible
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -1.086531e+00
+presolving:
+(round 1, fast)       0 del vars, 5 del conss, 0 add conss, 11 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+presolving (2 rounds: 2 fast, 0 medium, 0 exhaustive):
+ 0 deleted vars, 5 deleted constraints, 0 added constraints, 11 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+transformed 2/2 original solutions to the transformed problem space
+Presolving Time: 0.01
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.01
+Solving Nodes      : 0
+Primal Bound       : -1.08653100851377e+00 (2 solutions)
+Dual Bound         : -1.08653100851377e+00
+Gap                : 0.00 %
+  [linear] <>:  -<>[C] (-1.08653101) -0.0859856305<>[I] (+0) +0.27400339<>[I] (+0) -0.0217566439<>[I] (+3) +0.169540448<>[I] (+0) -0.0330798655<>[I] (+0) <= 1.01560505975414;
+;
+violation: right hand side is violated by 0.00565601719350495
+1/2 feasible solution given by solution candidate storage, new primal bound -1.000000e+00
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -1.080875e+00
+presolving:
+(round 1, fast)       0 del vars, 5 del conss, 0 add conss, 11 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       2 del vars, 5 del conss, 0 add conss, 15 chg bounds, 0 chg sides, 1 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       2 del vars, 5 del conss, 0 add conss, 16 chg bounds, 0 chg sides, 1 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present
+presolving (4 rounds: 4 fast, 1 medium, 1 exhaustive):
+ 2 deleted vars, 5 deleted constraints, 0 added constraints, 16 tightened bounds, 0 added holes, 0 changed sides, 1 changed coefficients
+ 0 implications, 0 cliques
+presolved problem has 4 variables (0 bin, 3 int, 0 impl, 1 cont) and 5 constraints
+      5 constraints of type <linear>
+Presolving Time: 0.01
+transformed 1/2 original solutions to the transformed problem space
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -1.08087499132027e+00 (2 solutions)
+Dual Bound         : -1.08653100851377e+00
+Gap                : 0.52 %
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for Boscia [36b166db-dac5-4d05-b36a-e6c4cef071c9]
+│   exception = Required dependency MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for Distributions [31c24e10-a181-5473-b8eb-7969acd0382f]
+│   exception = Required dependency StatsFuns [4c63d2b9-4356-54db-8cca-17b64c39e42c] failed to load from a cache file.
+└ @ Base loading.jl:1783
+┌ Warning: The call to compilecache failed to create a usable precompiled cache file for CSV [336ed68f-0bac-5ca0-87d4-7b16caf5d00b]
+│   exception = Invalid input in module list: expected InlineStrings.
+└ @ Base loading.jl:1783
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
