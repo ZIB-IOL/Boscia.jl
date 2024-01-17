@@ -320,6 +320,7 @@ function build_pavito_model(seed, n; mode="mixed")
 end
 
 function portfolio_pavito(seed=1, dimension=5; mode)
+    @show seed, dimension, mode
     f, grad!, n = build_function(seed, dimension)
 
     m, x = build_pavito_model(seed, dimension; mode=mode)

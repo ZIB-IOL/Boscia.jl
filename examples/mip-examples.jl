@@ -5,6 +5,7 @@ using Random
 using SCIP
 using JuMP
 using Ipopt
+using Pavito, GLPK
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
@@ -172,7 +173,7 @@ function build_example(o, example, num_v, seed)
         end
     end
 
-    return lmo, f, grad!, max_norm
+    return lmo, f, grad!, max_norm, vs
 end
 
 function build_example_scip(example, num_v, seed, limit)
@@ -319,6 +320,66 @@ function build_bnb_ipopt_model(seed, num_v, example)
     status = MOI.OPTIMIZE_NOT_CALLED)
     )
     return bnb_model, expr
+
+end
+
+function build_pavito_model(example, seed, max_norm, vs)
+    time_limit = 1800
+    Random.seed!(seed)
+
+    o = Model(
+        optimizer_with_attributes(
+            Pavito.Optimizer,
+            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000000),
+            "cont_solver" =>
+                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+        ),
+    )        
+    set_silent(o)
+    MOI.set(o, MOI.TimeLimitSec(), time_limit)
+
+    # load constraints from miplib instance
+    file_name = string(example, ".mps")
+    src = MOI.FileFormats.Model(filename=file_name)
+    MOI.read_from_file(src, joinpath(@__DIR__, string("mps-examples/mps-files/", file_name)))
+
+    MOI.copy_to(o, src)
+    MOI.set(o, MOI.Silent(), true)
+    n = MOI.get(o, MOI.NumberOfVariables())
+    b_mps = randn(n)
+
+    x = JuMP.all_variables(o)
+    expr1 = @expression(o, dot(b_mps, x))
+    expr = @expression(o, expr1 + 0.5 * 1/max_norm * sum(dot((x - vs[i]), (x - vs[i]) ) for i in 1:length(vs)))
+    @objective(o, Min, expr)
+
+    return o, x, n
+
+end
+
+function miplib_pavito(example, num_v, seed)
+    @show example, num_v, seed
+
+    o = SCIP.Optimizer()
+    lmo, f, grad!, max_norm, vs = build_example(o, example, num_v, seed)
+    m, x, n = build_pavito_model(example, seed, max_norm, vs)
+
+    # println(m)
+    optimize!(m)
+    time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    vars_pavito = value.(x)
+    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_pavito = f(vars_pavito)
+    termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_miplib_" * example * ".csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
 
 end
 
