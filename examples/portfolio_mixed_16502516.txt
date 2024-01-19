@@ -1,0 +1,171 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (4, 25, "mixed")
+(seed, dimension, mode) = (4, 25, "mixed")
+Min 12.818347611437618 x[1]² + 6.240595388139751 x[1]*x[2] - 0.4551441688297535 x[1]*x[3] - 1.1753464942629661 x[1]*x[4] + 3.479333491285598 x[1]*x[5] + 1.2821789310453486 x[1]*x[6] - 1.9534765907876501 x[1]*x[7] + 6.302181036216316 x[1]*x[8] + 0.5145788805870539 x[1]*x[9] - 3.3625476454377936 x[1]*x[10] + 2.5130378898264305 x[1]*x[11] + 4.144661307991835 x[1]*x[12] + 0.13646680042969866 x[1]*x[13] + 0.2102599092425661 x[1]*x[14] - 6.767925426447778 x[1]*x[15] + 3.651022138119022 x[1]*x[16] + 1.585921502029067 x[1]*x[17] + 1.4237149356506547 x[1]*x[18] + 2.0161761866053323 x[1]*x[19] + 1.3257749027987398 x[1]*x[20] + 2.1949500027518316 x[1]*x[21] + 4.7995580229451935 x[1]*x[22] + 2.8236529937609274 x[1]*x[23] - 2.729228275466739 x[1]*x[24] - 1.1554976530942456 x[1]*x[25] + 10.270941498282085 x[2]² - 0.5181110570619392 x[2]*x[3] + 2.117859214418186 x[2]*x[4] + 4.029931215203634 x[2]*x[5] + 2.106998795684153 x[2]*x[6] + [[...265 terms omitted...]] + 1.6749522189021484 x[18]*x[24] + 0.3669679220157481 x[18]*x[25] + 5.531370531519352 x[19]² + 0.014002150436626577 x[19]*x[20] - 2.2150101699683145 x[19]*x[21] + 2.378375649853302 x[19]*x[22] - 0.5901722239399055 x[19]*x[23] - 1.1886004881743257 x[19]*x[24] - 3.797706224287319 x[19]*x[25] + 8.256950993330811 x[20]² - 4.668651122980127 x[20]*x[21] - 1.4713446743070162 x[20]*x[22] + 1.6289288751312714 x[20]*x[23] + 7.100731045271487 x[20]*x[24] + 1.2674370170556046 x[20]*x[25] + 11.305351281568994 x[21]² - 0.9211306020536396 x[21]*x[22] + 0.03603159512581084 x[21]*x[23] - 2.2396401553757794 x[21]*x[24] + 2.1879416365246938 x[21]*x[25] + 11.093566961048396 x[22]² - 0.26520530581485835 x[22]*x[23] - 2.459663416368985 x[22]*x[24] - 1.1173961172614806 x[22]*x[25] + 7.6934667340736524 x[23]² + 0.6314089036864311 x[23]*x[24] + 0.03927991189410197 x[23]*x[25] + 8.277287484980931 x[24]² + 6.618528177442129 x[24]*x[25] + 7.603940723079526 x[25]² - 0.640560125688334 x[1] - 0.3244420648938249 x[2] - 0.4284151183931746 x[3] - 0.3539981006442484 x[4] - 0.6240687276682546 x[5] - 0.6093405087159935 x[6] - 0.8148945670877987 x[7] - 0.8581761761029205 x[8] - 0.4037354612337182 x[9] - 0.0465632242904217 x[10] - 0.46079375823300184 x[11] - 0.23653413851585414 x[12] - 0.5616823570640757 x[13] - 0.8295347567225702 x[14] - 0.6877230841636806 x[15] - 0.48457722652079827 x[16] - 0.8574183603562568 x[17] - 0.5019688218144165 x[18] - 0.46509258174600643 x[19] - 0.9139243738764997 x[20] - 0.8988924651705463 x[21] - 0.21960977858670605 x[22] - 0.06037385523635341 x[23] - 0.11431932418843094 x[24] - 0.6260060524629513 x[25]
+Subject to
+ x[1] ≥ 0
+ x[2] ≥ 0
+ x[3] ≥ 0
+ x[4] ≥ 0
+ x[5] ≥ 0
+ x[6] ≥ 0
+ x[7] ≥ 0
+ x[8] ≥ 0
+ x[9] ≥ 0
+ x[10] ≥ 0
+ x[11] ≥ 0
+ x[12] ≥ 0
+ x[13] ≥ 0
+ x[14] ≥ 0
+ x[15] ≥ 0
+ x[16] ≥ 0
+ x[17] ≥ 0
+ x[18] ≥ 0
+ x[19] ≥ 0
+ x[20] ≥ 0
+ x[21] ≥ 0
+ x[22] ≥ 0
+ x[23] ≥ 0
+ x[24] ≥ 0
+ x[25] ≥ 0
+ x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15] + x[16] + x[17] + x[18] + x[19] + x[20] + x[21] + x[22] + x[23] + x[24] + x[25] ≥ 1
+ 0.4828771305815308 x[1] + 0.17837786713248882 x[2] + 0.0869502784811339 x[3] + 0.8986353089198501 x[4] + 0.9782592826137734 x[5] + 0.06292601069646497 x[6] + 0.9602672413036498 x[7] + 0.33465953214897903 x[8] + 0.1484904426355118 x[9] + 0.163512392787027 x[10] + 0.9024782220880784 x[11] + 0.04321792715257711 x[12] + 0.9666633284239566 x[13] + 0.07721608004223957 x[14] + 0.4778123415985214 x[15] + 0.80068035459909 x[16] + 0.9677414301483878 x[17] + 0.5130925183829506 x[18] + 0.2888863781349015 x[19] + 0.5938719494970918 x[20] + 0.2692051486457452 x[21] + 0.5497113648383977 x[22] + 0.2938067587851866 x[23] + 0.6859212679621519 x[24] + 0.3407088034292354 x[25] ≤ 12.065969361028923
+ x[1] integer
+ x[2] integer
+ x[3] integer
+ x[4] integer
+ x[5] integer
+ x[6] integer
+ x[7] integer
+ x[8] integer
+ x[9] integer
+ x[10] integer
+ x[11] integer
+ x[12] integer
+ x[13] integer
+ x[14] integer
+ x[15] integer
+ x[16] integer
+ x[17] integer
+ x[18] integer
+ x[19] integer
+ x[20] integer
+ x[21] integer
+ x[22] integer
+ x[23] integer
+ x[24] integer
+ x[25] integer
+
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+completion of a partial solution failed (subproblem is infeasible)
+presolving:
+(round 1, fast)       1 del vars, 26 del conss, 0 add conss, 51 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       1 del vars, 26 del conss, 0 add conss, 76 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       1 del vars, 27 del conss, 0 add conss, 76 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 4, exhaustive) 1 del vars, 27 del conss, 0 add conss, 76 chg bounds, 0 chg sides, 0 chg coeffs, 1 upgd conss, 0 impls, 0 clqs
+presolving (5 rounds: 5 fast, 2 medium, 2 exhaustive):
+ 26 deleted vars, 28 deleted constraints, 0 added constraints, 76 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+transformed 1/1 original solutions to the transformed problem space
+Presolving Time: 0.01
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.01
+Solving Nodes      : 0
+Primal Bound       : -6.37006539182007e-01 (1 solutions)
+Dual Bound         : -6.37006539182007e-01
+Gap                : 0.00 %
+  [linear] <>:  -<>[C] (-0.637006539) -1.79605778<>[I] (+0) -0.875795834<>[I] (+0) -8.50351173<>[I] (+0) -1.20726805<>[I] (+0) -2.55875619<>[I] (+0) -3.01796256<>[I] (+0) -5.10440661<>[I] (+0) -0.98077253<>[I] (+0) +0.655852515<>[I] (+0) -2.00528121<>[I] (+0) +1.90530391<>[I] (+0) -7.49793867<>[I] (+0) +0.0931177837<>[I] (+0) +0.736990961<>[I] (+0) -2.22447316<>[I] (+0) -6.5279961<>[I] (+0) -3.17973665<>[I] (+0) -0.1350009<>[I] (+0) -4.26279881<>[I] (+0) +0.353512643<>[I] (+0) +1.28904917<>[I] (+0) -1.3370059<>[I] (+0) -0.0210939433<>[I] (+0) +6.50420885<>[I] (+0) +14.5818754<>[I] (+1) <= 7.60394072307953;
+;
+violation: right hand side is violated by 7.61494120979858
+all 1 solutions given by solution candidate storage are infeasible
+
+completion of a partial solution failed (subproblem is infeasible)
+completion of a partial solution failed (subproblem is infeasible)
+presolving:
+(round 1, fast)       0 del vars, 25 del conss, 0 add conss, 51 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       0 del vars, 25 del conss, 0 add conss, 62 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       0 del vars, 25 del conss, 0 add conss, 77 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 4, fast)       0 del vars, 25 del conss, 0 add conss, 78 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 5, exhaustive) 14 del vars, 25 del conss, 0 add conss, 78 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 6, fast)       14 del vars, 25 del conss, 0 add conss, 78 chg bounds, 12 chg sides, 12 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 7, fast)       14 del vars, 25 del conss, 0 add conss, 83 chg bounds, 12 chg sides, 12 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 8, fast)       14 del vars, 26 del conss, 0 add conss, 83 chg bounds, 12 chg sides, 12 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 9, exhaustive) 19 del vars, 26 del conss, 0 add conss, 83 chg bounds, 12 chg sides, 12 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 10, fast)       19 del vars, 26 del conss, 0 add conss, 83 chg bounds, 13 chg sides, 13 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 11, fast)       19 del vars, 26 del conss, 0 add conss, 85 chg bounds, 13 chg sides, 13 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver (2 rounds): 0 aggregations, 7 fixings, 0 bound changes
+presolving (12 rounds: 12 fast, 3 medium, 3 exhaustive):
+ 26 deleted vars, 29 deleted constraints, 0 added constraints, 85 tightened bounds, 0 added holes, 13 changed sides, 13 changed coefficients
+ 0 implications, 0 cliques
+transformed 1/1 original solutions to the transformed problem space
+Presolving Time: 0.01
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.01
+Solving Nodes      : 0
+Primal Bound       : -6.37006550019361e-01 (1 solutions)
+Dual Bound         : -6.37006550019361e-01
+Gap                : 0.00 %
+  [linear] <>:  -<>[C] (-0.63700655) -12.0199007<>[I] (+0) +17.8566204<>[I] (+0) +31.7848599<>[I] (+2) +18.4856157<>[I] (+0) -32.741532<>[I] (+0) +18.4107621<>[I] (+0) -2.37144647<>[I] (+0) -17.9614141<>[I] (+0) -2.46222182<>[I] (+0) +78.9853053<>[I] (+5) -49.9661806<>[I] (+0) +4.70144967<>[I] (+0) -63.9635248<>[I] (+0) +19.7932876<>[I] (+0) +15.0267002<>[I] (+0) +6.81210602<>[I] (+0) +34.5633686<>[I] (+4) +7.62019632<>[I] (+0) +21.8153281<>[I] (+0) +15.2816113<>[I] (+0) +25.7997827<>[I] (+0) -21.1406564<>[I] (+0) -30.5264833<>[I] (+0) -22.5413438<>[I] (+0) -35.8590624<>[I] (+0) <= 300.63452026357;
+;
+violation: right hand side is violated by 296.752207013926
+all 1 solutions given by solution candidate storage are infeasible
+
+completion of a partial solution failed (subproblem is infeasible)
+completion of a partial solution failed (subproblem is infeasible)
+completion of a partial solution failed (subproblem is infeasible)
+presolving:
+(round 1, fast)       0 del vars, 25 del conss, 0 add conss, 51 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       0 del vars, 25 del conss, 0 add conss, 57 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       0 del vars, 25 del conss, 0 add conss, 60 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver (2 rounds): 0 aggregations, 0 fixings, 1 bound changes
+(round 4, medium)     0 del vars, 25 del conss, 0 add conss, 61 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 5, exhaustive) 5 del vars, 25 del conss, 0 add conss, 61 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 6, fast)       5 del vars, 25 del conss, 0 add conss, 62 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+   (0.0s) probing cycle finished: starting next cycle
+   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.0s) no symmetry present
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present
+presolving (7 rounds: 7 fast, 3 medium, 2 exhaustive):
+ 5 deleted vars, 25 deleted constraints, 0 added constraints, 62 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 8 implications, 0 cliques
+presolved problem has 21 variables (3 bin, 17 int, 0 impl, 1 cont) and 5 constraints
+      5 constraints of type <linear>
+Presolving Time: 0.01
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+p 0.0s|     1 |     0 |     0 |     - |shiftand|   0 |  21 |   5 |   5 |   0 |  0 |   0 |   0 |-6.370066e-01 |-5.207899e-01 |  22.32%| unknown
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -5.20789922185941e-01 (1 solutions)
+Dual Bound         : -6.37006550019361e-01
+Gap                : 22.32 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -5.20789922185941e-01 (1 solutions)
+Dual Bound         : -6.37006550019361e-01
+Gap                : 22.32 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488

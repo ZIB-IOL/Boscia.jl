@@ -1,0 +1,91 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (2, 20, "mixed")
+(seed, dimension, mode) = (2, 20, "mixed")
+Min 0.9989688315718995 x[1]² + 1.619516273999558 x[1]*x[2] + 0.00941034537683771 x[1]*x[3] + 0.8903665901385801 x[1]*x[4] - 0.8729264785339848 x[1]*x[5] + 0.10958296511339097 x[1]*x[6] + 0.06643235648689887 x[1]*x[7] + 0.13990122023835333 x[1]*x[8] + 0.4486534890838564 x[1]*x[9] + 0.7100711227905434 x[1]*x[10] + 0.5444214509903225 x[1]*x[11] - 0.5761077781483915 x[1]*x[12] - 1.0623218136617512 x[1]*x[13] - 0.014730578446055013 x[1]*x[14] - 0.17998196940623876 x[1]*x[15] - 0.04686435337926621 x[1]*x[16] - 0.41324688096593376 x[1]*x[17] - 0.39466067413171496 x[1]*x[18] + 1.3260299478063586 x[1]*x[19] + 0.7567082284053105 x[1]*x[20] + 3.0215082293721642 x[2]² - 0.46582186057115255 x[2]*x[3] + 1.2255084460943242 x[2]*x[4] - 1.741970002001505 x[2]*x[5] + 0.25429912271269234 x[2]*x[6] - 0.40757414791651925 x[2]*x[7] - 0.257839496021409 x[2]*x[8] + 0.12575486725661736 x[2]*x[9] + 0.8053329676232976 x[2]*x[10] + 1.3010617223076573 x[2]*x[11] - [[...150 terms omitted...]] - 2.0757074991529403 x[13]*x[19] - 1.4260464643361597 x[13]*x[20] + 2.0072857392366568 x[14]² + 1.526963014945487 x[14]*x[15] + 0.47543765923993353 x[14]*x[16] + 0.34262394988278916 x[14]*x[17] - 0.4146273684558206 x[14]*x[18] - 0.9517901832918698 x[14]*x[19] - 0.516564466114682 x[14]*x[20] + 1.6862701226229861 x[15]² + 0.5944502555369464 x[15]*x[16] - 0.2548336318230051 x[15]*x[17] + 0.10537284788547349 x[15]*x[18] - 0.05337949589653283 x[15]*x[19] - 1.3284822408007135 x[15]*x[20] + 1.568687853794331 x[16]² - 0.1539820480400743 x[16]*x[17] + 1.0246345295939863 x[16]*x[18] + 1.7968171082664453 x[16]*x[19] + 0.7691987724141228 x[16]*x[20] + 2.359720518620117 x[17]² + 0.2937761557013676 x[17]*x[18] + 0.08049305863425846 x[17]*x[19] - 0.4687057145718445 x[17]*x[20] + 1.3897773017362676 x[18]² + 0.5672833146556745 x[18]*x[19] + 0.646260354129749 x[18]*x[20] + 3.237586197044834 x[19]² + 0.31170279405639667 x[19]*x[20] + 1.7822410038490726 x[20]² - 0.8989013926582767 x[1] - 0.7220932899255755 x[2] - 0.3525215708930989 x[3] - 0.23049297887530862 x[4] - 0.35962185139608704 x[5] - 0.883353885006549 x[6] - 0.5498940659654207 x[7] - 0.8587976642181683 x[8] - 0.42795442544541684 x[9] - 0.27963120614335035 x[10] - 0.6867135541503199 x[11] - 0.5469836065360636 x[12] - 0.7077133317690973 x[13] - 0.3954312465792448 x[14] - 0.5101499024560264 x[15] - 0.9526099956647809 x[16] - 0.5200432796918749 x[17] - 0.8758992721338944 x[18] - 0.5804900400094081 x[19] - 0.5796632261931564 x[20]
+Subject to
+ x[1] ≥ 0
+ x[2] ≥ 0
+ x[3] ≥ 0
+ x[4] ≥ 0
+ x[5] ≥ 0
+ x[6] ≥ 0
+ x[7] ≥ 0
+ x[8] ≥ 0
+ x[9] ≥ 0
+ x[10] ≥ 0
+ x[11] ≥ 0
+ x[12] ≥ 0
+ x[13] ≥ 0
+ x[14] ≥ 0
+ x[15] ≥ 0
+ x[16] ≥ 0
+ x[17] ≥ 0
+ x[18] ≥ 0
+ x[19] ≥ 0
+ x[20] ≥ 0
+ x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15] + x[16] + x[17] + x[18] + x[19] + x[20] ≥ 1
+ 0.5779060421775793 x[1] + 0.5830318458828113 x[2] + 0.3210974176667657 x[3] + 0.27908352183667906 x[4] + 0.9141460823095137 x[5] + 0.23691971391357458 x[6] + 0.40433697480523323 x[7] + 0.7227655579075947 x[8] + 0.7127085196046119 x[9] + 0.05520726091010408 x[10] + 0.9369186533985627 x[11] + 0.6502381827480609 x[12] + 0.9795359314201038 x[13] + 0.39002106037262907 x[14] + 0.9072308447577624 x[15] + 0.4025640403437758 x[16] + 0.9829518606355281 x[17] + 0.8579432716350504 x[18] + 0.22670570119321887 x[19] + 0.8013185993260352 x[20] ≤ 11.942631082845192
+ x[1] integer
+ x[2] integer
+ x[3] integer
+ x[4] integer
+ x[5] integer
+ x[6] integer
+ x[7] integer
+ x[8] integer
+ x[9] integer
+ x[10] integer
+ x[11] integer
+ x[12] integer
+ x[13] integer
+ x[14] integer
+ x[15] integer
+ x[16] integer
+ x[17] integer
+ x[18] integer
+ x[19] integer
+ x[20] integer
+
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -8.804144e+00
+presolving:
+(round 1, fast)       1 del vars, 21 del conss, 0 add conss, 41 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       1 del vars, 21 del conss, 0 add conss, 46 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 3, exhaustive) 3 del vars, 21 del conss, 0 add conss, 46 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) probing cycle finished: starting next cycle
+   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.0s) no symmetry present
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present
+presolving (4 rounds: 4 fast, 2 medium, 2 exhaustive):
+ 3 deleted vars, 21 deleted constraints, 0 added constraints, 46 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 28 implications, 0 cliques
+presolved problem has 18 variables (3 bin, 15 int, 0 impl, 0 cont) and 2 constraints
+      2 constraints of type <linear>
+Presolving Time: 0.01
+transformed 1/1 original solutions to the transformed problem space
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.02
+Solving Nodes      : 1
+Primal Bound       : -8.80414363693068e+00 (1 solutions)
+Dual Bound         : -1.01856209912285e+02
+Gap                : 1056.91 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.02
+Solving Nodes      : 1
+Primal Bound       : -8.80414363693068e+00 (1 solutions)
+Dual Bound         : -1.01856209912285e+02
+Gap                : 1056.91 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
