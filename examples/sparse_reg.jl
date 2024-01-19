@@ -2,6 +2,7 @@ using Boscia
 using FrankWolfe
 using Random
 using SCIP
+using Pavito
 # using Statistics
 using LinearAlgebra
 using Distributions
@@ -15,6 +16,7 @@ include("BnB_Ipopt.jl")
 
 function sparse_reg(seed=1, n=20, iter = 1, full_callback = false; bo_mode)
     limit = 1800
+    @show seed, n, iter
 
     f, grad!, p, k, M = build_function(seed, n)
     o = SCIP.Optimizer()
@@ -589,3 +591,68 @@ function hybrid_branching_data()
         CSV.write(file_name, df, append=false)
     end
 end 
+
+function sparse_reg_pavito(seed=1, n=20)
+    f, _, p, k, M = build_function(seed, n)
+    m, x = build_pavito_model(n, p, k, seed)
+    println(m)
+    optimize!(m)
+    time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    vars_pavito = value.(x)
+    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_pavito = f(vars_pavito)
+    termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg.csv")
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_pavito_model(n, p, k, seed)
+    Random.seed!(seed)
+    time_limit = 1800 
+
+    lambda_0 = rand(Float64);
+    lambda_2 = 10.0 * rand(Float64);
+    A = rand(Float64, n, p)
+    y = rand(Float64, n)
+    M = 2 * var(A)
+
+    m = Model(
+        optimizer_with_attributes(
+            Pavito.Optimizer,
+            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000),
+            "cont_solver" =>
+                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+        ),
+    )    
+    MOI.set(m, MOI.TimeLimitSec(), time_limit)
+    set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        @constraint(m, 1 >= x[i] >= 0)
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, A*x[1:p])
+    expr2 = @expression(m, dot(x[1:p], x[1:p]))
+    expr = @expression(m, sum((y[i] - expr1[i])^2 for i in 1:n) + lambda_0*sum(x[i] for i in p+1:2p) + lambda_2*expr2)
+    @objective(m, Min, expr)
+
+    return m, m[:x]
+
+end
