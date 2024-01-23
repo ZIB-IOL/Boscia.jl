@@ -595,7 +595,7 @@ end
 function sparse_reg_pavito(seed=1, n=20)
     f, _, p, k, M = build_function(seed, n)
     m, x = build_pavito_model(n, p, k, seed)
-    println(m)
+    # println(m)
     optimize!(m)
     time_pavito = MOI.get(m, MOI.SolveTimeSec())
     vars_pavito = value.(x)
