@@ -34,7 +34,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-julia --project run_sparse_reg_setup.jl $1 $2 &> sparse_reg_$SLURM_JOB_ID.txt
+/scratch/opt/htroppen/julia-1.6.1/bin/julia --project run_sparse_reg_setup.jl $1 $2 &> sparse_reg_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0
