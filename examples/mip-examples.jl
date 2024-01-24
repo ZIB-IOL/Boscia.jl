@@ -374,7 +374,7 @@ function miplib_pavito(example, num_v, seed)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
     df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_miplib_" * example * ".csv")
+    file_name = joinpath(@__DIR__,"csv/pavito_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 

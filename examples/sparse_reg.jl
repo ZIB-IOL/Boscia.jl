@@ -605,7 +605,7 @@ function sparse_reg_pavito(seed=1, n=20)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg.csv")
+    file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 

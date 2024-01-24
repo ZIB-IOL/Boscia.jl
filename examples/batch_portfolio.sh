@@ -34,7 +34,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-julia --project run_portfolio_setup.jl $1 $2 $3 &> portfolio_$3_$SLURM_JOB_ID.txt
+/scratch/opt/htroppen/julia-1.6.1/bin/julia --project run_portfolio_setup.jl $1 $2 $3 &> portfolio_$3_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0

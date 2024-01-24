@@ -334,7 +334,7 @@ function portfolio_pavito(seed=1, dimension=5; mode)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
     df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * ".csv")
+    file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
