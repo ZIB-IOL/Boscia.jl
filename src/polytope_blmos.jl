@@ -94,7 +94,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
         z[idx] = round(x[idx])
     end
 
-    if sum(iszero.(z[tree.branching_indices])) == length(z[tree.branching_indices])
+    if count(!iszero, z[tree.branching_indices]) == 0
         return [z], false
     end
     
