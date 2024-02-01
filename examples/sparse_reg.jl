@@ -19,8 +19,10 @@ function sparse_reg(seed=1, n=20, iter = 1, full_callback = false; bo_mode)
     @show seed, n, iter
 
     f, grad!, p, k, M = build_function(seed, n)
+    @show f
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, M)
+    # println(lmo.o)
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
 
     for i in 1:iter
@@ -46,6 +48,7 @@ function sparse_reg(seed=1, n=20, iter = 1, full_callback = false; bo_mode)
         # @test f(x) <= f(result[:raw_solution]) + 1e-6
         total_time_in_sec=result[:total_time_in_sec]
         status = result[:status]
+        @show status, result[:primal_objective]
         if occursin("Optimal", result[:status])
             status = "OPTIMAL"
         end
@@ -188,6 +191,7 @@ end
 function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
     # build tree
     bnb_model, expr, p, k = build_bnb_ipopt_model(seed, n)
+    print(bnb_model.root.m)    
     list_lb = []
     list_ub = []
     list_time = []
@@ -207,6 +211,7 @@ function sparse_reg_ipopt(seed = 1, n = 20, iter = 1)
         status = "Optimal"
     end    
 
+    @show status, bnb_model.incumbent
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_ " * ".csv")
     if !isfile(file_name)
@@ -253,11 +258,11 @@ function build_bnb_ipopt_model(seed, n)
 
     model = IpoptOptimizationProblem(collect(p+1:2p), m, Boscia.SOLVING, time_limit, lbs, ubs)
     bnb_model = BB.initialize(;
-    traverse_strategy = BB.BestFirstSearch(),
-    Node = MIPNode,
-    root = model,
-    sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,
-    rtol = 1e-2,
+        traverse_strategy = BB.BestFirstSearch(),
+        Node = MIPNode,
+        root = model,
+        sense = objective_sense(m) == MOI.MAX_SENSE ? :Max : :Min,
+        rtol = 1e-2,
     )
     BB.set_root!(bnb_model, (
     lbs = fill(-Inf, length(x)),#zeros(length(x)),
@@ -594,8 +599,9 @@ end
 
 function sparse_reg_pavito(seed=1, n=20)
     f, _, p, k, M = build_function(seed, n)
+    @show f
     m, x = build_pavito_model(n, p, k, seed)
-    # println(m)
+    println(m)
     optimize!(m)
     time_pavito = MOI.get(m, MOI.SolveTimeSec())
     vars_pavito = value.(x)
@@ -604,6 +610,7 @@ function sparse_reg_pavito(seed=1, n=20)
     solution_pavito = f(vars_pavito)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
+    @show termination_pavito, solution_pavito
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
     if !isfile(file_name)
@@ -626,9 +633,16 @@ function build_pavito_model(n, p, k, seed)
     m = Model(
         optimizer_with_attributes(
             Pavito.Optimizer,
-            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000),
-            "cont_solver" =>
-                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+            "mip_solver" => optimizer_with_attributes(
+                SCIP.Optimizer, 
+                "limits/gap" => 10000,
+                "numerics/feastol" => 1e-6,
+            ),
+            "cont_solver" => optimizer_with_attributes(
+                Ipopt.Optimizer, 
+                "print_level" => 0,
+                "tol" => 1e-6,
+            ),
         ),
     )    
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
