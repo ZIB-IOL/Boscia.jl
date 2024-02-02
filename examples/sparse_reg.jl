@@ -597,11 +597,15 @@ function hybrid_branching_data()
     end
 end 
 
-function sparse_reg_pavito(seed=1, n=20)
-    f, _, p, k, M = build_function(seed, n)
-    @show f
+function sparse_reg_pavito(seed=1, n=20; print_models=false)
+    f, grad!, p, k, M = build_function(seed, n)
+    # @show f
     m, x = build_pavito_model(n, p, k, seed)
-    println(m)
+    if print_models
+        println("PAVITO")
+        println(m)
+    end
+    @show objective_sense(m)
     optimize!(m)
     time_pavito = MOI.get(m, MOI.SolveTimeSec())
     vars_pavito = value.(x)
@@ -613,6 +617,55 @@ function sparse_reg_pavito(seed=1, n=20)
     @show termination_pavito, solution_pavito
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
+
+    # check feasibility in Ipopt model
+    ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
+    if print_models
+        println("IPOPT")
+        print(ipopt_model.root.m)
+    end
+    @show objective_sense(ipopt_model.root.m)
+    key_vector = ipopt_model.root.m[:x]
+    point = Dict(key_vector .=> vars_pavito)
+    report = primal_feasibility_report(ipopt_model.root.m, point, atol=1e-6)
+    @assert isempty(report)
+    BB.optimize!(ipopt_model)
+    @show ipopt_model.incumbent
+    # writedlm("report.txt", report)
+
+    # check feasibility in Boscia model
+    o = SCIP.Optimizer()
+    lmo, _ = build_optimizer(o, p, k, M)
+    if print_models
+        println("BOSCIA")
+        print(o)
+    end
+    # check linear feasiblity
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+    # check integer feasibility
+    integer_variables = Vector{Int}()
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        push!(integer_variables, cidx.value)
+    end
+    for idx in integer_variables
+        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+    end
+    # check feasibility of rounded solution
+    vars_pavito_polished = vars_pavito
+    for i in integer_variables
+        vars_pavito_polished[i] = round(vars_pavito_polished[i])
+    end
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+    # solve Boscia
+    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+
+    # evaluate soluton of each solver
+    vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+    vars = VariableRef.(ipopt_model.root.m, vids)
+    solution_ipopt = value.(vars)
+    solution_boscia = result[:raw_solution]
+    @show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
