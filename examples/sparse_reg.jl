@@ -658,6 +658,7 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
     # solve Boscia
     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+    @show result[:dual_bound]
 
     # evaluate soluton of each solver
     vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
