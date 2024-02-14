@@ -1,0 +1,57 @@
+(example, num_v, seed) = ("22433", 5, 2)
+(example, num_v, seed) = ("22433", 5, 2)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+completion of a partial solution failed (subproblem is infeasible)
+presolving:
+(round 1, fast)       1 del vars, 1 del conss, 1 add conss, 1 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       198 del vars, 1 del conss, 2 add conss, 1 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       198 del vars, 1 del conss, 2 add conss, 1 chg bounds, 198 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.1s) running MILP presolver
+   (0.1s) MILP presolver found nothing
+(round 4, exhaustive) 198 del vars, 2 del conss, 2 add conss, 1 chg bounds, 199 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 5, exhaustive) 198 del vars, 2 del conss, 2 add conss, 1 chg bounds, 199 chg sides, 0 chg coeffs, 197 upgd conss, 0 impls, 0 clqs
+   (0.1s) probing cycle finished: starting next cycle
+   (0.1s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.1s) no symmetry present
+presolving (6 rounds: 6 fast, 3 medium, 3 exhaustive):
+ 198 deleted vars, 2 deleted constraints, 2 added constraints, 1 tightened bounds, 0 added holes, 199 changed sides, 0 changed coefficients
+ 231 implications, 0 cliques
+presolved problem has 232 variables (231 bin, 0 int, 1 impl, 0 cont) and 199 constraints
+     67 constraints of type <knapsack>
+      2 constraints of type <linear>
+    130 constraints of type <logicor>
+Presolving Time: 0.07
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.1s|     1 |     0 |   531 |     - |  6122k |   0 | 232 | 203 | 199 |   0 |  0 |  38 |   0 |-2.044960e+04 |      --      |    Inf | unknown
+o 0.1s|     1 |     0 |   930 |     - |feaspump|   0 | 232 | 203 | 199 |   0 |  0 |  39 |   0 |-2.044960e+04 |-2.031556e+04 |   0.66%| unknown
+  0.1s|     1 |     0 |   930 |     - |  6182k |   0 | 232 | 203 | 199 |   0 |  0 |  39 |   0 |-2.044960e+04 |-2.031556e+04 |   0.66%| unknown
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.10
+Solving Nodes      : 1
+Primal Bound       : -2.03155638203921e+04 (1 solutions)
+Dual Bound         : -2.04496006065511e+04
+Gap                : 0.66 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.10
+Solving Nodes      : 1
+Primal Bound       : -2.03155638203921e+04 (1 solutions)
+Dual Bound         : -2.04496006065511e+04
+Gap                : 0.66 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+Away FW: false
+(primal, tree.incumbent) = (12342.863873538061, 12342.863873538061)
+
+result[:dual_bound] = 12342.863873538061
+(f(vars_pavito), f(solution_boscia)) = (12355.267761416811, 12342.863873538061)

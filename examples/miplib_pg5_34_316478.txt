@@ -1,0 +1,46 @@
+(example, num_v, seed) = ("pg5_34", 5, 2)
+(example, num_v, seed) = ("pg5_34", 5, 2)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.3 seconds, objective value -4.206389e+02
+presolving:
+(round 1, fast)       1 del vars, 1 del conss, 0 add conss, 1 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.3s) running MILP presolver
+   (0.3s) MILP presolver found nothing
+   (0.4s) probing cycle finished: starting next cycle
+   (0.4s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.4s) no symmetry present
+presolving (2 rounds: 2 fast, 1 medium, 1 exhaustive):
+ 1 deleted vars, 1 deleted constraints, 0 added constraints, 1 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 2500 implications, 0 cliques
+presolved problem has 2600 variables (100 bin, 0 int, 0 impl, 2500 cont) and 225 constraints
+    225 constraints of type <linear>
+Presolving Time: 0.35
+transformed 2/2 original solutions to the transformed problem space
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.36
+Solving Nodes      : 1
+Primal Bound       : -4.20638909260963e+02 (4 solutions)
+Dual Bound         : -9.88638508594645e+02
+Gap                : 135.03 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.36
+Solving Nodes      : 1
+Primal Bound       : -4.20638909260963e+02 (4 solutions)
+Dual Bound         : -9.88638508594645e+02
+Gap                : 135.03 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+[ Info: Polish solution
+Away FW: false
+
+result[:dual_bound] = -499.39405748530226
+(f(vars_pavito), f(solution_boscia)) = (84.62594088056001, -494.7163796106144)

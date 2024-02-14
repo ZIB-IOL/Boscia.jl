@@ -1,0 +1,52 @@
+(example, num_v, seed) = ("ran14x18-disj-8", 4, 1)
+(example, num_v, seed) = ("ran14x18-disj-8", 4, 1)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -4.088369e+02
+presolving:
+(round 1, fast)       131 del vars, 256 del conss, 0 add conss, 1 chg bounds, 0 chg sides, 16 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 2, exhaustive) 131 del vars, 277 del conss, 0 add conss, 1 chg bounds, 21 chg sides, 16 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, exhaustive) 131 del vars, 277 del conss, 0 add conss, 1 chg bounds, 21 chg sides, 16 chg coeffs, 122 upgd conss, 0 impls, 0 clqs
+   (0.0s) sparsify finished: 688/1964 (35.0%) nonzeros canceled - in total 688 canceled nonzeros, 836 changed coefficients, 0 added nonzeros
+(round 4, exhaustive) 131 del vars, 277 del conss, 0 add conss, 1 chg bounds, 21 chg sides, 852 chg coeffs, 122 upgd conss, 122 impls, 0 clqs
+(round 5, fast)       131 del vars, 280 del conss, 0 add conss, 1 chg bounds, 21 chg sides, 852 chg coeffs, 122 upgd conss, 122 impls, 0 clqs
+   (0.0s) probing: 51/122 (41.8%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.0s) no symmetry present
+presolving (6 rounds: 6 fast, 4 medium, 4 exhaustive):
+ 131 deleted vars, 280 deleted constraints, 0 added constraints, 1 tightened bounds, 0 added holes, 21 changed sides, 852 changed coefficients
+ 122 implications, 0 cliques
+presolved problem has 374 variables (122 bin, 0 int, 0 impl, 252 cont) and 168 constraints
+    122 constraints of type <varbound>
+     46 constraints of type <linear>
+Presolving Time: 0.03
+transformed 1/1 original solutions to the transformed problem space
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.03
+Solving Nodes      : 1
+Primal Bound       : -4.08836894649892e+02 (1 solutions)
+Dual Bound         : -1.39651404868664e+03
+Gap                : 241.58 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.03
+Solving Nodes      : 1
+Primal Bound       : -4.08836894649892e+02 (1 solutions)
+Dual Bound         : -1.39651404868664e+03
+Gap                : 241.58 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+Away FW: false
+
+result[:dual_bound] = -324.60642259714695
+(f(vars_pavito), f(solution_boscia)) = (167.98696590764456, -310.56072876673136)
