@@ -4,6 +4,7 @@ using FrankWolfe
 using Random
 using LinearAlgebra
 using SCIP
+using Pavito
 import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
@@ -333,3 +334,144 @@ function build_bnb_ipopt_model(seed, n, M, k, var_A)
 
 end
 
+function sparse_log_reg_pavito(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; print_models=false)
+    f, grad!, p = build_function(seed, dimension, var_A)
+    # @show f
+    m, x = build_pavito_model(seed, dimension, k, var_A, M)
+    if print_models
+        println("PAVITO")
+        println(m)
+    end
+    @show objective_sense(m)
+    optimize!(m)
+    time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    vars_pavito = value.(x)
+    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_pavito = f(vars_pavito)
+    termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    @show termination_pavito, solution_pavito
+    df = DataFrame(seed=seed, dimension=dimension, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_sparse_log_reg_" * string(seed) * "_" * string(dimension) * ".csv")
+
+    # # check feasibility in Ipopt model
+    # ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
+    # if print_models
+    #     println("IPOPT")
+    #     print(ipopt_model.root.m)
+    # end
+    # @show objective_sense(ipopt_model.root.m)
+    # key_vector = ipopt_model.root.m[:x]
+    # point = Dict(key_vector .=> vars_pavito)
+    # report = primal_feasibility_report(ipopt_model.root.m, point, atol=1e-6)
+    # @assert isempty(report)
+    # BB.optimize!(ipopt_model)
+    # @show ipopt_model.incumbent
+    # # writedlm("report.txt", report)
+
+    # check feasibility in Boscia model
+    o = SCIP.Optimizer()
+    lmo, _ = build_optimizer(o, p, k, M)
+    if print_models
+        println("BOSCIA")
+        print(o)
+    end
+    # check linear feasiblity
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+    # check integer feasibility
+    integer_variables = Vector{Int}()
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        push!(integer_variables, cidx.value)
+    end
+    for idx in integer_variables
+        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+    end
+    # check feasibility of rounded solution
+    vars_pavito_polished = vars_pavito
+    for i in integer_variables
+        vars_pavito_polished[i] = round(vars_pavito_polished[i])
+    end
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+    # solve Boscia
+    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+    @show result[:dual_bound]
+
+    # evaluate soluton of each solver
+    # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+    # vars = VariableRef.(ipopt_model.root.m, vids)
+    # solution_ipopt = value.(vars)
+    solution_boscia = result[:raw_solution]
+    #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+    @show f(vars_pavito), f(solution_boscia)
+    if occursin("Optimal", result[:status])
+        @assert f(solution_boscia) <= f(vars_pavito) + 1e-5
+    end
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_pavito_model(seed, n, k, var_A, M)
+    Random.seed!(seed)
+    time_limit = 1800 
+
+    p = 5 * n;
+    A = randn(Float64, n, p)
+    y = Random.bitrand(n)
+    y = [i == 0 ? -1 : 1 for i in y]
+    for (i,val) in enumerate(y)
+        A[i,:] = var_A * A[i,:] * y[i]
+    end
+    mu = 10.0 * rand(Float64);
+
+    m = Model(
+        optimizer_with_attributes(
+            Pavito.Optimizer,
+            "mip_solver" => optimizer_with_attributes(
+                SCIP.Optimizer, 
+                "limits/gap" => 10000,
+                "numerics/feastol" => 1e-6,
+            ),
+            "cont_solver" => optimizer_with_attributes(
+                Ipopt.Optimizer, 
+                "print_level" => 0,
+                "tol" => 1e-6,
+            ),
+        ),
+    )    
+    MOI.set(m, MOI.TimeLimitSec(), time_limit)
+    set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        #@constraint(m, 1 >= x[i] >= 0)
+        set_binary(x[i])
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, mu/2*sum(x[i]^2 for i in 1:p))
+    lexprs = []
+    for i in 1:n
+        push!(lexprs, @expression(m, dot(x[1:p], A[i, :])))
+    end
+    exprs = []
+    for i in 1:n
+        push!(exprs, @NLexpression(m, exp(lexprs[i]/2) + exp(-lexprs[i]/2)))
+    end 
+    expr = @NLexpression(m, 1/n * sum(log(exprs[i]) - y[i] * lexprs[i] * 1/2 for i in 1:n ) + expr1)
+    @NLobjective(m, Min, expr)
+
+    return m, m[:x]
+end
