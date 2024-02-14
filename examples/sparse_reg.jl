@@ -618,20 +618,20 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
 
-    # check feasibility in Ipopt model
-    ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
-    if print_models
-        println("IPOPT")
-        print(ipopt_model.root.m)
-    end
-    @show objective_sense(ipopt_model.root.m)
-    key_vector = ipopt_model.root.m[:x]
-    point = Dict(key_vector .=> vars_pavito)
-    report = primal_feasibility_report(ipopt_model.root.m, point, atol=1e-6)
-    @assert isempty(report)
-    BB.optimize!(ipopt_model)
-    @show ipopt_model.incumbent
-    # writedlm("report.txt", report)
+    # # check feasibility in Ipopt model
+    # ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
+    # if print_models
+    #     println("IPOPT")
+    #     print(ipopt_model.root.m)
+    # end
+    # @show objective_sense(ipopt_model.root.m)
+    # key_vector = ipopt_model.root.m[:x]
+    # point = Dict(key_vector .=> vars_pavito)
+    # report = primal_feasibility_report(ipopt_model.root.m, point, atol=1e-6)
+    # @assert isempty(report)
+    # BB.optimize!(ipopt_model)
+    # @show ipopt_model.incumbent
+    # # writedlm("report.txt", report)
 
     # check feasibility in Boscia model
     o = SCIP.Optimizer()
@@ -661,11 +661,13 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     @show result[:dual_bound]
 
     # evaluate soluton of each solver
-    vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
-    vars = VariableRef.(ipopt_model.root.m, vids)
-    solution_ipopt = value.(vars)
+    # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+    # vars = VariableRef.(ipopt_model.root.m, vids)
+    # solution_ipopt = value.(vars)
     solution_boscia = result[:raw_solution]
-    @show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+    #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+    @show f(vars_pavito), f(solution_boscia)
+    @assert f(solution_boscia) <= f(vars_pavito) + 1e-5
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -704,7 +706,8 @@ function build_pavito_model(n, p, k, seed)
 
     @variable(m, x[1:2p])
     for i in p+1:2p
-        @constraint(m, 1 >= x[i] >= 0)
+        #@constraint(m, 1 >= x[i] >= 0)
+        set_binary(x[i])
     end
 
     for i in 1:p
