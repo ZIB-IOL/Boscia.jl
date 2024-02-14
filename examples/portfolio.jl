@@ -64,6 +64,7 @@ function portfolio(seed=1, dimension=5, full_callback=false; mode, bo_mode)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * string(n) * "_" *string(seed) * "_" * mode * "_portfolio.csv")
         CSV.write(file_name, df, append=false)
     else
+        @show result[:primal_objective]
         df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
         if bo_mode ==  "afw"
             file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * mode * "_portfolio.csv")
@@ -306,7 +307,9 @@ function build_pavito_model(seed, n; mode="mixed")
     @variable(m, x[1:n])
     for i in 1:n
         @constraint(m, x[i] >= 0)
-        set_integer(x[i])
+        if i in I
+            set_integer(x[i])
+        end
     end
 
     @constraint(m, dot(ai, x) <= bi)
@@ -332,9 +335,36 @@ function portfolio_pavito(seed=1, dimension=5; mode)
     #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
     solution_pavito = f(vars_pavito)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+    @show solution_pavito, termination_pavito
 
     df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")
+
+    # check linear feasiblity
+    o = SCIP.Optimizer()
+    lmo, _ = build_optimizer(o, mode, n)
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+    # check integer feasibility
+    integer_variables = Vector{Int}()
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        push!(integer_variables, cidx.value)
+    end
+    for idx in integer_variables
+        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+    end
+    # check feasibility of rounded solution
+    vars_pavito_polished = vars_pavito
+    for i in integer_variables
+        vars_pavito_polished[i] = round(vars_pavito_polished[i])
+    end
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+    # solve Boscia
+    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+    @show result[:dual_bound]
+    solution_boscia = result[:raw_solution]
+    @show f(vars_pavito), f(solution_boscia)
+    @assert f(solution_boscia) <= f(vars_pavito) + 1e-5
+
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
