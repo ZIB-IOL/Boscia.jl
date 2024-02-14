@@ -352,7 +352,7 @@ function sparse_log_reg_pavito(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; prin
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
     @show termination_pavito, solution_pavito
-    df = DataFrame(seed=seed, dimension=dimension, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_sparse_log_reg_" * string(seed) * "_" * string(dimension) * ".csv")
 
     # # check feasibility in Ipopt model

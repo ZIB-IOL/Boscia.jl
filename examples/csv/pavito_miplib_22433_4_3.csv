@@ -1,2 +1,2 @@
-seed,dimension,time,solution,termination
-3,429,12.164204120635986,-8722.053808032148,ALMOST_LOCALLY_SOLVED
+seed,num_v,time,solution,termination
+3,4,12.164204120635986,-8722.053808032148,ALMOST_LOCALLY_SOLVED
