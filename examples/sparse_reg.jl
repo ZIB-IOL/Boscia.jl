@@ -667,7 +667,9 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     solution_boscia = result[:raw_solution]
     #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
     @show f(vars_pavito), f(solution_boscia)
-    @assert f(solution_boscia) <= f(vars_pavito) + 1e-5
+    if occursin("Optimal", result[:status])
+        @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
+    end
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)

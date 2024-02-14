@@ -2,6 +2,7 @@ using Boscia
 using FrankWolfe
 using Random
 using SCIP
+using Pavito
 # using Statistics
 using LinearAlgebra
 using Distributions
@@ -572,3 +573,155 @@ function build_poisson_reg(dim, fac, seed, use_indicator, time_limit, rtol)
     return x, result
 end
 
+function poisson_reg_pavito(seed=1, n=20, Ns=0.1; print_models=false)
+    f, grad!, p = build_function(seed, n)
+    k = n/2
+    # @show f
+    m, x = build_pavito_model(n, seed, Ns)
+    if print_models
+        println("PAVITO")
+        println(m)
+    end
+    @show objective_sense(m)
+    optimize!(m)
+    time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    vars_pavito = value.(x)
+    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+    solution_pavito = f(vars_pavito)
+    termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    @show termination_pavito, solution_pavito
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_poisson_reg_" * string(seed) * "_" * string(n) * ".csv")
+
+    # # check feasibility in Ipopt model
+    # ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
+    # if print_models
+    #     println("IPOPT")
+    #     print(ipopt_model.root.m)
+    # end
+    # @show objective_sense(ipopt_model.root.m)
+    # key_vector = ipopt_model.root.m[:x]
+    # point = Dict(key_vector .=> vars_pavito)
+    # report = primal_feasibility_report(ipopt_model.root.m, point, atol=1e-6)
+    # @assert isempty(report)
+    # BB.optimize!(ipopt_model)
+    # @show ipopt_model.incumbent
+    # # writedlm("report.txt", report)
+
+    # check feasibility in Boscia model
+    o = SCIP.Optimizer()
+    lmo, _ = build_optimizer(o, p, k, Ns)
+    if print_models
+        println("BOSCIA")
+        print(o)
+    end
+    # check linear feasiblity
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+    # check integer feasibility
+    integer_variables = Vector{Int}()
+    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        push!(integer_variables, cidx.value)
+    end
+    for idx in integer_variables
+        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+    end
+    # check feasibility of rounded solution
+    vars_pavito_polished = vars_pavito
+    for i in integer_variables
+        vars_pavito_polished[i] = round(vars_pavito_polished[i])
+    end
+    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+    @show f(vars_pavito_polished)
+    # solve Boscia
+    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+    @show result[:dual_bound]
+
+    # evaluate soluton of each solver
+    # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+    # vars = VariableRef.(ipopt_model.root.m, vids)
+    # solution_ipopt = value.(vars)
+    solution_boscia = result[:raw_solution]
+    #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+    @show f(vars_pavito), f(solution_boscia)
+    if occursin("Optimal", result[:status])
+        @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
+    end
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_pavito_model(n, seed, Ns)
+    Random.seed!(seed)
+    time_limit = 1800 
+
+    p = n
+    k = n/2
+
+    # underlying true weights
+    ws = rand(Float64, p)
+    # set 50 entries to 0
+    for _ in 1:20
+        ws[rand(1:p)] = 0
+    end
+    bs = rand(Float64)
+    Xs = randn(Float64, n, p)
+    ys = map(1:n) do idx
+        a = dot(Xs[idx, :], ws) + bs
+        return rand(Distributions.Poisson(exp(a)))
+    end
+
+    α = 1.3
+
+    m = Model(
+        optimizer_with_attributes(
+            Pavito.Optimizer,
+            "mip_solver" => optimizer_with_attributes(
+                SCIP.Optimizer, 
+                "limits/gap" => 10000,
+                "numerics/feastol" => 1e-6,
+            ),
+            "cont_solver" => optimizer_with_attributes(
+                Ipopt.Optimizer, 
+                "print_level" => 0,
+                "tol" => 1e-6,
+            ),
+        ),
+    )    
+    MOI.set(m, MOI.TimeLimitSec(), time_limit)
+    set_silent(m)
+
+    @variable(m, x[1:2p+1])
+    for i in p+1:2p
+        #@constraint(m, 1 >= x[i] >= 0)
+        set_binary(x[i])
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + Ns*x[i+p] >= 0)
+        @constraint(m, x[i] - Ns*x[i+p] <= 0)
+    end
+
+    @constraint(m, x[2p+1] <= Ns)
+    @constraint(m, x[2p+1] >= -Ns)
+    lbs = vcat(fill(-Ns, p), fill(0.0,p), [-Ns])
+    ubs = vcat(fill(Ns, p), fill(1.0, p), [Ns])
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+    @constraint(m, sum(x[p+1:2p]) >= 1.0)
+
+    expr1 = @expression(m, α*sum(x[i]^2 for i in 1:p))
+    exprs = []
+    for i in 1:p
+        push!(exprs, @expression(m, dot(x[1:p], Xs[:, i]) + x[end]))
+    end
+    expr = @NLexpression(m, 1/n * sum(exp(exprs[i]) - ys[i] * exprs[i] for i in 1:p ) + expr1)
+    @NLobjective(m, Min, expr)
+
+    return m, m[:x]
+end

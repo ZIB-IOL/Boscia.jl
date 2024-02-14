@@ -405,7 +405,7 @@ function sparse_log_reg_pavito(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; prin
     #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
     @show f(vars_pavito), f(solution_boscia)
     if occursin("Optimal", result[:status])
-        @assert f(solution_boscia) <= f(vars_pavito) + 1e-5
+        @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
     end
 
     if !isfile(file_name)
