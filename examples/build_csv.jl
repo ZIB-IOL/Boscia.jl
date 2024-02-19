@@ -115,6 +115,17 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_no_ss, on = [:seed, :dimension])
 
+        # load pavito
+        df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_portfolio_integer.csv"))) 
+        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+
+        df_pavito[!,:time_pavito] = df_pavito[!,:time]
+        df_pavito[!,:termination_pavito] = termination_pavito
+        df_pavito[!,:solution_pavito] = df_pavito[!,:solution]
+        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension])
+
+        df = innerjoin(df, df_pavito, on = [:seed, :dimension])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_portfolio_integer.csv"))) 
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -141,6 +152,7 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
+        optimal_pavito = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -157,14 +169,21 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_scip, 0)
             end
+            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_pavito, 1)
+            else 
+                append!(optimal_pavito, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+        df[!,:optimal_pavito] = optimal_pavito
 
         # compute relative gap
         rel_gap_scip = []
         rel_gap_ipopt = []
+        rel_gap_pavito = []
         for row in eachrow(df)
             if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
                 push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
@@ -180,9 +199,17 @@ function build_non_grouped_csv(mode)
             else
                 push!(rel_gap_ipopt, (row.solution_ipopt - row.lb_boscia)/min(abs(row.solution_ipopt), abs(row.lb_boscia)))
             end
+            if min(abs(row.solution_pavito), abs(row.lb_boscia)) == 0
+                push!(rel_gap_pavito, row.solution_pavito - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_pavito)
+                push!(rel_gap_pavito, Inf)
+            else
+                push!(rel_gap_pavito, (row.solution_pavito - row.lb_boscia)/min(abs(row.solution_pavito), abs(row.lb_boscia)))
+            end
         end
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+        df[!, :rel_gap_pavito] = round.(rel_gap_pavito,digits=3)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/portfolio_integer_non_grouped.csv")
@@ -2322,6 +2349,7 @@ function build_grouped_csv(file_name, mode)
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         df[df.time_ipopt.>1800, :time_ipopt] .= 1800
+        df[df.time_pavito.>1800, :time_pavito] .= 1800
     end
 
     function geo_mean(group)
@@ -2378,6 +2406,8 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_scip => custom_mean,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2387,7 +2417,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "poisson"
@@ -2399,6 +2429,8 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_scip => custom_mean,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2408,7 +2440,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_reg"
@@ -2421,6 +2453,8 @@ function build_grouped_csv(file_name, mode)
             :time_scip_tol => geo_mean, :termination_scip_tol => custom_sum,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2430,7 +2464,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "sparse_log_reg"
@@ -2442,6 +2476,8 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_scip => custom_mean,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2451,7 +2487,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     elseif mode == "tailed_cardinality"
@@ -2501,6 +2537,8 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_scip => custom_mean,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2510,7 +2548,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             :termination_sc => custom_sum,
             :time_sc => geo_mean,
             :rel_gap_sc => custom_mean,
@@ -2526,6 +2564,8 @@ function build_grouped_csv(file_name, mode)
             :rel_gap_scip => custom_mean,
             :time_ipopt => geo_mean, :termination_ipopt => custom_sum,
             :rel_gap_ipopt => custom_mean,
+            :time_pavito => geo_mean, :termination_pavito => custom_sum,
+            :rel_gap_pavito => custom_mean,
             :time_no_ws => geo_mean, :termination_no_ws => custom_sum,
             :rel_gap_no_ws => custom_mean,
             :time_no_as => geo_mean, :termination_no_as => custom_sum,
@@ -2535,7 +2575,7 @@ function build_grouped_csv(file_name, mode)
             :time_afw => geo_mean, :termination_afw => custom_sum,
             :rel_gap_afw => custom_mean,
             :optimal_boscia => custom_sum, :optimal_ipopt => custom_sum,
-            :optimal_scip => custom_sum,
+            :optimal_scip => custom_sum, :optimal_pavito => custom_sum,
             nrow => :NumInstances, renamecols=false
             )
     end
@@ -2571,6 +2611,10 @@ function build_grouped_csv(file_name, mode)
         :termination_ipopt => :terminationIpopt,
         :rel_gap_ipopt => :relGapIpopt,
         :optimal_ipopt => :optimalIpopt,
+        :time_pavito => :timePavito,
+        :termination_pavito => :terminationPavito,
+        :rel_gap_pavito => :relGapPavito,
+        :optimal_pavito => :optimalPavito,
         )
     end
     
@@ -2594,6 +2638,8 @@ function build_grouped_csv(file_name, mode)
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         non_inf_entries = findall(isfinite, gdf[!, :relGapIpopt])
         gdf[non_inf_entries, :relGapIpopt] = convert.(Int64, round.(gdf[non_inf_entries, :relGapIpopt]*100))
+        non_inf_entries = findall(isfinite, gdf[!, :relGapPavito])
+        gdf[non_inf_entries, :relGapPavito] = convert.(Int64, round.(gdf[non_inf_entries, :relGapPavito]*100))
     end 
 
     gdf[!,:timeNoWs] = convert.(Int64,round.(gdf[!,:timeNoWs]))
@@ -2609,6 +2655,7 @@ function build_grouped_csv(file_name, mode)
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:timeIpopt] = convert.(Int64,round.(gdf[!,:timeIpopt]))
+        gdf[!,:timePavito] = convert.(Int64,round.(gdf[!,:timePavito]))
     end
 
     # relative instances solved
@@ -2621,6 +2668,7 @@ function build_grouped_csv(file_name, mode)
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = gdf[!,:terminationIpopt]./gdf[!,:NumInstances]*100
+        gdf[!,:terminationPavitoRel] = gdf[!,:terminationPavito]./gdf[!,:NumInstances]*100
     end
 
     if mode == "sparse_reg"
@@ -2637,6 +2685,7 @@ function build_grouped_csv(file_name, mode)
 
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpoptRel] = convert.(Int64, round.(gdf[!,:terminationIpoptRel]))
+        gdf[!,:terminationPavitoRel] = convert.(Int64, round.(gdf[!,:terminationPavitoRel]))
     end
 
     if mode == "sparse_reg"
