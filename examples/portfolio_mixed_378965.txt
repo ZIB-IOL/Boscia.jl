@@ -1,0 +1,126 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (2, 20, "mixed")
+(seed, dimension, mode) = (2, 20, "mixed")
+Min 0.8021752790519902 x[1]² - 0.20924652198561675 x[1]*x[2] + 0.13593197613439856 x[1]*x[3] + 0.07352512223512077 x[1]*x[4] - 0.02563637861521858 x[1]*x[5] - 0.2298622586800723 x[1]*x[6] + 0.43381855440712336 x[1]*x[7] - 0.2995470728476054 x[1]*x[8] - 0.21509670421158616 x[1]*x[9] - 0.38368113047157726 x[1]*x[10] + 0.32270947904844505 x[1]*x[11] - 0.47867666833195277 x[1]*x[12] + 0.055928904241145785 x[1]*x[13] + 0.7487991263139973 x[1]*x[14] - 0.10323862674910354 x[1]*x[15] + 0.11961007564796734 x[1]*x[16] + 0.6417224577542036 x[1]*x[17] + 0.2828508531839342 x[1]*x[18] - 0.20166817481137514 x[1]*x[19] - 0.3716748297990881 x[1]*x[20] + 1.2534353547409935 x[2]² + 0.5847564445530257 x[2]*x[3] + 0.9162674355178148 x[2]*x[4] - 0.1279900786291968 x[2]*x[5] + 0.030887177591576186 x[2]*x[6] - 0.029749209689512644 x[2]*x[7] + 0.2145145678008809 x[2]*x[8] + 0.5584086393606883 x[2]*x[9] - 0.3154961064926497 x[2]*x[10] + 0.02575314235659139 x[2]*x[11] - [[...150 terms omitted...]] + 1.028159640878152 x[13]*x[19] + 1.5117812467242224 x[13]*x[20] + 2.274552865408637 x[14]² - 0.6796148385070944 x[14]*x[15] - 0.6359813011976252 x[14]*x[16] + 0.3484202006498695 x[14]*x[17] - 0.47300527274880316 x[14]*x[18] - 0.9691144948049517 x[14]*x[19] - 0.5318954894648398 x[14]*x[20] + 1.345231017681398 x[15]² - 0.6999361025193276 x[15]*x[16] - 0.6497431658668862 x[15]*x[17] + 0.6488008316197412 x[15]*x[18] - 0.03897696647833665 x[15]*x[19] - 0.1653598039637191 x[15]*x[20] + 0.9420083555423464 x[16]² + 0.10650555852587278 x[16]*x[17] + 0.0571007032847617 x[16]*x[18] + 0.07598665571351279 x[16]*x[19] + 0.0011671302310039718 x[16]*x[20] + 2.26020273683449 x[17]² + 0.7934522220795672 x[17]*x[18] - 1.2853093005793974 x[17]*x[19] - 0.12862635744102388 x[17]*x[20] + 1.273514657015453 x[18]² - 0.7853838044962966 x[18]*x[19] - 0.30595959642807663 x[18]*x[20] + 1.3440036034626346 x[19]² + 1.3252893794441136 x[19]*x[20] + 1.671850914402277 x[20]² - 0.36679641243992434 x[1] - 0.5238785747844117 x[2] - 0.21025643065331256 x[3] - 0.8193381354589955 x[4] - 0.5013711485175227 x[5] - 0.559355291249767 x[6] - 0.5235591995602322 x[7] - 0.41586956811060327 x[8] - 0.54015152302257 x[9] - 0.6895665499806216 x[10] - 0.14383562117576143 x[11] - 0.6851373583088718 x[12] - 0.02713772987044938 x[13] - 0.78538308867304 x[14] - 0.6892782419536385 x[15] - 0.24225804087259806 x[16] - 0.7113230268543043 x[17] - 0.40345880506972187 x[18] - 0.7517994681674702 x[19] - 0.15166215690199358 x[20]
+Subject to
+ x[1] ≥ 0
+ x[2] ≥ 0
+ x[3] ≥ 0
+ x[4] ≥ 0
+ x[5] ≥ 0
+ x[6] ≥ 0
+ x[7] ≥ 0
+ x[8] ≥ 0
+ x[9] ≥ 0
+ x[10] ≥ 0
+ x[11] ≥ 0
+ x[12] ≥ 0
+ x[13] ≥ 0
+ x[14] ≥ 0
+ x[15] ≥ 0
+ x[16] ≥ 0
+ x[17] ≥ 0
+ x[18] ≥ 0
+ x[19] ≥ 0
+ x[20] ≥ 0
+ x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15] + x[16] + x[17] + x[18] + x[19] + x[20] ≥ 1
+ 0.11688219699258529 x[1] + 0.5796978492340894 x[2] + 0.42756443606081307 x[3] + 0.025407685972004268 x[4] + 0.05158409677317399 x[5] + 0.9406776283975509 x[6] + 0.07837696073047118 x[7] + 0.41893894173106117 x[8] + 0.9507082819980961 x[9] + 0.10431726968562272 x[10] + 0.6647730781546122 x[11] + 0.8767354360480457 x[12] + 0.8506762172093167 x[13] + 0.6495842702389198 x[14] + 0.5912687904170078 x[15] + 0.3940753649990447 x[16] + 0.09096977800083605 x[17] + 0.7937657730258303 x[18] + 0.21155213366860237 x[19] + 0.7774019547941657 x[20] ≤ 9.594958144131851
+ x[1] integer
+ x[2] integer
+ x[3] integer
+ x[4] integer
+ x[5] integer
+ x[6] integer
+ x[7] integer
+ x[8] integer
+ x[9] integer
+ x[10] integer
+
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -2.953097e+00
+presolving:
+(round 1, fast)       1 del vars, 21 del conss, 0 add conss, 41 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+presolving (2 rounds: 2 fast, 0 medium, 0 exhaustive):
+ 1 deleted vars, 21 deleted constraints, 0 added constraints, 41 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+transformed 1/1 original solutions to the transformed problem space
+Presolving Time: 0.00
+
+SCIP Status        : problem is solved [optimal solution found]
+Solving Time (sec) : 0.00
+Solving Nodes      : 0
+Primal Bound       : -2.95309684256459e+00 (1 solutions)
+Dual Bound         : -2.95309684256459e+00
+Gap                : 0.00 %
+  [linear] <>:  -<>[C] (-2.95309684) -0.00108383173<>[I] (+0) +0.416606155<>[I] (+0) +0.735492778<>[I] (+0) -0.148389037<>[I] (+1) +0.16773786<>[I] (+1) -0.179063<>[I] (+0) -0.590685656<>[I] (+1) -0.319605328<>[I] (+0) -0.161017619<>[I] (+1) +0.203686487<>[I] (+0) +5.09422568e-09<>[C] (+0) +2.13070464e-09<>[C] (+1) +0.258733351<>[C] (+0) +4.66652429e-09<>[C] (+0) +9.60166709e-09<>[C] (+0) +2.91624627e-09<>[C] (+1) +0.217504267<>[C] (+0) +6.80660146e-09<>[C] (+0) +2.94449261e-08<>[C] (+0) +1.10050373e-08<>[C] (+0) <= 1.80999295861793;
+;
+violation: right hand side is violated by 0.410749436385711
+all 1 solutions given by solution candidate storage are infeasible
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -2.710085e+00
+presolving:
+(round 1, fast)       0 del vars, 20 del conss, 0 add conss, 41 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       3 del vars, 20 del conss, 0 add conss, 49 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 3, fast)       3 del vars, 20 del conss, 0 add conss, 60 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 4, fast)       3 del vars, 20 del conss, 0 add conss, 63 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 5, exhaustive) 7 del vars, 20 del conss, 0 add conss, 63 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 6, fast)       7 del vars, 20 del conss, 0 add conss, 64 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+   (0.0s) probing cycle finished: starting next cycle
+   (0.0s) symmetry computation started: requiring (bin +, int -, cont +), (fixed: bin -, int +, cont -)
+   (0.0s) no symmetry present
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present
+presolving (7 rounds: 7 fast, 2 medium, 2 exhaustive):
+ 7 deleted vars, 20 deleted constraints, 0 added constraints, 64 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 2 implications, 0 cliques
+presolved problem has 14 variables (2 bin, 4 int, 0 impl, 8 cont) and 4 constraints
+      4 constraints of type <linear>
+Presolving Time: 0.01
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -2.71008527085061e+00 (1 solutions)
+Dual Bound         : -2.95309684256459e+00
+Gap                : 8.97 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -2.71008527085061e+00 (1 solutions)
+Dual Bound         : -2.95309684256459e+00
+Gap                : 8.97 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+ERROR: LoadError: UndefVarError: str not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:12
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_portfolio_setup.jl:8
+
+caused by: AssertionError: dual_gap >= 0.0 - 1.0e-9
+Stacktrace:
+ [1] evaluate_node!(tree::BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :global_tightening_rhs, :global_tightening_root_info, :global_tightenings, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#9"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#10"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Base.RefValue{Float64}, NamedTuple{(:lower_bounds, :upper_bounds), Tuple{Dict{Int64, Tuple{Float64, MathOptInterface.GreaterThan{Float64}}}, Dict{Int64, Tuple{Float64, MathOptInterface.LessThan{Float64}}}}}, Boscia.IntegerBounds, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}, node::Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds})
+   @ Boscia ~/git/Boscia.jl/src/node.jl:300
+ [2] optimize!(tree::BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, NamedTuple{(:problem, :current_node_id, :updated_incumbent, :global_tightening_rhs, :global_tightening_root_info, :global_tightenings, :options), Tuple{Boscia.SimpleOptimizationProblem{var"#f#9"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#10"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{FrankWolfe.MathOptLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, Base.RefValue{Int64}, Base.RefValue{Bool}, Base.RefValue{Float64}, NamedTuple{(:lower_bounds, :upper_bounds), Tuple{Dict{Int64, Tuple{Float64, MathOptInterface.GreaterThan{Float64}}}, Dict{Int64, Tuple{Float64, MathOptInterface.LessThan{Float64}}}}}, Boscia.IntegerBounds, Dict{Symbol, Any}}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds}, Vector{Float64}}}; callback::Boscia.var"#callback#43"{Boscia.var"#callback#40#44"{DateTime, Vector{Float64}, Vector{Float64}, Vector{Float64}, Vector{Int64}, Vector{Int64}, Bool, Vector{Int64}, Vector{Int64}, Vector{Int64}, Dict{Symbol, Any}, Vector{Vector{Int64}}, Vector{Vector{Int64}}, Vector{Vector{Int64}}, Vector{Int64}, Vector{Int64}, Nothing, Vector{Int64}, Vector{Int64}, Vector{Int64}, Int64, String, Vector{String}}})
+   @ Boscia ~/git/Boscia.jl/src/custom_bonobo.jl:36
+ [3] solve(f::var"#f#9"{Matrix{Float64}, Float64, Vector{Float64}}, grad!::var"#grad!#10"{Matrix{Float64}, Float64, Vector{Float64}}, lmo::FrankWolfe.MathOptLMO{SCIP.Optimizer}; traverse_strategy::Bonobo.BestFirstSearch, branching_strategy::Bonobo.MOST_INFEASIBLE, fw_epsilon::Float64, verbose::Bool, dual_gap::Float64, rel_dual_gap::Float64, time_limit::Int64, print_iter::Int64, dual_gap_decay_factor::Float64, max_fw_iter::Int64, min_number_lower::Float64, min_node_fw_epsilon::Float64, warmstart_shadow_set::Bool, warmstart_active_set::Bool, afw::Bool, use_postsolve::Bool, min_fw_iterations::Int64, max_iteration_post::Int64, dual_tightening::Bool, global_dual_tightening::Bool, bnb_callback::Nothing, strong_convexity::Float64, kwargs::Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}})
+   @ Boscia ~/git/Boscia.jl/src/interface.jl:259
+ [4] portfolio_pavito(seed::Int64, dimension::Int64; mode::String)
+   @ Main ~/git/Boscia.jl/examples/portfolio.jl:362
+ [5] top-level scope
+   @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:9
+(solution_pavito, termination_pavito) = (-2.542347389789458, "ALMOST_LOCALLY_SOLVED")
+Away FW: false
+AssertionError("dual_gap >= 0.0 - 1.0e-9")

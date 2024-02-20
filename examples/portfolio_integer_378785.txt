@@ -1,0 +1,106 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (5, 25, "integer")
+(seed, dimension, mode) = (5, 25, "integer")
+Min 3.7569031958197674 x[1]² + 2.184438915110976 x[1]*x[2] + 2.4797839782406337 x[1]*x[3] - 0.9227701078988225 x[1]*x[4] - 0.43796268228087276 x[1]*x[5] + 0.14526468850096466 x[1]*x[6] - 0.7014327651650755 x[1]*x[7] - 1.662623374628524 x[1]*x[8] - 0.806127957270068 x[1]*x[9] + 0.49572730040131163 x[1]*x[10] - 1.8750915121103167 x[1]*x[11] + 2.2612591246990132 x[1]*x[12] - 0.32225981216917204 x[1]*x[13] + 0.16542579857236037 x[1]*x[14] - 0.5647639685080338 x[1]*x[15] - 0.9890041495376608 x[1]*x[16] + 2.1927701330136182 x[1]*x[17] - 2.4084596353218433 x[1]*x[18] + 0.09457167983154577 x[1]*x[19] + 2.2913875044611802 x[1]*x[20] - 0.9108812667871571 x[1]*x[21] + 0.7771870090103123 x[1]*x[22] + 0.47205376353749473 x[1]*x[23] - 1.5733420394469415 x[1]*x[24] + 0.25005706314289683 x[1]*x[25] + 2.48404969970332 x[2]² + 2.4073651606028545 x[2]*x[3] - 0.7553539025308386 x[2]*x[4] - 0.5971595144962117 x[2]*x[5] - 0.9284274249327281 x[2]*x[6] - [[...265 terms omitted...]] - 0.5027845143456542 x[18]*x[24] - 1.0505152055349203 x[18]*x[25] + 1.985142120762858 x[19]² + 0.5024202228065479 x[19]*x[20] - 1.5858221721483088 x[19]*x[21] - 1.4731559507037908 x[19]*x[22] - 0.14622414428047642 x[19]*x[23] - 0.16825615224287982 x[19]*x[24] + 0.3169393342878186 x[19]*x[25] + 1.3035092219999838 x[20]² - 0.4918241544228252 x[20]*x[21] - 0.40471598598473035 x[20]*x[22] + 0.390729442193613 x[20]*x[23] - 0.05501884518803956 x[20]*x[24] + 0.6756620393789194 x[20]*x[25] + 1.977639270098361 x[21]² + 1.0775825644055799 x[21]*x[22] + 0.46024667376800116 x[21]*x[23] + 0.4593568516961226 x[21]*x[24] + 0.3212669747970452 x[21]*x[25] + 2.5368242203664018 x[22]² + 0.7034984804565075 x[22]*x[23] + 0.33901975273936225 x[22]*x[24] + 0.18577134259246947 x[22]*x[25] + 1.4901597111751455 x[23]² - 0.20559684363351208 x[23]*x[24] + 2.539889361409518 x[23]*x[25] + 2.5259428938333106 x[24]² + 1.4287954354395562 x[24]*x[25] + 4.0816331376588435 x[25]² - 0.5303646605536807 x[1] - 0.777009169833947 x[2] - 0.3013103535440822 x[3] - 0.8813491207672945 x[4] - 0.8383576532332524 x[5] - 0.5240587188478234 x[6] - 0.57125965860896 x[7] - 0.9315154141626472 x[8] - 0.04422802345157595 x[9] - 0.11814743857996657 x[10] - 0.5114826505242656 x[11] - 0.8029609983145889 x[12] - 0.6713001813825519 x[13] - 0.08567664223247418 x[14] - 0.3624632704303252 x[15] - 0.3883774531923385 x[16] - 0.40109587458776663 x[17] - 0.5074453861845003 x[18] - 0.5495366512679345 x[19] - 0.06728541622841666 x[20] - 0.6238873118334289 x[21] - 0.9810074532207751 x[22] - 0.35575031897384557 x[23] - 0.9628155964157932 x[24] - 0.10531210821150294 x[25]
+Subject to
+ x[1] ≥ 0
+ x[2] ≥ 0
+ x[3] ≥ 0
+ x[4] ≥ 0
+ x[5] ≥ 0
+ x[6] ≥ 0
+ x[7] ≥ 0
+ x[8] ≥ 0
+ x[9] ≥ 0
+ x[10] ≥ 0
+ x[11] ≥ 0
+ x[12] ≥ 0
+ x[13] ≥ 0
+ x[14] ≥ 0
+ x[15] ≥ 0
+ x[16] ≥ 0
+ x[17] ≥ 0
+ x[18] ≥ 0
+ x[19] ≥ 0
+ x[20] ≥ 0
+ x[21] ≥ 0
+ x[22] ≥ 0
+ x[23] ≥ 0
+ x[24] ≥ 0
+ x[25] ≥ 0
+ x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7] + x[8] + x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15] + x[16] + x[17] + x[18] + x[19] + x[20] + x[21] + x[22] + x[23] + x[24] + x[25] ≥ 1
+ 0.4696829943453662 x[1] + 0.33208472622736673 x[2] + 0.05925574756840213 x[3] + 0.9079292209625112 x[4] + 0.10679060236746496 x[5] + 0.5174325041715357 x[6] + 0.0287064844065561 x[7] + 0.60781321352264 x[8] + 0.6902991197954915 x[9] + 0.27458341362423755 x[10] + 0.21460998513643648 x[11] + 0.8980771118475839 x[12] + 0.7403636972786944 x[13] + 0.7905179030513225 x[14] + 0.5056381549029492 x[15] + 0.347712793676773 x[16] + 0.9349018854910733 x[17] + 0.9819711565479259 x[18] + 0.4717408773520313 x[19] + 0.48501055257224057 x[20] + 0.10008438325534552 x[21] + 0.2034184316633043 x[22] + 0.827815817283887 x[23] + 0.03779886626541473 x[24] + 0.20300859099876667 x[25] ≤ 11.737248234315324
+ x[1] integer
+ x[2] integer
+ x[3] integer
+ x[4] integer
+ x[5] integer
+ x[6] integer
+ x[7] integer
+ x[8] integer
+ x[9] integer
+ x[10] integer
+ x[11] integer
+ x[12] integer
+ x[13] integer
+ x[14] integer
+ x[15] integer
+ x[16] integer
+ x[17] integer
+ x[18] integer
+ x[19] integer
+ x[20] integer
+ x[21] integer
+ x[22] integer
+ x[23] integer
+ x[24] integer
+ x[25] integer
+
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+feasible solution found by completesol heuristic after 0.0 seconds, objective value -7.861140e+00
+presolving:
+(round 1, fast)       1 del vars, 26 del conss, 0 add conss, 51 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+(round 2, fast)       1 del vars, 26 del conss, 0 add conss, 56 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 3, exhaustive) 5 del vars, 26 del conss, 0 add conss, 56 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+   (0.0s) probing cycle finished: starting next cycle
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present
+presolving (4 rounds: 4 fast, 2 medium, 2 exhaustive):
+ 5 deleted vars, 26 deleted constraints, 0 added constraints, 56 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 1 implications, 0 cliques
+presolved problem has 21 variables (1 bin, 20 int, 0 impl, 0 cont) and 2 constraints
+      2 constraints of type <linear>
+Presolving Time: 0.01
+transformed 1/1 original solutions to the transformed problem space
+
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -7.86113959706299e+00 (1 solutions)
+Dual Bound         : -1.21758959783815e+02
+Gap                : 1448.87 %
+
+SCIP Status        : solving was interrupted [gap limit reached]
+Solving Time (sec) : 0.01
+Solving Nodes      : 1
+Primal Bound       : -7.86113959706299e+00 (1 solutions)
+Dual Bound         : -1.21758959783815e+02
+Gap                : 1448.87 %
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+(solution_pavito, termination_pavito) = (-1.2629486933929588, "ALMOST_LOCALLY_SOLVED")
+Away FW: false
+
+result[:dual_bound] = -8.865252144928803
+(f(vars_pavito), f(solution_boscia)) = (-1.2629486933929588, -8.865252144928803)
