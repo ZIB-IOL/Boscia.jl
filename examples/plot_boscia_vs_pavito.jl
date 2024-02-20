@@ -3,16 +3,18 @@ using DataFrames
 using CSV
 
 # function plot_boscia_vs_scip(example; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
-function plot_boscia_vs_pavito(example, mode)
-    if mode == "solvers"
+function plot_boscia_vs_pavito(example)
+    if example == "miplib"
         boscia=true 
-        scip_oa=true
+        scip_oa=false
         ipopt=true
         pavito=true
-        if example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
-            ipopt = false
-        end
-    elseif example == "miplib"
+    elseif example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
+        boscia=true 
+        scip_oa=true
+        pavito=true
+        ipopt = false
+    else
         boscia=true 
         scip_oa=false
         ipopt=true
@@ -109,6 +111,7 @@ function plot_boscia_vs_pavito(example, mode)
 
     if pavito
         df_pavito = deepcopy(df)
+        @infiltrate
         filter!(row -> !(row.termination_pavito == 0),  df_pavito)
         if boscia && scip_oa && ipopt && pavito
             filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
@@ -117,7 +120,7 @@ function plot_boscia_vs_pavito(example, mode)
         end
         time_pavito = sort(df_pavito[!,"time_pavito"])
         push!(time_pavito, 1.1 * time_limit)
-        ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[2], marker=markers[3], markevery=0.1)
+        ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
     end
 
     ylabel("Solved instances")
@@ -143,11 +146,6 @@ function plot_boscia_vs_pavito(example, mode)
 
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
         fancybox=true, shadow=false, ncol=2)
-
-    if afw
-        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
-        fancybox=true, shadow=false, ncol=3)
-    end
 
     fig.tight_layout()
 
