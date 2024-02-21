@@ -16,7 +16,7 @@ function plot_boscia_vs_pavito(example)
         ipopt = false
     else
         boscia=true 
-        scip_oa=false
+        scip_oa=true
         ipopt=true
         pavito=true
     end
@@ -37,15 +37,15 @@ function plot_boscia_vs_pavito(example)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")))
     elseif example == "miplib"
         df_22433 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_22433_non_grouped.csv")))
-        df = select(df_22433, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        df = select(df_22433, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
         df_neos5 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")))
-        select!(df_neos5, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        select!(df_neos5, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
         append!(df,df_neos5)
         df_pg534 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_pg5_34_non_grouped.csv")))
-        select!(df_pg534, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
-        append!(df,df_pg534)
+        select!(df_pg534, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt]) # :time_pavito, :termination_pavito, :optimal_pavito])
+        append!(df,df_pg534, cols=:subset)
         df_ran14x18 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")))
-        select!(df_ran14x18, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt])
+        select!(df_ran14x18, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
         append!(df,df_ran14x18)
 
         df[df.time_boscia.>1800, :time_boscia] .= 1800
@@ -106,16 +106,16 @@ function plot_boscia_vs_pavito(example)
         end
         time_ipopt = sort(df_ipopt[!,"time_ipopt"])
         push!(time_ipopt, 1.1 * time_limit)
-        ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
+        ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
     end
 
     if pavito
         df_pavito = deepcopy(df)
-        @infiltrate
-        filter!(row -> !(row.termination_pavito == 0),  df_pavito)
+        # filter!(row -> !(row.termination_pavito == 0),  df_pavito)
         if boscia && scip_oa && ipopt && pavito
             filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
         elseif example == "miplib"
+            filter!(row -> !ismissing(row.optimal_pavito),  df_pavito)
             filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
         end
         time_pavito = sort(df_pavito[!,"time_pavito"])
@@ -150,9 +150,9 @@ function plot_boscia_vs_pavito(example)
     fig.tight_layout()
 
     if pavito
-        file = "csv/" * example * "_boscia_pavito.pdf"
+        file = "images/" * example * "_boscia_pavito.pdf"
     else 
-        file = "csv/" * example * ".pdf"
+        file = "images/" * example * ".pdf"
     end
     savefig(file)
 end
