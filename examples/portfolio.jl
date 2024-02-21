@@ -287,11 +287,18 @@ function build_pavito_model(seed, n; mode="mixed")
     m = Model(
         optimizer_with_attributes(
             Pavito.Optimizer,
-            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000),
-            "cont_solver" =>
-                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+            "mip_solver" => optimizer_with_attributes(
+                SCIP.Optimizer, 
+                "limits/maxorigsol" => 10000,
+                "numerics/feastol" => 1e-6,
+            ),
+            "cont_solver" => optimizer_with_attributes(
+                Ipopt.Optimizer, 
+                "print_level" => 0,
+                "tol" => 1e-6,
+            ),
         ),
-    )    
+    ) 
     set_silent(m)
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
 

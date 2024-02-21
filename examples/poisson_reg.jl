@@ -683,7 +683,7 @@ function build_pavito_model(n, seed, Ns)
             Pavito.Optimizer,
             "mip_solver" => optimizer_with_attributes(
                 SCIP.Optimizer, 
-                "limits/gap" => 10000,
+                "limits/maxorigsol" => 10000,
                 "numerics/feastol" => 1e-6,
             ),
             "cont_solver" => optimizer_with_attributes(
@@ -692,7 +692,7 @@ function build_pavito_model(n, seed, Ns)
                 "tol" => 1e-6,
             ),
         ),
-    )    
+    ) 
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
     set_silent(m)
 

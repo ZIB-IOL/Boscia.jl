@@ -330,9 +330,16 @@ function build_pavito_model(example, seed, max_norm, vs)
     o = Model(
         optimizer_with_attributes(
             Pavito.Optimizer,
-            "mip_solver" => optimizer_with_attributes(SCIP.Optimizer, "limits/gap" => 10000000),
-            "cont_solver" =>
-                optimizer_with_attributes(Ipopt.Optimizer, "print_level" => 0),
+            "mip_solver" => optimizer_with_attributes(
+                SCIP.Optimizer, 
+                "limits/maxorigsol" => 10000,
+                "numerics/feastol" => 1e-6,
+            ),
+            "cont_solver" => optimizer_with_attributes(
+                Ipopt.Optimizer, 
+                "print_level" => 0,
+                "tol" => 1e-6,
+            ),
         ),
     )        
     set_silent(o)
