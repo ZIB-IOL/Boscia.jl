@@ -1,0 +1,18 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (1, 60, "mixed")
+(seed, dimension, mode) = (1, 60, "mixed")
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+MOI.get(m, MOI.TerminationStatus()) = MathOptInterface.LOCALLY_SOLVED
+Away FW: false
+(primal, tree.incumbent) = (-0.29119922109477775, -0.2911992242355175)
+
+result[:dual_bound] = -0.2912984563085078
+(solution_pavito, termination_pavito) = (-0.29119886187373, "LOCALLY_SOLVED")

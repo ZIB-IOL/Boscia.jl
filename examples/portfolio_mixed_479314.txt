@@ -1,0 +1,22 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (1, 120, "mixed")
+(seed, dimension, mode) = (1, 120, "mixed")
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: Infeasible NLP problem terminated with primal status: UNKNOWN_RESULT_STATUS
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:701
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+MOI.get(m, MOI.TerminationStatus()) = MathOptInterface.ALMOST_LOCALLY_SOLVED
+Away FW: false
+(primal, tree.incumbent) = (-0.052994307796109474, -0.054728862183147764)
+
+result[:dual_bound] = -0.054728862183147764
+(solution_pavito, termination_pavito) = (-0.05299339460037811, "ALMOST_LOCALLY_SOLVED")
