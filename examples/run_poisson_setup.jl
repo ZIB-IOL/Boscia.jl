@@ -2,7 +2,7 @@ include("poisson_reg.jl")
 
 seed = parse(Int64, ARGS[1])
 dimension = parse(Int64, ARGS[2])
-ns = parse(Float64, ARGS[2])
+ns = parse(Float64, ARGS[3])
 
 @show seed, dimension, ns
 
