@@ -54,9 +54,9 @@ function merge_csvs(example="sparse_reg", seeds=1:1, dimensions=15:30)
 
 end
 
-# merge_csvs()
+merge_csvs()
 merge_csvs("portfolio_mixed", 1:1, 20:5:120)
 merge_csvs("portfolio_integer", 1:1, 20:5:120)
-# merge_csvs("miplib_22433", 4:8, 1:1)
-# # merge_csvs("miplib_neos5", 4:8, 1:1)
-# merge_csvs("miplib_ran14x18-disj-8", 4:8, 1:1)
+merge_csvs("miplib_22433", 4:8, 1:1)
+merge_csvs("miplib_neos5", 4:8, 1:1)
+merge_csvs("miplib_ran14x18-disj-8", 4:8, 1:1)
