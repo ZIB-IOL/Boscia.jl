@@ -5,6 +5,7 @@ using Random
 using LinearAlgebra
 using SCIP
 using Pavito
+using AmplNLWriter, SHOT_jll
 import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
@@ -454,6 +455,121 @@ function build_pavito_model(seed, n, k, var_A, M; time_limit=1800)
     )  
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
     set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        #@constraint(m, 1 >= x[i] >= 0)
+        set_binary(x[i])
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, mu/2*sum(x[i]^2 for i in 1:p))
+    lexprs = []
+    for i in 1:n
+        push!(lexprs, @expression(m, dot(x[1:p], A[i, :])))
+    end
+    exprs = []
+    for i in 1:n
+        push!(exprs, @NLexpression(m, exp(lexprs[i]/2) + exp(-lexprs[i]/2)))
+    end 
+    expr = @NLexpression(m, 1/n * sum(log(exprs[i]) - y[i] * lexprs[i] * 1/2 for i in 1:n ) + expr1)
+    @NLobjective(m, Min, expr)
+
+    return m, m[:x]
+end
+
+function sparse_log_reg_shot(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; print_models=false, time_limit=1800)
+    f, grad!, p = build_function(seed, dimension, var_A)
+    # @show f
+    m, x = build_shot_model(seed, dimension, k, var_A, M; time_limit=time_limit)
+    if print_models
+        println("shot")
+        println(m)
+    end
+    @show objective_sense(m)
+    optimize!(m)
+    termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        time_shot = MOI.get(m, MOI.SolveTimeSec())
+        vars_shot = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_shot)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_shot = f(vars_shot)
+    else 
+        solution_shot = NaN
+        time_shot = time_limit
+    end
+
+    @show termination_shot, solution_shot
+
+    # check feasibility in Boscia model
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, p, k, M)
+        if print_models
+            println("BOSCIA")
+            print(o)
+        end
+        # check linear feasiblity
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+    end
+
+    df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_shot, solution=solution_shot, termination=termination_shot)
+    file_name = joinpath(@__DIR__,"csv/shot_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(p) * "_" * string(M) * ".csv")
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_shot_model(seed, n, k, var_A, M; time_limit=1800)
+    Random.seed!(seed)
+
+    p = 5 * n;
+    A = randn(Float64, n, p)
+    y = Random.bitrand(n)
+    y = [i == 0 ? -1 : 1 for i in y]
+    for (i,val) in enumerate(y)
+        A[i,:] = var_A * A[i,:] * y[i]
+    end
+    mu = 10.0 * rand(Float64);
+
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
+    # set_silent(m)
 
     @variable(m, x[1:2p])
     for i in p+1:2p

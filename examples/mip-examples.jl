@@ -6,6 +6,7 @@ using SCIP
 using JuMP
 using Ipopt
 using Pavito
+using AmplNLWriter, SHOT_jll
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
@@ -415,6 +416,91 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
 
     df = DataFrame(seed=seed, num_v=num_v, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+
+end
+
+
+function build_shot_model(example, seed, max_norm, vs; time_limit=1800)
+    Random.seed!(seed)
+
+    o = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
+
+    # load constraints from miplib instance
+    file_name = string(example, ".mps")
+    src = MOI.FileFormats.Model(filename=file_name)
+    MOI.read_from_file(src, joinpath(@__DIR__, string("mps-examples/mps-files/", file_name)))
+
+    MOI.copy_to(o, src)
+    # MOI.set(o, MOI.Silent(), true)
+    n = MOI.get(o, MOI.NumberOfVariables())
+    b_mps = randn(n)
+
+    x = JuMP.all_variables(o)
+    expr1 = @expression(o, dot(b_mps, x))
+    expr = @expression(o, expr1 + 0.5 * 1/max_norm * sum(dot((x - vs[i]), (x - vs[i]) ) for i in 1:length(vs)))
+    @objective(o, Min, expr)
+
+    return o, x, n
+
+end
+
+function miplib_shot(example, num_v, seed; time_limit=1800)
+    @show example, num_v, seed
+
+    o = SCIP.Optimizer()
+    lmo, f, grad!, max_norm, vs = build_example(o, example, num_v, seed)
+    m, x, n = build_shot_model(example, seed, max_norm, vs; time_limit=time_limit)
+
+    # println(m)
+    optimize!(m) # TODO: fix this
+    termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        time_shot = MOI.get(m, MOI.SolveTimeSec())
+        vars_shot = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_shot)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_shot = f(vars_shot)
+    else 
+        solution_shot = NaN
+        time_shot = time_limit
+    end
+
+    # check linear feasiblity
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+    end
+
+    df = DataFrame(seed=seed, num_v=num_v, time=time_shot, solution=solution_shot, termination=termination_shot)
+    file_name = joinpath(@__DIR__,"csv/shot_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)

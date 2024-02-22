@@ -4,6 +4,7 @@ authors = ["ZIB AIS2T"]
 version = "0.1.6"
 
 [deps]
+AmplNLWriter = "7c4d4715-977e-5154-bfe0-e096adeac482"
 Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -26,6 +27,7 @@ ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
+SHOT_jll = "c1ab834c-c4a5-50f5-9156-8f0fe7758b0e"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 

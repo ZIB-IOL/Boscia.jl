@@ -3,6 +3,7 @@ using FrankWolfe
 using Random
 using SCIP
 using Pavito
+using AmplNLWriter, SHOT_jll
 # using Statistics
 using LinearAlgebra
 using Distributions
@@ -715,6 +716,112 @@ function build_pavito_model(n, p, k, seed; time_limit = 1800
     )   
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
     set_silent(m)
+
+    @variable(m, x[1:2p])
+    for i in p+1:2p
+        #@constraint(m, 1 >= x[i] >= 0)
+        set_binary(x[i])
+    end
+
+    for i in 1:p
+        @constraint(m, x[i] + M*x[i+p] >= 0)
+        @constraint(m, x[i] - M*x[i+p] <= 0)
+    end
+    lbs = vcat(fill(-M, p), fill(0.0,p))
+    ubs = vcat(fill(M, p), fill(1.0, p))
+
+    @constraint(m, sum(x[p+1:2p]) <= k)
+
+    expr1 = @expression(m, A*x[1:p])
+    expr2 = @expression(m, dot(x[1:p], x[1:p]))
+    expr = @expression(m, sum((y[i] - expr1[i])^2 for i in 1:n) + lambda_0*sum(x[i] for i in p+1:2p) + lambda_2*expr2)
+    @objective(m, Min, expr)
+
+    return m, m[:x]
+
+end
+
+function sparse_reg_shot(seed=1, n=20; print_models=false, time_limit=1800)
+    f, grad!, p, k, M = build_function(seed, n)
+    # @show f
+    m, x = build_shot_model(n, p, k, seed; time_limit=time_limit)
+    if print_models
+        println("shot")
+        println(m)
+    end
+    @show objective_sense(m)
+    optimize!(m)
+    termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
+
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        time_shot = MOI.get(m, MOI.SolveTimeSec())
+        vars_shot = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_shot)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_shot = f(vars_shot)
+    else 
+        solution_shot = NaN
+        time_shot = time_limit
+    end
+
+    @show termination_shot, solution_shot
+
+    # check feasibility in Boscia model
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, p, k, M)
+        if print_models
+            println("BOSCIA")
+            print(o)
+        end
+        # check linear feasiblity
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+    end
+
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_shot, solution=solution_shot, termination=termination_shot)
+    file_name = joinpath(@__DIR__,"csv/shot_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
+end
+
+function build_shot_model(n, p, k, seed; time_limit = 1800 
+    )
+    Random.seed!(seed)
+
+    lambda_0 = rand(Float64);
+    lambda_2 = 10.0 * rand(Float64);
+    A = rand(Float64, n, p)
+    y = rand(Float64, n)
+    M = 2 * var(A)
+
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
+    # set_silent(m)
 
     @variable(m, x[1:2p])
     for i in p+1:2p

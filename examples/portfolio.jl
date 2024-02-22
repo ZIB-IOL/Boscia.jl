@@ -410,9 +410,8 @@ function build_shot_model(seed, n; mode="mixed", time_limit=1800)
     Mi = (Ai + Ai') / 2
     @assert isposdef(Mi)
 
-    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe)) 
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
     # set_silent(m)
-    # MOI.set(m, MOI.TimeLimitSec(), time_limit)
 
     ai = rand(n)
     bi = sum(ai)
