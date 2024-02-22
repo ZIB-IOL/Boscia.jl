@@ -655,7 +655,7 @@ function poisson_reg_pavito(seed=1, n=20, Ns=0.1; print_models=false, time_limit
 
     @show termination_pavito, solution_pavito
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_poisson_reg_" * string(seed) * "_" * string(n) * ".csv")
+    file_name = joinpath(@__DIR__,"csv/pavito_poisson_reg_" * string(seed) * "_" * string(n) * "_" * string(p) * "_" * string(Ns) * ".csv")
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)

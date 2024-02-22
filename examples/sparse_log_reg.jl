@@ -415,7 +415,7 @@ function sparse_log_reg_pavito(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; prin
     end
 
     df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_sparse_log_reg_" * string(seed) * "_" * string(dimension) * ".csv")
+    file_name = joinpath(@__DIR__,"csv/pavito_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(p) * "_" * string(M) * ".csv")
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
