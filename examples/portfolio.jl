@@ -3,6 +3,7 @@ using FrankWolfe
 using Random
 using SCIP
 using Pavito
+using AmplNLWriter, SHOT_jll
 # using Statistics
 using LinearAlgebra
 using Distributions
@@ -335,6 +336,14 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
 
     m, x = build_pavito_model(seed, dimension; mode=mode, time_limit=time_limit)
     # println(m)
+
+    # dest = MOI.FileFormats.Model(format = MOI.FileFormats.FORMAT_NL)
+    # MOI.copy_to(dest, m)
+    # MOI.write_to_file(dest, "file_pavito.nl")
+    # # read file 
+    # print(read("file_pavito.nl", String))
+    # m = read_from_file("file_pavito.nl")
+
     optimize!(m)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
     if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
@@ -389,4 +398,116 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
         CSV.write(file_name, df, append=true)
     end
 
+end
+
+function build_shot_model(seed, n; mode="mixed", time_limit=1800)
+    Random.seed!(seed)
+    
+    ri = rand(n)
+    Ωi = rand()
+    Ai = randn(n, n)
+    Ai = Ai' * Ai
+    Mi = (Ai + Ai') / 2
+    @assert isposdef(Mi)
+
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe)) 
+    # set_silent(m)
+    # MOI.set(m, MOI.TimeLimitSec(), time_limit)
+
+    ai = rand(n)
+    bi = sum(ai)
+    # integer set
+    if mode == "integer"
+        I = collect(1:n)
+    elseif mode == "mixed"
+        I = collect(1:(n÷2))
+    end
+
+    @variable(m, x[1:n])
+    for i in 1:n
+        @constraint(m, x[i] >= 0)
+        if i in I
+            set_integer(x[i])
+        end
+    end
+
+    @constraint(m, dot(ai, x) <= bi)
+    @constraint(m, dot(x, ones(n)) >= 1.0)
+
+    expr = @expression(m, 1/2 * Ωi * dot(x, Mi, x) - dot(ri, x))
+    @objective(m, Min, expr)
+
+    return m, x
+
+end
+
+function portfolio_shot(seed=1, dimension=5; mode, time_limit=1800)
+    @show seed, dimension, mode
+    f, grad!, n = build_function(seed, dimension)
+
+    m, x = build_shot_model(seed, dimension; mode=mode, time_limit=time_limit)
+    # write model to .nl file
+    # println(m)
+    # dest = MOI.FileFormats.Model(format = MOI.FileFormats.FORMAT_NL)
+    # MOI.copy_to(dest, m)
+    # MOI.write_to_file(dest, "file.nl")
+    # # read file 
+    # m = read_from_file("file.nl")
+    # set_optimizer(m, () -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
+    # println(m)
+
+    optimize!(m)
+    termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
+    @show termination_shot
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        vars_shot = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_shot)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_shot = f(vars_shot)
+        time_shot = MOI.get(m, MOI.SolveTimeSec())
+    else 
+        solution_shot = NaN
+        time_shot = time_limit
+    end
+    
+    # check linear feasiblity
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, mode, n)
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+
+        termination_shot = String(string(termination_shot))
+        @show solution_shot, termination_shot
+    end
+
+    df = DataFrame(seed=seed, dimension=n, time=time_shot, solution=solution_shot, termination=termination_shot)
+        file_name = joinpath(@__DIR__,"csv/shot_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
+
+    if !isfile(file_name)
+        CSV.write(file_name, df, append=true, writeheader=true)
+    else 
+        CSV.write(file_name, df, append=true)
+    end
 end
