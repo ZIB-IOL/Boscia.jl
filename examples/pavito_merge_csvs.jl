@@ -1,17 +1,27 @@
 using CSV
 using DataFrames
 
-function merge_csvs(example="sparse_reg", seeds=1:2, dimensions=16:30)
+function merge_csvs(example="sparse_reg", seeds=1:1, dimensions=15:30)
     # setup df
-    if example == "sparse_reg" || occursin("miplib", example) 
+    if example == "sparse_reg" 
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_1_17.csv")))
+    elseif occursin("miplib", example) 
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * ".csv")))
+    elseif example == "portfolio_mixed" 
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
+    elseif example == "portfolio_integer"
         try 
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * ".csv")))
-        catch e
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_7_1.csv")))
+            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
+        catch e 
+            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(25) * "_" * string(1) * ".csv")))
         end 
-        deleteat!(df, 1)
+    else @error "not a valid example"
+    end
+    
+    deleteat!(df, 1)
 
-        # add results
+    # add results
+    if example == "sparse_reg" || occursin("miplib", example) 
         for seed in seeds 
             for dimension in dimensions 
                 try 
@@ -22,10 +32,6 @@ function merge_csvs(example="sparse_reg", seeds=1:2, dimensions=16:30)
             end 
         end
     elseif example == "portfolio_mixed" || example == "portfolio_integer"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
-        deleteat!(df, 1)
-
-        # add results
         for seed in seeds 
             for dimension in dimensions 
                 try 
@@ -36,7 +42,7 @@ function merge_csvs(example="sparse_reg", seeds=1:2, dimensions=16:30)
             end 
         end
     end
-
+    
     # save csv 
     file_name = joinpath(@__DIR__, "csv/pavito_" * example * ".csv")
     CSV.write(file_name, df, append=false)
@@ -44,8 +50,8 @@ function merge_csvs(example="sparse_reg", seeds=1:2, dimensions=16:30)
 end
 
 merge_csvs()
-merge_csvs("portfolio_mixed", 1:10, 20:5:120)
-merge_csvs("portfolio_integer", 1:10, 20:5:120)
-# merge_csvs("miplib_22433", 4:8, 1:3)
-# merge_csvs("miplib_neos5", 4:8, 1:3)
-# merge_csvs("miplib_ran14x18-disj-8", 4:8, 1:3)
+merge_csvs("portfolio_mixed", 1:1, 20:5:120)
+merge_csvs("portfolio_integer", 1:1, 20:5:120)
+merge_csvs("miplib_22433", 4:8, 1:1)
+# merge_csvs("miplib_neos5", 4:8, 1:1)
+merge_csvs("miplib_ran14x18-disj-8", 4:8, 1:1)

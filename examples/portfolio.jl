@@ -273,9 +273,8 @@ function build_bnb_ipopt_model(seed, n; mode="mixed")
 
 end
 
-function build_pavito_model(seed, n; mode="mixed")
+function build_pavito_model(seed, n; mode="mixed", time_limit=1800)
     Random.seed!(seed)
-    time_limit = 1800
     
     ri = rand(n)
     Ωi = rand()
@@ -291,6 +290,7 @@ function build_pavito_model(seed, n; mode="mixed")
                 SCIP.Optimizer, 
                 "limits/maxorigsol" => 10000,
                 "numerics/feastol" => 1e-6,
+                "display/verblevel" => 0,
             ),
             "cont_solver" => optimizer_with_attributes(
                 Ipopt.Optimizer, 
@@ -329,51 +329,61 @@ function build_pavito_model(seed, n; mode="mixed")
 
 end
 
-function portfolio_pavito(seed=1, dimension=5; mode)
+function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
     @show seed, dimension, mode
     f, grad!, n = build_function(seed, dimension)
 
-    m, x = build_pavito_model(seed, dimension; mode=mode)
-    println(m)
+    m, x = build_pavito_model(seed, dimension; mode=mode, time_limit=time_limit)
+    # println(m)
     optimize!(m)
-    time_pavito = MOI.get(m, MOI.SolveTimeSec())
-    vars_pavito = value.(x)
-    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
-    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
-    solution_pavito = f(vars_pavito)
+    @show MOI.get(m, MOI.TerminationStatus())
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
-    @show solution_pavito, termination_pavito
+    if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
+        vars_pavito = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_pavito = f(vars_pavito)
+        time_pavito = MOI.get(m, MOI.SolveTimeSec())
+    else 
+        solution_pavito = NaN
+        time_pavito = time_limit
+    end
+    
+    # check linear feasiblity
+    if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, mode, n)
+        @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_pavito_polished = vars_pavito
+        for i in integer_variables
+            vars_pavito_polished[i] = round(vars_pavito_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_pavito), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
+        end
+
+        termination_pavito = String(string(termination_pavito))
+        @show solution_pavito, termination_pavito
+    end
 
     df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")
-
-    # check linear feasiblity
-    o = SCIP.Optimizer()
-    lmo, _ = build_optimizer(o, mode, n)
-    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
-    # check integer feasibility
-    integer_variables = Vector{Int}()
-    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        push!(integer_variables, cidx.value)
-    end
-    for idx in integer_variables
-        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
-    end
-    # check feasibility of rounded solution
-    vars_pavito_polished = vars_pavito
-    for i in integer_variables
-        vars_pavito_polished[i] = round(vars_pavito_polished[i])
-    end
-    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
-    # solve Boscia
-    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-    @show result[:dual_bound]
-    solution_boscia = result[:raw_solution]
-    @show f(vars_pavito), f(solution_boscia)
-    if occursin("Optimal", result[:status])
-        @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
-    end
-
+        file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
+        
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
