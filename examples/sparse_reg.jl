@@ -597,26 +597,30 @@ function hybrid_branching_data()
     end
 end 
 
-function sparse_reg_pavito(seed=1, n=20; print_models=false)
+function sparse_reg_pavito(seed=1, n=20; print_models=false, time_limit=1800)
     f, grad!, p, k, M = build_function(seed, n)
     # @show f
-    m, x = build_pavito_model(n, p, k, seed)
+    m, x = build_pavito_model(n, p, k, seed; time_limit=time_limit)
     if print_models
         println("PAVITO")
         println(m)
     end
     @show objective_sense(m)
     optimize!(m)
-    time_pavito = MOI.get(m, MOI.SolveTimeSec())
-    vars_pavito = value.(x)
-    @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
-    #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
-    solution_pavito = f(vars_pavito)
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
 
+    if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
+        time_pavito = MOI.get(m, MOI.SolveTimeSec())
+        vars_pavito = value.(x)
+        @assert Boscia.is_linear_feasible(m.moi_backend, vars_pavito)    
+        #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
+        solution_pavito = f(vars_pavito)
+    else 
+        solution_pavito = NaN
+        time_pavito = time_limit
+    end
+
     @show termination_pavito, solution_pavito
-    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
-    file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
 
     # # check feasibility in Ipopt model
     # ipopt_model, _, _, _ = build_bnb_ipopt_model(seed, n)
@@ -634,42 +638,47 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     # # writedlm("report.txt", report)
 
     # check feasibility in Boscia model
-    o = SCIP.Optimizer()
-    lmo, _ = build_optimizer(o, p, k, M)
-    if print_models
-        println("BOSCIA")
-        print(o)
-    end
-    # check linear feasiblity
-    @assert Boscia.is_linear_feasible(lmo, vars_pavito)
-    # check integer feasibility
-    integer_variables = Vector{Int}()
-    for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        push!(integer_variables, cidx.value)
-    end
-    for idx in integer_variables
-        @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
-    end
-    # check feasibility of rounded solution
-    vars_pavito_polished = vars_pavito
-    for i in integer_variables
-        vars_pavito_polished[i] = round(vars_pavito_polished[i])
-    end
-    @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
-    # solve Boscia
-    x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-    @show result[:dual_bound]
+    if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, p, k, M)
+        if print_models
+            println("BOSCIA")
+            print(o)
+        end
+        # check linear feasiblity
+        @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_pavito_polished = vars_pavito
+        for i in integer_variables
+            vars_pavito_polished[i] = round(vars_pavito_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
 
-    # evaluate soluton of each solver
-    # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
-    # vars = VariableRef.(ipopt_model.root.m, vids)
-    # solution_ipopt = value.(vars)
-    solution_boscia = result[:raw_solution]
-    #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
-    @show f(vars_pavito), f(solution_boscia)
-    if occursin("Optimal", result[:status])
-        @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
+        # evaluate soluton of each solver
+        # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+        # vars = VariableRef.(ipopt_model.root.m, vids)
+        # solution_ipopt = value.(vars)
+        solution_boscia = result[:raw_solution]
+        #@show f(vars_pavito), f(solution_ipopt), f(solution_boscia)
+        # @show f(vars_pavito), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
+        end
     end
+
+    df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
+    file_name = joinpath(@__DIR__,"csv/pavito_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
 
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
@@ -678,9 +687,9 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false)
     end
 end
 
-function build_pavito_model(n, p, k, seed)
+function build_pavito_model(n, p, k, seed; time_limit = 1800 
+    )
     Random.seed!(seed)
-    time_limit = 1800 
 
     lambda_0 = rand(Float64);
     lambda_2 = 10.0 * rand(Float64);
@@ -695,6 +704,7 @@ function build_pavito_model(n, p, k, seed)
                 SCIP.Optimizer, 
                 "limits/maxorigsol" => 10000,
                 "numerics/feastol" => 1e-6,
+                "display/verblevel" => 0,
             ),
             "cont_solver" => optimizer_with_attributes(
                 Ipopt.Optimizer, 

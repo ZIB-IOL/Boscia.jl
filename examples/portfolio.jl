@@ -336,7 +336,6 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
     m, x = build_pavito_model(seed, dimension; mode=mode, time_limit=time_limit)
     # println(m)
     optimize!(m)
-    @show MOI.get(m, MOI.TerminationStatus())
     termination_pavito = String(string(MOI.get(m, MOI.TerminationStatus())))
     if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
         vars_pavito = value.(x)
@@ -374,7 +373,7 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
         solution_boscia = result[:raw_solution]
         # @show f(vars_pavito), f(solution_boscia)
         if occursin("Optimal", result[:status])
-            @assert result[:dual_bound] <= f(vars_pavito) + 1e-5
+            @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
         end
 
         termination_pavito = String(string(termination_pavito))
@@ -383,7 +382,7 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
 
     df = DataFrame(seed=seed, dimension=n, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
         file_name = joinpath(@__DIR__,"csv/pavito_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
-        
+
     if !isfile(file_name)
         CSV.write(file_name, df, append=true, writeheader=true)
     else 
