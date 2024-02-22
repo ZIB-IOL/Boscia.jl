@@ -1,0 +1,15 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (1, 25, "integer")
+(seed, dimension, mode) = (1, 25, "integer")
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+MOI.get(m, MOI.TerminationStatus()) = MathOptInterface.LOCALLY_SOLVED
+Away FW: false
+
+result[:dual_bound] = 4.76260907095854
+(solution_pavito, termination_pavito) = (4.76260907095854, "LOCALLY_SOLVED")
