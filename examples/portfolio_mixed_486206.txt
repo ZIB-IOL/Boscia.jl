@@ -1,0 +1,14 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (3, 30, "mixed")
+(seed, dimension, mode) = (3, 30, "mixed")
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+Away FW: false
+
+result[:dual_bound] = -0.3347695282599509
+(solution_pavito, termination_pavito) = (-0.33476917159252995, "LOCALLY_SOLVED")

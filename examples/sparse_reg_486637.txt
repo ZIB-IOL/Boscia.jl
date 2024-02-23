@@ -1,0 +1,38 @@
+(seed, dimension, ns) = (2, 50, 5.0)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: Infeasible NLP problem terminated with primal status: UNKNOWN_RESULT_STATUS
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:701
+┌ Warning: Infeasible NLP problem terminated with primal status: UNKNOWN_RESULT_STATUS
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:701
+┌ Warning: Infeasible NLP problem terminated with primal status: UNKNOWN_RESULT_STATUS
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:701
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+ERROR: LoadError: UndefVarError: str not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:13
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_poisson_setup.jl:9
+
+caused by: AssertionError: result[:dual_bound] <= f(vars_pavito) + 0.0001
+Stacktrace:
+ [1] poisson_reg_pavito(seed::Int64, n::Int64, Ns::Float64; print_models::Bool, time_limit::Int64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:653
+ [2] poisson_reg_pavito(seed::Int64, n::Int64, Ns::Float64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:578
+ [3] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:10
+f(vars_pavito_polished) = -1219.9114117962192
+Away FW: false
+
+result[:dual_bound] = -804.5691750224747
+AssertionError("result[:dual_bound] <= f(vars_pavito) + 0.0001")

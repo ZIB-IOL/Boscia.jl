@@ -1,0 +1,31 @@
+(seed, dimension, ns) = (6, 70, 0.1)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+ERROR: LoadError: UndefVarError: str not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:13
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_poisson_setup.jl:9
+
+caused by: AssertionError: result[:dual_bound] <= f(vars_pavito) + 0.0001
+Stacktrace:
+ [1] poisson_reg_pavito(seed::Int64, n::Int64, Ns::Float64; print_models::Bool, time_limit::Int64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:653
+ [2] poisson_reg_pavito(seed::Int64, n::Int64, Ns::Float64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:578
+ [3] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:10
+f(vars_pavito_polished) = -3.038633684842846e6
+Away FW: false
+(primal, tree.incumbent) = (-3.0386333812987427e6, -3.0386333812987427e6)
+
+result[:dual_bound] = -3.0386333812987427e6
+AssertionError("result[:dual_bound] <= f(vars_pavito) + 0.0001")

@@ -1,0 +1,16 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (9, 35, "mixed")
+(seed, dimension, mode) = (9, 35, "mixed")
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+Away FW: false
+
+result[:dual_bound] = -0.652958820155164
+(solution_pavito, termination_pavito) = (-0.6529579036501746, "LOCALLY_SOLVED")

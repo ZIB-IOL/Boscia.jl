@@ -1,0 +1,18 @@
+(seed, dimension) = (2, 10)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(termination_pavito, solution_pavito) = ("ALMOST_LOCALLY_SOLVED", 0.06446405736192949)
+Away FW: false
+(primal, tree.incumbent) = (0.06446303612227391, 0.06439067017727951)
+
+result[:dual_bound] = 0.06439024748693972

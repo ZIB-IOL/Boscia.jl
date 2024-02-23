@@ -1,0 +1,15 @@
+(example, num_v, seed) = ("ran14x18-disj-8", 8, 2)
+(example, num_v, seed) = ("ran14x18-disj-8", 8, 2)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+WARNING: Dual bound 2.20123 is larger than the objective of the primal solution 2. The solution might not be optimal.
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+Away FW: false
+
+result[:dual_bound] = -113.71113012856486

@@ -1,0 +1,16 @@
+(seed, dimension) = (9, 17)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(termination_pavito, solution_pavito) = ("LOCALLY_SOLVED", 4.771345359395812)
+Away FW: false
+(primal, tree.incumbent) = (4.771345768384261, 4.771345768384261)
+
+result[:dual_bound] = 4.771345768384261
