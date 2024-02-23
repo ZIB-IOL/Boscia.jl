@@ -1,0 +1,2 @@
+seed,dimension,var_A,p,k,M,time,solution,termination
+1,10,5.0,50,10.0,0.1,1800,NaN,TIME_LIMIT
