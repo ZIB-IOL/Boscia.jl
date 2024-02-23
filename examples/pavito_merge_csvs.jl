@@ -22,7 +22,6 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
         @show df
     else @error "not a valid example"
     end
-    @infiltrate
     select!(df, Not(:termination))
     df[!, "termination"] = ["ALMOST_LOCALLY_SOLVED"]
     select!(df, Not(:time))
@@ -104,11 +103,11 @@ end
 
 # merge_csvs()
 
-# merge_csvs(
-#     example = "portfolio_mixed", 
-#     seeds = 1:10, 
-#     dimensions = 20:5:120
-# )
+merge_csvs(
+    example = "portfolio_mixed", 
+    seeds = 1:10, 
+    dimensions = 20:5:120
+)
 
 # merge_csvs(
 #     example = "portfolio_integer", 

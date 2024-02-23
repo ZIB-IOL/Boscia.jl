@@ -592,6 +592,17 @@ function build_non_grouped_csv(mode)
         
         df = innerjoin(df, df_ipopt, on = [:seed, :dimension, :k, :Ns, :p])
 
+        # load pavito
+        df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_poisson_reg.csv"))) 
+        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+
+        df_pavito[!,:time_pavito] = df_pavito[!,:time]
+        df_pavito[!,:termination_pavito] = termination_pavito
+        df_pavito[!,:solution_pavito] = df_pavito[!,:solution]
+        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension])
+
+        df = innerjoin(df, df_pavito, on = [:seed, :dimension])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
 
@@ -618,11 +629,11 @@ function build_non_grouped_csv(mode)
 
         sort!(df, [:dimension, :k, :Ns])
 
-
         # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
+        optimal_pavito = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -639,14 +650,21 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_scip, 0)
             end
+            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_pavito, 1)
+            else 
+                append!(optimal_pavito, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+        df[!,:optimal_pavito] = optimal_pavito
 
-        # compute lower bound 
+        # compute relative gap
         rel_gap_scip = []
         rel_gap_ipopt = []
+        rel_gap_pavito = []
         for row in eachrow(df)
             if min(abs(row.solution_scip), abs(row.lb_boscia)) == 0
                 push!(rel_gap_scip, row.solution_scip - row.lb_boscia)
@@ -662,9 +680,17 @@ function build_non_grouped_csv(mode)
             else
                 push!(rel_gap_ipopt, (row.solution_ipopt - row.lb_boscia)/min(abs(row.solution_ipopt), abs(row.lb_boscia)))
             end
+            if min(abs(row.solution_pavito), abs(row.lb_boscia)) == 0
+                push!(rel_gap_pavito, row.solution_pavito - row.lb_boscia)
+            elseif sign(row.lb_boscia) != sign(row.solution_pavito)
+                push!(rel_gap_pavito, Inf)
+            else
+                push!(rel_gap_pavito, (row.solution_pavito - row.lb_boscia)/min(abs(row.solution_pavito), abs(row.lb_boscia)))
+            end
         end
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
+        df[!, :rel_gap_pavito] = round.(rel_gap_pavito,digits=3)
 
         filter!(row -> (isapprox(row.solution_ipopt,row.solution_boscia,atol=1.0)) || row.solution_ipopt==Inf, df)
 
