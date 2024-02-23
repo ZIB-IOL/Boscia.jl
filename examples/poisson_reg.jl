@@ -847,8 +847,13 @@ function build_shot_model(n, seed, Ns; time_limit=1800)
 
     α = 1.3
 
-    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)
+    set_optimizer_attribute(m, "Termination.TimeLimit", time_limit)
+    set_optimizer_attribute(m, "Output.Console.LogLevel", 3)
+    set_optimizer_attribute(m, "Output.File.LogLevel", 6)
+    set_optimizer_attribute(m, "Termination.ObjectiveGap.Absolute", 1e-6)
+    set_optimizer_attribute(m, "Termination.ObjectiveGap.Relative", 1e-6)
 
     @variable(m, x[1:2p+1])
     for i in p+1:2p

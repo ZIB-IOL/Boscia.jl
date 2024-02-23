@@ -7,10 +7,10 @@ ns = parse(Float64, ARGS[3])
 @show seed, dimension, ns
 
 try 
-    poisson_reg_pavito(seed, dimension, ns)
+    poisson_reg_shot(seed, dimension, ns)
 catch e 
     println(e)
-    file = "pavito_poisson_reg_" * str(seed) * "_" * str(dimension)    
+    file = "shot_poisson_reg_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end
