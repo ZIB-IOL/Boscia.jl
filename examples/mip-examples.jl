@@ -386,6 +386,7 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
         solution_pavito = NaN
         time_pavito = time_limit
     end
+    @show solution_pavito, time_pavito
 
     # check linear feasiblity
     if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
@@ -408,7 +409,7 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
         @show result[:dual_bound]
         solution_boscia = result[:raw_solution]
-        # @show f(vars_pavito), f(solution_boscia)
+        @show f(vars_pavito), f(solution_boscia)
         if occursin("Optimal", result[:status])
             @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
         end
