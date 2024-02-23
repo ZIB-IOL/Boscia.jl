@@ -411,8 +411,13 @@ function build_shot_model(seed, n; mode="mixed", time_limit=1800)
     Mi = (Ai + Ai') / 2
     @assert isposdef(Mi)
 
-    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe, ["timelimit="*string(time_limit)])) 
+    m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)
+    set_optimizer_attribute(m, "Termination.TimeLimit", time_limit)
+    set_optimizer_attribute(m, "Output.Console.LogLevel", 3)
+    set_optimizer_attribute(m, "Output.File.LogLevel", 6)
+    set_optimizer_attribute(m, "Termination.ObjectiveGap.Absolute", 1e-6)
+    set_optimizer_attribute(m, "Termination.ObjectiveGap.Relative", 1e-6)
 
     ai = rand(n)
     bi = sum(ai)
