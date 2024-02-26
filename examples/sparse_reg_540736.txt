@@ -1,0 +1,8 @@
+[ Info: Polish solution
+(seed, dimension, ns) = (4, 50, 1.0)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+f(vars_shot_polished) = -2704.2389662671967
+Away FW: false
+
+result[:dual_bound] = -2706.753819809491
+(termination_shot, solution_shot) = ("LOCALLY_SOLVED", -2704.2389662671967)
