@@ -9,7 +9,7 @@ try
     miplib_pavito(example, num_v, seed)
 catch e 
     println(e)
-    file = "pavito_miplib_" *example * "_" * str(seed) * "_" * str(num_v)    
+    file = "shot_miplib_" *example * "_" * str(seed) * "_" * str(num_v)    
     open(file * ".txt","a") do io
         println(io, e)
     end
