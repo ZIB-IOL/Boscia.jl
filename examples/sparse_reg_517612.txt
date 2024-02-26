@@ -1,0 +1,23 @@
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+ERROR: LoadError: UndefVarError: str not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:13
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_poisson_setup.jl:9
+
+caused by: AssertionError: result[:dual_bound] <= f(vars_shot) + 0.0001
+Stacktrace:
+ [1] poisson_reg_shot(seed::Int64, n::Int64, Ns::Float64; print_models::Bool, time_limit::Int64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:814
+ [2] poisson_reg_shot(seed::Int64, n::Int64, Ns::Float64)
+   @ Main ~/git/Boscia.jl/examples/poisson_reg.jl:739
+ [3] top-level scope
+   @ ~/git/Boscia.jl/examples/run_poisson_setup.jl:10
+(seed, dimension, ns) = (1, 70, 5.0)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+f(vars_shot_polished) = -7252.149737466252
+Away FW: false
+
+result[:dual_bound] = -4015.5536890114086
+AssertionError("result[:dual_bound] <= f(vars_shot) + 0.0001")

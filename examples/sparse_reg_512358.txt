@@ -1,0 +1,9 @@
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(seed, dimension) = (1, 21)
+objective_sense(m) = MathOptInterface.MIN_SENSE
+(termination_shot, solution_shot) = ("LOCALLY_SOLVED", 2.8240260357217677)
+Away FW: false
+(primal, tree.incumbent) = (2.8240260478591983, 2.8240260478591983)
+
+result[:dual_bound] = 2.8240260478591983
