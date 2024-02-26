@@ -1,4 +1,3 @@
-NAME   22433
 ROWS
  N   OBJ
  E   R00001

@@ -459,7 +459,7 @@ function miplib_shot(example, num_v, seed; time_limit=1800)
     m, x, n = build_shot_model(example, seed, max_norm, vs; time_limit=time_limit)
 
     # println(m)
-    optimize!(m) # TODO: fix this
+    optimize!(m)
     termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
 
     if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
