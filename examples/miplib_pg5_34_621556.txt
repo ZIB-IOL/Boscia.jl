@@ -1,0 +1,5 @@
+(example, num_v, seed) = ("pg5_34", 6, 3)
+(example, num_v, seed) = ("pg5_34", 6, 3)
+Away FW: false
+
+result[:dual_bound] = -507.95870223220527

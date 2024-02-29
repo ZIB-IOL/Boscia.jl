@@ -1,0 +1,6 @@
+[ Info: Polish solution
+(example, num_v, seed) = ("ran14x18-disj-8", 4, 2)
+(example, num_v, seed) = ("ran14x18-disj-8", 4, 2)
+Away FW: false
+
+result[:dual_bound] = -328.6878655370807

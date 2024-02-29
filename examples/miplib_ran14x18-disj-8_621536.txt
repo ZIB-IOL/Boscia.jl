@@ -1,0 +1,5 @@
+(example, num_v, seed) = ("ran14x18-disj-8", 5, 1)
+(example, num_v, seed) = ("ran14x18-disj-8", 5, 1)
+Away FW: false
+
+result[:dual_bound] = -310.50595658692663

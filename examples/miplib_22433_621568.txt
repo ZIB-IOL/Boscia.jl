@@ -1,0 +1,9 @@
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+(example, num_v, seed) = ("22433", 5, 3)
+(example, num_v, seed) = ("22433", 5, 3)
+Away FW: false
+(primal, tree.incumbent) = (-25842.9029491067, -25842.90294910671)
+
+result[:dual_bound] = -25842.90294910671

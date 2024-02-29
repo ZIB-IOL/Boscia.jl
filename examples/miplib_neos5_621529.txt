@@ -1,0 +1,8 @@
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(example, num_v, seed) = ("neos5", 7, 3)
+(example, num_v, seed) = ("neos5", 7, 3)
+Away FW: false
+(primal, tree.incumbent) = (2.819769498207299, 2.8197694982072976)
+
+result[:dual_bound] = 2.8197332747565254

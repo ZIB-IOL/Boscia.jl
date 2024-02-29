@@ -1,0 +1,5 @@
+(example, num_v, seed) = ("22433", 8, 2)
+(example, num_v, seed) = ("22433", 8, 2)
+Away FW: false
+
+result[:dual_bound] = -12844.878154576907

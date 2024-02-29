@@ -1,0 +1,5 @@
+(example, num_v, seed) = ("neos5", 5, 1)
+(example, num_v, seed) = ("neos5", 5, 1)
+Away FW: false
+
+result[:dual_bound] = -16.024800048465696

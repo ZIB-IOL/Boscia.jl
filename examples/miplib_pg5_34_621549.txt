@@ -1,0 +1,6 @@
+[ Info: Polish solution
+(example, num_v, seed) = ("pg5_34", 4, 2)
+(example, num_v, seed) = ("pg5_34", 4, 2)
+Away FW: false
+
+result[:dual_bound] = -519.5851269148969
