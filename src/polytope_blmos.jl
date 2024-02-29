@@ -97,8 +97,16 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     if count(!iszero, z[tree.branching_indices]) == 0
         return [z], false
     end
-    
+
     N = tlmo.blmo.simple_lmo.N
+
+    non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
+    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N || cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
+        @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.blmo.upperbounds[non_zero_int])), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
+        return [z], false
+    end
+
     if sum(z) < N
         while sum(z) < N
             z = add_to_min(z, tlmo.blmo.upper_bounds, tree.branching_indices)
@@ -114,9 +122,9 @@ function add_to_min(x, ub, int_vars)
     perm = sortperm(x)
     j = findfirst(x->x != 0, x[perm])
     
-    for i in intersect(j:length(x), int_vars)
-        if x[perm[i]] < ub[perm[i]]
-            x[perm[i]] += 1
+    for i in intersect(perm[j:end], int_vars) 
+        if x[i] < ub[i]
+            x[i] += 1
             break
         else
             continue
@@ -128,9 +136,9 @@ function remove_from_max(x, lb, int_vars)
     perm = sortperm(x, rev = true)
     j = findlast(x->x != 0, x[perm])
     
-    for i in intersect(1:j, int_vars)
-        if x[perm[i]] > lb[perm[i]]
-            x[perm[i]] -= 1
+    for i in intersect(perm[1:j], int_vars) 
+       if x[i] > lb[i]
+        x[i] -= 1
             break
         else
             continue
@@ -200,6 +208,15 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     end
     
     N = tlmo.blmo.simple_lmo.N
+
+    non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
+    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    if cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
+        @debug "No heuristics improvement possible, bounds already reached, N=$(N), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
+        return [z], false
+    end
+
+
     if sum(z) > N
         while sum(z) > N
             z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
