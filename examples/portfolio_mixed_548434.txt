@@ -1,0 +1,14 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+        Error when solving NLP problem with Ipopt.
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(seed, dimension, mode) = (3, 115, "mixed")
+(seed, dimension, mode) = (3, 115, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+(primal, tree.incumbent) = (-0.03843915483625171, -0.039878381807142316)
+
+result[:dual_bound] = -0.040425112509077765
+(solution_shot, termination_shot) = (-0.03829531921806356, "LOCALLY_SOLVED")

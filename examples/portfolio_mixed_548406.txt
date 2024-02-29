@@ -1,0 +1,12 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+        Error when solving NLP problem with Ipopt.
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(seed, dimension, mode) = (2, 100, "mixed")
+(seed, dimension, mode) = (2, 100, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+(primal, tree.incumbent) = (-0.35140952654354957, -0.3543226761445311)
+
+result[:dual_bound] = -0.3577191487035084
+(solution_shot, termination_shot) = (-0.35425729770048064, "LOCALLY_SOLVED")

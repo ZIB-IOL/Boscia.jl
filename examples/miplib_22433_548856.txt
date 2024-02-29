@@ -1,0 +1,17 @@
+(example, num_v, seed) = ("22433", 8, 1)
+(example, num_v, seed) = ("22433", 8, 1)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(solution_pavito, time_pavito) = (-10732.683972244127, 7.8601460456848145)
+Away FW: false
+(primal, tree.incumbent) = (-10737.565859791352, -10737.565859791352)
+
+result[:dual_bound] = -10737.565859791352
+(f(vars_pavito), f(solution_boscia)) = (-10732.683972244127, -10737.565859791352)

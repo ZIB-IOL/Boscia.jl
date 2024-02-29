@@ -1,0 +1,2 @@
+seed,dimension,var_A,p,k,M,time,solution,termination
+10,20,1.0,100,20.0,1.0,127.03001689910889,0.5614064247281191,LOCALLY_SOLVED

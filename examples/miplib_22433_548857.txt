@@ -1,0 +1,14 @@
+(example, num_v, seed) = ("22433", 8, 2)
+(example, num_v, seed) = ("22433", 8, 2)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(solution_pavito, time_pavito) = (-12843.378799152111, 9.217962980270386)
+Away FW: false
+
+result[:dual_bound] = -12844.878154576907
+(f(vars_pavito), f(solution_boscia)) = (-12843.37879915211, -12844.878154576907)

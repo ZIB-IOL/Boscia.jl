@@ -1,0 +1,17 @@
+(example, num_v, seed) = ("ran14x18-disj-8", 8, 1)
+(example, num_v, seed) = ("ran14x18-disj-8", 8, 1)
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+[ Info: Polish solution
+(solution_pavito, time_pavito) = (360.5652008652902, 101.05491089820862)
+Away FW: false
+
+result[:dual_bound] = -135.87353478681962
+(f(vars_pavito), f(solution_boscia)) = (360.5652008652902, -111.14142535020345)

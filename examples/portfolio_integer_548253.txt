@@ -1,0 +1,20 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+
+ Maximum deviation in interior point is too large: 880.223
+
+ No interior point found!                            
+WARNING: Dual bound -994.04 is larger than the objective of the primal solution -994.045. The solution might not be optimal.
+WARNING: Dual bound -21.9552 is larger than the objective of the primal solution -21.9554. The solution might not be optimal.
+WARNING: Dual bound -2017.19 is larger than the objective of the primal solution -2017.19. The solution might not be optimal.
+WARNING: Dual bound -10442 is larger than the objective of the primal solution -10442. The solution might not be optimal.
+WARNING: Dual bound -48.0869 is larger than the objective of the primal solution -48.0877. The solution might not be optimal.
+WARNING: Dual bound -1238.91 is larger than the objective of the primal solution -1238.91. The solution might not be optimal.
+WARNING: Dual bound 6.32091 is larger than the objective of the primal solution 6.32089. The solution might not be optimal.
+WARNING: Dual bound -5498.99 is larger than the objective of the primal solution -5499.01. The solution might not be optimal.
+(seed, dimension, mode) = (2, 120, "integer")
+(seed, dimension, mode) = (2, 120, "integer")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+
+result[:dual_bound] = 4.258685703782849
+(solution_shot, termination_shot) = (8.320374995169868, "LOCALLY_SOLVED")

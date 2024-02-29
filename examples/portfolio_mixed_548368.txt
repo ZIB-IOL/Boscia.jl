@@ -1,0 +1,13 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(seed, dimension, mode) = (9, 75, "mixed")
+(seed, dimension, mode) = (9, 75, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+(primal, tree.incumbent) = (0.022928429257953686, 0.020696275643292572)
+
+result[:dual_bound] = 0.019965788999352196
+(solution_shot, termination_shot) = (0.02292842932708683, "LOCALLY_SOLVED")

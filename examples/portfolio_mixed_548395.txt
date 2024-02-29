@@ -1,0 +1,11 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(seed, dimension, mode) = (9, 90, "mixed")
+(seed, dimension, mode) = (9, 90, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+(primal, tree.incumbent) = (-0.6124059857367994, -0.6144750380190809)
+
+result[:dual_bound] = -0.6163503949204826
+(solution_shot, termination_shot) = (-0.6144752792355744, "LOCALLY_SOLVED")

@@ -1,0 +1,10 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+┌ Warning: Tree empty but primal not equal to the incumbent.
+└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
+(seed, dimension, mode) = (7, 50, "mixed")
+(seed, dimension, mode) = (7, 50, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+
+result[:dual_bound] = -0.06416487201377302
+(solution_shot, termination_shot) = (-0.06416483731913486, "LOCALLY_SOLVED")

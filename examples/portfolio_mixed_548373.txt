@@ -1,0 +1,8 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+(seed, dimension, mode) = (5, 80, "mixed")
+(seed, dimension, mode) = (5, 80, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+
+result[:dual_bound] = -0.20237545500178705
+(solution_shot, termination_shot) = (-0.20230842347131328, "LOCALLY_SOLVED")

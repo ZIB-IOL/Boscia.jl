@@ -1,0 +1,9 @@
+WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
+        Error when solving NLP problem with Ipopt.
+(seed, dimension, mode) = (7, 100, "mixed")
+(seed, dimension, mode) = (7, 100, "mixed")
+termination_shot = "LOCALLY_SOLVED"
+Away FW: false
+
+result[:dual_bound] = -16.40396476440698
+(solution_shot, termination_shot) = (-0.47076590051083034, "LOCALLY_SOLVED")
