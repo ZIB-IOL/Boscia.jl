@@ -1,6 +1,0 @@
-(seed, dimension) = (2, 10)
-objective_sense(m) = MathOptInterface.MIN_SENSE
-(termination_shot, solution_shot) = ("LOCALLY_SOLVED", 0.03727474703868938)
-Away FW: false
-
-result[:dual_bound] = 0.028671603107132272

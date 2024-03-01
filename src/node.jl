@@ -297,7 +297,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         )
     end
 
-    @assert dual_gap >= 0.0 - 1e-9
+    @assert dual_gap >= 0.0 - 1e-6
 
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap

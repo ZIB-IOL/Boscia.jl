@@ -1,9 +1,0 @@
-WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
-[ Info: Polish solution
-(seed, dimension, mode) = (7, 95, "mixed")
-(seed, dimension, mode) = (7, 95, "mixed")
-termination_shot = "LOCALLY_SOLVED"
-Away FW: false
-
-result[:dual_bound] = -9.512798512991308
-(solution_shot, termination_shot) = (-8.209207233347787, "LOCALLY_SOLVED")

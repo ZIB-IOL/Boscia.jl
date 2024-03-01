@@ -1,9 +1,0 @@
-WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
-WARNING: Dual bound -11.3383 is larger than the objective of the primal solution -11.3383. The solution might not be optimal.
-(seed, dimension, mode) = (7, 20, "integer")
-(seed, dimension, mode) = (7, 20, "integer")
-termination_shot = "LOCALLY_SOLVED"
-Away FW: false
-
-result[:dual_bound] = -0.37515548039042157
-(solution_shot, termination_shot) = (-0.37515548040028923, "LOCALLY_SOLVED")

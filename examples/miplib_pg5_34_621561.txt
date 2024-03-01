@@ -1,5 +1,0 @@
-(example, num_v, seed) = ("pg5_34", 8, 2)
-(example, num_v, seed) = ("pg5_34", 8, 2)
-Away FW: false
-
-result[:dual_bound] = -437.6731991702598

@@ -126,6 +126,23 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :dimension])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_portfolio_integer.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+
+        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_portfolio_integer.csv"))) 
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -153,6 +170,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -174,11 +192,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -418,6 +442,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :dimension])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_portfolio_mixed.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+
+        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+ 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mixed_portfolio.csv"))) 
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -445,6 +485,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -466,11 +507,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -603,6 +650,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :dimension])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_poisson_reg.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+
+        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
 
@@ -634,6 +697,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -655,11 +719,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -864,6 +934,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :dimension])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_sparse_reg.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+
+        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_reg.csv")))
 
@@ -911,6 +997,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -932,11 +1019,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -1140,6 +1233,22 @@ function build_non_grouped_csv(mode)
         df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension])
 
         df = innerjoin(df, df_pavito, on = [:seed, :dimension])
+
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_sparse_log_reg.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+
+        df = innerjoin(df, df_shot, on = [:seed, :dimension])
  
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_log_regression.csv")))
@@ -1157,6 +1266,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -1178,11 +1288,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -1718,6 +1834,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :num_v])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_miplib_22433.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :num_v])
+
+        df = innerjoin(df, df_shot, on = [:seed, :num_v])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_22433.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -1747,6 +1879,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -1768,11 +1901,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -1972,6 +2111,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :num_v])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_miplib_neos5.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :num_v])
+
+        df = innerjoin(df, df_shot, on = [:seed, :num_v])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_neos5.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -2019,6 +2174,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -2040,11 +2196,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
         df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []
@@ -2245,6 +2407,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :num_v])
 
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_miplib_pg5_34.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :num_v])
+
+        df = innerjoin(df, df_shot, on = [:seed, :num_v])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_pg5_34.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -2285,6 +2463,8 @@ function build_non_grouped_csv(mode)
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
+        optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -2301,10 +2481,23 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_scip, 0)
             end
+            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_pavito, 1)
+            else 
+                append!(optimal_pavito, 0)
+            end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
+        df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_shot] = optimal_shot
+        
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_pg5_34_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -2472,6 +2665,22 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_pavito, on = [:seed, :num_v])
         
+        # load shot
+        df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_miplib_ran14x18-disj-8.csv"))) 
+        for row in eachrow(df_shot)
+            if row.time >= 1800
+                row.termination = "TIME_LIMIT" 
+            end
+        end
+        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+
+        df_shot[!,:time_shot] = df_shot[!,:time]
+        df_shot[!,:termination_shot] = termination_shot
+        df_shot[!,:solution_shot] = df_shot[!,:solution]
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :num_v])
+
+        df = innerjoin(df, df_shot, on = [:seed, :num_v])
+
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_mip_lib_ran14x18-disj-8.csv")))
         termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_scip[!,:termination]]
@@ -2521,6 +2730,7 @@ function build_non_grouped_csv(mode)
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
+        optimal_shot = []
         for row in eachrow(df)
             if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
                 append!(optimal_boscia, 1)
@@ -2542,11 +2752,17 @@ function build_non_grouped_csv(mode)
             else 
                 append!(optimal_pavito, 0)
             end
+            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+                append!(optimal_shot, 1)
+            else 
+                append!(optimal_shot, 0)
+            end
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
-        df[!,:optimal_pavito] = optimal_pavito
+        df[!,:optimal_pavito] = optimal_pavito        
+        df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
         rel_gap_scip = []

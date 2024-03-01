@@ -1,8 +1,0 @@
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-(example, num_v, seed) = ("22433", 8, 1)
-(example, num_v, seed) = ("22433", 8, 1)
-Away FW: false
-(primal, tree.incumbent) = (-10737.565859791352, -10737.565859791352)
-
-result[:dual_bound] = -10737.565859791352

@@ -477,35 +477,39 @@ function portfolio_shot(seed=1, dimension=5; mode, time_limit=1800)
     
     # check linear feasiblity
     if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
-        o = SCIP.Optimizer()
-        lmo, _ = build_optimizer(o, mode, n)
-        @assert Boscia.is_linear_feasible(lmo, vars_shot)
-        # check integer feasibility
-        integer_variables = Vector{Int}()
-        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-            push!(integer_variables, cidx.value)
-        end
-        for idx in integer_variables
-            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
-        end
-        # check feasibility of rounded solution
-        vars_shot_polished = vars_shot
-        for i in integer_variables
-            vars_shot_polished[i] = round(vars_shot_polished[i])
-        end
-        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
-        # solve Boscia
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        @show result[:dual_bound]
-        solution_boscia = result[:raw_solution]
-        # @show f(vars_shot), f(solution_boscia)
-        if occursin("Optimal", result[:status])
-            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
-        end
+        key_vector = all_variables(m)
+        point = Dict(key_vector .=> vars_shot)
+        report = primal_feasibility_report(m, point, atol=1e-6)
+        @assert isempty(report)
+        # o = SCIP.Optimizer()
+        # lmo, _ = build_optimizer(o, mode, n)
+        # @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # # check integer feasibility
+        # integer_variables = Vector{Int}()
+        # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        #     push!(integer_variables, cidx.value)
+        # end
+        # for idx in integer_variables
+        #     @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        # end
+        # # check feasibility of rounded solution
+        # vars_shot_polished = vars_shot
+        # for i in integer_variables
+        #     vars_shot_polished[i] = round(vars_shot_polished[i])
+        # end
+        # @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # # solve Boscia
+        # x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        # @show result[:dual_bound]
+        # solution_boscia = result[:raw_solution]
+        # # @show f(vars_shot), f(solution_boscia)
+        # if occursin("Optimal", result[:status])
+        #     @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        # end
 
-        termination_shot = String(string(termination_shot))
-        @show solution_shot, termination_shot
+        # termination_shot = String(string(termination_shot))
     end
+    @show solution_shot, termination_shot
 
     df = DataFrame(seed=seed, dimension=n, time=time_shot, solution=solution_shot, termination=termination_shot)
         file_name = joinpath(@__DIR__,"csv/shot_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    

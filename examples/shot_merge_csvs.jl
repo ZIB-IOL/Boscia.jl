@@ -102,19 +102,19 @@ end
 
 # merge_csvs(
 #     example="sparse_reg", 
-#     seeds=1:1, 
+#     seeds=1:10, 
 #     dimensions=15:30
 # )
 
 # merge_csvs(
 #     example = "portfolio_mixed", 
-#     seeds = 1:1, 
+#     seeds = 1:10, 
 #     dimensions = 20:5:120
 # )
 
 # merge_csvs(
 #     example = "portfolio_integer", 
-#     seeds = 1:1, 
+#     seeds = 1:10, 
 #     dimensions = 20:5:120
 # )
 
@@ -145,14 +145,14 @@ end
 # merge_csvs(
 #     example = "sparse_log_reg", 
 #     dimensions = [5:5:20;], 
-#     seeds = 1:1,
+#     seeds = 1:10,
 #     Ns = [0.1,1],
 #     var_A = [1.0,5.0]
 # ) # seed dim Ns/m k var_A
 
-merge_csvs(
-    example = "poisson_reg", 
-    dimensions = [50:20:100;], 
-    seeds = 1:1,
-    Ns = [0.1,1,5,10]
-) # seed dim p k Ns
+# merge_csvs(
+#     example = "poisson_reg", 
+#     dimensions = [50:20:100;], 
+#     seeds = 1:10,
+#     Ns = [0.1,1,5,10]
+# ) # seed dim p k Ns

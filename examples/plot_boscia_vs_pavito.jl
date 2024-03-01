@@ -9,16 +9,19 @@ function plot_boscia_vs_pavito(example)
         scip_oa=false
         ipopt=true
         pavito=true
+        shot=true
     elseif example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
         boscia=true 
         scip_oa=true
         pavito=true
         ipopt = false
+        shot=true
     else
         boscia=true 
         scip_oa=true
         ipopt=true
         pavito=true
+        shot=true
     end
     
     if example == "poisson"
@@ -37,15 +40,15 @@ function plot_boscia_vs_pavito(example)
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/tailed_cardinality_sparse_log_reg_non_grouped.csv")))
     elseif example == "miplib"
         df_22433 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_22433_non_grouped.csv")))
-        df = select(df_22433, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
+        df = select(df_22433, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito, :time_shot, :termination_shot, :optimal_shot])
         df_neos5 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")))
-        select!(df_neos5, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
+        select!(df_neos5, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito, :time_shot, :termination_shot, :optimal_shot])
         append!(df,df_neos5)
         df_pg534 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_pg5_34_non_grouped.csv")))
-        select!(df_pg534, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt]) # :time_pavito, :termination_pavito, :optimal_pavito])
+        select!(df_pg534, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_shot, :termination_shot, :optimal_shot]) # :time_pavito, :termination_pavito, :optimal_pavito])
         append!(df,df_pg534, cols=:subset)
         df_ran14x18 = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")))
-        select!(df_ran14x18, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito])
+        select!(df_ran14x18, [:time_boscia, :termination_boscia, :optimal_boscia, :time_ipopt, :termination_ipopt, :optimal_ipopt, :time_pavito, :termination_pavito, :optimal_pavito, :time_shot, :termination_shot, :optimal_shot])
         append!(df,df_ran14x18)
 
         df[df.time_boscia.>1800, :time_boscia] .= 1800
@@ -121,6 +124,20 @@ function plot_boscia_vs_pavito(example)
         time_pavito = sort(df_pavito[!,"time_pavito"])
         push!(time_pavito, 1.1 * time_limit)
         ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
+    end
+
+    if shot
+        df_shot = deepcopy(df)
+        # filter!(row -> !(row.termination_shot == 0),  df_shot)
+        if boscia && scip_oa && ipopt && shot
+            filter!(row -> !(row.optimal_shot == 0),  df_shot)
+        elseif example == "miplib"
+            filter!(row -> !ismissing(row.optimal_shot),  df_shot)
+            filter!(row -> !(row.optimal_shot == 0),  df_shot)
+        end
+        time_shot = sort(df_shot[!,"time_shot"])
+        push!(time_shot, 1.1 * time_limit)
+        ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)
     end
 
     ylabel("Solved instances")

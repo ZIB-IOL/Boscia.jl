@@ -1,6 +1,0 @@
-[ Info: Polish solution
-(example, num_v, seed) = ("ran14x18-disj-8", 5, 3)
-(example, num_v, seed) = ("ran14x18-disj-8", 5, 3)
-Away FW: false
-
-result[:dual_bound] = -301.0184753567418

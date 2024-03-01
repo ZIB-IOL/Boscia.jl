@@ -1,9 +1,0 @@
-┌ Warning: Tree empty but primal not equal to the incumbent.
-└ @ Boscia ~/git/Boscia.jl/src/interface.jl:532
-(seed, dimension, ns) = (10, 50, 10.0)
-objective_sense(m) = MathOptInterface.MIN_SENSE
-f(vars_shot_polished) = -52.886755056002364
-Away FW: false
-
-result[:dual_bound] = -30.279673495343697
-(termination_shot, solution_shot) = ("LOCALLY_SOLVED", -52.886755056002364)

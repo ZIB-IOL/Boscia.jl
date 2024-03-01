@@ -478,6 +478,7 @@ function miplib_shot(example, num_v, seed; time_limit=1800)
         solution_shot = NaN
         time_shot = time_limit
     end
+    @show solution_shot, time_shot
 
     # check linear feasiblity
     if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"

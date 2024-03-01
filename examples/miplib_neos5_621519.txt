@@ -1,5 +1,0 @@
-(example, num_v, seed) = ("neos5", 4, 2)
-(example, num_v, seed) = ("neos5", 4, 2)
-Away FW: false
-
-result[:dual_bound] = -13.818313009192067
