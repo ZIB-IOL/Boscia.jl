@@ -1,7 +1,7 @@
 name = "Boscia"
 uuid = "36b166db-dac5-4d05-b36a-e6c4cef071c9"
 authors = ["ZIB IOL"]
-version = "0.1.21"
+version = "0.1.22"
 
 [deps]
 Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
