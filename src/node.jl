@@ -1,10 +1,30 @@
 mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value} <:
                Bonobo.AbstractSolution{Node,Value}
-    objective::Float64
+    objective::Union{Float64,BigFloat}
     solution::Value
     node::Node
     source::Symbol
 end
+
+"""
+    BnBNodeInfo
+
+Holds the necessary information of every node.
+This needs to be added by every `AbstractNode` as `std::BnBNodeInfo`
+
+```julia
+id :: Int
+lb :: Float64
+ub :: Float64
+```
+"""
+mutable struct NodeInfo
+    id :: Int
+    lb :: Union{Float64,BigFloat}
+    ub :: Union{Float64,BigFloat}
+end
+
+Base.convert(::Type{NodeInfo}, std::Bonobo.BnBNodeInfo) = NodeInfo(std.id, std.lb, std.ub)
 
 """
     AbtractFrankWolfeNode <: Bonobo.AbstractNode 
@@ -28,7 +48,8 @@ mutable struct FrankWolfeNode{
     DVS<:FrankWolfe.DeletedVertexStorage,
     IB<:IntegerBounds,
 } <: AbstractFrankWolfeNode
-    std::Bonobo.BnBNodeInfo
+    #std::Bonobo.BnBNodeInfo
+    std::NodeInfo
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
