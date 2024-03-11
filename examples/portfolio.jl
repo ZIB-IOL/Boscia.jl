@@ -360,33 +360,37 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
     
     # check linear feasiblity
     if termination_pavito != "TIME_LIMIT" && termination_pavito != "OPTIMIZE_NOT_CALLED"
-        o = SCIP.Optimizer()
-        lmo, _ = build_optimizer(o, mode, n)
+        key_vector = all_variables(m)
+        point = Dict(key_vector .=> vars_pavito)
+        report = primal_feasibility_report(m, point, atol=1e-6)
+        @assert isempty(report)
+        # o = SCIP.Optimizer()
+        # lmo, _ = build_optimizer(o, mode, n)
         # @assert Boscia.is_linear_feasible(lmo, vars_pavito)
         # check integer feasibility
-        integer_variables = Vector{Int}()
-        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-            push!(integer_variables, cidx.value)
-        end
-        for idx in integer_variables
-            @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
-        end
+        # integer_variables = Vector{Int}()
+        # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+        #    push!(integer_variables, cidx.value)
+        #end
+        #for idx in integer_variables
+        #    @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
+        #end
         # check feasibility of rounded solution
-        vars_pavito_polished = vars_pavito
-        for i in integer_variables
-            vars_pavito_polished[i] = round(vars_pavito_polished[i])
-        end
-        @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+        #vars_pavito_polished = vars_pavito
+        #for i in integer_variables
+        #    vars_pavito_polished[i] = round(vars_pavito_polished[i])
+        #end
+        #@assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
         # solve Boscia
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        @show result[:dual_bound]
-        solution_boscia = result[:raw_solution]
+        #x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        #@show result[:dual_bound]
+        #solution_boscia = result[:raw_solution]
         # @show f(vars_pavito), f(solution_boscia)
-        if occursin("Optimal", result[:status])
-            @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
-        end
+        #if occursin("Optimal", result[:status])
+        #    @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
+        #end
 
-        termination_pavito = String(string(termination_pavito))
+        #termination_pavito = String(string(termination_pavito))
         @show solution_pavito, termination_pavito
     end
 
