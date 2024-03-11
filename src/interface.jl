@@ -444,7 +444,7 @@ function build_bnb_callback(
             if !isempty(tree.node_queue)
                 p_lb = tree.lb
                 tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
-                @assert p_lb <= tree.lb + tree.root.options[:dual_gap]
+                @assert p_lb <= tree.lb + tree.root.options[:dual_gap] "p_lb <= tree.lb + tree.root.options[:dual_gap] $(p_lb) <= $(tree.lb + tree.root.options[:dual_gap])"
             end
             # correct lower bound if necessary
             tree.lb = tree_lb(tree)

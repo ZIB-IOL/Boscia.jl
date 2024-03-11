@@ -321,7 +321,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
-        @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent)"
+        @show is_linear_feasible(tree.root.problem.tlmo.blmo, x)
+        @show is_linear_feasible(tree.root.problem.tlmo.blmo, tree.incumbent_solution.solution)
+        @show x 
+        @show tree.incumbent_solution.solution
+        @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent + 1e-5)"
     end
 
     # Call heuristic 
