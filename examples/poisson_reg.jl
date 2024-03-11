@@ -747,8 +747,7 @@ function poisson_reg_shot(seed=1, n=20, Ns=0.1; print_models=false, time_limit=1
     @show objective_sense(m)
     optimize!(m)
     termination_shot = String(string(MOI.get(m, MOI.TerminationStatus())))
-
-    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED"
+    if termination_shot != "TIME_LIMIT" && termination_shot != "OPTIMIZE_NOT_CALLED" && termination_shot != "OTHER_ERROR"
         time_shot = MOI.get(m, MOI.SolveTimeSec())
         vars_shot = value.(x)
         @assert Boscia.is_linear_feasible(m.moi_backend, vars_shot)    
