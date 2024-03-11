@@ -109,43 +109,43 @@ merge_csvs(
     dimensions = 20:5:120
 )
 
-# merge_csvs(
-#     example = "portfolio_integer", 
-#     seeds = 1:10, 
-#     dimensions = 20:5:120
-# )
+merge_csvs(
+    example = "portfolio_integer", 
+    seeds = 1:10, 
+    dimensions = 20:5:120
+)
 
-# merge_csvs(
-#     example = "miplib_22433", 
-#     dimensions = 4:8, 
-#     seeds = 1:3
-# )
+merge_csvs(
+    example = "miplib_22433", 
+    dimensions = 4:8, 
+    seeds = 1:3
+)
 
-# merge_csvs(
-#     example = "miplib_neos5", 
-#     dimensions = 4:8, 
-#     seeds = 1:3
-# )
+merge_csvs(
+    example = "miplib_neos5", 
+    dimensions = 4:8, 
+    seeds = 1:3
+)
 
-# merge_csvs(
-#     example = "miplib_ran14x18-disj-8", 
-#     dimensions = 4:8, 
-#     seeds = 1:3
-# )
+merge_csvs(
+    example = "miplib_ran14x18-disj-8", 
+    dimensions = 4:8, 
+    seeds = 1:3
+)
 
-# merge_csvs(
-#     example = "miplib_pg5_34", 
-#     dimensions = 4:8, 
-#     seeds = 1:3
-# )
+merge_csvs(
+    example = "miplib_pg5_34", 
+    dimensions = 4:8, 
+    seeds = 1:3
+)
 
-# merge_csvs(
-#     example = "sparse_log_reg", 
-#     dimensions = [5:5:20;], 
-#     seeds = 1:3,
-#     Ns = [0.1,1],
-#     var_A = [1.0,5.0]
-# ) # seed dim Ns/m k var_A
+merge_csvs(
+    example = "sparse_log_reg", 
+    dimensions = [5:5:20;], 
+    seeds = 1:3,
+    Ns = [0.1,1],
+    var_A = [1.0,5.0]
+) # seed dim Ns/m k var_A
 
 merge_csvs(
     example = "poisson_reg", 

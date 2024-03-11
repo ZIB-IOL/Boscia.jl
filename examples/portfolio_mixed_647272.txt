@@ -1,5 +1,0 @@
-WARNING: using JuMP.MOI in module Main conflicts with an existing identifier.
-(seed, dimension, mode) = (9, 115, "mixed")
-(seed, dimension, mode) = (9, 115, "mixed")
-termination_shot = "LOCALLY_SOLVED"
-(solution_shot, termination_shot) = (-0.2912493719666408, "LOCALLY_SOLVED")
