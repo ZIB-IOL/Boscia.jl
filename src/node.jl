@@ -48,7 +48,6 @@ mutable struct FrankWolfeNode{
     DVS<:FrankWolfe.DeletedVertexStorage,
     IB<:IntegerBounds,
 } <: AbstractFrankWolfeNode
-    #std::Bonobo.BnBNodeInfo
     std::NodeInfo
     active_set::AT
     discarded_vertices::DVS

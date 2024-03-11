@@ -150,7 +150,6 @@ function solve(
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
-        #Bonobo.BnBNodeInfo(1, 0.0, 0.0),
         NodeInfo(1, 0.0 ,0.0),
         active_set,
         vertex_storage,
