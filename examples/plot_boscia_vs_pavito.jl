@@ -78,11 +78,8 @@ function plot_boscia_vs_pavito(example)
     if boscia 
         df_boscia = deepcopy(df)
         filter!(row -> !(row.termination_boscia == 0),  df_boscia)
-        if boscia && scip_oa
-            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
-        elseif example == "miplib"
-            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
-        end
+        filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+
         time_boscia = sort(df_boscia[!,"time_boscia"])
         push!(time_boscia, 1.1 * time_limit)
         ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
@@ -91,9 +88,8 @@ function plot_boscia_vs_pavito(example)
     if scip_oa     
         df_scip = deepcopy(df)
         filter!(row -> !(row.termination_scip == 0),  df_scip)
-        if boscia && scip_oa
-            filter!(row -> !(row.optimal_scip == 0),  df_scip)
-        end        
+        filter!(row -> !(row.optimal_scip == 0),  df_scip)
+        
         time_scip = sort(df_scip[!,"time_scip"])
         push!(time_scip, 1.1 * time_limit)
         ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
@@ -102,11 +98,8 @@ function plot_boscia_vs_pavito(example)
     if ipopt
         df_ipopt = deepcopy(df)
         filter!(row -> !(row.termination_ipopt == 0),  df_ipopt)
-        if boscia && scip_oa && ipopt
-            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
-        elseif example == "miplib"
-            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
-        end
+        filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
+
         time_ipopt = sort(df_ipopt[!,"time_ipopt"])
         push!(time_ipopt, 1.1 * time_limit)
         ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
@@ -114,7 +107,8 @@ function plot_boscia_vs_pavito(example)
 
     if pavito
         df_pavito = deepcopy(df)
-        # filter!(row -> !(row.termination_pavito == 0),  df_pavito)
+        filter!(row -> !ismissing(row.termination_pavito),  df_pavito)
+        filter!(row -> !(row.termination_pavito == 0),  df_pavito)
         if boscia && scip_oa && ipopt && pavito
             filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
         elseif example == "miplib"
@@ -128,13 +122,9 @@ function plot_boscia_vs_pavito(example)
 
     if shot
         df_shot = deepcopy(df)
-        # filter!(row -> !(row.termination_shot == 0),  df_shot)
-        if boscia && scip_oa && ipopt && shot
-            filter!(row -> !(row.optimal_shot == 0),  df_shot)
-        elseif example == "miplib"
-            filter!(row -> !ismissing(row.optimal_shot),  df_shot)
-            filter!(row -> !(row.optimal_shot == 0),  df_shot)
-        end
+        filter!(row -> !(row.termination_shot == 0),  df_shot)
+        filter!(row -> !(row.optimal_shot == 0),  df_shot)
+
         time_shot = sort(df_shot[!,"time_shot"])
         push!(time_shot, 1.1 * time_limit)
         ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)

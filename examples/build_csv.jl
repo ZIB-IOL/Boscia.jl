@@ -172,31 +172,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -239,88 +328,7 @@ function build_non_grouped_csv(mode)
         file_name = joinpath(@__DIR__, "csv/portfolio_integer_non_grouped.csv")
         CSV.write(file_name, df, append=false)
     
-    # elseif mode == "mixed_obsolete"
-        #     # load boscia and scip oa
-        #     df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_vs_scip_mixed_50.csv")))
-        #     # indices = [index for index in 1:nrow(df_bs) if isodd(index)]
-        #     # delete!(df_bs, indices)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_bs)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_bs)
-        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_bs)
-        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_bs)
-        #     filter!(row -> !(row.dimension > 100),  df_bs)
-
-        #     time_scip = [row == -Inf ? 1800.0 : row for row in df_bs[!,:time_scip]]
-        #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Optimal (tree empty)" => "OPTIMAL")
-        #     df_bs.termination_boscia .= replace.(df_bs.termination_boscia, "Time limit reached" => "TIME_LIMIT")
-        #     termination_boscia = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_boscia]]
-        #     termination_scip = [row == "OPTIMAL" ? 1 : 0 for row in df_bs[!,:termination_scip]]
-
-        #     df[!,:dimension] = df_bs[!,:dimension]
-        #     df[!,:time_boscia] = df_bs[!,:time_boscia]
-        #     df[!,:termination_boscia] = termination_boscia
-        #     df[!,:time_scip] = time_scip #df_bs[!,:time_scip]
-        #     df[!,:termination_scip] = termination_scip
-
-        #     # load afw
-        #     df_afw = DataFrame(CSV.File(joinpath(@__DIR__, "csv/afw_mixed_50.csv")))
-        #     #delete!(df_afw, indices)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_afw)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_afw)
-        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_afw)
-
-        #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        #     df_afw.termination_afw .= replace.(df_afw.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        #     termination_afw = [row == "OPTIMAL" ? 1 : 0 for row in df_afw[!,:termination_afw]]
-
-        #     df[!,:time_afw] = df_afw[!,:time_afw]
-        #     df[!,:termination_afw] = termination_afw
-
-        #     # load without as, without ss
-        #     df_no_ws = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mixed_50.csv")))
-            
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ws)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ws)
-        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ws)
-        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ws)
-            
-        #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        #     df_no_ws.termination_afw .= replace.(df_no_ws.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        #     termination_no_ws = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ws[!,:termination_afw]]
-
-        #     df[!,:time_no_ws] = df_no_ws[!,:time_afw]
-        #     df[!,:termination_no_ws] = termination_no_ws
-
-        #     # load without ss
-        #     df_no_ss = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_ss_mixed_50.csv")))
-            
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_ss)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_ss)
-        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_ss)
-        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_ss)
-
-        #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        #     df_no_ss.termination_afw .= replace.(df_no_ss.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        #     termination_no_ss = [row == "OPTIMAL" ? 1 : 0 for row in df_no_ss[!,:termination_afw]]
-
-        #     df[!,:time_no_ss] = df_no_ss[!,:time_afw]
-        #     df[!,:termination_no_ss] = termination_no_ss
-
-        #     # load without as
-        #     df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_mixed_50.csv")))
-            
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 70),  df_no_as)
-        #     filter!(row -> !(row.seed == 6 && row.dimension == 80),  df_no_as)
-        #     filter!(row -> !(row.seed == 4 && row.dimension == 100),  df_no_as)
-        #     filter!(row -> !(row.seed == 9 && row.dimension == 100),  df_no_as)f(x_t)^T(a_t - v_t) 
-
-        #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Optimal (tree empty)" => "OPTIMAL")
-        #     df_no_as.termination_afw .= replace.(df_no_as.termination_afw, "Time limit reached" => "TIME_LIMIT")
-        #     termination_no_as = [row == "OPTIMAL" ? 1 : 0 for row in df_no_as[!,:termination_afw]]
-
-        #     df[!,:time_no_as] = df_no_as[!,:time_afw]
-        #     df[!,:termination_no_as] = termination_no_as
-        
+   
     elseif mode == "mixed_portfolio"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_mixed_portfolio.csv")))
@@ -341,7 +349,6 @@ function build_non_grouped_csv(mode)
         lowerBounds = df_bs[!, :solution] - df_bs[!, :dual_gap]
         df[!,:dual_gap] = df_bs[!,:dual_gap]
         df[!,:lb_boscia] = lowerBounds
-        @show df[df.dimension .== 75, :]
         df[!,:rel_gap_boscia] = df_bs[!, :dual_gap] ./ min.(abs.(lowerBounds), abs.(df_bs[!, :solution]))
         df[!,:termination_boscia] = termination_boscia
 
@@ -487,31 +494,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -557,7 +653,6 @@ function build_non_grouped_csv(mode)
     elseif mode == "poisson"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_poisson.csv")))
-        # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
@@ -599,7 +694,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :Ns, :p])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :Ns, :p])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_poisson.csv")))
@@ -646,9 +740,9 @@ function build_non_grouped_csv(mode)
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
         df_pavito[!,:solution_pavito] = df_pavito[!,:solution]
-        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension])
+        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension, :k, :Ns, :p])
 
-        df = innerjoin(df, df_pavito, on = [:seed, :dimension])
+        df = innerjoin(df, df_pavito, on = [:seed, :dimension, :k, :Ns, :p])
 
         # load shot
         df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_poisson_reg.csv"))) 
@@ -662,9 +756,9 @@ function build_non_grouped_csv(mode)
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
         df_shot[!,:solution_shot] = df_shot[!,:solution]
-        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension, :k, :Ns, :p])
 
-        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+        df = innerjoin(df, df_shot, on = [:seed, :dimension, :k, :Ns, :p])
 
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_poisson.csv")))
@@ -699,31 +793,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -761,8 +944,6 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
         df[!, :rel_gap_pavito] = round.(rel_gap_pavito,digits=3)
-
-        filter!(row -> (isapprox(row.solution_ipopt,row.solution_boscia,atol=1.0)) || row.solution_ipopt==Inf, df)
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/poisson_non_grouped.csv")
@@ -814,7 +995,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :k, :p])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :k, :p])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_sparse_reg.csv")))
@@ -999,31 +1179,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -1114,7 +1383,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :dimension, :k, :p, :seed, :M, :var_A])
 
         df = innerjoin(df, df_no_ws, on = [:dimension, :k, :p, :seed, :M, :var_A])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_sparse_log_regression.csv")))
@@ -1261,38 +1529,127 @@ function build_non_grouped_csv(mode)
 
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :k, :p, :M, :var_A])
 
-         # check if solution optimal
+        # check if solution optimal
         optimal_scip = []
         optimal_ipopt = []
         optimal_boscia = []
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -1338,7 +1695,6 @@ function build_non_grouped_csv(mode)
     elseif mode == "tailed_cardinality"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_tailed_cardinality.csv")))
-        # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
@@ -1380,7 +1736,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :n0, :m0, :M])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :n0, :m0, :M])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_tailed_cardinality.csv")))
@@ -1496,10 +1851,6 @@ function build_non_grouped_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :n0, :m0, :M])
 
-        # sort!(df, [:dimension, :k, :Ns, :p])
-        # print(first(df,20))
-        # sort!(df_scip, [:dimension, :k, :Ns, :p])
-        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :n0, :m0, :M])
 
         # check if solution optimal
@@ -1540,7 +1891,6 @@ function build_non_grouped_csv(mode)
     elseif mode == "tailed_cardinality_sparse_log_reg"
         # load boscia 
         df_bs = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_tailed_cardinality_sparse_log_reg.csv")))
-        # filter!(row -> !(row.seed == 7 && row.Ns == 10.0 && row.dimension == 70),  df_bs)
 
         df_bs.termination .= replace.(df_bs.termination, "Time limit reached" => "TIME_LIMIT")
         termination_boscia = [row == "TIME_LIMIT" ? 0 : 1 for row in df_bs[!,:termination]]
@@ -1581,7 +1931,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :rel_gap_no_ws, :seed, :dimension, :M, :var_A])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :dimension, :M, :var_A])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_tailed_cardinality_sparse_log_reg.csv")))
@@ -1628,10 +1977,6 @@ function build_non_grouped_csv(mode)
         df_scip[!,:solution_scip] = df_scip[!,:solution]
         df_scip = select(df_scip, [:termination_scip, :solution_scip, :time_scip, :seed, :dimension, :M, :var_A])
 
-        # sort!(df, [:dimension, :k, :Ns, :p])
-        # print(first(df,20))
-        # sort!(df_scip, [:dimension, :k, :Ns, :p])
-        # print(first(df_scip,20))
         df = innerjoin(df, df_scip, on = [:seed, :dimension, :M, :var_A])
 
         # check if solution optimal
@@ -1747,7 +2092,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :rel_gap_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mip_lib_22433.csv")))
@@ -1881,31 +2225,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -2024,7 +2457,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :rel_gap_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mip_lib_neos5.csv")))
@@ -2176,31 +2608,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -2239,7 +2760,6 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
         df[!, :rel_gap_pavito] = round.(rel_gap_pavito,digits=3)
 
-        print(select(df,[:solution_boscia, :time_boscia, :solution_sc, :time_sc]))
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_neos5_non_grouped.csv")
         CSV.write(file_name, df, append=false)
@@ -2320,7 +2840,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :rel_gap_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mip_lib_pg5_34.csv")))
@@ -2466,31 +2985,120 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
@@ -2578,7 +3186,6 @@ function build_non_grouped_csv(mode)
         df_no_ws = select(df_no_ws, [:termination_no_ws, :time_no_ws, :solution_no_ws, :rel_gap_no_ws, :seed, :num_v])
 
         df = innerjoin(df, df_no_ws, on = [:seed, :num_v])
-        # print(first(df,5))
 
         # load without as
         df_no_as = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_warm_start_as_ss_mip_lib_ran14x18-disj-8.csv")))
@@ -2732,36 +3339,125 @@ function build_non_grouped_csv(mode)
         optimal_pavito = []
         optimal_shot = []
         for row in eachrow(df)
-            if isapprox(row.lb_boscia, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
+            if row.termination_boscia == 1
                 append!(optimal_boscia, 1)
-            else 
+                # optimally solved ipopt instances
+                if row.termination_ipopt == 1
+                    if row.solution_ipopt <= row.solution_boscia + 1e-3
+                        append!(optimal_ipopt, 1)
+                    else
+                        @show row.solution_boscia, row.solution_ipopt
+                        append!(optimal_ipopt, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                end
+                # optimally solved scip oa instances
+                if row.termination_scip == 1
+                    if row.solution_scip <= row.solution_boscia + 1e-3
+                        append!(optimal_scip, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_scip
+                        append!(optimal_scip, 0)
+                    end
+                else
+                    append!(optimal_scip, 0)
+                end
+                # optimally solved shot instances
+                if row.termination_shot == 1
+                    if row.solution_shot <= row.solution_boscia + 1e-3
+                        append!(optimal_shot, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_shot
+                        append!(optimal_shot, 0)
+                    end
+                else 
+                    append!(optimal_shot, 0)
+                end
+                # optimally solved pavito instances
+                if row.termination_pavito == 1
+                    if row.solution_pavito <= row.solution_boscia + 1e-3
+                        append!(optimal_pavito, 1)
+                    else 
+                        @show row.solution_boscia, row.solution_pavito
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_pavito, 0)
+                end
+            elseif row.termination_boscia == 0
+                # get smallest objective value found
                 append!(optimal_boscia, 0)
+                obj_vals = []
+                if row.termination_ipopt == 1
+                    push!(obj_vals, row.solution_ipopt)
+                end 
+                if row.termination_scip == 1
+                    push!(obj_vals, row.solution_scip)
+                end 
+                if row.termination_shot == 1
+                    push!(obj_vals, row.solution_shot)
+                end 
+                if row.termination_pavito == 1
+                    push!(obj_vals, row.solution_pavito)
+                end  
+                
+                if !isempty(obj_vals)
+                    optimal_obj_val = minimum(obj_vals)
+
+                    # optimally solved ipopt instances
+                    if row.termination_ipopt == 1
+                        if isapprox(optimal_obj_val, row.solution_ipopt, atol=1e-4, rtol=1e-4)
+                            append!(optimal_ipopt, 1)
+                        else 
+                            append!(optimal_ipopt, 0)
+                        end
+                    else 
+                        append!(optimal_ipopt, 0)
+                    end
+                    # optimally solved scip oa instances
+                    if row.termination_scip == 1
+                        if isapprox(optimal_obj_val, row.solution_scip, atol=1e-4, rtol=1e-4)
+                            append!(optimal_scip, 1)
+                        else 
+                            append!(optimal_scip, 0)
+                        end
+                    else 
+                        append!(optimal_scip, 0)
+                    end
+                    # optimally solved shot instances
+                    if row.termination_shot == 1
+                        if isapprox(optimal_obj_val, row.solution_shot, atol=1e-4, rtol=1e-4)
+                            append!(optimal_shot, 1)
+                        else 
+                            append!(optimal_shot, 0)
+                        end
+                    else 
+                        append!(optimal_shot, 0)
+                    end
+                    # optimally solved pavito instances
+                    if row.termination_pavito == 1
+                        if isapprox(optimal_obj_val, row.solution_pavito, atol=1e-4, rtol=1e-4)
+                            append!(optimal_pavito, 1)
+                        else 
+                            append!(optimal_pavito, 0)
+                        end
+                    else                             
+                        append!(optimal_pavito, 0)
+                    end
+                else 
+                    append!(optimal_ipopt, 0)
+                    append!(optimal_scip, 0)
+                    append!(optimal_pavito, 0)
+                    append!(optimal_shot, 0)
+                end
             end
-            if isapprox(row.solution_ipopt, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_ipopt, 1)
-            else 
-                append!(optimal_ipopt, 0)
-            end
-            if isapprox(row.solution_scip, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_scip, 1)
-            else 
-                append!(optimal_scip, 0)
-            end
-            if isapprox(row.solution_pavito, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_pavito, 1)
-            else 
-                append!(optimal_pavito, 0)
-            end
-            if isapprox(row.solution_shot, min(row.lb_boscia, row.solution_ipopt, row.solution_scip), atol=1e-4, rtol=1e-2) 
-                append!(optimal_shot, 1)
-            else 
-                append!(optimal_shot, 0)
-            end
+            
         end
         df[!,:optimal_scip] = optimal_scip
         df[!,:optimal_ipopt] = optimal_ipopt
         df[!,:optimal_boscia] = optimal_boscia
-        df[!,:optimal_pavito] = optimal_pavito        
+        df[!,:optimal_pavito] = optimal_pavito
         df[!,:optimal_shot] = optimal_shot
 
         # compute relative gap
@@ -2794,8 +3490,6 @@ function build_non_grouped_csv(mode)
         df[!, :rel_gap_scip] = round.(rel_gap_scip,digits=3)
         df[!, :rel_gap_ipopt] = round.(rel_gap_ipopt,digits=3)
         df[!, :rel_gap_pavito] = round.(rel_gap_pavito,digits=3)
-
-        print(select(df,[:solution_boscia, :time_boscia, :rel_gap_boscia, :lb_boscia, :rel_gap_boscia_sc, :solution_sc, :time_sc, :rel_gap_sc, :lb_sc]))
 
         # save csv 
         file_name = joinpath(@__DIR__, "csv/mip_lib_ran14x18-disj-8_non_grouped.csv")
@@ -3180,8 +3874,6 @@ function build_grouped_csv(file_name, mode)
 
     size_df = (size(gdf))
 
-    # print(first, gdf,5)
-
     # deletes entire row if scip solves solution but boscia does not
     df_intersection = filter(row -> !(row.termination_boscia == 0 || row.termination_afw == 0 || row.termination_no_ws == 0 || row.termination_no_ss == 0 || row.termination_no_as == 0),  df_intersection)
 
@@ -3246,7 +3938,6 @@ function build_grouped_csv(file_name, mode)
             renamecols=false
             )
     elseif mode == "22433" || mode == "neos5" || mode == "pg5_34" || mode == "ran14x18"
-        # print(first(df_intersection, 3))
         df_intersection = combine(
             groupby(df_intersection, [:num_v]), 
             :time_boscia => geo_mean => :BosciaGeoMeanIntersection,
@@ -3415,8 +4106,6 @@ function build_grouped_csv(file_name, mode)
     if mode != "tailed_cardinality" && mode != "tailed_cardinality_sparse_log_reg"
         gdf[!,:terminationIpopt] = convert.(Int64,gdf[!,:terminationIpopt])
     end
-
-    # print(select(gdf,[:timeSc,:timeBoscia]))
     
     mapcols!(col -> replace(col, missing => "-"), gdf)
 
@@ -3457,3 +4146,30 @@ function build_grouped_csv(file_name, mode)
     end        
     CSV.write(file_name, gdf, append=false)
 end
+
+println("INTEGER PORTFOLIO")
+build_non_grouped_csv("integer")
+println("")
+println("MIXED PORTFOLIO")
+build_non_grouped_csv("mixed_portfolio")
+println("")
+println("POISSON")
+build_non_grouped_csv("poisson")
+println("")
+println("SPARSE REGRESSION")
+build_non_grouped_csv("sparse_reg")
+println("")
+println("SPARSE LOG REGRESSION")
+build_non_grouped_csv("sparse_log_reg")
+println("")
+println("MIPLIB 22433")
+build_non_grouped_csv("22433")
+println("")
+println("MIPLIB neos5")
+build_non_grouped_csv("neos5")
+println("")
+println("MIPLIB pg5 34")
+build_non_grouped_csv("pg5_34")
+println("")
+println("MIPLIB ran14x18")
+build_non_grouped_csv("ran14x18")
