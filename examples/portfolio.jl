@@ -105,12 +105,16 @@ function portfolio_scip(seed=1, dimension=5; mode)
     end
 end
 
-function build_optimizer(o, mode, n)
+function build_optimizer(o, mode, n, seed, ai, bi)
+    @show seed
+    Random.seed!(seed)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
 
-    ai = rand(n)
-    bi = sum(ai)
+    # ai = rand(n)
+    # bi = sum(ai)
+    println("build optimizer")
+    @show ai, bi
 
     # MOI.set(o, MOI.TimeLimitSec(), limit)
     x = MOI.add_variables(o, n)
@@ -162,6 +166,7 @@ function build_scip_optimizer(mode, limit, n, f, grad!)
 end
 
 function build_function(seed, dimension)
+    @show seed
     Random.seed!(seed)
     n = dimension
     ri = rand(n)
@@ -171,6 +176,9 @@ function build_function(seed, dimension)
     Mi = (Ai + Ai') / 2
     @assert isposdef(Mi)
 
+    ai = rand(dimension)
+    bi = sum(ai)
+
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
     end
@@ -179,7 +187,7 @@ function build_function(seed, dimension)
         storage .-= ri
         return storage
     end
-    return f, grad!, n
+    return f, grad!, n, ri, Ωi, Ai, Mi, ai, bi
 end
 
 # BnB tree with Ipopt
@@ -274,15 +282,21 @@ function build_bnb_ipopt_model(seed, n; mode="mixed")
 
 end
 
-function build_pavito_model(seed, n; mode="mixed", time_limit=1800)
+function build_pavito_model(seed, n, ri, Ωi, Ai, Mi, ai, bi; mode="mixed", time_limit=1800)
+    @show seed
     Random.seed!(seed)
-    
-    ri = rand(n)
-    Ωi = rand()
-    Ai = randn(n, n)
-    Ai = Ai' * Ai
-    Mi = (Ai + Ai') / 2
-    @assert isposdef(Mi)
+
+    # ri = rand(n)
+    # Ωi = rand()
+    # Ai = randn(n, n)
+    # Ai = Ai' * Ai
+    # Mi = (Ai + Ai') / 2
+    # @assert isposdef(Mi)
+
+    # ai = rand(n)
+    # bi = sum(ai)
+    println("build pavito model")
+    @show ai, bi 
 
     m = Model(
         optimizer_with_attributes(
@@ -303,8 +317,6 @@ function build_pavito_model(seed, n; mode="mixed", time_limit=1800)
     set_silent(m)
     MOI.set(m, MOI.TimeLimitSec(), time_limit)
 
-    ai = rand(n)
-    bi = sum(ai)
     # integer set
     if mode == "integer"
         I = collect(1:n)
@@ -332,9 +344,9 @@ end
 
 function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
     @show seed, dimension, mode
-    f, grad!, n = build_function(seed, dimension)
+    f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
-    m, x = build_pavito_model(seed, dimension; mode=mode, time_limit=time_limit)
+    m, x = build_pavito_model(seed, dimension, ri, Ωi, Ai, Mi, ai, bi; mode=mode, time_limit=time_limit)
     # println(m)
 
     # dest = MOI.FileFormats.Model(format = MOI.FileFormats.FORMAT_NL)
@@ -364,31 +376,32 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
         point = Dict(key_vector .=> vars_pavito)
         report = primal_feasibility_report(m, point, atol=1e-6)
         @assert isempty(report)
-        # o = SCIP.Optimizer()
-        # lmo, _ = build_optimizer(o, mode, n)
+
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, mode, n, seed, ai, bi)
         # @assert Boscia.is_linear_feasible(lmo, vars_pavito)
-        # check integer feasibility
+        # # check integer feasibility
         # integer_variables = Vector{Int}()
         # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
         #    push!(integer_variables, cidx.value)
-        #end
-        #for idx in integer_variables
+        # end
+        # for idx in integer_variables
         #    @assert isapprox(vars_pavito[idx], round(vars_pavito[idx]); atol=1e-6, rtol=1e-6)
-        #end
-        # check feasibility of rounded solution
-        #vars_pavito_polished = vars_pavito
-        #for i in integer_variables
+        # end
+        # # check feasibility of rounded solution
+        # vars_pavito_polished = vars_pavito
+        # for i in integer_variables
         #    vars_pavito_polished[i] = round(vars_pavito_polished[i])
-        #end
-        #@assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
-        # solve Boscia
-        #x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        #@show result[:dual_bound]
-        #solution_boscia = result[:raw_solution]
-        # @show f(vars_pavito), f(solution_boscia)
-        #if occursin("Optimal", result[:status])
-        #    @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
-        #end
+        # end
+        # @assert Boscia.is_linear_feasible(lmo, vars_pavito_polished)
+        # # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+        solution_boscia = result[:raw_solution]
+        @show f(vars_pavito), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+           @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
+        end
 
         #termination_pavito = String(string(termination_pavito))
         @show solution_pavito, termination_pavito
@@ -405,15 +418,15 @@ function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
 
 end
 
-function build_shot_model(seed, n; mode="mixed", time_limit=1800)
+function build_shot_model(seed, n, ri, Ωi, Ai, Mi, ai, bi; mode="mixed", time_limit=1800)
     Random.seed!(seed)
     
-    ri = rand(n)
-    Ωi = rand()
-    Ai = randn(n, n)
-    Ai = Ai' * Ai
-    Mi = (Ai + Ai') / 2
-    @assert isposdef(Mi)
+    # ri = rand(n)
+    # Ωi = rand()
+    # Ai = randn(n, n)
+    # Ai = Ai' * Ai
+    # Mi = (Ai + Ai') / 2
+    # @assert isposdef(Mi)
 
     m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)
@@ -423,8 +436,8 @@ function build_shot_model(seed, n; mode="mixed", time_limit=1800)
     set_optimizer_attribute(m, "Termination.ObjectiveGap.Absolute", 1e-6)
     set_optimizer_attribute(m, "Termination.ObjectiveGap.Relative", 1e-6)
 
-    ai = rand(n)
-    bi = sum(ai)
+    # ai = rand(n)
+    # bi = sum(ai)
     # integer set
     if mode == "integer"
         I = collect(1:n)
@@ -452,9 +465,9 @@ end
 
 function portfolio_shot(seed=1, dimension=5; mode, time_limit=1800)
     @show seed, dimension, mode
-    f, grad!, n = build_function(seed, dimension)
+    f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
-    m, x = build_shot_model(seed, dimension; mode=mode, time_limit=time_limit)
+    m, x = build_shot_model(seed, dimension, ri, Ωi, Ai, Mi, ai, bi; mode=mode, time_limit=time_limit)
     # write model to .nl file
     # println(m)
     # dest = MOI.FileFormats.Model(format = MOI.FileFormats.FORMAT_NL)
@@ -485,31 +498,31 @@ function portfolio_shot(seed=1, dimension=5; mode, time_limit=1800)
         point = Dict(key_vector .=> vars_shot)
         report = primal_feasibility_report(m, point, atol=1e-6)
         @assert isempty(report)
-        # o = SCIP.Optimizer()
-        # lmo, _ = build_optimizer(o, mode, n)
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot)
-        # # check integer feasibility
-        # integer_variables = Vector{Int}()
-        # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        #     push!(integer_variables, cidx.value)
-        # end
-        # for idx in integer_variables
-        #     @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
-        # end
-        # # check feasibility of rounded solution
-        # vars_shot_polished = vars_shot
-        # for i in integer_variables
-        #     vars_shot_polished[i] = round(vars_shot_polished[i])
-        # end
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
-        # # solve Boscia
-        # x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        # @show result[:dual_bound]
-        # solution_boscia = result[:raw_solution]
-        # # @show f(vars_shot), f(solution_boscia)
-        # if occursin("Optimal", result[:status])
-        #     @assert result[:dual_bound] <= f(vars_shot) + 1e-4
-        # end
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, mode, n, seed, ai, bi)
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
 
         # termination_shot = String(string(termination_shot))
     end

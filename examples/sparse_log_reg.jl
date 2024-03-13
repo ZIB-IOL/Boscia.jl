@@ -237,6 +237,7 @@ function build_function(seed, dimension, var_A)
     end
 
     f, grad! = build_objective_gradient(A, y, mu)
+    @show A, y, mu
 
     return f, grad!, p
 end
@@ -517,37 +518,38 @@ function sparse_log_reg_shot(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; print_
         point = Dict(key_vector .=> vars_shot)
         report = primal_feasibility_report(m, point, atol=1e-6)
         @assert isempty(report)
-        # o = SCIP.Optimizer()
-        # lmo, _ = build_optimizer(o, p, k, M)
-        # if print_models
-        #     println("BOSCIA")
-        #     print(o)
-        # end
-        # # check linear feasiblity
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot)
-        # # check integer feasibility
-        # integer_variables = Vector{Int}()
-        # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        #     push!(integer_variables, cidx.value)
-        # end
-        # for idx in integer_variables
-        #     @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
-        # end
-        # # check feasibility of rounded solution
-        # vars_shot_polished = vars_shot
-        # for i in integer_variables
-        #     vars_shot_polished[i] = round(vars_shot_polished[i])
-        # end
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
-        # # solve Boscia
-        # x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        # @show result[:dual_bound]
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, p, k, M)
+        if print_models
+            println("BOSCIA")
+            print(o)
+        end
+        # check linear feasiblity
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
 
-        # solution_boscia = result[:raw_solution]
-        # # @show f(vars_shot), f(solution_boscia)
-        # if occursin("Optimal", result[:status])
-        #     @assert result[:dual_bound] <= f(vars_shot) + 1e-4
-        # end
+        solution_boscia = result[:raw_solution]
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+        @infiltrate
     end
 
     df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, p=p, k=k, M=M, time=time_shot, solution=solution_shot, termination=termination_shot)
@@ -571,6 +573,7 @@ function build_shot_model(seed, n, k, var_A, M; time_limit=1800)
         A[i,:] = var_A * A[i,:] * y[i]
     end
     mu = 10.0 * rand(Float64);
+    @show A, y, mu
 
     m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)

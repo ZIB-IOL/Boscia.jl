@@ -173,6 +173,7 @@ function build_function(seed, n)
     A = rand(Float64, n, p)
     y = rand(Float64, n)
     M = 2 * var(A)
+    @show A, y, M, lambda_0, lambda_2
 
     function f(x)
         xv = @view(x[1:p])
@@ -676,6 +677,7 @@ function sparse_reg_pavito(seed=1, n=20; print_models=false, time_limit=1800)
         if occursin("Optimal", result[:status])
             @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
         end
+        @infiltrate
     end
 
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
@@ -697,6 +699,7 @@ function build_pavito_model(n, p, k, seed; time_limit = 1800
     A = rand(Float64, n, p)
     y = rand(Float64, n)
     M = 2 * var(A)
+    @show A, y, M, lambda_0, lambda_2
 
     m = Model(
         optimizer_with_attributes(
@@ -823,6 +826,7 @@ function build_shot_model(n, p, k, seed; time_limit = 1800
     A = rand(Float64, n, p)
     y = rand(Float64, n)
     M = 2 * var(A)
+    @show A, y, M, lambda_0, lambda_2
 
     m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)

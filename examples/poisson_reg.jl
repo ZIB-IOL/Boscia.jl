@@ -234,6 +234,7 @@ function build_function(seed, n)
         storage ./= norm(storage)
         return storage
     end
+    @show bs, Xs, ys, ws
 
     return f, grad!, p
 end
@@ -779,43 +780,44 @@ function poisson_reg_shot(seed=1, n=20, Ns=0.1; print_models=false, time_limit=1
         point = Dict(key_vector .=> vars_shot)
         report = primal_feasibility_report(m, point, atol=1e-6)
         @assert isempty(report)
-        # o = SCIP.Optimizer()
-        # lmo, _ = build_optimizer(o, p, k, Ns)
-        # if print_models
-        #     println("BOSCIA")
-        #     print(o)
-        # end
-        # # check linear feasiblity
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot)
-        # # check integer feasibility
-        # integer_variables = Vector{Int}()
-        # for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
-        #     push!(integer_variables, cidx.value)
-        # end
-        # for idx in integer_variables
-        #     @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
-        # end
-        # # check feasibility of rounded solution
-        # vars_shot_polished = vars_shot
-        # for i in integer_variables
-        #     vars_shot_polished[i] = round(vars_shot_polished[i])
-        # end
-        # @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
-        # @show f(vars_shot_polished)
-        # # solve Boscia
-        # x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        # @show result[:dual_bound]
+        o = SCIP.Optimizer()
+        lmo, _ = build_optimizer(o, p, k, Ns)
+        if print_models
+            println("BOSCIA")
+            print(o)
+        end
+        # check linear feasiblity
+        @assert Boscia.is_linear_feasible(lmo, vars_shot)
+        # check integer feasibility
+        integer_variables = Vector{Int}()
+        for cidx in MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+            push!(integer_variables, cidx.value)
+        end
+        for idx in integer_variables
+            @assert isapprox(vars_shot[idx], round(vars_shot[idx]); atol=1e-6, rtol=1e-6)
+        end
+        # check feasibility of rounded solution
+        vars_shot_polished = vars_shot
+        for i in integer_variables
+            vars_shot_polished[i] = round(vars_shot_polished[i])
+        end
+        @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
+        @show f(vars_shot_polished)
+        # solve Boscia
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
+        @show result[:dual_bound]
 
-        # # evaluate soluton of each solver
-        # # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
-        # # vars = VariableRef.(ipopt_model.root.m, vids)
-        # # solution_ipopt = value.(vars)
-        # solution_boscia = result[:raw_solution]
-        # #@show f(vars_shot), f(solution_ipopt), f(solution_boscia)
-        # # @show f(vars_shot), f(solution_boscia)
-        # if occursin("Optimal", result[:status])
-        #     #@assert result[:dual_bound] <= f(vars_shot) + 1e-4
-        # end
+        # evaluate soluton of each solver
+        # vids = MOI.get(ipopt_model.root.m, MOI.ListOfVariableIndices())
+        # vars = VariableRef.(ipopt_model.root.m, vids)
+        # solution_ipopt = value.(vars)
+        solution_boscia = result[:raw_solution]
+        #@show f(vars_shot), f(solution_ipopt), f(solution_boscia)
+        # @show f(vars_shot), f(solution_boscia)
+        if occursin("Optimal", result[:status])
+            @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+        end
+        @infiltrate
     end
 
     @show termination_shot, solution_shot
@@ -848,6 +850,7 @@ function build_shot_model(n, seed, Ns; time_limit=1800)
         return rand(Distributions.Poisson(exp(a)))
     end
 
+    @show bs, Xs, ys, Ns, ws
     α = 1.3
 
     m = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))

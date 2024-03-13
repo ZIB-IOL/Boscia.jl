@@ -147,7 +147,8 @@ function build_example(o, example, num_v, seed)
     lmo = FrankWolfe.MathOptLMO(o)
 
     #trick to push the optimum towards the interior
-    vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]   
+    vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:num_v]
+    @show vs
     # done to avoid one vertex being systematically selected
     unique!(vs)
 
@@ -155,6 +156,7 @@ function build_example(o, example, num_v, seed)
     # for 22433 and neos5
     # b_mps = randn(n) and max_norm = maximum(norm.(vs)) -> scip will be better than us in some cases but still within tolerance
     b_mps = randn(n)
+    @show b_mps
     max_norm = maximum(norm.(vs))
     #max_norm = norm(b_mps) * 2
 
@@ -174,7 +176,7 @@ function build_example(o, example, num_v, seed)
         end
     end
 
-    return lmo, f, grad!, max_norm, vs
+    return lmo, f, grad!, max_norm, vs, b_mps
 end
 
 function build_example_scip(example, num_v, seed, limit)
@@ -324,7 +326,7 @@ function build_bnb_ipopt_model(seed, num_v, example)
 
 end
 
-function build_pavito_model(example, seed, max_norm, vs; time_limit=1800)
+function build_pavito_model(example, seed, max_norm, vs, b_mps; time_limit=1800)
     Random.seed!(seed)
 
     o = Model(
@@ -354,7 +356,8 @@ function build_pavito_model(example, seed, max_norm, vs; time_limit=1800)
     MOI.copy_to(o, src)
     MOI.set(o, MOI.Silent(), true)
     n = MOI.get(o, MOI.NumberOfVariables())
-    b_mps = randn(n)
+    @show b_mps
+    @show vs
 
     x = JuMP.all_variables(o)
     expr1 = @expression(o, dot(b_mps, x))
@@ -369,8 +372,8 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
     @show example, num_v, seed
 
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs = build_example(o, example, num_v, seed)
-    m, x, n = build_pavito_model(example, seed, max_norm, vs; time_limit=time_limit)
+    lmo, f, grad!, max_norm, vs, b_mps = build_example(o, example, num_v, seed)
+    m, x, n = build_pavito_model(example, seed, max_norm, vs, b_mps; time_limit=time_limit)
 
     # println(m)
     optimize!(m)
@@ -412,6 +415,12 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
         @show f(vars_pavito), f(solution_boscia)
         if occursin("Optimal", result[:status])
             @assert result[:dual_bound] <= f(vars_pavito) + 1e-4
+
+            key_vector = all_variables(m)
+            point = Dict(key_vector .=> vars_pavito)
+            report = primal_feasibility_report(m, point, atol=1e-6)
+            @assert isempty(report)
+            @infiltrate
         end
     end
 
@@ -426,8 +435,7 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
 
 end
 
-
-function build_shot_model(example, seed, max_norm, vs; time_limit=1800)
+function build_shot_model(example, seed, max_norm, vs, b_mps; time_limit=1800)
     Random.seed!(seed)
 
     o = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
@@ -446,7 +454,6 @@ function build_shot_model(example, seed, max_norm, vs; time_limit=1800)
     MOI.copy_to(o, src)
     # MOI.set(o, MOI.Silent(), true)
     n = MOI.get(o, MOI.NumberOfVariables())
-    b_mps = randn(n)
 
     x = JuMP.all_variables(o)
     expr1 = @expression(o, dot(b_mps, x))
@@ -461,8 +468,8 @@ function miplib_shot(example, num_v, seed; time_limit=1800)
     @show example, num_v, seed
 
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs = build_example(o, example, num_v, seed)
-    m, x, n = build_shot_model(example, seed, max_norm, vs; time_limit=time_limit)
+    lmo, f, grad!, max_norm, vs, b_mps = build_example(o, example, num_v, seed)
+    m, x, n = build_shot_model(example, seed, max_norm, vs, b_mps; time_limit=time_limit)
 
     # println(m)
     optimize!(m)
@@ -499,11 +506,16 @@ function miplib_shot(example, num_v, seed; time_limit=1800)
         @assert Boscia.is_linear_feasible(lmo, vars_shot_polished)
         # solve Boscia
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=1800, dual_tightening=true, global_dual_tightening=true, rel_dual_gap=1e-6, fw_epsilon=1e-6)
-        @show result[:dual_bound]
+        @show result[:primal_objective], result[:dual_bound]
         solution_boscia = result[:raw_solution]
         # @show f(vars_shot), f(solution_boscia)
         if occursin("Optimal", result[:status])
             @assert result[:dual_bound] <= f(vars_shot) + 1e-4
+
+            key_vector = all_variables(m)
+            point = Dict(key_vector .=> vars_shot)
+            report = primal_feasibility_report(m, point, atol=1e-6)
+            @assert isempty(report)
         end
     end
 

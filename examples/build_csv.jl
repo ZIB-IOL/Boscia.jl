@@ -179,7 +179,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -190,7 +190,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -201,7 +201,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -501,7 +501,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -512,7 +512,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -523,7 +523,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -534,7 +534,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -800,7 +800,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.dimension, row.Ns, row.p, row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -811,7 +811,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.dimension, row.Ns, row.p, row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -822,7 +822,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.dimension, row.Ns, row.p, row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -833,7 +833,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.dimension, row.Ns, row.p, row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -1186,7 +1186,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -1197,7 +1197,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -1208,7 +1208,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -1219,7 +1219,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.dimension ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -1498,9 +1498,9 @@ function build_non_grouped_csv(mode)
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
         df_pavito[!,:solution_pavito] = df_pavito[!,:solution]
-        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension])
+        df_pavito = select(df_pavito, [:termination_pavito, :time_pavito, :seed, :solution_pavito, :dimension, :k, :p, :M, :var_A])
 
-        df = innerjoin(df, df_pavito, on = [:seed, :dimension])
+        df = innerjoin(df, df_pavito, on = [:dimension, :k, :p, :seed, :M, :var_A])
 
         # load shot
         df_shot = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_sparse_log_reg.csv"))) 
@@ -1514,9 +1514,9 @@ function build_non_grouped_csv(mode)
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
         df_shot[!,:solution_shot] = df_shot[!,:solution]
-        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension])
+        df_shot = select(df_shot, [:termination_shot, :time_shot, :seed, :solution_shot, :dimension, :k, :p, :M, :var_A])
 
-        df = innerjoin(df, df_shot, on = [:seed, :dimension])
+        df = innerjoin(df, df_shot, on = [:dimension, :k, :p, :seed, :M, :var_A])
  
         # load scip oa
         df_scip = DataFrame(CSV.File(joinpath(@__DIR__, "csv/scip_oa_sparse_log_regression.csv")))
@@ -1543,7 +1543,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.dimension, row.p, row.M, row.var_A, row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -1554,7 +1554,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.dimension, row.p, row.M, row.var_A, row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -1565,7 +1565,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.dimension, row.p, row.M, row.var_A, row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -1576,7 +1576,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.dimension, row.p, row.M, row.var_A, row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -2232,7 +2232,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -2243,7 +2243,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -2254,7 +2254,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -2265,7 +2265,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -2615,7 +2615,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -2626,7 +2626,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -2637,7 +2637,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -2648,7 +2648,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -2992,7 +2992,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else 
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -3003,7 +3003,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -3014,7 +3014,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -3025,7 +3025,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
@@ -3346,7 +3346,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_ipopt <= row.solution_boscia + 1e-3
                         append!(optimal_ipopt, 1)
                     else
-                        @show row.solution_boscia, row.solution_ipopt
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_ipopt
                         append!(optimal_ipopt, 0)
                     end
                 else 
@@ -3357,7 +3357,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_scip <= row.solution_boscia + 1e-3
                         append!(optimal_scip, 1)
                     else 
-                        @show row.solution_boscia, row.solution_scip
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_scip
                         append!(optimal_scip, 0)
                     end
                 else
@@ -3368,7 +3368,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_shot <= row.solution_boscia + 1e-3
                         append!(optimal_shot, 1)
                     else 
-                        @show row.solution_boscia, row.solution_shot
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_shot
                         append!(optimal_shot, 0)
                     end
                 else 
@@ -3379,7 +3379,7 @@ function build_non_grouped_csv(mode)
                     if row.solution_pavito <= row.solution_boscia + 1e-3
                         append!(optimal_pavito, 1)
                     else 
-                        @show row.solution_boscia, row.solution_pavito
+                        @show row.seed, row.num_v ,row.solution_boscia, row.solution_pavito
                         append!(optimal_pavito, 0)
                     end
                 else 
