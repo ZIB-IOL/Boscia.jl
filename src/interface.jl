@@ -107,7 +107,7 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
-    n, v_indices = get_list_of_variables(blmo)
+    n, _ = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
@@ -134,6 +134,7 @@ function solve(
         direction = collect(1.0:n)
         v = compute_extreme_point(blmo, direction)
         v[integer_variables] = round.(v[integer_variables])
+        @assert isfinite(f(v))
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
     else
@@ -142,12 +143,14 @@ function solve(
             @assert is_linear_feasible(blmo, a)
         end
         v = active_set.atoms[1]
+        x = FrankWolfe.compute_active_set_iterate!(active_set)
+        @assert isfinite(f(x))
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
-        Bonobo.BnBNodeInfo(1, 0.0, 0.0),
+        NodeInfo(1, 0.0 ,0.0),
         active_set,
         vertex_storage,
         IntegerBounds(),
@@ -441,7 +444,7 @@ function build_bnb_callback(
             if !isempty(tree.node_queue)
                 p_lb = tree.lb
                 tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
-                @assert p_lb <= tree.lb + tree.root.options[:dual_gap]
+                @assert p_lb <= tree.lb + tree.root.options[:dual_gap] "p_lb <= tree.lb + tree.root.options[:dual_gap] $(p_lb) <= $(tree.lb + tree.root.options[:dual_gap])"
             end
             # correct lower bound if necessary
             tree.lb = tree_lb(tree)

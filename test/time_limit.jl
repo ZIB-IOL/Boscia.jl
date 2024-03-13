@@ -15,6 +15,7 @@ const MOIU = MOI.Utilities
 import MathOptSetDistances
 const MOD = MathOptSetDistances
 
+
 n = 15
 const ri = rand(n)
 const ai = rand(n)
@@ -31,7 +32,7 @@ time_limit = 30.0
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    I = collect(1:n)
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I
@@ -43,18 +44,14 @@ time_limit = 30.0
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ai, x), 0.0),
         MOI.LessThan(bi),
     )
-    MOI.add_constraint(
-        o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
-        MOI.GreaterThan(1.0),
-    )
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return Ωi * (x' * Mi * x) - ri' * x
+        return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
     end
     function grad!(storage, x)
-        storage .= 2 * Mi * x - ri
+        mul!(storage, Mi, x, Ωi, 0)
+        storage .-= ri
         return storage
     end
 
