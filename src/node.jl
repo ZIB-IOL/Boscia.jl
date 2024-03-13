@@ -1,27 +1,23 @@
-mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value} <:
+mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value,T<:Real} <:
                Bonobo.AbstractSolution{Node,Value}
-    objective::Union{Float64,BigFloat}
+    objective::T
     solution::Value
     node::Node
     source::Symbol
 end
 
 """
-    BnBNodeInfo
+    NodeInfo
 
 Holds the necessary information of every node.
-This needs to be added by every `AbstractNode` as `std::BnBNodeInfo`
+This needs to be added by every `AbstractNode` as `std::NodeInfo`
 
-```julia
-id :: Int
-lb :: Float64
-ub :: Float64
-```
+This variant is more flexibel than Bonobo.BnBNodeInfo.
 """
-mutable struct NodeInfo
+mutable struct NodeInfo{T<:Real}
     id :: Int
-    lb :: Union{Float64,BigFloat}
-    ub :: Union{Float64,BigFloat}
+    lb :: T
+    ub :: T
 end
 
 Base.convert(::Type{NodeInfo}, std::Bonobo.BnBNodeInfo) = NodeInfo(std.id, std.lb, std.ub)
