@@ -14,13 +14,15 @@ This needs to be added by every `AbstractNode` as `std::NodeInfo`
 
 This variant is more flexibel than Bonobo.BnBNodeInfo.
 """
-mutable struct NodeInfo{T<:Real}
+mutable struct NodeInfo{T<:Real} 
     id :: Int
     lb :: T
-    ub :: T
+    ub :: T 
 end
 
-Base.convert(::Type{NodeInfo}, std::Bonobo.BnBNodeInfo) = NodeInfo(std.id, std.lb, std.ub)
+function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where T<:Real
+    return NodeInfo(std.id, T(std.lb), T(std.ub)) 
+end
 
 """
     AbtractFrankWolfeNode <: Bonobo.AbstractNode 
@@ -43,8 +45,9 @@ mutable struct FrankWolfeNode{
     AT<:FrankWolfe.ActiveSet,
     DVS<:FrankWolfe.DeletedVertexStorage,
     IB<:IntegerBounds,
+    NI<:NodeInfo,
 } <: AbstractFrankWolfeNode
-    std::NodeInfo
+    std::NI
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
