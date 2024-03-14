@@ -47,7 +47,11 @@ mutable struct FrankWolfeNode{
     IB<:IntegerBounds,
     NI<:NodeInfo,
 } <: AbstractFrankWolfeNode
+<<<<<<< HEAD
     std::NI
+=======
+    std::NodeInfo
+>>>>>>> main
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
