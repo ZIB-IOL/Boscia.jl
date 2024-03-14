@@ -150,7 +150,7 @@ function solve(
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
-        NodeInfo(1, 0.0 ,0.0),
+        NodeInfo(1, f(v), f(v)),
         active_set,
         vertex_storage,
         IntegerBounds(),
