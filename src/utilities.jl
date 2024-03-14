@@ -1,4 +1,18 @@
 # Ultilities function 
+@inline function Base.setproperty!(c::AbstractFrankWolfeNode, s::Symbol, v)
+    if s in (
+        :id,
+        :lb,
+        :ub,
+    )
+        # To be bale to convert, we want the function defined in Base
+        # not in Core like in Bonobo.Ultilities.jl
+        Base.setproperty!(c.std, s, v) 
+    else
+        Core.setproperty!(c, s, v)
+    end
+end
+
 """
 Compute relative gap consistently everywhere
 """
