@@ -419,19 +419,18 @@ function miplib_pavito(example, num_v, seed; time_limit=1800)
             key_vector = all_variables(m)
             point = Dict(key_vector .=> vars_pavito)
             report = primal_feasibility_report(m, point, atol=1e-6)
-            @assert isempty(report)
-            @infiltrate
+            @assert isempty(report)        
         end
     end
 
     df = DataFrame(seed=seed, num_v=num_v, time=time_pavito, solution=solution_pavito, termination=termination_pavito)
     file_name = joinpath(@__DIR__,"csv/pavito_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
 
-    if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
-    else 
-        CSV.write(file_name, df, append=true)
-    end
+    #if !isfile(file_name)
+    CSV.write(file_name, df, append=false, writeheader=true)
+    #else 
+    #    CSV.write(file_name, df, append=true)
+    #end
 
 end
 
@@ -522,11 +521,11 @@ function miplib_shot(example, num_v, seed; time_limit=1800)
     df = DataFrame(seed=seed, num_v=num_v, time=time_shot, solution=solution_shot, termination=termination_shot)
     file_name = joinpath(@__DIR__,"csv/shot_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
 
-    if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
-    else 
-        CSV.write(file_name, df, append=true)
-    end
+    #if !isfile(file_name)
+    CSV.write(file_name, df, append=false, writeheader=true)
+    #else 
+    #    CSV.write(file_name, df, append=true)
+    #end
 
 end
 
