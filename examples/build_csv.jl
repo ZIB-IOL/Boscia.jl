@@ -117,7 +117,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_portfolio_integer.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -134,7 +134,7 @@ function build_non_grouped_csv(mode)
             end
         end
 
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -440,7 +440,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_portfolio_mixed.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -456,7 +456,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -735,7 +735,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_poisson_reg.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -751,7 +751,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -1105,7 +1105,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_sparse_reg.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -1121,7 +1121,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -1493,7 +1493,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_sparse_log_reg.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -1509,7 +1509,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -2169,7 +2169,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_miplib_22433.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -2185,7 +2185,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -2534,7 +2534,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_miplib_neos5.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -2550,7 +2550,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -2917,7 +2917,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_miplib_pg5_34.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -2933,7 +2933,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
@@ -3263,7 +3263,7 @@ function build_non_grouped_csv(mode)
 
         # load pavito
         df_pavito = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_miplib_ran14x18-disj-8.csv"))) 
-        termination_pavito = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_pavito[!,:termination]]
+        termination_pavito = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_pavito[!,:termination]]
 
         df_pavito[!,:time_pavito] = df_pavito[!,:time]
         df_pavito[!,:termination_pavito] = termination_pavito
@@ -3279,7 +3279,7 @@ function build_non_grouped_csv(mode)
                 row.termination = "TIME_LIMIT" 
             end
         end
-        termination_shot = [row == "LOCALLY_SOLVED" ? 1 : 0 for row in df_shot[!,:termination]]
+        termination_shot = [occursin("LOCALLY_SOLVED", row) ? 1 : 0 for row in df_shot[!,:termination]]
 
         df_shot[!,:time_shot] = df_shot[!,:time]
         df_shot[!,:termination_shot] = termination_shot
