@@ -142,7 +142,7 @@ merge_csvs(
 merge_csvs(
     example = "sparse_log_reg", 
     dimensions = [5:5:20;], 
-    seeds = 1:10,
+    seeds = 1:3,
     Ns = [0.1,1],
     var_A = [1.0,5.0]
 ) # seed dim Ns/m k var_A
