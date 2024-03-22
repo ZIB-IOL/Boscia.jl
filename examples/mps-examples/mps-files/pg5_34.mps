@@ -1,4 +1,4 @@
-NAME           pg5_34
+NAME           
 ROWS
  N  obj     
  L  c1      

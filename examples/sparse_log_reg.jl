@@ -120,7 +120,6 @@ function sparse_log_reg_boscia(seed=1, dimension=5, M=3, k=5.0, var_A=1.0, full_
     lmo, _ = build_optimizer(o, p, k, M)
     # println("BOSCIA MODEL")
     # print(o)
-
     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
 
     if bo_mode == "afw"
@@ -369,7 +368,7 @@ function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
 
     end
     file_name = joinpath(@__DIR__,"csv/scip_oa_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(p) * "_" * string(M) * ".csv")
-    CSV.write(file_name, df, append=false, writeheader=true, delim=";")
+    CSV.write(file_name, df, append=false, writeheader=true)
     return f(vars_scip), vars_scip
 end
 

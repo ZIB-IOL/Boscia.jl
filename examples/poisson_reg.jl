@@ -117,70 +117,69 @@ function build_optimizer(o, p, k, Ns)
     return lmo, (w,z,b)
 end
 
-function poisson_reg_boscia(seed=1, n=20, Ns=0.1, iter = 1, full_callback=false; bo_mode)
+function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode)
     limit = 1800
 
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
     k = n/2
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, Ns)
+    Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
 
-    for i in 1:iter
-        if bo_mode == "afw"
-            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
-        ### warmstart_active_set no longer defined on master branch
-        # elseif bo_mode == "no_as_no_ss"
-        #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, use_shadow_set=false)
-        # elseif bo_mode == "no_as"
-        #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
-        elseif bo_mode == "no_ss"
-            x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
-        elseif bo_mode == "default"
-            x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
-        elseif bo_mode == "local_tightening"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
-        elseif bo_mode == "global_tightening"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, print_iter=1) 
-        elseif bo_mode == "no_tightening"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, print_iter=1) 
-        elseif bo_mode == "local_tightening_no_ss"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
-        elseif bo_mode == "global_tightening_no_ss"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, use_shadow_set=false,print_iter=1) 
-        elseif bo_mode == "no_tightening_no_ss"
-            x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
-        end     
-                 
-        total_time_in_sec=result[:total_time_in_sec]
-        status = result[:status]
-        if occursin("Optimal", result[:status])
-            status = "OPTIMAL"
-        end
-        if full_callback
-            lb_list = result[:list_lb]
-            ub_list = result[:list_ub]
-            time_list = result[:list_time]
-            list_lmo_calls = result[:list_lmo_calls_acc]
-            list_open_nodes = result[:open_nodes]
-            list_local_tightening = result[:local_tightenings]
-            list_global_tightening = result[:global_tightenings]
-        end
-
-        if full_callback
-            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
-            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson_" * string(n) * "_" * string(Ns) * "-" * string(p) * "_"  * string(k) * "_" * string(seed) * ".csv")
-            CSV.write(file_name, df, append=false)
-        else
-            df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-            if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode=="afw"
-                file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_poisson_reg_"  * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
-            else
-                file_name = joinpath(@__DIR__,"csv/boscia_no_warm_start_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
-            end
-        end
-        println(file_name)
-        CSV.write(file_name, df, append=false, writeheader=true)
+    if bo_mode == "afw"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
+    ### warmstart_active_set no longer defined on master branch
+    # elseif bo_mode == "no_as_no_ss"
+    #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, use_shadow_set=false)
+    # elseif bo_mode == "no_as"
+    #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
+    elseif bo_mode == "no_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
+    elseif bo_mode == "default"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
+    elseif bo_mode == "local_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
+    elseif bo_mode == "global_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, print_iter=1) 
+    elseif bo_mode == "no_tightening"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, print_iter=1) 
+    elseif bo_mode == "local_tightening_no_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
+    elseif bo_mode == "global_tightening_no_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, use_shadow_set=false,print_iter=1) 
+    elseif bo_mode == "no_tightening_no_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
+    end     
+                
+    total_time_in_sec=result[:total_time_in_sec]
+    status = result[:status]
+    if occursin("Optimal", result[:status])
+        status = "OPTIMAL"
     end
+    if full_callback
+        lb_list = result[:list_lb]
+        ub_list = result[:list_ub]
+        time_list = result[:list_time]
+        list_lmo_calls = result[:list_lmo_calls_acc]
+        list_open_nodes = result[:open_nodes]
+        list_local_tightening = result[:local_tightenings]
+        list_global_tightening = result[:global_tightenings]
+    end
+
+    if full_callback
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson_" * string(n) * "_" * string(Ns) * "-" * string(p) * "_"  * string(k) * "_" * string(seed) * ".csv")
+        CSV.write(file_name, df, append=false)
+    else
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode=="afw"
+            file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_poisson_reg_"  * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
+        else
+            file_name = joinpath(@__DIR__,"csv/boscia_no_warm_start_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
+        end
+    end
+    println(file_name)
+    CSV.write(file_name, df, append=false, writeheader=true)
 end
 
 function build_pavito_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=1800)
@@ -329,7 +328,7 @@ function poisson_reg_shot(seed=1, n=20, Ns=0.1; time_limit=1800)
 
     @show termination_shot, solution_shot
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=time_shot, solution=solution_shot, termination=termination_shot)
-    file_name = joinpath(@__DIR__,"csv/shot_poisson_reg_" * string(seed) * "_" * string(n) * "_" * string(p) * "_" * string(Ns) * ".csv")
+    file_name = joinpath(@__DIR__,"csv/shot_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
     CSV.write(file_name, df, append=false, writeheader=true)
 end
 

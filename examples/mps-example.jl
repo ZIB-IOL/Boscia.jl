@@ -80,11 +80,9 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode)
     limit = 600
 
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
+    f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
+    lmo = build_optimizer(o, example)
     Boscia.solve(f, grad!, lmo; verbose=false, time_limit=10, afw=true)
-
-    o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
     
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
@@ -95,7 +93,7 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode)
     #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
     elseif bo_mode == "no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
-    elseif bo_mode == "boscia"
+    elseif bo_mode == "default"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
@@ -133,18 +131,12 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode)
         CSV.write(file_name, df, append=false)
     else
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], number_nodes=number_nodes, termination=status, ncalls=result[:lmo_calls])
-        if bo_mode ==  "afw"
-            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
-        elseif bo_mode == "boscia" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode == "strong_convexity"
-            file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * ".csv")
+        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode == "strong_convexity" || bo_mode == "afw"
+            file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
         else 
-            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * ".csv")
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
         end
-        if !isfile(file_name)
-            CSV.write(file_name, df, append=true, writeheader=true)
-        else 
-            CSV.write(file_name, df, append=true)
-        end
+        CSV.write(file_name, df, append=false, writeheader=true)
     end
 
     return f(x), x
@@ -187,11 +179,11 @@ function build_pavito_model(example, max_norm, vs, b_mps; time_limit=1800)
     return o, x, n
 end
 
-function miplib_pavito(num_v, seed; example, time_limit=1800)
+function miplib_pavito(seed, num_v; example, time_limit=1800)
     @show example, num_v, seed
 
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
+    f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
     m, x, n = build_pavito_model(example, max_norm, vs, b_mps; time_limit=time_limit)
 
     # println(m)
@@ -203,7 +195,8 @@ function miplib_pavito(num_v, seed; example, time_limit=1800)
         vars_pavito = value.(x)
         
         o_check = SCIP.Optimizer()
-        @assert Boscia.is_linear_feasible(lmo, vars_pavito)
+        lmo = build_optimizer(o_check, example)
+        @assert Boscia.is_linear_feasible(lmo.o, vars_pavito)
 
         solution_pavito = f(vars_pavito)
     else 
@@ -217,9 +210,7 @@ function miplib_pavito(num_v, seed; example, time_limit=1800)
     CSV.write(file_name, df, append=false, writeheader=true)
 end
 
-function build_shot_model(example, seed, max_norm, vs, b_mps; time_limit=1800)
-    Random.seed!(seed)
-
+function build_shot_model(example, max_norm, vs, b_mps; time_limit=1800)
     o = Model(() -> AmplNLWriter.Optimizer(SHOT_jll.amplexe))
     # set_silent(m)
     set_optimizer_attribute(o, "Termination.TimeLimit", time_limit)
@@ -245,12 +236,12 @@ function build_shot_model(example, seed, max_norm, vs, b_mps; time_limit=1800)
     return o, x, n
 end
 
-function miplib_shot(num_v, seed; example, time_limit=1800)
+function miplib_shot(seed, num_v; example, time_limit=1800)
     @show example, num_v, seed
 
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
-    m, x, n = build_shot_model(example, seed, max_norm, vs, b_mps; time_limit=time_limit)
+    f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
+    m, x, n = build_shot_model(example, max_norm, vs, b_mps; time_limit=time_limit)
 
     # println(m)
     optimize!(m)
@@ -260,6 +251,9 @@ function miplib_shot(num_v, seed; example, time_limit=1800)
         time_shot = MOI.get(m, MOI.SolveTimeSec())
         vars_shot = value.(x)
         
+        o_check = SCIP.Optimizer()
+        lmo = build_optimizer(o_check, example)
+        # println(lmo.o)
         @assert Boscia.is_linear_feasible(lmo.o, vars_shot)
 
         solution_shot = f(vars_shot)
@@ -276,10 +270,11 @@ function miplib_shot(num_v, seed; example, time_limit=1800)
 end
 
 function build_example_scip(example, num_v, seed; limit)
+    f, grad!, max_norm, vs, b_mps = build_function(SCIP.Optimizer(), example, num_v, seed)
     o = SCIP.Optimizer()
     MOI.set(o, MOI.TimeLimitSec(), limit)
     MOI.set(o, MOI.Silent(), true)
-    lmo, f, grad! = build_function(o, example, num_v, seed)
+    lmo = build_optimizer(o, example)
     x = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     z_i = MOI.add_variable(lmo.o)
     epigraph_ch = GradientCutHandler(lmo.o, f, grad!, zeros(length(x)), z_i, x, 0)
@@ -287,7 +282,7 @@ function build_example_scip(example, num_v, seed; limit)
     MOI.set(lmo.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
     
     o_check = SCIP.Optimizer()
-    lmo_check, _, _ = build_function(o, example, num_v, seed)
+    lmo_check = build_optimizer(o_check, example)
     z_i = MOI.add_variable(lmo_check.o)
     MOI.set(lmo_check.o, MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(), 1.0 * z_i)    
     
@@ -321,12 +316,8 @@ function miplib_scip(seed=1, num_v=5; example, time_limit=1800)
     ncalls_scip = epigraph_ch.ncalls
     
     df = DataFrame(seed=seed, num_v=num_v, time=time_scip, solution=solution_scip, termination=termination_scip, calls=ncalls_scip)
-    file_name = joinpath(@__DIR__,"csv/scip_oa_mip_lib_" * example * ".csv")
-    if !isfile(file_name)
-        CSV.write(file_name, df, append=true, writeheader=true)
-    else 
-        CSV.write(file_name, df, append=true)
-    end
+    file_name = joinpath(@__DIR__,"csv/scip_oa_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
+    CSV.write(file_name, df, append=false, writeheader=true)
 
     return f(vars_scip), vars_scip
 end
@@ -394,7 +385,6 @@ function build_bnb_ipopt_model(example, vs, b_mps, max_norm; time_limit=1800)
     expr = @expression(m, expr1 + 0.5 * 1/max_norm * sum(dot((x - vs[i]), (x - vs[i]) ) for i in 1:length(vs)))
     @objective(m, Min, expr)
 
-
     model = IpoptOptimizationProblem(int_vars, m, Boscia.SOLVING, time_limit, lbs, ubs)
     bnb_model = BB.initialize(;
     traverse_strategy = BB.BestFirstSearch(),
@@ -414,7 +404,7 @@ end
 # BnB tree with Ipopt
 function miplib_ipopt(seed=1, num_v=5, full_callback = false; example, time_limit=1800)
     o = SCIP.Optimizer()
-    lmo, f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
+    f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
 
     # build tree
     bnb_model, expr = build_bnb_ipopt_model(example, vs, b_mps, max_norm, time_limit=time_limit)
@@ -442,12 +432,8 @@ function miplib_ipopt(seed=1, num_v=5, full_callback = false; example, time_limi
         CSV.write(file_name, df, append=false)
     else
         df = DataFrame(seed=seed, num_v=num_v, time=total_time_in_sec, number_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
-        file_name = joinpath(@__DIR__,"csv/ipopt_" * example *  ".csv")
-        if !isfile(file_name)
-            CSV.write(file_name, df, append=true, writeheader=true)
-        else 
-            CSV.write(file_name, df, append=true)
-        end
+        file_name = joinpath(@__DIR__,"csv/ipopt_miplib_" * example * "_" * string(num_v) * "_" * string(seed) * ".csv")
+        CSV.write(file_name, df, append=false, writeheader=true)
     end
 end
 

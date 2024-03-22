@@ -1,4 +1,4 @@
-NAME           ran14x18-disj-8
+NAME           
 ROWS
  N  obj     
  E  A0      

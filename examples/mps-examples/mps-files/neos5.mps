@@ -1,4 +1,4 @@
-NAME          neos5
+NAME          
 ROWS
  N  r_0
  G  R1
