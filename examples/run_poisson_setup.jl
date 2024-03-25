@@ -6,7 +6,7 @@ ns = parse(Float64, ARGS[3])
 @show seed, dimension, ns
 
 try 
-    poisson_boscia(seed, dimension, ns, bo_mode="default")
+    poisson_reg_boscia(seed, dimension, ns, bo_mode="default")
 catch e 
     println(e)
     file = "boscia_poisson_" * str(seed) * "_" * str(dimension)    
