@@ -35,7 +35,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-/scratch/opt/htroppen/julia-1.6.1/bin/julia --project run_miplib_setup.jl $1 $2 $3 &> miplib_$1_$SLURM_JOB_ID.txt
+/scratch/opt/htroppen/julia-1.10.2/bin/julia --project run_miplib_setup.jl $1 $2 $3 &> miplib_$1_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0
