@@ -1,0 +1,26 @@
+WARNING: Dual bound -213592 is larger than the objective of the primal solution -213593. The solution might not be optimal.
+WARNING: Dual bound -1.32874e+06 is larger than the objective of the primal solution -1.32874e+06. The solution might not be optimal.
+WARNING: Dual bound -876859 is larger than the objective of the primal solution -876860. The solution might not be optimal.
+WARNING: Dual bound -827.633 is larger than the objective of the primal solution -827.634. The solution might not be optimal.
+WARNING: Dual bound 59.2473 is larger than the objective of the primal solution 59.2468. The solution might not be optimal.
+WARNING: Dual bound 59.3162 is larger than the objective of the primal solution 59.3162. The solution might not be optimal.
+WARNING: Dual bound -148.36 is larger than the objective of the primal solution -148.36. The solution might not be optimal.
+WARNING: Dual bound 20.1938 is larger than the objective of the primal solution 20.1569. The solution might not be optimal.
+WARNING: Dual bound -11527.3 is larger than the objective of the primal solution -11527.3. The solution might not be optimal.
+WARNING: Dual bound -3866.18 is larger than the objective of the primal solution -3866.18. The solution might not be optimal.
+WARNING: Dual bound -529.108 is larger than the objective of the primal solution -529.11. The solution might not be optimal.
+WARNING: Dual bound -344766 is larger than the objective of the primal solution -344767. The solution might not be optimal.
+WARNING: Dual bound -12488.4 is larger than the objective of the primal solution -12488.5. The solution might not be optimal.
+WARNING: Dual bound -11346.5 is larger than the objective of the primal solution -11346.6. The solution might not be optimal.
+WARNING: Dual bound -152.746 is larger than the objective of the primal solution -152.779. The solution might not be optimal.
+WARNING: Dual bound -366.953 is larger than the objective of the primal solution -366.954. The solution might not be optimal.
+WARNING: Dual bound -88128.6 is larger than the objective of the primal solution -88129.1. The solution might not be optimal.
+WARNING: Dual bound -25762.1 is larger than the objective of the primal solution -25762.2. The solution might not be optimal.
+WARNING: Dual bound -610969 is larger than the objective of the primal solution -610970. The solution might not be optimal.
+WARNING: Dual bound -116119 is larger than the objective of the primal solution -116119. The solution might not be optimal.
+(seed, dimension, mode) = (2, 120, "integer")
+seed = 2
+build optimizer
+
+
+result[:primal_objective] = 20.99819808604681

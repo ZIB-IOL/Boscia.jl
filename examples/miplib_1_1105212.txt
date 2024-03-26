@@ -1,0 +1,7 @@
+[ Info: Polish solution
+(seed, dimension, mode) = (1, 70, "mixed")
+seed = 1
+build optimizer
+
+
+result[:primal_objective] = -27.91418214538017

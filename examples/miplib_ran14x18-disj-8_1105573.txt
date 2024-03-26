@@ -1,0 +1,5 @@
+[ Info: Polish solution
+[ Info: Polish solution
+(example, seed, num_v) = ("ran14x18-disj-8", 3, 8)
+
+

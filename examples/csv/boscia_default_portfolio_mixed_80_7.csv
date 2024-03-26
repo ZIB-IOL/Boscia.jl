@@ -1,0 +1,2 @@
+seed,dimension,time,solution,dual_gap,rel_dual_gap,termination,ncalls
+7,80,8.133,-0.2619344389254019,4.377351814355279e-8,1.6711631476615165e-7,OPTIMAL,2023

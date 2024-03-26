@@ -1,0 +1,8 @@
+WARNING: Dual bound -2421.81 is larger than the objective of the primal solution -2421.82. The solution might not be optimal.
+[ Info: Polish solution
+(seed, dimension, mode) = (8, 105, "mixed")
+seed = 8
+build optimizer
+
+
+result[:primal_objective] = -1.6477766133947311

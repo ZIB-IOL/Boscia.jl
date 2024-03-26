@@ -1,0 +1,6 @@
+(seed, dimension, mode) = (2, 20, "integer")
+seed = 2
+build optimizer
+
+
+result[:primal_objective] = -9.114481093385423

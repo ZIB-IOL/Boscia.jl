@@ -1,0 +1,8 @@
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+[ Info: Polish solution
+[ Info: primal >= tree.incumbent
+[ Info: postsolve did not improve the solution
+(example, seed, num_v) = ("22433", 2, 8)
+
+

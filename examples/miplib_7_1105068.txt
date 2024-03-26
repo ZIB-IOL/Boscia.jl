@@ -1,0 +1,14 @@
+WARNING: Dual bound 3.17064 is larger than the objective of the primal solution 3.1706. The solution might not be optimal.
+WARNING: Dual bound -6.27042 is larger than the objective of the primal solution -6.27044. The solution might not be optimal.
+WARNING: Dual bound -3874.53 is larger than the objective of the primal solution -3874.54. The solution might not be optimal.
+WARNING: Dual bound -18661.2 is larger than the objective of the primal solution -18661.3. The solution might not be optimal.
+WARNING: Dual bound -58942.7 is larger than the objective of the primal solution -58942.9. The solution might not be optimal.
+WARNING: Dual bound -7336.2 is larger than the objective of the primal solution -7336.23. The solution might not be optimal.
+WARNING: Dual bound -43655.6 is larger than the objective of the primal solution -43655.7. The solution might not be optimal.
+WARNING: Dual bound -89.5306 is larger than the objective of the primal solution -89.5307. The solution might not be optimal.
+(seed, dimension, mode) = (7, 100, "integer")
+seed = 7
+build optimizer
+
+
+result[:primal_objective] = 8.8061193962182

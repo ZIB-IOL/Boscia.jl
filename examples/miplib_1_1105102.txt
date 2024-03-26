@@ -1,0 +1,23 @@
+WARNING: Dual bound 45.1848 is larger than the objective of the primal solution 45.1848. The solution might not be optimal.
+WARNING: Dual bound -156307 is larger than the objective of the primal solution -156307. The solution might not be optimal.
+WARNING: Dual bound -4140.16 is larger than the objective of the primal solution -4140.2. The solution might not be optimal.
+WARNING: Dual bound 25.8012 is larger than the objective of the primal solution 25.7997. The solution might not be optimal.
+WARNING: Dual bound -13712.3 is larger than the objective of the primal solution -13712.4. The solution might not be optimal.
+WARNING: Dual bound -63384.9 is larger than the objective of the primal solution -63385. The solution might not be optimal.
+WARNING: Dual bound 7.13799 is larger than the objective of the primal solution 7.13782. The solution might not be optimal.
+WARNING: Dual bound -4178.69 is larger than the objective of the primal solution -4178.7. The solution might not be optimal.
+WARNING: Dual bound -650.927 is larger than the objective of the primal solution -650.933. The solution might not be optimal.
+WARNING: Dual bound 128.333 is larger than the objective of the primal solution 128.332. The solution might not be optimal.
+WARNING: Dual bound -25579.5 is larger than the objective of the primal solution -25579.6. The solution might not be optimal.
+WARNING: Dual bound -809.915 is larger than the objective of the primal solution -809.916. The solution might not be optimal.
+WARNING: Dual bound -7540.86 is larger than the objective of the primal solution -7544.65. The solution might not be optimal.
+WARNING: Dual bound -897.112 is larger than the objective of the primal solution -897.114. The solution might not be optimal.
+WARNING: Dual bound 48.1642 is larger than the objective of the primal solution 48.164. The solution might not be optimal.
+WARNING: Dual bound -8685.84 is larger than the objective of the primal solution -8685.96. The solution might not be optimal.
+WARNING: Dual bound -86273.1 is larger than the objective of the primal solution -86273.2. The solution might not be optimal.
+(seed, dimension, mode) = (1, 120, "integer")
+seed = 1
+build optimizer
+
+
+result[:primal_objective] = 34.22481925672192

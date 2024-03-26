@@ -1,0 +1,51 @@
+┌ Warning: Module MathOptInterface with build ID fafbfcfd-64f2-ea3a-0003-ff51f117df94 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module Boscia with build ID fafbfcfd-4946-3280-0003-ff4d2cc4a18f is missing from the cache.
+│ This may mean Boscia [36b166db-dac5-4d05-b36a-e6c4cef071c9] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module Statistics with build ID fafbfcfd-69a9-fe70-0003-ff60ecbf04b1 is missing from the cache.
+│ This may mean Statistics [10745b16-79ce-11e8-11f9-7d13ad32a3b2] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module Tables with build ID fafbfcfd-c4e9-ee42-0003-ffd2ab1ca71c is missing from the cache.
+│ This may mean Tables [bd369af6-aec1-5ad0-b16a-f7cc5008161c] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module Test with build ID fafbfcfd-4bff-5ebb-0003-ff526df4a943 is missing from the cache.
+│ This may mean Test [8dfed614-e22c-5e08-85e1-65c5234f0b40] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module MacroTools with build ID fafbfcfd-8b36-1795-0003-ff50b3fb8e39 is missing from the cache.
+│ This may mean MacroTools [1914dd2f-81c6-5fcd-8719-6d5c9610ff09] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module Ipopt_jll with build ID fafbfcfd-be15-d947-0003-ff814cb976d3 is missing from the cache.
+│ This may mean Ipopt_jll [9cc047cb-c261-5740-88fc-0cf96f7bdcc7] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module MathOptInterface with build ID fafbfcfd-64f2-ea3a-0003-ff51f117df94 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module MathOptInterface with build ID fafbfcfd-64f2-ea3a-0003-ff51f117df94 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+┌ Warning: Module JLLWrappers with build ID fafbfcfd-c631-6ed7-0003-ff6412557c35 is missing from the cache.
+│ This may mean JLLWrappers [692b3bcd-3c85-4b1f-b108-f13ce0eb3210] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1948
+(seed, dimension, mode) = (9, 20, "integer")
+seed = 9
+build optimizer
+
+
+result[:primal_objective] = 3.281690721113521

@@ -1,0 +1,30 @@
+[ Info: primal >= tree.incumbent
+ERROR: LoadError: UndefVarError: `str` not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:12
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_portfolio_setup.jl:8
+
+caused by: AssertionError: primal <= tree.incumbent + 0.001 || isapprox(primal, tree.incumbent, atol = 1.0e-6, rtol = 0.01)
+Stacktrace:
+ [1] postsolve(tree::BnBTree{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds, Boscia.NodeInfo{Float64}}, @NamedTuple{problem::Boscia.SimpleOptimizationProblem{var"#f#7"{Matrix{Float64}, Float64, Vector{Float64}}, var"#grad!#8"{Matrix{Float64}, Float64, Vector{Float64}}, Boscia.TimeTrackingLMO{Boscia.MathOptBLMO{SCIP.Optimizer}}, Boscia.IntegerBounds}, current_node_id::Base.RefValue{Int64}, updated_incumbent::Base.RefValue{Bool}, global_tightening_rhs::Base.RefValue{Float64}, global_tightening_root_info::@NamedTuple{lower_bounds::Dict{Int64, Tuple{Float64, Float64}}, upper_bounds::Dict{Int64, Tuple{Float64, Float64}}}, global_tightenings::Boscia.IntegerBounds, options::Dict{Symbol, Any}}, Vector{Float64}, Boscia.FrankWolfeSolution{Boscia.FrankWolfeNode{FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}, FrankWolfe.DeletedVertexStorage{Vector{Float64}}, Boscia.IntegerBounds, Boscia.NodeInfo{Float64}}, Vector{Float64}}}, result::Dict{Symbol, Any}, time_ref::DateTime, verbose::Bool, max_iteration_post::Int64)
+   @ Boscia ~/git/Boscia.jl/src/interface.jl:637
+ [2] solve(f::var"#f#7"{Matrix{Float64}, Float64, Vector{Float64}}, grad!::var"#grad!#8"{Matrix{Float64}, Float64, Vector{Float64}}, blmo::Boscia.MathOptBLMO{SCIP.Optimizer}; traverse_strategy::Bonobo.BestFirstSearch, branching_strategy::Bonobo.MOST_INFEASIBLE, variant::Boscia.BPCG, line_search::FrankWolfe.Adaptive{Float64, Int64}, active_set::Nothing, lazy::Bool, lazy_tolerance::Float64, fw_epsilon::Float64, verbose::Bool, dual_gap::Float64, rel_dual_gap::Float64, time_limit::Int64, print_iter::Int64, dual_gap_decay_factor::Float64, max_fw_iter::Int64, min_number_lower::Float64, min_node_fw_epsilon::Float64, use_postsolve::Bool, min_fw_iterations::Int64, max_iteration_post::Int64, dual_tightening::Bool, global_dual_tightening::Bool, bnb_callback::Nothing, strong_convexity::Float64, domain_oracle::Boscia.var"#70#72", start_solution::Nothing, fw_verbose::Bool, use_shadow_set::Bool, custom_heuristics::Vector{Boscia.Heuristic{Boscia.var"#21#22"}}, rounding_prob::Float64, kwargs::@Kwargs{})
+   @ Boscia ~/git/Boscia.jl/src/interface.jl:296
+ [3] solve
+   @ ~/git/Boscia.jl/src/interface.jl:58 [inlined]
+ [4] #solve#68
+   @ ~/git/Boscia.jl/src/MOI_bounded_oracle.jl:641 [inlined]
+ [5] solve
+   @ ~/git/Boscia.jl/src/MOI_bounded_oracle.jl:606 [inlined]
+ [6] portfolio_boscia(seed::Int64, dimension::Int64, full_callback::Bool; mode::String, bo_mode::String)
+   @ Main ~/git/Boscia.jl/examples/portfolio.jl:97
+ [7] portfolio_boscia
+   @ ~/git/Boscia.jl/examples/portfolio.jl:78 [inlined]
+ [8] top-level scope
+   @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:9
+(seed, dimension, mode) = (1, 120, "mixed")
+seed = 1
+build optimizer
+
+AssertionError("primal <= tree.incumbent + 0.001 || isapprox(primal, tree.incumbent, atol = 1.0e-6, rtol = 0.01)")
