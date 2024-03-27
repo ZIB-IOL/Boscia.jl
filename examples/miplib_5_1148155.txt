@@ -1,0 +1,21 @@
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(seed, dimension, M, k, var_A) = (5, 5, 0.1, 5.0, 1)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (100, 201, 0.6009625760068347, Inf, 8.909)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (200, 401, 0.6036164934346842, Inf, 13.106)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (300, 593, 0.6082443448084495, 0.6191624115738161, 17.139)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (400, 725, 0.6093342466591616, 0.6191624115738161, 21.055)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (500, 831, 0.6103296654997361, 0.6191624115738161, 24.861)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (600, 935, 0.6121356677707861, 0.6191624115738161, 28.516)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (700, 1031, 0.6131599950515032, 0.6187669233790086, 32.148)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (800, 1113, 0.6144277423520681, 0.6187669233790086, 35.627)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (900, 1179, 0.6152940622126291, 0.6187669233790086, 39.015)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1000, 1251, 0.6160612697195291, 0.6187669233790086, 42.495)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1100, 1307, 0.6167012256156553, 0.6187669233790086, 45.908)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1200, 1373, 0.6174911780701524, 0.6187669233790086, 49.3)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1300, 1413, 0.6182541141409221, 0.6187669233790086, 52.491)
