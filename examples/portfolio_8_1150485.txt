@@ -1,0 +1,4 @@
+(seed, dimension, mode) = (8, 20, "integer")
+seed = 8
+build optimizer
+build optimizer

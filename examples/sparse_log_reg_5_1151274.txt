@@ -1,0 +1,1 @@
+(seed, dimension, M, k, var_A) = (5, 15, 0.1, 15.0, 1)

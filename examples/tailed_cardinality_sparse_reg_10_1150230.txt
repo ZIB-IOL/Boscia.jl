@@ -1,0 +1,2 @@
+(seed, dimension) = (10, 27)
+OPTIMAL

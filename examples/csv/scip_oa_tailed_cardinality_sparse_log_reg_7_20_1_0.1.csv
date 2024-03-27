@@ -1,0 +1,2 @@
+seed,dimension,var_A,M,time,solution,termination,calls
+7,20,1,0.1,1800.002726,4.011475154255193,TIME_LIMIT,11292

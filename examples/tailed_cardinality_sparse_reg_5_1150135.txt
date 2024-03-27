@@ -1,0 +1,2 @@
+(seed, dimension) = (5, 18)
+OPTIMAL

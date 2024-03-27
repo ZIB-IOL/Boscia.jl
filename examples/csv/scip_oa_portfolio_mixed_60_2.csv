@@ -1,0 +1,2 @@
+seed,dimension,time,solution,termination,calls
+2,60,1800.483553,27.690654187917403,TIME_LIMIT,20016

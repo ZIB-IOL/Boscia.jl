@@ -1,0 +1,4 @@
+(seed, dimension, mode) = (4, 60, "mixed")
+seed = 4
+build optimizer
+build optimizer

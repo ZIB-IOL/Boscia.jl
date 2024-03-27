@@ -6,7 +6,7 @@ mode = ARGS[3]
 @show seed, dimension, mode
 
 try 
-    portfolio_shot(seed, dimension, mode=mode)#, bo_mode="default")
+    portfolio_scip(seed, dimension, mode=mode)#, bo_mode="default")
 catch e 
     println(e)
     file = "shot_portfolio_" * string(mode) * "_" * str(seed) * "_" * str(dimension)    
