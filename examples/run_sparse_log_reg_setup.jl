@@ -8,10 +8,10 @@ var_A = parse(Int64, ARGS[5])
 @show seed, dimension, M, k, var_A
 
 try 
-    sparse_log_reg_scip(seed, dimension, M, k, var_A)#, bo_mode="default")
+    sparse_log_reg_pavito(seed, dimension, M, k, var_A)#, bo_mode="default")
 catch e 
     println(e)
-    file = "scip_sparse_log_reg_" * str(seed) * "_" * str(dimension)    
+    file = "pavito_sparse_log_reg_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end

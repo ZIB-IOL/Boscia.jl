@@ -6,10 +6,10 @@ mode = ARGS[3]
 @show seed, dimension, mode
 
 try 
-    portfolio_scip(seed, dimension, mode=mode)#, bo_mode="default")
+    portfolio_pavito(seed, dimension, mode=mode)#, bo_mode="default")
 catch e 
     println(e)
-    file = "shot_portfolio_" * string(mode) * "_" * str(seed) * "_" * str(dimension)    
+    file = "pavito_portfolio_" * string(mode) * "_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end
