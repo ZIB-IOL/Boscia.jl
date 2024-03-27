@@ -54,8 +54,8 @@ julia --project boscia_merge_csvs.jl
 | Poisson regression | done | <span style="color:red">missing</span> | done | done | <span style="color:red">some instances missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | sparse regression | <span style="color:red">some instances errored</span> | <span style="color:red">missing</span> | done | done | <span style="color:red">missing</span>| <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | sparse log regression | done | <span style="color:red">missing</span> | done |done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| tailed cardinality sparse regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| tailed cardinality sparse log regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| tailed cardinality sparse regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| tailed cardinality sparse log regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | miplib instances | done | <span style="color:red">missing</span> | <span style="color:red">some pg5_34 instances are missing</span> | done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 
 <span style="color:purple">* only needed for Boscia and SCIP+OA due to indicator constraints</span>
