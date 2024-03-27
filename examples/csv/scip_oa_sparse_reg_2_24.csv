@@ -1,0 +1,2 @@
+seed,dimension,p,k,time,solution,termination,calls
+2,24,120,5.0,0.37095,3.0393912200217894,OPTIMAL,39
