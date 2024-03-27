@@ -1,0 +1,2 @@
+(seed, dimension, M, var_A) = (6, 20, 0.1, 5)
+TIME_LIMIT

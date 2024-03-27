@@ -1,0 +1,1 @@
+(seed, dimension, ns) = (3, 90, 0.1)

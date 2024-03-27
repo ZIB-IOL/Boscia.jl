@@ -1,0 +1,2 @@
+seed,dimension,var_A,M,time,solution,termination,calls
+10,15,1,0.1,67.544858,0.34605253140691816,OPTIMAL,4243
