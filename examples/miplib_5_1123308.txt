@@ -1,0 +1,4 @@
+(seed, dimension, ns) = (5, 90, 5.0)
+
+
+/home/htc/htroppen/git/Boscia.jl/examples/csv/boscia_default_poisson_reg_5_90_45.0_5.0.csv

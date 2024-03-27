@@ -1,0 +1,40 @@
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(seed, dimension, mode) = (7, 100, "integer")
+seed = 7
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (100, 201, -0.47923917855915016, Inf, 2.51)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (200, 401, 2.4588439421616544, Inf, 3.479)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (300, 601, 3.6731105120743206, Inf, 4.92)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (400, 779, 4.560395152080848, 11.597642289849167, 6.358)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (500, 931, 4.999294350226462, 11.597642289849167, 7.775)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (600, 1085, 5.3379756943528545, 11.597642289849167, 9.18)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (700, 1211, 5.643796949645673, 11.597642289849167, 10.514)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (800, 1329, 5.905241475083402, 11.597642289849167, 11.699)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (900, 1455, 6.147509843758302, 11.597642289849167, 12.962)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1000, 1581, 6.326784373006872, 11.597642289849167, 14.239)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1100, 1701, 6.567135805626649, 11.597642289849167, 15.409)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1200, 1821, 6.708424369575991, 11.597642289849167, 16.68)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1300, 1939, 6.876449496862767, 11.597642289849167, 17.982)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1400, 2053, 7.027474726438707, 11.597642289849167, 19.236)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1500, 2163, 7.148181267876593, 11.597642289849167, 20.43)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1600, 2283, 7.2768080278187535, 11.597642289849167, 21.747)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1700, 2397, 7.412591042551168, 11.597642289849167, 22.975)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1800, 2503, 7.5352383314302775, 11.597642289849167, 24.17)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1900, 2615, 7.628898830971341, 11.597642289849167, 25.355)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2000, 2719, 7.784508673652681, 11.597642289849167, 26.507)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2100, 2827, 7.888534293150196, 11.597642289849167, 27.734)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2200, 2937, 7.974565312101741, 11.597642289849167, 28.897)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2300, 3047, 8.11543185993107, 11.597642289849167, 30.094)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2400, 3151, 8.192901303854043, 11.597642289849167, 31.297)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2500, 3255, 8.292175898093685, 11.597642289849167, 32.459)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2600, 3359, 8.39913612161634, 8.806118953036183, 33.693)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2700, 3447, 8.471973708175216, 8.806118953036183, 34.866)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2800, 3517, 8.55340451144485, 8.806118953036183, 36.029)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (2900, 3587, 8.651024738012602, 8.806118953036183, 37.144)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (3000, 3653, 8.728790443163977, 8.806118953036183, 38.297)
+build optimizer

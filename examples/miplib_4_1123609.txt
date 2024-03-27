@@ -1,0 +1,25 @@
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(seed, dimension, mode) = (4, 70, "integer")
+seed = 4
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (100, 201, 0.038318784850831414, Inf, 1.991)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (200, 401, 5.210022518955647, Inf, 2.92)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (300, 601, 6.550030981323073, Inf, 3.901)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (400, 801, 7.3595576757201, Inf, 4.796)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (500, 1001, 7.9864750020792545, Inf, 5.783)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (600, 1201, 8.3301160266248, Inf, 6.68)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (700, 1401, 8.663038597794154, Inf, 7.685)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (800, 1601, 9.10748493563754, Inf, 8.539)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (900, 1801, 9.482311034947681, Inf, 9.493)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1000, 2001, 9.83997630466423, Inf, 10.374)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1100, 2201, 10.24449152869843, Inf, 11.239)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1200, 2401, 10.507135004001222, Inf, 12.194)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1300, 2601, 10.761200465486173, Inf, 13.059)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1400, 2801, 11.05922537584758, Inf, 13.993)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1500, 3001, 11.260126283852967, Inf, 14.825)
+build optimizer

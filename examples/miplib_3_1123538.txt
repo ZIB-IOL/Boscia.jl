@@ -1,0 +1,24 @@
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(seed, dimension, mode) = (3, 35, "integer")
+seed = 3
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (100, 201, -1.7982925473794273, Inf, 1.755)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (200, 401, -1.4192526244116976, Inf, 2.487)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (300, 601, -1.2045165243353542, Inf, 3.138)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (400, 801, -1.0248464557868002, Inf, 3.78)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (500, 1001, -0.9151970723268865, Inf, 4.421)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (600, 1201, -0.8384069190925397, Inf, 5.066)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (700, 1401, -0.72770192820255, Inf, 5.879)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (800, 1601, -0.64002132718025, Inf, 6.543)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (900, 1801, -0.5800607365790971, Inf, 7.183)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1000, 2001, -0.5030777388196359, Inf, 7.81)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1100, 2201, -0.4436581511759333, Inf, 8.445)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1200, 2401, -0.3902857568047414, Inf, 9.061)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1300, 2601, -0.35028117032951434, Inf, 9.869)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (1400, 2777, -0.3055331977994642, 0.4181002898501074, 10.525)
+build optimizer

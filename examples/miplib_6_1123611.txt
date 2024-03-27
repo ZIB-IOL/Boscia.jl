@@ -1,0 +1,17 @@
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+(seed, dimension, mode) = (6, 70, "integer")
+seed = 6
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (100, 201, 0.5455714421666112, Inf, 2.01)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (200, 401, 11.585650436427729, Inf, 2.917)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (300, 601, 13.673539328258, Inf, 3.902)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (400, 729, 15.74864916677943, 25.776129013781265, 4.803)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (500, 835, 16.823455904725463, 25.776129013781265, 5.813)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (600, 939, 17.752771782078458, 25.776129013781265, 6.705)
+(iteration, tree.num_nodes, tree.lb, tree.incumbent, time / 1000) = (700, 1043, 18.678184372676153, 25.776129013781265, 7.571)
+build optimizer

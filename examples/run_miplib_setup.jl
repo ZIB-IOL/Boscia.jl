@@ -6,10 +6,10 @@ seed = parse(Int64, ARGS[3])
 @show example, seed, num_v
 
 try 
-    miplib_boscia(seed, num_v, bo_mode="default", example=example)
+    miplib_ipopt(seed, num_v, example=example)
 catch e 
     println(e)
-    file = "boscia_miplib_" * str(seed) * "_" * str(num_v)    
+    file = "ipopt_miplib_" * str(seed) * "_" * str(num_v)    
     open(file * ".txt","a") do io
         println(io, e)
     end

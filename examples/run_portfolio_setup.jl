@@ -6,10 +6,10 @@ mode = ARGS[3]
 @show seed, dimension, mode
 
 try 
-    portfolio_boscia(seed, dimension, mode=mode, bo_mode="default")
+    portfolio_ipopt(seed, dimension, mode=mode)#, bo_mode="default")
 catch e 
     println(e)
-    file = "boscia_portfolio_" * string(mode) * "_" * str(seed) * "_" * str(dimension)    
+    file = "ipopt_portfolio_" * string(mode) * "_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end

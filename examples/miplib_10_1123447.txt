@@ -1,0 +1,4 @@
+[ Info: Polish solution
+(seed, dimension, M, k, var_A) = (10, 15, 0.1, 15.0, 5)
+
+
