@@ -35,7 +35,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-/scratch/opt/htroppen/julia-1.10.2/bin/julia --project run_portfolio_setup.jl $1 $2 $3 &> portfolio_$1_$SLURM_JOB_ID.txt
+/scratch/opt/htroppen/julia-1.10.2/bin/julia --project run_tailed_cardinality_sparse_log_reg_setup.jl $1 $2 $3 $4 &> tailed_cardinality_sparse_log_reg_$1_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0

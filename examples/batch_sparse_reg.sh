@@ -7,7 +7,7 @@
 # echo "First arg: $1"
 
 # Give your job a name, so you can recognize it in the queue overview
-#SBATCH --job-name=FBA
+#SBATCH --job-name=Boscia
 
 # Define, how many nodes you need. Here, we ask for 1 node.
 # Each node has 16 or 20 CPU cores.
@@ -35,7 +35,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-/scratch/opt/htroppen/julia-1.10.2/bin/julia --project run_sparse_reg_setup.jl $1 $2 &> miplib_$1_$SLURM_JOB_ID.txt
+/scratch/opt/htroppen/julia-1.10.2/bin/julia --project run_sparse_reg_setup.jl $1 $2 &> sparse_reg_$1_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0

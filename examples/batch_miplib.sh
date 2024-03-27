@@ -7,7 +7,7 @@
 # echo "First arg: $1"
 
 # Give your job a name, so you can recognize it in the queue overview
-#SBATCH --job-name=FBA
+#SBATCH --job-name=Boscia
 
 # Define, how many nodes you need. Here, we ask for 1 node.
 # Each node has 16 or 20 CPU cores.
