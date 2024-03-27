@@ -1,3 +1,0 @@
-(example, seed, num_v) = ("neos5", 3, 7)
-(example, num_v, seed) = ("neos5", 7, 3)
-(solution_shot, time_shot) = (-5.729822203285688, 0.5411942005157471)

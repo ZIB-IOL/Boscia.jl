@@ -10,15 +10,11 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
     elseif example == "portfolio_mixed" 
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "portfolio_integer"
-        try 
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
-        catch e 
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(25) * "_" * string(1) * ".csv")))
-        end
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(var_A[1]) * "_" * string(dimensions[1]*5) * "_" * string(Ns[1]) * ".csv")))
     elseif example == "poisson_reg"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(dimensions[1]) * "_" * string(Ns[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(float(dimensions[1]/2)) * "_" * string(Ns[1]) * ".csv")))
         @show df
     else @error "not a valid example"
     end
@@ -84,7 +80,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
             for seed in seeds
                 for ns in Ns
                     try 
-                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(p) * "_" * string(ns) * ".csv")))
+                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/shot_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(float(dimension/2)) * "_" * string(ns) * ".csv")))
                         append!(df, df_temp)
                     catch e 
                         println(e)
@@ -147,7 +143,7 @@ merge_csvs(
     dimensions = [5:5:20;], 
     seeds = 1:3,
     Ns = [0.1,1],
-    var_A = [1.0,5.0]
+    var_A = [1,5]
 ) # seed dim Ns/m k var_A
 
 merge_csvs(

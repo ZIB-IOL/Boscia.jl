@@ -1,3 +1,0 @@
-(example, seed, num_v) = ("22433", 2, 8)
-(example, num_v, seed) = ("22433", 8, 2)
-(solution_shot, time_shot) = (15406.993207279134, 20.22754406929016)

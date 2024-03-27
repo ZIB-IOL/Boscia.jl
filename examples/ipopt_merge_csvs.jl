@@ -10,11 +10,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
     elseif example == "portfolio_mixed" 
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "portfolio_integer"
-        try 
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
-        catch e 
-            df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_" * example * "_" * string(25) * "_" * string(1) * ".csv")))
-        end
+         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/ipopt_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(var_A[1]) * "_" * string(dimensions[1]*5) * "_" * string(Ns[1]) * ".csv")))
     elseif example == "poisson_reg"

@@ -1,3 +1,0 @@
-(seed, dimension, ns) = (4, 70, 5.0)
-objective_sense(m) = MathOptInterface.MIN_SENSE
-(termination_shot, solution_shot) = ("LOCALLY_SOLVED", -812.5735713559734)

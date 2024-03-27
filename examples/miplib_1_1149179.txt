@@ -1,6 +1,0 @@
-(seed, dimension, mode) = (1, 115, "mixed")
-(seed, dimension, mode) = (1, 115, "mixed")
-seed = 1
-termination_shot = "LOCALLY_SOLVED"
-build optimizer
-(solution_shot, termination_shot) = (-0.08332080915637374, "LOCALLY_SOLVED")
