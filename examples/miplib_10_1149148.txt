@@ -1,0 +1,7 @@
+        Error when solving NLP problem with Ipopt.
+(seed, dimension, mode) = (10, 95, "mixed")
+(seed, dimension, mode) = (10, 95, "mixed")
+seed = 10
+termination_shot = "LOCALLY_SOLVED"
+build optimizer
+(solution_shot, termination_shot) = (-0.03502005586647006, "LOCALLY_SOLVED")

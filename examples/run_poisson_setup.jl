@@ -6,10 +6,10 @@ ns = parse(Float64, ARGS[3])
 @show seed, dimension, ns
 
 try 
-    poisson_reg_ipopt(seed, dimension, ns)#, bo_mode="default")
+    poisson_reg_shot(seed, dimension, ns)#, bo_mode="default")
 catch e 
     println(e)
-    file = "ipopt_poisson_" * str(seed) * "_" * str(dimension)    
+    file = "shot_poisson_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end

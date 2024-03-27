@@ -1,0 +1,3 @@
+(example, seed, num_v) = ("pg5_34", 1, 6)
+(example, num_v, seed) = ("pg5_34", 6, 1)
+(solution_shot, time_shot) = (-485.54075759455964, 287.9203598499298)
