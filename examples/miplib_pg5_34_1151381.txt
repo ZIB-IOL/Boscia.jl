@@ -1,1 +1,0 @@
-(example, seed, num_v) = ("pg5_34", 2, 8)

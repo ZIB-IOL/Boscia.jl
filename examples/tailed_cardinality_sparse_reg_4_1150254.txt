@@ -1,2 +1,0 @@
-(seed, dimension) = (4, 30)
-OPTIMAL

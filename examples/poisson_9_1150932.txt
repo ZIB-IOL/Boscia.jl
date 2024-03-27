@@ -1,1 +1,0 @@
-(seed, dimension, ns) = (9, 50, 5.0)

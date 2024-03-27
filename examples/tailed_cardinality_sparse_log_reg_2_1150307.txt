@@ -1,2 +1,0 @@
-(seed, dimension, M, var_A) = (2, 10, 1.0, 1)
-OPTIMAL

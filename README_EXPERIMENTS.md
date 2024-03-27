@@ -50,13 +50,13 @@ julia --project boscia_merge_csvs.jl
 
 | Example | Boscia (default) | Pavito |  SHOT | Ipopt | SCIP (OA) | AFW | Boscia variants<span style="color:red">*</span> | Strong Branching |
 |---|---|---|---|---|---|---|---|---|
-| mixed/integer portfolio problems | <span style="color:red">some mixed instances errored</span> | <span style="color:red">missing</span> | done | <span style="color:red">some integer instances errored</span>| <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| Poisson regression | done | <span style="color:red">missing</span> | done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| mixed/integer portfolio problems | <span style="color:red">some mixed instances errored</span> | <span style="color:red">missing</span> | done | <span style="color:red">some integer instances errored</span>| <span style="color:red">some integer and mixed instance missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| Poisson regression | done | <span style="color:red">missing</span> | done | done | <span style="color:red">some instances missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | sparse regression | <span style="color:red">some instances errored</span> | <span style="color:red">missing</span> | done | done | <span style="color:red">missing</span>| <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| sparse log regression | done | <span style="color:red">missing</span> | done |done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| sparse log regression | done | <span style="color:red">missing</span> | done |done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | tailed cardinality sparse regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | tailed cardinality sparse log regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| miplib instances | done | <span style="color:red">missing</span> | <span style="color:red">some pg5_34 instances are missing</span> | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| miplib instances | done | <span style="color:red">missing</span> | <span style="color:red">some pg5_34 instances are missing</span> | done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 
 <span style="color:purple">* only needed for Boscia and SCIP+OA due to indicator constraints</span>
 <span style="color:red">* For the Boscia variants, we have to enable `no warm start` on branch.</span>

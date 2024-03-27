@@ -415,8 +415,8 @@ function sparse_reg_grid_search()
     end
     k = n-k =#
 
-    const D = rand(m,n)
-    const y_d = D*sol_x
+    D = rand(m,n)
+    y_d = D*sol_x
 
     # @testset "Integer sparse regression" begin
     o = SCIP.Optimizer()

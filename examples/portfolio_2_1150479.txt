@@ -1,4 +1,0 @@
-(seed, dimension, mode) = (2, 20, "integer")
-seed = 2
-build optimizer
-build optimizer

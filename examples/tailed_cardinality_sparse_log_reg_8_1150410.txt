@@ -1,2 +1,0 @@
-(seed, dimension, M, var_A) = (8, 20, 0.1, 5)
-TIME_LIMIT

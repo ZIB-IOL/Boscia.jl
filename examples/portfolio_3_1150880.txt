@@ -1,4 +1,0 @@
-(seed, dimension, mode) = (3, 115, "mixed")
-seed = 3
-build optimizer
-build optimizer

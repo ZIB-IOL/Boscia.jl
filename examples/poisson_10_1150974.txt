@@ -1,1 +1,0 @@
-(seed, dimension, ns) = (10, 70, 0.1)

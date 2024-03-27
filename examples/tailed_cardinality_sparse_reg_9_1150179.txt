@@ -1,2 +1,0 @@
-(seed, dimension) = (9, 22)
-OPTIMAL
