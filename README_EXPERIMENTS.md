@@ -42,7 +42,7 @@ include("portfolio.jl")
 portfolio_boscia(1, 20, true; bo_mode="default",mode="mixed")
 ```
 
-We generate one CSV per instance. Merge instance CSV by running `*_merge_csvs.jl`. The CSV file will be saved in `merged_csvs`. The following will create a CSV file for each experiment for the default Boscia setup:
+We generate one CSV per instance. Merge instance CSV by running `*_merge_csvs.jl`. The CSV file will be saved in `final_csvs`. The following will create a CSV file for each experiment for the default Boscia setup:
 ```julia 
 julia --project boscia_merge_csvs.jl
 ```
@@ -79,11 +79,11 @@ julia --project boscia_merge_csvs.jl
 | Figure | create figure with| build required CSV with |
 |---|---|---|
 | 4 | plot_boscia_vs_ipopt.jl |
-| 5 | plot_dual_gap.jl | 
+| 5 | plot_dual_gap.jl | sparse_reg_boscia(2, 10, true, bo_mode="default")
 | 6 | plot_dual_gap_strong_branching.jl | 
-| 7 | plot_boscia_vs_scip.jl | 
+| 7 | plot_boscia_vs_pavito.jl | -
 | 8-9 | plot_tightenings.jl | 
-| 10 | plot_boscia_vs_scip.jl |
+| 10 | plot_boscia_vs_pavito.jl | -
 
 To compare Boscia with Ipopt:
 ```julia
@@ -124,20 +124,20 @@ plot("sparse_reg","20_5")
 
 | Figure | create figure with | build required CSV with |
 |---|---|---|
-| 11 | plot_per_layer.jl | birkhoff.jl |
-| 12 | plot_grid_search_sparse_reg.jl | sparse_reg.jl |
-| 13 | plot_dual_gap.jl | run_sparse_reg.jl |
-| 14-15 | plot_dual_gap_strong_branching.jl | low_dim_in_high_dim.jl, lasso.jl | 
-| 16 | plot_dual_gap_hybrid_branching.jl | sparse_reg.jl |
-| 17 | plot_per_layer.jl | birkhoff.jl |
-| 18 | plot_dual_gap_non_accum.jl | birkhoff.jl |
-| 19 | plot_dual_gap.jl | poisson_reg.jl |
-| 20-26 | plot_boscia_vs_scip.jl | run_portfolio.jl, run_poisson.jl, run_sparse_reg.jl, run_sparse_log_reg.jl, run_tailed_cardinality.jl, run_tailed_cardinality_sparse_log_reg.jl, build_csv.jl |
-| 27-30 | plot_boscia_vs_ipopt.jl | mip-examples.jl |
-| 31-34 | run_bigM_vs_indicator.jl | run_bigM_vs_indicator.jl
-| 35 | plot_tightening.jl | mip-lib.jl |
-| 36-38 | plot_tightening.jl | run_sparse_reg.jl, run_portfolio.jl |
-| 39-40 | plot_tightening.jl | run_portfolio.jl |
+| 11 | plot_per_layer.jl | birkhoff_data() |
+| 12 | plot_grid_search_sparse_reg.jl | sparse_reg_grid_search() |
+| 13 | plot_dual_gap.jl |  |
+| 14-15 | plot_dual_gap_strong_branching.jl |  | 
+| 16 | plot_dual_gap_hybrid_branching.jl |  |
+| 17 | plot_per_layer.jl |  |
+| 18 | plot_dual_gap_non_accum.jl |  |
+| 19 | plot_dual_gap.jl |  |
+| 20-26 | plot_boscia_vs_scip.jl | - |
+| 27-30 | plot_boscia_vs_ipopt.jl |  |
+| 31-34 | run_bigM_vs_indicator.jl | |
+| 35 | plot_tightenings.jl |  |
+| 36-38 | plot_tightenings.jl |  |
+| 39-40 | plot_tightenings.jl |  |
  
    <!-- ```sh
    git clone https://github.com/github_username/repo_name.git

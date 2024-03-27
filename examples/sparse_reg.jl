@@ -130,11 +130,11 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode)
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
-        list_open_nodes = result[:open_nodes]
+        # list_open_nodes = result[:open_nodes]
         list_local_tightening = result[:local_tightenings]
         list_global_tightening = result[:global_tightenings]
-        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
-        file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * string(n) * "_" *string(seed) * "_" * mode * "_sparse_reg.csv")
+        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        file_name = joinpath(@__DIR__, "final_csvs/boscia_" * bo_mode * "_" * string(n) * "_" *string(seed) * "_sparse_reg.csv")
         CSV.write(file_name, df, append=false)
     else
         @show result[:primal_objective]
@@ -388,4 +388,108 @@ function sparse_reg_ipopt(seed=1, n=5)
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
     CSV.write(file_name, df, append=false, writeheader=true)
+end
+
+function sparse_reg_grid_search()
+    example = "int_sparsereg"
+
+    seed=2 # 19 (29 is too long!) 30
+    Random.seed!(seed)
+    # n=10 seed = 1 produces good example
+
+    n =50
+    m = 80
+    l = 5
+    k = 15
+
+    sol_x = rand(1:l, n)
+    for _ in 1:(n-k)
+        sol_x[rand(1:n)] = 0
+    end
+
+    #=k=0 # correct k
+    for i in 1:n
+        if sol_x[i] == 0 
+            global k += 1
+        end
+    end
+    k = n-k =#
+
+    const D = rand(m,n)
+    const y_d = D*sol_x
+
+    # @testset "Integer sparse regression" begin
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o,n)
+    z = MOI.add_variables(o,n)
+    for i in 1:n
+        MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, x[i], MOI.LessThan(1.0*l))
+        MOI.add_constraint(o, x[i], MOI.Integer())
+
+        MOI.add_constraint(o, z[i], MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
+        MOI.add_constraint(o, z[i], MOI.ZeroOne())
+
+        MOI.add_constraint(o, 1.0 * x[i] - 1.0 * l * z[i], MOI.LessThan(0.0))
+    end 
+    MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0*k))
+    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
+    # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
+    lmo = FrankWolfe.MathOptLMO(o)
+
+    function f(x)
+        xv = @view(x[1:n])
+        return 1/2 * sum(abs2, y_d - D * xv)  #+ lambda_2*FrankWolfe.norm(x)^2 + lambda_0*sum(x[p+1:2p])
+    end
+
+    function grad!(storage, x)
+        storage .= 0
+        @view(storage[1:n]) .= transpose(D)* (D*@view(x[1:n]) - y_d)
+        return storage
+    end
+
+    #= function perform_strong_branch(tree, node)
+        return node.level <= length(tree.root.problem.integer_variables)
+    end
+    branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+    MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
+
+    #val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
+    #@show x_min
+    # @show x[1:n]
+    # @show x_min
+    # @test val_min == f(x)
+    # @test isapprox(x[1:n], x_min)
+    # @test isapprox(f(x), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-6)
+
+    values = [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
+    fw_epsilon_values = [1e-3, 5e-3, 1e-4, 1e-7]
+    min_num_lower_values = [20, 40, 60, 80, 100, 200, Inf]
+    seeds = [30]#,2,3]
+
+    Boscia.solve(f, grad!, lmo; verbose=true)
+
+    iter = 3
+    for (seed_idx, seed_val) in enumerate(seeds)
+        for (index,value) in enumerate(values)
+            for i in 1:iter
+                for (idx,eps) in enumerate(fw_epsilon_values)
+                    for (idx2, min_num_lower_val) in enumerate(min_num_lower_values)
+                        seed = seed_val
+                        dual_gap_decay_factor = value
+                        min_number_lower = min_num_lower_val
+                        fw_epsilon = eps
+                        data = @timed sol, time_lmo, result = Boscia.solve(f, grad!, lmo; verbose=true, dual_gap_decay_factor=dual_gap_decay_factor, min_number_lower=min_number_lower, fw_epsilon = fw_epsilon, print_iter=1)
+                        @show f(sol)
+                        df = DataFrame(seed=seed, dimension=n, min_number_lower=min_number_lower, adaptive_gap=dual_gap_decay_factor, iteration=result[:number_nodes], time=result[:total_time_in_sec]*1000, memory=data[3], lb=result[:list_lb], ub=result[:list_ub], list_time=result[:list_time], list_num_nodes=result[:list_num_nodes], list_lmo_calls=result[:list_lmo_calls_acc], active_set_size=result[:list_active_set_size], discarded_set_size=result[:list_discarded_set_size])
+                        file_name = "experiments/final_csvs/early_stopping_" * example * "_" * string(n) * "_" * string(seed) * "_" * string(min_number_lower) * "_" * string(dual_gap_decay_factor) * "_" * string(fw_epsilon) * "_" * string(i) *".csv"
+                        CSV.write(file_name, df, append=false)
+                    end
+                end
+            end
+        end
+    end
 end
