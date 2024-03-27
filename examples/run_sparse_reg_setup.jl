@@ -5,7 +5,7 @@ dimension = parse(Int64, ARGS[2])
 @show seed, dimension
 
 try 
-    sparse_reg_ipopt(seed, dimension)#, bo_mode="default")
+    sparse_reg_shot(seed, dimension)#, bo_mode="default")
 catch e 
     println(e)
     file = "ipopt_sparse_reg_" * str(seed) * "_" * str(dimension)    

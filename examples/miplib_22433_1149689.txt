@@ -1,0 +1,3 @@
+(example, seed, num_v) = ("22433", 1, 5)
+(example, num_v, seed) = ("22433", 5, 1)
+(solution_shot, time_shot) = (21621.882150493715, 27.473922967910767)

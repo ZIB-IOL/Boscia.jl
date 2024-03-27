@@ -27,7 +27,6 @@
 #SBATCH --partition=small  # Specify the desired partition, e.g. gpu, cpu or big (GPU is reserved for ML stuff)
 ## We want to run on htc-cmp[101-148], exlude all others
 #SBATCH --exclude=htc-cmp[001-008,024-025,501-532]
-#SBATCH --exclusive
 
 # Turn on mail notification. There are many possible self-explaining values:
 # NONE, BEGIN, END, FAIL, ALL (including all aforementioned)

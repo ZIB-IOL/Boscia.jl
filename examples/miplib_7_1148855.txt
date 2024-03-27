@@ -1,0 +1,10 @@
+
+ Maximum deviation in interior point is too large: 168.998
+
+ No interior point found!                            
+(seed, dimension, mode) = (7, 55, "integer")
+(seed, dimension, mode) = (7, 55, "integer")
+seed = 7
+termination_shot = "LOCALLY_SOLVED"
+build optimizer
+(solution_shot, termination_shot) = (2.772584460167434, "LOCALLY_SOLVED")

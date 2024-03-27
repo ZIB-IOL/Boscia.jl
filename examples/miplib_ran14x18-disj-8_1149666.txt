@@ -1,0 +1,3 @@
+(example, seed, num_v) = ("ran14x18-disj-8", 2, 7)
+(example, num_v, seed) = ("ran14x18-disj-8", 7, 2)
+(solution_shot, time_shot) = (-178.34146751724975, 14.286967992782593)
