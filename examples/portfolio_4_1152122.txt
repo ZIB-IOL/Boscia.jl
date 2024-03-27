@@ -1,0 +1,14 @@
+(seed, dimension, mode) = (4, 40, "mixed")
+(seed, dimension, mode) = (4, 40, "mixed")
+seed = 4
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: mixed-integer cycling detected, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:488
+build optimizer
+(solution_pavito, time_pavito) = (-0.09731275489339841, 22.418697118759155)

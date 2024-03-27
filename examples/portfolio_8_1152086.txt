@@ -1,0 +1,51 @@
+(seed, dimension, mode) = (8, 20, "mixed")
+(seed, dimension, mode) = (8, 20, "mixed")
+seed = 8
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+[solve.c:3905] ERROR: (node 33) unresolved numerical troubles in LP 44 cannot be dealt with
+[solve.c:4190] ERROR: Error <-6> in function call
+[solve.c:4984] ERROR: Error <-6> in function call
+[scip_solve.c:2748] ERROR: Error <-6> in function call
+ERROR: LoadError: UndefVarError: `str` not defined
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:12
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_portfolio_setup.jl:8
+
+caused by: SCIPsolve(o) yielded SCIP code SCIP_LPERROR
+Stacktrace:
+  [1] error(s::String)
+    @ Base ./error.jl:35
+  [2] macro expansion
+    @ /scratch/opt/htroppen/.julia/packages/SCIP/XjNY6/src/wrapper.jl:14 [inlined]
+  [3] optimize!(o::SCIP.Optimizer)
+    @ SCIP /scratch/opt/htroppen/.julia/packages/SCIP/XjNY6/src/MOI_wrapper.jl:263
+  [4] optimize!
+    @ /scratch/opt/htroppen/.julia/packages/MathOptInterface/nEHaN/src/Bridges/bridge_optimizer.jl:380 [inlined]
+  [5] optimize!(m::MathOptInterface.Utilities.CachingOptimizer{MathOptInterface.Bridges.LazyBridgeOptimizer{SCIP.Optimizer}, MathOptInterface.Utilities.UniversalFallback{MathOptInterface.Utilities.Model{Float64}}})
+    @ MathOptInterface.Utilities /scratch/opt/htroppen/.julia/packages/MathOptInterface/nEHaN/src/Utilities/cachingoptimizer.jl:325
+  [6] _run_algorithm(::Pavito._IterativeAlgorithm, model::Pavito.Optimizer, start::Float64, mip_time::Float64, nlp_time::Float64, jac_IJ::Nothing, jac_V::Nothing, grad_f::Vector{Float64}, is_max::Bool)
+    @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:268
+  [7] optimize!(model::Pavito.Optimizer)
+    @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:451
+  [8] optimize!
+    @ /scratch/opt/htroppen/.julia/packages/MathOptInterface/nEHaN/src/Bridges/bridge_optimizer.jl:380 [inlined]
+  [9] optimize!
+    @ /scratch/opt/htroppen/.julia/packages/MathOptInterface/nEHaN/src/MathOptInterface.jl:85 [inlined]
+ [10] optimize!(m::MathOptInterface.Utilities.CachingOptimizer{MathOptInterface.Bridges.LazyBridgeOptimizer{Pavito.Optimizer}, MathOptInterface.Utilities.UniversalFallback{MathOptInterface.Utilities.Model{Float64}}})
+    @ MathOptInterface.Utilities /scratch/opt/htroppen/.julia/packages/MathOptInterface/nEHaN/src/Utilities/cachingoptimizer.jl:316
+ [11] optimize!(model::Model; ignore_optimize_hook::Bool, _differentiation_backend::MathOptInterface.Nonlinear.SparseReverseMode, kwargs::@Kwargs{})
+    @ JuMP /scratch/opt/htroppen/.julia/packages/JuMP/kSaGf/src/optimizer_interface.jl:457
+ [12] optimize!
+    @ /scratch/opt/htroppen/.julia/packages/JuMP/kSaGf/src/optimizer_interface.jl:409 [inlined]
+ [13] portfolio_pavito(seed::Int64, dimension::Int64; mode::String, time_limit::Int64)
+    @ Main ~/git/Boscia.jl/examples/portfolio.jl:190
+ [14] top-level scope
+    @ ~/git/Boscia.jl/examples/run_portfolio_setup.jl:9
+ErrorException("SCIPsolve(o) yielded SCIP code SCIP_LPERROR")

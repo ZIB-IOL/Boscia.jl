@@ -1,0 +1,10 @@
+ERROR: LoadError: syntax: unsupported `const` declaration on local variable around /home/htc/htroppen/git/Boscia.jl/examples/sparse_reg.jl:418
+Stacktrace:
+ [1] top-level scope
+   @ ~/git/Boscia.jl/examples/sparse_reg.jl:393
+ [2] include(fname::String)
+   @ Base.MainInclude ./client.jl:489
+ [3] top-level scope
+   @ ~/git/Boscia.jl/examples/run_sparse_reg_setup.jl:1
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/sparse_reg.jl:393
+in expression starting at /home/htc/htroppen/git/Boscia.jl/examples/run_sparse_reg_setup.jl:1

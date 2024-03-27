@@ -1,0 +1,13 @@
+(seed, dimension, mode) = (4, 80, "integer")
+(seed, dimension, mode) = (4, 80, "integer")
+seed = 4
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+┌ Warning: MIP solver status was TIME_LIMIT, terminating Pavito
+└ @ Pavito /scratch/opt/htroppen/.julia/packages/Pavito/BWPfc/src/optimize.jl:276
+(solution_pavito, time_pavito) = (NaN, 1800)

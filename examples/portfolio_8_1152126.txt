@@ -1,0 +1,12 @@
+(seed, dimension, mode) = (8, 40, "mixed")
+(seed, dimension, mode) = (8, 40, "mixed")
+seed = 8
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+build optimizer
+(solution_pavito, time_pavito) = (-1.8677254278830118, 146.27477288246155)
