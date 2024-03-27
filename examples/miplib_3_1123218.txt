@@ -1,8 +1,0 @@
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-(seed, dimension, ns) = (3, 50, 0.1)
-
-
-/home/htc/htroppen/git/Boscia.jl/examples/csv/boscia_default_poisson_reg_3_50_25.0_0.1.csv

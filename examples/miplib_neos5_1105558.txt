@@ -1,3 +1,0 @@
-(example, seed, num_v) = ("neos5", 3, 8)
-
-

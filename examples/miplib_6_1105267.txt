@@ -1,9 +1,0 @@
-[ Info: Polish solution
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-(seed, dimension, mode) = (6, 95, "mixed")
-seed = 6
-build optimizer
-
-
-result[:primal_objective] = -0.7492022577666781

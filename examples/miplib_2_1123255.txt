@@ -1,5 +1,0 @@
-[ Info: Polish solution
-(seed, dimension, ns) = (2, 70, 1.0)
-
-
-/home/htc/htroppen/git/Boscia.jl/examples/csv/boscia_default_poisson_reg_2_70_35.0_1.0.csv

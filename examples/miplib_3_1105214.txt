@@ -1,8 +1,0 @@
-[ Info: Polish solution
-[ Info: Polish solution
-(seed, dimension, mode) = (3, 70, "mixed")
-seed = 3
-build optimizer
-
-
-result[:primal_objective] = -11.582346508168095

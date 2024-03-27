@@ -1,7 +1,0 @@
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-(seed, dimension, M, k, var_A) = (8, 20, 0.1, 20.0, 5)
-
-

@@ -1,5 +1,0 @@
-[ Info: Polish solution
-[ Info: Polish solution
-(example, seed, num_v) = ("neos5", 1, 8)
-
-

@@ -1,4 +1,0 @@
-[ Info: Polish solution
-(example, seed, num_v) = ("ran14x18-disj-8", 1, 4)
-
-

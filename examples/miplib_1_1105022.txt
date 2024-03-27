@@ -1,9 +1,0 @@
-WARNING: Dual bound 34.152 is larger than the objective of the primal solution 34.152. The solution might not be optimal.
-WARNING: Dual bound -29253.1 is larger than the objective of the primal solution -29253.2. The solution might not be optimal.
-WARNING: Dual bound -13657.3 is larger than the objective of the primal solution -13657.3. The solution might not be optimal.
-(seed, dimension, mode) = (1, 80, "integer")
-seed = 1
-build optimizer
-
-
-result[:primal_objective] = 20.417363511271507

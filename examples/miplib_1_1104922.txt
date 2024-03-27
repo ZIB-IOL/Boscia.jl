@@ -1,6 +1,0 @@
-(seed, dimension, mode) = (1, 30, "integer")
-seed = 1
-build optimizer
-
-
-result[:primal_objective] = -30.148229091749364

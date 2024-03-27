@@ -1,8 +1,0 @@
-[ Info: primal >= tree.incumbent
-[ Info: postsolve did not improve the solution
-(seed, dimension, mode) = (9, 105, "mixed")
-seed = 9
-build optimizer
-
-
-result[:primal_objective] = -0.19099024323588654

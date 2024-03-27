@@ -1,6 +1,0 @@
-(seed, dimension, mode) = (1, 60, "mixed")
-seed = 1
-build optimizer
-
-
-result[:primal_objective] = -0.5028847838420514

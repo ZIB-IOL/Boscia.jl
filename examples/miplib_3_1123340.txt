@@ -1,5 +1,0 @@
-[ Info: Polish solution
-[ Info: Polish solution
-(seed, dimension, M, k, var_A) = (3, 5, 1.0, 5.0, 1)
-
-
