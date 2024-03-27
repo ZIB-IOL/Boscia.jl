@@ -48,17 +48,18 @@ julia --project boscia_merge_csvs.jl
 ```
 <span style="color:red">Function to build merged CSV file with all solvers is still missing.</span>
 
-| Example | Boscia (default) | Pavito |  SHOT | Ipopt | SCIP (OA) | AFW | Boscia variants | Strong Branching |
+| Example | Boscia (default) | Pavito |  SHOT | Ipopt | SCIP (OA) | AFW | Boscia variants<span style="color:red">*</span> | Strong Branching |
 |---|---|---|---|---|---|---|---|---|
 | mixed/integer portfolio problems | <span style="color:red">some mixed instances errored</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">some integer instances errored</span>| <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| Poisson regression | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| Poisson regression | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | sparse regression | <span style="color:red">some instances errored</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | done | <span style="color:red">missing</span>| <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| sparse log regression | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| tailed cardinality | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| tailed cardinality sparse log regression | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| sparse log regression | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| tailed cardinality sparse regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| tailed cardinality sparse log regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | miplib instances | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 
-<span style="color:red">For the Boscia variants, we have to enable `no warm start` on branch.</span>
+<span style="color:purple">* only needed for Boscia and SCIP+OA due to indicator constraints</span>
+<span style="color:red">* For the Boscia variants, we have to enable `no warm start` on branch.</span>
 
 ### Tables
 |   Table| file to generate grouped CSV |
@@ -71,7 +72,6 @@ julia --project boscia_merge_csvs.jl
 | 13-14 | <span style="color:red">missing</span> |
 | 15-16 | <span style="color:red">missing</span> | 
 | 23-26 | ?|
-
 
 ### Images
 #### Paper:
