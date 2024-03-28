@@ -97,7 +97,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
 
 end
 
-# merge_csvs()
+merge_csvs()
 
 merge_csvs(
     example = "portfolio_mixed", 

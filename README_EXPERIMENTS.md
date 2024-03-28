@@ -52,7 +52,7 @@ julia --project boscia_merge_csvs.jl
 |---|---|---|---|---|---|---|---|---|
 | mixed/integer portfolio problems | <span style="color:red">some mixed instances errored</span> | <span style="color:red">1 mixed instance missing </span> | done | <span style="color:red">some integer instances errored</span>| <span style="color:red">some integer and mixed instance missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | Poisson regression | done | done | done | done | <span style="color:red">some instances missing</span> | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| sparse regression | <span style="color:red">some instances errored</span> | <span style="color:red">missing</span> | done | done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| sparse regression | <span style="color:red">some instances errored</span> | done | done | done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | sparse log regression | done | done | done |done | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | tailed cardinality sparse regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
 | tailed cardinality sparse log regression<span style="color:purple">*</span> | <span style="color:red">missing</span> | - | - | - | done | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
