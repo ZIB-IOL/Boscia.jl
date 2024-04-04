@@ -171,7 +171,7 @@ function solve(
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
-        Solution=FrankWolfeSolution{Node,Value,T},
+        Solution=FrankWolfeSolution{Node,Value},
         root=(
             problem=m,
             current_node_id=Ref{Int}(0),
