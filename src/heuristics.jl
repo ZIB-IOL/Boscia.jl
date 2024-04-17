@@ -10,7 +10,6 @@ Interface for heuristics in Boscia.
 It returns the heuristic solution (can be nothing, we check for that) and whether feasibility still has to be check.
 `prob` is the probability with which it will be called.        
 """
-# Would 'Heuristic' also suffice? Or might we run into Identifer conflicts with other packages?
 struct Heuristic{F<:Function}
     run_heuristic::F
     prob::Float64
@@ -48,12 +47,12 @@ end
 """
 Choose which heuristics to run by rolling a dice.
 """
-function run_heuristics(tree, x, heuristic_list)
+function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
     inner_lmo = tree.root.problem.tlmo.blmo
     heuristic_lmo = TimeTrackingLMO(inner_lmo, tree.root.problem.integer_variables)
 
     for heuristic in heuristic_list
-        if flip_coin(heuristic.prob)
+        if flip_coin(heuristic.prob, rng)
             list_x_heu, check_feasibility = heuristic.run_heuristic(tree, heuristic_lmo, x)
 
             # check feasibility
@@ -129,14 +128,14 @@ Probability rounding for 0/1 problems.
 It decides based on the fractional value whether to ceil or floor the variable value. 
 Afterward, one call to Frank-Wolfe is performed to optimize the continuous variables.    
 """
-function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
+function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rng=Random.GLOBAL_RNG)
     # save original bounds
     node = tree.nodes[tree.root.current_node_id[]]
     original_bounds = copy(node.local_bounds)
 
     bounds = IntegerBounds()
     for (i,x_i) in zip(tlmo.blmo.int_vars, x[tlmo.blmo.int_vars])
-        x_rounded = flip_coin(x_i) ? ceil(x_i) : floor(x_i)
+        x_rounded = flip_coin(x_i, rng) ? ceil(x_i) : floor(x_i)
         push!(bounds, (i, x_rounded), :lessthan)
         push!(bounds, (i, x_rounded), :greaterthan)
     end
