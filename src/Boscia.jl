@@ -1,6 +1,5 @@
 module Boscia
 
-using Pkg; Pkg.add(url="https://github.com/WenjieXiao-2022/FrankWolfe.jl#dicg")
 using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
