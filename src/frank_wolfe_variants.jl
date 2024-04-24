@@ -172,16 +172,15 @@ end
 Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 
 """
-    Vanilla-Frank-Wolfe
+   DICG-Frank-Wolfe
 
-The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing ∇f * (x-v) is computed. 
+The Decomposition-invariant Frank-Wolfe. 
 
-Lazification cannot be used in this setting.
 """
-struct VanillaFrankWolfe <: FrankWolfeVariant end
+struct DICGFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VanillaFrankWolfe,
+    frank_wolfe_variant::DICGFrankWolfe,
     f,
     grad!,
     lmo,
@@ -201,7 +200,7 @@ function solve_frank_wolfe(
 )
     # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -222,3 +221,8 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
+
+"""
+    Decompostion-Invariant-Frank-Wolfe
+
+"""
