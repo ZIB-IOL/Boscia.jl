@@ -200,27 +200,31 @@ function solve_frank_wolfe(
 )
     # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
-        active_set,
-        away_steps=false,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        line_search=line_search,
-        callback=callback,
-        timeout=timeout,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        verbose=verbose,
+        x0;
+        line_search::LineSearchMethod=Adaptive(),
+        epsilon=1e-7,
+        max_iteration=10000,
+        print_iter=1000,
+        trajectory=false,
+        verbose=false,
+        memory_mode::MemoryEmphasis=InplaceEmphasis(),
+        gradient=nothing,
+        callback=nothing,
+        traj_data=[],
+        timeout=Inf,
+        lazy=false,
+        linesearch_workspace=nothing,
+        lazy_tolerance=2.0,
     )
 
-    return x, primal, dual_gap, active_set
+    return x, primal, dual_gap
 end
 
-Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::DICGFrankWolfe) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
     Decompostion-Invariant-Frank-Wolfe
