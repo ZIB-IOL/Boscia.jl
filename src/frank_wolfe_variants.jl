@@ -206,19 +206,13 @@ function solve_frank_wolfe(
         lmo,
         x0;
         line_search=line_search,
-        epsilon=1e-7,
-        max_iteration=10000,
-        print_iter=1000,
-        trajectory=false,
-        verbose=false,
-        memory_mode::MemoryEmphasis=InplaceEmphasis(),
-        gradient=nothing,
-        callback=nothing,
-        traj_data=[],
-        timeout=Inf,
-        lazy=false,
-        linesearch_workspace=nothing,
-        lazy_tolerance=2.0,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        verbose=verbose,
+        timeout=timeout,
+        lazy=lazy,
+        workspace=workspace,
+        lazy_tolerance=lazy_tolerance,
     )
 
     return x, primal, dual_gap
