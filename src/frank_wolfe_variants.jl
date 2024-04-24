@@ -205,7 +205,7 @@ function solve_frank_wolfe(
         grad!,
         lmo,
         x0;
-        line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+        line_search=line_search,
         epsilon=1e-7,
         max_iteration=10000,
         print_iter=1000,
