@@ -107,6 +107,8 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
+
+    println("Boscia-version")
     n, _ = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
