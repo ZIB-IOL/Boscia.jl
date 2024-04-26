@@ -199,6 +199,7 @@ function solve_frank_wolfe(
     workspace=nothing,
 )
     x0 = FrankWolfe.compute_active_set_iterate!(active_set)
+    println("Pass!")
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
     x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
@@ -214,7 +215,7 @@ function solve_frank_wolfe(
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
     )
-    println("Pass!")
+    
     return x, primal, dual_gap
 end
 
