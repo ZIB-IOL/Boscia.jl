@@ -211,7 +211,7 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
-        workspace=workspace,
+        linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
     )
     println("Pass!")
