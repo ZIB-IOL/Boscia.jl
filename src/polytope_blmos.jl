@@ -37,6 +37,13 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     return true
 end
 
+#===============================================================================================================================#
+function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, d, lb, ub, int_vars; kwargs...)
+end
+
+function bounded_dicg__maximum_step_point(sblmo::CubeSimpleBLMO, x, d, lb, ub, int_vars; kwargs...)
+end
+#===============================================================================================================================#
 """
     ProbablitySimplexSimpleBLMO(N)
 
