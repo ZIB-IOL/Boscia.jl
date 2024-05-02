@@ -73,7 +73,7 @@ function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, 
     non_fixed_idx = setdiff(idx, fixed_idx)
     println(non_fixed_idx)
     for i in non_fixed_idx 
-        if (x[i] === 0 && d[i] < 0) || (x[i] === 1 && d[i] > 0)
+        if (x[i] === 0 && d[i] > 0) || (x[i] === 1 && d[i] < 0)
             return 0.0
         end
         if d[i] > 0
