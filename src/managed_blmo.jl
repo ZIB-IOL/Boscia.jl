@@ -69,6 +69,30 @@ function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
     return v
 end
 
+#================================================================================================================
+
+# Provide FrankWolfe.compute_inface_extreme_point
+function compute_inface_extreme_point(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+    time_ref = Dates.now()
+    a = bounded_compute_inface_extreme_point(
+        blmo.simple_lmo,
+        x,
+        direction,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+    )
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
+end
+
+#Provide FrankWolfe.dicg_maximum_step
+function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction)
+    return bounded_dicg_maximum_step(x, direction)
+end
+
+#================================================================================================================
+
 # Read global bounds from the problem.
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()
