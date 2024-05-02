@@ -215,7 +215,7 @@ function solve_frank_wolfe(
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
     )
-    active_set = FrankWolfe.ActiveSet([(1.0, x)]
+    active_set = FrankWolfe.ActiveSet([(1.0, x)])
     return x, primal, dual_gap, active_set
 end
 
