@@ -77,6 +77,7 @@ CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
 
 """
 
+"""
 function is_decomposition_invariant_sblmo(sblmo::CubeSimpleBLMO, ::ManagedBoundedLMO)
     lbs = sblmo.lower_bounds
     ubs = sblmo.upper_bounds
@@ -95,6 +96,7 @@ function is_decomposition_invariant_sblmo(sblmo::CubeSimpleBLMO, ::ManagedBounde
 
     return true
 end
+"""
 
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
