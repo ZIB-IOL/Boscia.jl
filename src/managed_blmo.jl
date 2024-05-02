@@ -69,7 +69,7 @@ function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
     return v
 end
 
-#================================================================================================================
+#================================================================================================================#
 
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, x, direction; kwargs...)
@@ -91,7 +91,7 @@ function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction)
     return bounded_dicg_maximum_step(blmo.simple_lmo, x, direction)
 end
 
-#================================================================================================================
+#================================================================================================================#
 
 # Read global bounds from the problem.
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
