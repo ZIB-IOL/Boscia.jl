@@ -177,7 +177,7 @@ Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-struct DICGFrankWolfe <: FrankWolfeVariant end
+struct DICG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
     frank_wolfe_variant::DICGFrankWolfe,
