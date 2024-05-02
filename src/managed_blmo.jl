@@ -87,7 +87,7 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, x, direction; kwa
 end
 
 #Provide FrankWolfe.dicg_maximum_step
-function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs)
+function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     return bounded_dicg_maximum_step(
         blmo.simple_lmo, 
         x, 
