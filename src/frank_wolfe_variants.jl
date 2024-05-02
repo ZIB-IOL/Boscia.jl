@@ -180,7 +180,7 @@ The Decomposition-invariant Frank-Wolfe.
 struct DICG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::DICGFrankWolfe,
+    frank_wolfe_variant::DICG,
     f,
     grad!,
     lmo,
