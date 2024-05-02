@@ -74,12 +74,12 @@ end
 is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO) = true
 
 # Provide FrankWolfe.compute_inface_extreme_point
-function compute_inface_extreme_point(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
     a = bounded_compute_inface_extreme_point(
         blmo.simple_lmo,
-        x,
         direction,
+        x,
         blmo.lower_bounds,
         blmo.upper_bounds,
         blmo.int_vars,
