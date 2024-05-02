@@ -61,7 +61,7 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, directio
         
 end
 
-function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction; kwargs...)
+function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub; kwargs...)
     d = []
     for i in eachindex(direction)
         push!(d, direction[i])
