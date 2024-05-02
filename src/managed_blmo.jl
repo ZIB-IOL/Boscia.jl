@@ -90,7 +90,8 @@ end
 function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction)
     lb = blmo.lower_bounds
     ub = blmo.upper_bounds
-    return bounded_dicg_maximum_step(blmo.simple_lmo, x, direction, lb, ub)
+    int_vars = blmo.int_vars
+    return bounded_dicg_maximum_step(blmo.simple_lmo, x, direction, lb, ub, int_vars)
 end
 
 #================================================================================================================#
