@@ -77,7 +77,7 @@ CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
 
 """
 
-function is_decomposition_invariant_oracle(sblmo::CubeSimpleBLMO, ::ManagedBoundedLMO)
+function is_decomposition_invariant_sblmo(sblmo::CubeSimpleBLMO, ::ManagedBoundedLMO)
     lbs = sblmo.lower_bounds
     ubs = sblmo.upper_bounds
     indicator1 = [0.0, 1.0]
@@ -128,7 +128,7 @@ end
 
 Scaled Probability Simplex: ∑ x = 1.
 """
-is_decomposition_invariant_oracle(sblmo::ProbablitySimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
+is_decomposition_invariant_sblmo(sblmo::ProbablitySimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
 
 function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
@@ -157,7 +157,7 @@ end
 Scaled Unit Simplex: ∑ x ≤ 1.
 """
 
-is_decomposition_invariant_oracle(sblmo::UnitSimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
+is_decomposition_invariant_sblmo(sblmo::UnitSimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
 
 function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
