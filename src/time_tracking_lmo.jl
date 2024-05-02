@@ -21,16 +21,16 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
 #========================================================================================#
-is_decomposition_invariant_oracle(lmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(lmo.blmo.o, lmo)
+is_decomposition_invariant_oracle(lmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(lmo.blmo.simple_lmo, lmo)
 
 function compute_inface_extreme_point(lmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
-    sblmo = lmo.blmo.o
+    sblmo = lmo.blmo.simple_lmo
     a = compute_inface_extreme_point(sblmo, lmo.blmo, direction, x)
     return a
 end
 
 function dicg_maximum_step(lmo::TimeTrackingLMO, x, direction)
-    sblmo = lmo.blmo.o
+    sblmo = lmo.blmo.simple_lmo
     v = dicg_maximum_step(sblmo, lmo.blmo, x, direction)
     return v
 end
