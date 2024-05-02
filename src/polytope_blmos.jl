@@ -38,7 +38,11 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
 end
 
 #===============================================================================================================================#
-function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    d = []
+    for i in eachindex(direction)
+        push!(d, direction[i])
+    end
     v = copy(x)
     
     fixed_idx = var_fixed_idx(lb, ub, int_vars)
@@ -57,7 +61,11 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, d, lb, u
         
 end
 
-function bounded_dicg__maximum_step_point(sblmo::CubeSimpleBLMO, x, d; kwargs...)
+function bounded_dicg__maximum_step_point(sblmo::CubeSimpleBLMO, x, direction; kwargs...)
+    d = []
+    for i in eachindex(direction)
+        push!(d, direction[i])
+    end
     gamma_max = 1.0
 
     idx = collect(1: length(x))
