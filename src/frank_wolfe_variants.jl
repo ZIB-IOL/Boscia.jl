@@ -219,7 +219,7 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::DICGFrankWolfe) = print(io, "Decompostion-Invariant-Frank-Wolfe")
+Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
     Decompostion-Invariant-Frank-Wolfe
