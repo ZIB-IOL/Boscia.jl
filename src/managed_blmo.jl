@@ -130,7 +130,7 @@ end
 
 Scaled Probability Simplex: ∑ x = 1.
 """
-is_decomposition_invariant_sblmo(sblmo::ProbablitySimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
+#is_decomposition_invariant_sblmo(sblmo::ProbablitySimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
 
 function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
@@ -159,7 +159,7 @@ end
 Scaled Unit Simplex: ∑ x ≤ 1.
 """
 
-is_decomposition_invariant_sblmo(sblmo::UnitSimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
+#is_decomposition_invariant_sblmo(sblmo::UnitSimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
 
 function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
