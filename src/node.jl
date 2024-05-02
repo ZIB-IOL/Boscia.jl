@@ -78,11 +78,19 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
 
-    # Split active set
-    active_set_left, active_set_right =
-        split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
-    discarded_set_left, discarded_set_right =
-        split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
+    if !(tree.root.options[:variant] === decomposition_invariant_conditional_gradient)
+        # Split active set
+        active_set_left, active_set_right =
+          split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+        discarded_set_left, discarded_set_right =
+          split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
+    else
+        atom_left = copy(x)
+        atom_left[v_idx] = floor(atom_left[v_idx])
+        atom_right = copy(x)
+        atom_right[v_idx] = ceil(atom_right[v_idx])
+        active_set_left, active_set_right = ActiveSet([(1.0, atom_left)]), ActiveSet([(1.0, atom_right)])
+    end
 
     # Sanity check
     @assert isapprox(sum(active_set_left.weights), 1.0)
