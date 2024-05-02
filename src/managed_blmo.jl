@@ -88,7 +88,7 @@ end
 
 #Provide FrankWolfe.dicg_maximum_step
 function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction)
-    return bounded_dicg_maximum_step(x, direction)
+    return bounded_dicg_maximum_step(blmo.simple_lmo, x, direction)
 end
 
 #================================================================================================================
