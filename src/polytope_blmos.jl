@@ -38,7 +38,7 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
 end
 
 #===============================================================================================================================#
-function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     d = []
     for i in eachindex(direction)
         push!(d, direction[i])
