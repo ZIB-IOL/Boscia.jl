@@ -71,7 +71,13 @@ end
 
 #================================================================================================================#
 
-is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO) = true
+"""
+
+CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
+
+"""
+
+is_decomposition_invariant_oracle(::CubeSimpleBLMO, blmo::ManagedBoundedLMO) = true
 
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
@@ -100,6 +106,62 @@ function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     )
 end
 
+"""
+    ProbablitySimplexSimpleBLMO(N)
+
+Scaled Probability Simplex: ∑ x = 1.
+"""
+is_decomposition_invariant_oracle(::ProbablitySimplexSimpleBLMO, blmo::ManagedBoundedLMO) = true
+
+function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
+    time_ref = Dates.now()
+    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    a = FrankWolfe.compute_inface_extreme_point(
+        lmo,
+        direction,
+        x,
+    )
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
+end
+
+function dicg_maximum_step(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, x, direction; kwargs...)
+    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    return FrankWolfe.dicg_maximum_step(
+        lmo, 
+        x, 
+        direction, 
+    )
+end
+
+"""
+    UnitSimplexSimpleBLMO(N)
+
+Scaled Unit Simplex: ∑ x ≤ 1.
+"""
+
+is_decomposition_invariant_oracle(::UnitSimplexSimpleBLMO, blmo::ManagedBoundedLMO) = true
+
+function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
+    time_ref = Dates.now()
+    lmo = FrankWolfe.UnitSimplexOracle(1.0)
+    a = FrankWolfe.compute_inface_extreme_point(
+        lmo,
+        direction,
+        x,
+    )
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
+end
+
+function dicg_maximum_step(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, x, direction; kwargs...)
+    lmo = FrankWolfe.UnitSimplexOracle(1.0)
+    return FrankWolfe.dicg_maximum_step(
+        lmo, 
+        x, 
+        direction, 
+    )
+end
 #================================================================================================================#
 
 # Read global bounds from the problem.
