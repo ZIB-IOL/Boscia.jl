@@ -82,8 +82,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         # Split active set
         active_set_left, active_set_right =
           split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
-        discarded_set_left, discarded_set_right =
-          split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
     else
         atom_left = copy(x)
         atom_left[vidx] = floor(atom_left[vidx])
@@ -92,6 +90,9 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set_left, active_set_right = 
           FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
     end
+
+    discarded_set_left, discarded_set_right =
+          split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
     # Sanity check
     @assert isapprox(sum(active_set_left.weights), 1.0)
