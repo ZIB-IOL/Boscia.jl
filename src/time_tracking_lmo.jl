@@ -20,6 +20,10 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
+#========================================================================================#
+is_decomposition_invariant_oracle(blmo::TimeTrackingLMO) = true
+#========================================================================================#
+
 # if we want to reset the info between nodes in Bonobo
 function reset!(tlmo::TimeTrackingLMO)
     empty!(tlmo.optimizing_times)
