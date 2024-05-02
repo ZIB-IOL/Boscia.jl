@@ -89,7 +89,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         atom_left[v_idx] = floor(atom_left[v_idx])
         atom_right = copy(x)
         atom_right[v_idx] = ceil(atom_right[v_idx])
-        active_set_left, active_set_right = ActiveSet([(1.0, atom_left)]), ActiveSet([(1.0, atom_right)])
+        active_set_left, active_set_right = 
+          FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
     end
 
     # Sanity check
