@@ -39,10 +39,50 @@ end
 
 #===============================================================================================================================#
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, x, d, lb, ub, int_vars; kwargs...)
+    v = copy(x)
+    
+    fixed_idx = var_fixed_idx(lb, ub, int_vars)
+    for i in fixed_idx
+        idx = findfirst(x -> x==i, int_vars)
+        v[i] = lb[idx] 
+    end
+
+    for (idx, value) in pairs(v)
+        if value!=0 && !(idx in fixed_idx)
+            d[idx] > 0 ? v[idx] = 0 : v[idx] = 1 
+        end
+    end
+
+    return v
+        
 end
 
-function bounded_dicg__maximum_step_point(sblmo::CubeSimpleBLMO, x, d, lb, ub, int_vars; kwargs...)
+function bounded_dicg__maximum_step_point(sblmo::CubeSimpleBLMO, x, d; kwargs...)
+    gamma_max = 1.0
+
+    idx = collect(1: length(x))
+    fixed_idx = var_fixed_idx(lb, ub, int_vars)
+    non_fixed_idx = setdiff(idx, fixed_idx)
+
+    for i in non_fixed_idx 
+        if (x[i] === 0 && d[i] < 0) || (x[i] === 1 && d[i] > 0)
+            return 0.0
+        end
+        if d[i] > 0
+            gamma_max = min(gamma_max, - x[i] / d[i])
+        end
+        if d[i] < 0
+            gamma_max = min(gamma_max, (1-x[i]) / d[i])
+        end
+    end
+    return gamma_max
 end
+
+function  var_fixed_idx(lb, ub, int_vars)
+    idx = [(value === ub[idx]) ? int_vars[idx] : 0 for (idx, value) in pairs(lb)]
+    return deleteat!(idx, idx .== 0)
+end
+
 #===============================================================================================================================#
 """
     ProbablitySimplexSimpleBLMO(N)
