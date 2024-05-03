@@ -264,5 +264,5 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::DICG) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::VFW) = print(io, "Vanilla-Frank-Wolfe")
 #==========================================================================================#
