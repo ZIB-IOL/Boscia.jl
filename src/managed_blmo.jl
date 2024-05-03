@@ -95,7 +95,7 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
             return false
         end
     end
-"""
+
     if typeof(sblmo) == ProbablitySimplexSimpleBLMO
         if !(sblmo.N == 1)
             return false
@@ -107,7 +107,7 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
             return false
         end
     end
-"""
+
     return true
 end
 
