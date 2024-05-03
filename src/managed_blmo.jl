@@ -70,14 +70,6 @@ function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
 end
 
 #================================================================================================================#
-
-"""
-
-CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
-
-"""
-
-
 function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
     sblmo = blmo.simple_lmo
     
@@ -111,11 +103,12 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
     return true
 end
 
-
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
     sblmo = blmo.simple_lmo
+
+    #CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
     
     if typeof(sblmo) == CubeSimpleBLMO
         a = bounded_compute_inface_extreme_point(
@@ -129,7 +122,7 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwa
         blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
         return a
     end
-
+    
     #ProbablitySimplexSimpleBLMO(N)
     #Scaled Probability Simplex: ∑ x = 1.
 
@@ -149,7 +142,6 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwa
         blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
         return a
     end
-    
     return false
 end
 
@@ -180,7 +172,6 @@ function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     
     return false
 end
-
 #================================================================================================================#
 
 # Read global bounds from the problem.
