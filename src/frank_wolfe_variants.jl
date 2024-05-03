@@ -225,10 +225,10 @@ Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
     Vanilla-Frank-Wolfe
 
 """
-struct VFW <: FrankWolfeVariant end
+struct VanillaFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VFW,
+    frank_wolfe_variant::VanillaFrankWolfe,
     f,
     grad!,
     lmo,
@@ -264,5 +264,5 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::VFW) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
 #==========================================================================================#
