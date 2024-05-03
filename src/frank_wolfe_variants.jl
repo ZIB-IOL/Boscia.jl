@@ -171,14 +171,13 @@ end
 
 Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 
+#===============================================================================================#
 """
    DICG-Frank-Wolfe
 
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-
-#===============================================================================================#
 struct DICG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
@@ -223,7 +222,47 @@ end
 Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
-    Decompostion-Invariant-Frank-Wolfe
+    Vanilla-Frank-Wolfe
 
 """
+struct VFW <: FrankWolfeVariant end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::VFW,
+    f,
+    grad!,
+    lmo,
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing,
+    callback=nothing,
+    lazy=false,
+    lazy_tolerance=2.0,
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing,
+)
+    x0 = FrankWolfe.compute_active_set_iterate!(active_set)
+    # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
+    x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+        f,
+        grad!,
+        lmo,
+        x0;
+        line_search=line_search,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        verbose=verbose,
+        timeout=timeout,
+        linesearch_workspace=workspace,
+    )
+    active_set = FrankWolfe.ActiveSet([(1.0, x)])
+    return x, primal, dual_gap, active_set
+end
+
+Base.print(io::IO, ::DICG) = print(io, "Vanilla-Frank-Wolfe")
 #==========================================================================================#
