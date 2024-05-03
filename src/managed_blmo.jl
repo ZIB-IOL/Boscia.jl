@@ -101,16 +101,42 @@ end
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
-    a = bounded_compute_inface_extreme_point(
-        blmo.simple_lmo,
-        direction,
-        x,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
-    )
-    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-    return a
+    sblmo = blmo.simple_lmo
+    
+    if typeof(sblmo) == CubeSimpleBLMO
+        a = bounded_compute_inface_extreme_point(
+                blmo.simple_lmo,
+                direction,
+                x,
+                blmo.lower_bounds,
+                blmo.upper_bounds,
+                blmo.int_vars,
+                )
+        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+        return a
+    end
+
+    #ProbablitySimplexSimpleBLMO(N)
+    #Scaled Probability Simplex: ∑ x = 1.
+
+    if typeof(sblmo) == ProbablitySimplexSimpleBLMO
+        lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+        a = FrankWolfe.compute_inface_extreme_point(lmo, direction, x,)
+        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+        return a
+    end
+
+    #UnitSimplexSimpleBLMO(N)
+    #Scaled Unit Simplex: ∑ x ≤ 1.
+    
+    if typeof(sblmo) == UnitSimplexSimpleBLMO
+        lmo = FrankWolfe.UnitSimplexOracle(1.0)
+        a = FrankWolfe.compute_inface_extreme_point(lmo, direction, x,)
+        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+        return a
+    end
+    
+    return false
 end
 
 #Provide FrankWolfe.dicg_maximum_step
@@ -125,62 +151,6 @@ function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     )
 end
 
-"""
-    ProbablitySimplexSimpleBLMO(N)
-
-Scaled Probability Simplex: ∑ x = 1.
-"""
-#is_decomposition_invariant_sblmo(sblmo::ProbablitySimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
-
-function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
-    time_ref = Dates.now()
-    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-    a = FrankWolfe.compute_inface_extreme_point(
-        lmo,
-        direction,
-        x,
-    )
-    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-    return a
-end
-
-function dicg_maximum_step(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, x, direction; kwargs...)
-    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-    return FrankWolfe.dicg_maximum_step(
-        lmo, 
-        x, 
-        direction, 
-    )
-end
-
-"""
-    UnitSimplexSimpleBLMO(N)
-
-Scaled Unit Simplex: ∑ x ≤ 1.
-"""
-
-#is_decomposition_invariant_sblmo(sblmo::UnitSimplexSimpleBLMO, ::ManagedBoundedLMO) = (sblmo.N === 1.0)
-
-function compute_inface_extreme_point(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, direction, x; kwargs...)
-    time_ref = Dates.now()
-    lmo = FrankWolfe.UnitSimplexOracle(1.0)
-    a = FrankWolfe.compute_inface_extreme_point(
-        lmo,
-        direction,
-        x,
-    )
-    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-    return a
-end
-
-function dicg_maximum_step(::ProbabilitySimplexSimpleBLMO, blmo::ManagedBoundedLMO, x, direction; kwargs...)
-    lmo = FrankWolfe.UnitSimplexOracle(1.0)
-    return FrankWolfe.dicg_maximum_step(
-        lmo, 
-        x, 
-        direction, 
-    )
-end
 #================================================================================================================#
 
 # Read global bounds from the problem.
