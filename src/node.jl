@@ -77,7 +77,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
-
+    #================================================================================#
+    #different ways to split active set
     if !(tree.root.options[:variant] == DICG())
         # Split active set
         active_set_left, active_set_right =
@@ -90,6 +91,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set_left, active_set_right = 
           FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
     end
+  #================================================================================#
 
     discarded_set_left, discarded_set_right =
           split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
