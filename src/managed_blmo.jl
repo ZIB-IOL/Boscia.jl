@@ -96,7 +96,7 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
         end
     end
 
-    if typeof(sblmo) == ProbablitySimplexSimpleBLMO
+    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
         if !(sblmo.N == 1)
             return false
         end
@@ -133,7 +133,7 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwa
     #ProbablitySimplexSimpleBLMO(N)
     #Scaled Probability Simplex: ∑ x = 1.
 
-    if typeof(sblmo) == ProbablitySimplexSimpleBLMO
+    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
         lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
         a = FrankWolfe.compute_inface_extreme_point(lmo, direction, x,)
         blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
