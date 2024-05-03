@@ -21,13 +21,13 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
 #========================================================================================#
-is_decomposition_invariant_oracle(lmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(lmo.blmo)
+is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(tlmo.blmo)
 
-function compute_inface_extreme_point(lmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
+function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)
-    sblmo = lmo.blmo.simple_lmo
-    a = compute_inface_extreme_point(lmo.blmo, direction, x)
+    sblmo = tlmo.blmo.simple_lmo
+    a = compute_inface_extreme_point(tlmo.blmo, direction, x)
     
     if !is_linear_feasible(tlmo, a)
         @debug "Vertex not linear feasible $(v)"
@@ -45,9 +45,9 @@ function compute_inface_extreme_point(lmo::TimeTrackingLMO, direction, x; lazy, 
     return a
 end
 
-function dicg_maximum_step(lmo::TimeTrackingLMO, x, direction)
-    sblmo = lmo.blmo.simple_lmo
-    gamma_max = dicg_maximum_step(lmo.blmo, x, direction)
+function dicg_maximum_step(tlmo::TimeTrackingLMO, x, direction)
+    sblmo = tlmo.blmo.simple_lmo
+    gamma_max = dicg_maximum_step(tlmo.blmo, x, direction)
     return gamma_max
 end
 #========================================================================================#
