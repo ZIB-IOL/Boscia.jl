@@ -78,7 +78,7 @@ CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
 """
 
 
-function is_decomposition_invariant_sblmo(blmo::ManagedBoundedLMO)
+function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
     sblmo = blmo.simple_lmo
     
     if typeof(sblmo) == CubeSimpleBLMO
