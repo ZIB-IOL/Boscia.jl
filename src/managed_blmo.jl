@@ -76,14 +76,13 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
     if typeof(sblmo) == CubeSimpleBLMO
         lbs = sblmo.lower_bounds
         ubs = sblmo.upper_bounds
-        indicator1 = [0.0, 1.0]
-        indicator2 = [1.0, 0.0]
+        indicator = [0.0, 1.0]
         distinct_lbs = unique(lbs)
         distinct_ubs = unique(ubs)
-        if !issubset(distinct_lbs, indicator1) && !issubset(distinct_lbs, indicator2)
+        if !issubset(distinct_lbs, indicator) 
             return false
         end
-        if !issubset(distinct_ubs, indicator1) && !issubset(distinct_ubs, indicator2)
+        if !issubset(distinct_ubs, indicator) 
             return false
         end
     end
