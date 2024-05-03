@@ -90,10 +90,10 @@ function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
         distinct_ubs = unique(ubs)
         println(distinct_lbs)
         println(distinct_ubs)
-        if !(distinct_lbs == indicator1) && !(distinct_lbs == indicator2)
+        if !(distinct_lbs in indicator1) && !(distinct_lbs in indicator2)
             return false
         end
-        if !(distinct_ubs == indicator1) && !(distinct_ubs == indicator2)
+        if !(distinct_ubs in indicator1) && !(distinct_ubs in indicator2)
             return false
         end
     end
