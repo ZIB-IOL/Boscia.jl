@@ -25,13 +25,13 @@ is_decomposition_invariant_oracle(lmo::TimeTrackingLMO) = true
 
 function compute_inface_extreme_point(lmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
     sblmo = lmo.blmo.simple_lmo
-    a = compute_inface_extreme_point(sblmo, lmo.blmo, direction, x)
+    a = compute_inface_extreme_point(lmo.blmo, direction, x)
     return a
 end
 
 function dicg_maximum_step(lmo::TimeTrackingLMO, x, direction)
     sblmo = lmo.blmo.simple_lmo
-    v = dicg_maximum_step(sblmo, lmo.blmo, x, direction)
+    v = dicg_maximum_step(lmo.blmo, x, direction)
     return v
 end
 #========================================================================================#
