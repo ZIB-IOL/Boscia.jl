@@ -38,6 +38,24 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
 end
 
 #===============================================================================================================================#
+"""
+CubeSimpleBLMO
+"""
+function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
+    lbs = sblmo.lower_bounds
+    ubs = sblmo.upper_bounds
+    indicator = [0.0, 1.0]
+    distinct_lbs = unique(lbs)
+    distinct_ubs = unique(ubs)
+    if !issubset(distinct_lbs, indicator) 
+        return false
+    end
+    if !issubset(distinct_ubs, indicator) 
+        return false
+    end
+    return false
+end
+
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     d = []
     for i in eachindex(direction)
@@ -90,6 +108,25 @@ function  var_fixed_idx(lb, ub, int_vars)
     return deleteat!(idx, idx .== 0)
 end
 
+"""
+ProbablitySimplexSimpleBLMO(N)
+"""
+function is_decomposition_invariant_oracle_simple(sblmo::ProbablitySimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
+end
+
+"""
+UnitSimplexSimpleBLMO(N)
+"""
+function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
+end
 #===============================================================================================================================#
 """
     ProbablitySimplexSimpleBLMO(N)
