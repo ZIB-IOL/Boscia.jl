@@ -276,7 +276,7 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
 end
 
 function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO, direction}, 
-                                                x, lb, ub, int_vars; kwargs...)
+                                                direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
     fixed_idx = equal_bound_idx(lb, ub, 0)
