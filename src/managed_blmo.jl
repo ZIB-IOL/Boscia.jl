@@ -71,7 +71,7 @@ end
 
 #================================================================================================================#
 function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
-    return is_decoposition_invariant_oracle_simple(blmo.simple_lmo)
+    return is_decomposition_invariant_oracle_simple(blmo.simple_lmo)
 end
 
 # Provide FrankWolfe.compute_inface_extreme_point
