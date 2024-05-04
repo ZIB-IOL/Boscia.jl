@@ -313,7 +313,7 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
     non_fixed_int_idx = int_vars[non_fixed_idx]
     
-    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    lmo = FrankWolfe.UnitSimplexOracle(1.0)
     return FrankWolfe.dicg_maximum_step(lmo, x[non_fixed_int_idx], direction[non_fixed_int_idx],)
 end
 
