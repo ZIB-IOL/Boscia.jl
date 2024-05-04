@@ -71,35 +71,7 @@ end
 
 #================================================================================================================#
 function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
-    sblmo = blmo.simple_lmo
-    
-    if typeof(sblmo) == CubeSimpleBLMO
-        lbs = sblmo.lower_bounds
-        ubs = sblmo.upper_bounds
-        indicator = [0.0, 1.0]
-        distinct_lbs = unique(lbs)
-        distinct_ubs = unique(ubs)
-        if !issubset(distinct_lbs, indicator) 
-            return false
-        end
-        if !issubset(distinct_ubs, indicator) 
-            return false
-        end
-    end
-
-    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
-        if !(sblmo.N == 1)
-            return false
-        end
-    end
-
-    if typeof(sblmo) == UnitSimplexSimpleBLMO
-        if !(sblmo.N == 1)
-            return false
-        end
-    end
-
-    return true
+    return is_decoposition_invariant_oracle_simple(blmo.simple_lmo)
 end
 
 # Provide FrankWolfe.compute_inface_extreme_point
