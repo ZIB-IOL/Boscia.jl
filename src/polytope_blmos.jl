@@ -109,16 +109,6 @@ function  var_fixed_idx(lb, ub, int_vars)
 end
 
 """
-ProbabilitySimplexSimpleBLMO(N)
-"""
-function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
-    if !(sblmo.N == 1)
-        return false
-    end
-    return true  
-end
-
-"""
 UnitSimplexSimpleBLMO(N)
 """
 function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
@@ -135,6 +125,13 @@ Scaled Probability Simplex: ∑ x = N.
 """
 struct ProbabilitySimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
+end
+
+function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
 end
 
 """
