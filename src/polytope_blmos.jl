@@ -17,9 +17,9 @@ function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_var
     for i in eachindex(d)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] = d[i] > 0 ? lb[idx] : ub[idx]
+            v[idx] = d[idx] > 0 ? lb[idx] : ub[idx]
         else
-            v[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
+            v[idx] = d[idx] > 0 ? sblmo.lower_bounds[idx] : sblmo.upper_bounds[idx]
         end
     end
     return v
