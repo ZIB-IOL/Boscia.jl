@@ -57,55 +57,40 @@ function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
 end
 
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    d = []
-    for i in eachindex(direction)
-        push!(d, direction[i])
-    end
     v = copy(x)
-    
-    fixed_idx = var_fixed_idx(lb, ub, int_vars)
-    for i in fixed_idx
-        idx = findfirst(x -> x==i, int_vars)
-        v[i] = lb[idx] 
-    end
+    fixed_idx = lb. == ub
+    non_fixed_idx = findall(x->x==0, fixed_idx)
+    non_fixed_int_idx = int_vars[non_fixed_idx]
 
-    for (idx, value) in pairs(v)
-        if value!=0 && !(idx in fixed_idx)
-            d[idx] > 0 ? v[idx] = 0 : v[idx] = 1 
+    for idx in eachindex(direction)
+        if idx in non_fixed_int_idx
+            v[idx] = direction[idx] > 0 ? 0 : 1
         end
     end
-
-    return v
-        
+    return v       
 end
 
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    d = []
-    for i in eachindex(direction)
-        push!(d, direction[i])
-    end
-    gamma_max = 1.0
-
     idx = collect(1: length(x))
-    fixed_idx = var_fixed_idx(lb, ub, int_vars)
-    non_fixed_idx = setdiff(idx, fixed_idx)
-    for i in non_fixed_idx 
-        if (x[i] === 0 && d[i] > 0) || (x[i] === 1 && d[i] < 0)
-            return 0.0
+    gamma_max = 1.0
+    fixed_idx = lb. == ub
+    non_fixed_idx = findall(x->x==0, fixed_idx)
+    non_fixed_int_idx = int_vars[non_fixed_idx]
+    for idx in eachindex(direction)
+        if idx in non_fixed_int_idx
+            value = direction[idx]
+            if (x[i] === 0 && value > 0) || (x[i] === 1 && value < 0)
+                return 0.0
+            end
+            if value > 0
+                gamma_max = min(gamma_max,  x[i] / d[i])
+            end
+            if value < 0
+                gamma_max = min(gamma_max, - (1-x[i]) / d[i])
+            end
         end
-        if d[i] > 0
-            gamma_max = min(gamma_max,  x[i] / d[i])
-        end
-        if d[i] < 0
-            gamma_max = min(gamma_max, - (1-x[i]) / d[i])
-        end
+        return gamma_max
     end
-    return gamma_max
-end
-
-function  var_fixed_idx(lb, ub, int_vars)
-    idx = [(value === ub[idx]) ? int_vars[idx] : 0 for (idx, value) in pairs(lb)]
-    return deleteat!(idx, idx .== 0)
 end
 
 #===============================================================================================================================#
