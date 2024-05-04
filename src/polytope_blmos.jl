@@ -285,7 +285,7 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
     if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
         lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
     else
-        lmo = FrankWolfe.UnitSimplexSimpleOracle(1.0)
+        lmo = FrankWolfe.UnitSimplexOracle(1.0)
     end
         
     a = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
