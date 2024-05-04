@@ -277,24 +277,32 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO}, 
                                                 direction, x, lb, ub, int_vars; kwargs...)
+    a = copy(x)
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
     fixed_idx = equal_bound_idx(lb, ub, 1)
     non_fixed_int_idx = sort(int_vars[non_fixed_idx]) 
 
     if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
         lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-        a = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
+        a_lmo = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
     else
         lmo = FrankWolfe.UnitSimplexOracle(1.0)
         scaled_hot_vec = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
         active_val = scaled_hot_vec.active_val
         val_idx = scaled_hot_vec.val_idx
-        a = zeros(scaled_hot_vec.len)
-        a[val_idx] = active_val
+        a_lmo = zeros(scaled_hot_vec.len)
+        a_lmo[val_idx] = active_val
     end
     
-    for idx in fixed_idx
-        insert!(a, int_vars[idx], x[int_vars[idx]]) 
+    for idx in a
+        if idx in non_fixed_int_idx
+            non_idx = findfirst(x -> x==idx, non_fixed_int_idx)
+            if non_idx = val_idx
+                a[non_idx] = active_val
+            else
+                a[non_idx] = 0.0
+            end
+        end
     end
     return a     
 end
