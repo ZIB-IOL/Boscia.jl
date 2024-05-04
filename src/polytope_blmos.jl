@@ -53,7 +53,7 @@ function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
     if !issubset(distinct_ubs, indicator) 
         return false
     end
-    return false
+    return true
 end
 
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
