@@ -79,14 +79,14 @@ function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, 
     for idx in eachindex(direction)
         if idx in non_fixed_int_idx
             value = direction[idx]
-            if (x[i] === 0 && value > 0) || (x[i] === 1 && value < 0)
+            if (x[idx] === 0 && value > 0) || (x[idx] === 1 && value < 0)
                 return 0.0
             end
             if value > 0
-                gamma_max = min(gamma_max,  x[i] / d[i])
+                gamma_max = min(gamma_max,  x[idx] / value)
             end
             if value < 0
-                gamma_max = min(gamma_max, - (1-x[i]) / d[i])
+                gamma_max = min(gamma_max, - (1-x[idx]) / value)
             end
         end
         return gamma_max
