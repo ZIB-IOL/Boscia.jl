@@ -79,7 +79,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
     #================================================================================#
     #different ways to split active set
-    if !(tree.root.options[:variant] == DICG() || tree.root.options[:variant] == VFW() )
+    if !(tree.root.options[:variant] == DICG() || tree.root.options[:variant] == VanillaFrankWolfe() )
         # Split active set
         active_set_left, active_set_right =
           split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
