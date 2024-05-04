@@ -278,7 +278,7 @@ end
 function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO}, 
                                                 direction, x, lb, ub, int_vars; kwargs...)
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
-    fixed_idx = equal_bound_idx(lb, ub, 0)
+    fixed_idx = equal_bound_idx(lb, ub, 1)
     non_fixed_int_idx = sort(int_vars[non_fixed_idx]) 
 
     if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
