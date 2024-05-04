@@ -58,7 +58,7 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     v = copy(x)
-    fixed_idx = lb. == ub
+    fixed_idx = (lb. == ub)
     non_fixed_idx = findall(x->x==0, fixed_idx)
     non_fixed_int_idx = int_vars[non_fixed_idx]
 
@@ -73,7 +73,7 @@ end
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     idx = collect(1: length(x))
     gamma_max = 1.0
-    fixed_idx = lb. == ub
+    fixed_idx = (lb. == ub)
     non_fixed_idx = findall(x->x==0, fixed_idx)
     non_fixed_int_idx = int_vars[non_fixed_idx]
     for idx in eachindex(direction)
