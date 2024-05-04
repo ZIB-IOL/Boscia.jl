@@ -147,7 +147,7 @@ end
 function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     a = copy(x)
     gamma_max = 1.0
-    non_fixed_idx = equal_bound_idx(lb, ub, 1)
+    non_fixed_idx = equal_bound_idx(lb, ub, 0)
     non_fixed_int_idx = int_vars[non_fixed_idx]
     
     lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
@@ -302,7 +302,7 @@ end
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     a = copy(x)
     gamma_max = 1.0
-    non_fixed_idx = equal_bound_idx(lb, ub, 1)
+    non_fixed_idx = equal_bound_idx(lb, ub, 0)
     non_fixed_int_idx = int_vars[non_fixed_idx]
     
     lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
