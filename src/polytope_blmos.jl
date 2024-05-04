@@ -109,9 +109,9 @@ function  var_fixed_idx(lb, ub, int_vars)
 end
 
 """
-ProbablitySimplexSimpleBLMO(N)
+ProbabilitySimplexSimpleBLMO(N)
 """
-function is_decomposition_invariant_oracle_simple(sblmo::ProbablitySimplexSimpleBLMO)
+function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
     if !(sblmo.N == 1)
         return false
     end
