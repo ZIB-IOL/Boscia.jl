@@ -58,12 +58,11 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     v = copy(x)
-    fixed_idx = lb .== ub
-    non_fixed_idx = findall(x->x==0, fixed_idx)
+    non_fixed_idx = equal_bound_idx(lb, ub, 0)
     non_fixed_int_idx = int_vars[non_fixed_idx]
 
     for idx in eachindex(direction)
-        if idx in non_fixed_int_idx
+        if (idx in non_fixed_int_idx) && !(x[idx] == 0) 
             v[idx] = direction[idx] > 0 ? 0 : 1
         end
     end
@@ -73,8 +72,9 @@ end
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     idx = collect(1: length(x))
     gamma_max = 1.0
-    fixed_idx = lb .== ub
-    non_fixed_idx = findall(x->x==0, fixed_idx)
+    lb = sblmo.lower_bounds
+    ub = sblmo.upper_bounds
+    non_fixed_idx = equal_bound_idx(lb, ub, 1)
     non_fixed_int_idx = int_vars[non_fixed_idx]
     for idx in eachindex(direction)
         if idx in non_fixed_int_idx
@@ -91,6 +91,11 @@ function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, 
         end
         return gamma_max
     end
+end
+
+function equal_bound_idx(lb, ub, sign)
+    idx = lb .== ub
+    return findall(x->x==sign, idx)
 end
 
 #===============================================================================================================================#
@@ -130,6 +135,23 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
         end
     end
     return v
+end
+
+function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
+end
+
+function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    a = copy(x)
+    gamma_max = 1.0
+    non_fixed_idx = equal_bound_idx(lb, ub, 1)
+    non_fixed_int_idx = int_vars[non_fixed_idx]
+    
+    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    return FrankWolfe.dicg_maximum_step(lmo, x[non_fixed_int_idx], direction[non_fixed_int_idx],)
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
@@ -251,6 +273,35 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
         end
     end
     return v
+end
+
+function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO, direction}, 
+                                                x, lb, ub, int_vars; kwargs...)
+    a = copy(x)
+    non_fixed_idx = equal_bound_idx(lb, ub, 0)
+    fixed_idx = equal_bound_idx(lb, ub, 0)
+    non_fixed_int_idx = sort(int_vars[non_fixed_idx]) 
+
+    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
+        lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    else
+        lmo = FrankWolfe.UnitSimplexSimpleBLMO(1.0)
+        
+    a = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
+    for idx in fixed_idx
+        insert!(a, int_vars[idx], x[int_vars[idx]]) 
+    end
+    return a     
+end
+
+function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    a = copy(x)
+    gamma_max = 1.0
+    non_fixed_idx = equal_bound_idx(lb, ub, 1)
+    non_fixed_int_idx = int_vars[non_fixed_idx]
+    
+    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
+    return FrankWolfe.dicg_maximum_step(lmo, x[non_fixed_int_idx], direction[non_fixed_int_idx],)
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
