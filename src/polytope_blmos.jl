@@ -280,7 +280,7 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
     a = copy(x)
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
     fixed_idx = equal_bound_idx(lb, ub, 1)
-    non_fixed_int_idx = sort(int_vars[non_fixed_idx]) 
+    non_fixed_int_idx = int_vars[non_fixed_idx]
 
     if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
         lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
@@ -294,7 +294,7 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
         a_lmo[val_idx] = active_val
     end
     
-    for idx in a
+    for idx in eachindex(a)
         if idx in non_fixed_int_idx
             non_idx = findfirst(x -> x==idx, non_fixed_int_idx)
             if non_idx == val_idx
