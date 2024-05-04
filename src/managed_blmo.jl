@@ -83,7 +83,7 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwa
                 x,
                 blmo.lower_bounds,
                 blmo.upper_bounds,
-                blmo,int_vars,
+                blmo.int_vars,
                 )
     
     blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
