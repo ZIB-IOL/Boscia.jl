@@ -277,7 +277,6 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO}, 
                                                 direction, x, lb, ub, int_vars; kwargs...)
-    a = copy(x)
     non_fixed_idx = equal_bound_idx(lb, ub, 0)
     fixed_idx = equal_bound_idx(lb, ub, 0)
     non_fixed_int_idx = sort(int_vars[non_fixed_idx]) 
@@ -293,8 +292,7 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
         a = zeros(scaled_hot_vec.len)
         a[val_idx] = active_val
     end
-        
-    a = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
+    
     for idx in fixed_idx
         insert!(a, int_vars[idx], x[int_vars[idx]]) 
     end
