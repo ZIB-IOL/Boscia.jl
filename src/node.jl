@@ -278,6 +278,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Check feasibility of the iterate
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+    println(node.active_set)
     @assert is_linear_feasible(tree.root.problem.tlmo, x)
     for (_, v) in node.active_set
         @assert is_linear_feasible(tree.root.problem.tlmo, v)
