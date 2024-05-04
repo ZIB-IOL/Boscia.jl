@@ -298,9 +298,9 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
         if idx in non_fixed_int_idx
             non_idx = findfirst(x -> x==idx, non_fixed_int_idx)
             if non_idx == val_idx
-                a[non_idx] = active_val
+                a[idx] = active_val
             else
-                a[non_idx] = 0.0
+                a[idx] = 0.0
             end
         end
     end
