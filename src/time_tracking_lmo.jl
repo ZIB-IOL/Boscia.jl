@@ -26,7 +26,6 @@ is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) = is_decomposition_inva
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)
-    sblmo = tlmo.blmo.simple_lmo
     a = compute_inface_extreme_point(tlmo.blmo, direction, x)
     
     if !is_linear_feasible(tlmo, a)
