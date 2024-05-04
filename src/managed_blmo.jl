@@ -77,71 +77,26 @@ end
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
-    sblmo = blmo.simple_lmo
-
-    #CubeSimpleBLMO{T}(lower_bounds, upper_bounds)
-    
-    if typeof(sblmo) == CubeSimpleBLMO
-        a = bounded_compute_inface_extreme_point(
+    a = bounded_compute_inface_extreme_point(
                 blmo.simple_lmo,
                 direction,
                 x,
                 blmo.lower_bounds,
                 blmo.upper_bounds,
-                blmo.int_vars,
+                blmo,int_vars,
                 )
-        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-        return a
-    end
     
-    #ProbablitySimplexSimpleBLMO(N)
-    #Scaled Probability Simplex: ∑ x = 1.
-
-    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
-        lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-        a = FrankWolfe.compute_inface_extreme_point(lmo, direction, x,)
-        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-        return a
-    end
-
-    #UnitSimplexSimpleBLMO(N)
-    #Scaled Unit Simplex: ∑ x ≤ 1.
-    
-    if typeof(sblmo) == UnitSimplexSimpleBLMO
-        lmo = FrankWolfe.UnitSimplexOracle(1.0)
-        a = FrankWolfe.compute_inface_extreme_point(lmo, direction, x,)
-        blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
-        return a
-    end
-    return false
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
 end
 
 #Provide FrankWolfe.dicg_maximum_step
 function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
-    sblmo = blmo.simple_lmo
-
-    if typeof(sblmo) == CubeSimpleBLMO
-        return bounded_dicg_maximum_step(
-                    blmo.simple_lmo, 
-                    x, 
-                    direction, 
-                    blmo.lower_bounds, 
-                    blmo.upper_bounds, 
-                    blmo.int_vars,
+    return bounded_dicg_maximum_step(
+                blmo.simple_lmo,
+                x,
+                direction,
                 )
-    end
-
-    if typeof(sblmo) == ProbablitySimplexSimpleBLMO
-        lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-        return FrankWolfe.dicg_maximum_step(lmo, x, direction)
-    end
-
-    if typeof(sblmo) == UnitSimplexSimpleBLMO
-        lmo = FrankWolfe.UnitSimplexOracle(1.0)
-        return FrankWolfe.dicg_maximum_step(lmo, x, direction)
-    end
-    
-    return false
 end
 #================================================================================================================#
 
