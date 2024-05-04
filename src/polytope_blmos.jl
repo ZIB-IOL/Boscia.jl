@@ -305,7 +305,7 @@ function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSim
         end
     end
     println("Inface vertex:")
-    pritnln(a)
+    println(a)
     return a     
 end
 
