@@ -315,6 +315,8 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
     println("x and direction in gamma compute:")
     println(x)
     println(direction)
+    sx = sum(x)
+    sd = sum(direction)
     gamma_max = 1.0
     for idx in eachindex(direction)
         if true
@@ -336,6 +338,7 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
                 end
             end
         end
+        gamma_max = min(gamma_max, (sx-sblmo.N) / sd)
         println("gamma_max:")
         println(gamma_max)
         return gamma_max
