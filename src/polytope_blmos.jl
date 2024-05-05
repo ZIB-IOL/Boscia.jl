@@ -277,6 +277,8 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
+    println("x in compute inface extreme:")
+    println(x)
     
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
@@ -303,6 +305,9 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
         a = zeros(length(x))
         a[min_idx] = sblmo.N
     end
+
+    println("a in compute inface extreme:")
+    println(a)
     return a
 end
 
@@ -328,6 +333,8 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
                 end
             end
         end
+        println("gamma_max:")
+        println(gamma_max)
         return gamma_max
     end
 end
