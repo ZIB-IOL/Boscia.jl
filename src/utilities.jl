@@ -120,6 +120,7 @@ function split_vertices_set!(
 end
 
 function dicg_split_vertices_set!(x, vidx;kwargs...)
+    atom_left = copy(x)
     atom_left[vidx] = floor(x[vidx])
     atom_right = zeros(length(x))
     atom_right[vidx] = ceil(atom_right[vidx])
