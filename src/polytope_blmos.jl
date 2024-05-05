@@ -275,54 +275,59 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     return v
 end
 
-function bounded_compute_inface_extreme_point(sblmo::Union{ProbabilitySimplexSimpleBLMO, UnitSimplexSimpleBLMO}, 
-                                                direction, x, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
-    idx = findfirst(x->x==1.0, lb)
-    if !(idx==nothing)
-        a = zeros(x)
-        a[idx] = 1.0
-        return a
-    end
-    non_fixed_idx = equal_bound_idx(lb, ub, 0)
-    fixed_idx = equal_bound_idx(lb, ub, 1)
-    non_fixed_int_idx = int_vars[non_fixed_idx]
-
-    if typeof(sblmo) == ProbabilitySimplexSimpleBLMO
-        lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-        a_lmo = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
-    else
-        lmo = FrankWolfe.UnitSimplexOracle(1.0)
-        scaled_hot_vec = FrankWolfe.compute_inface_extreme_point(lmo, direction[non_fixed_int_idx], x[non_fixed_int_idx],)
-        active_val = scaled_hot_vec.active_val
-        val_idx = scaled_hot_vec.val_idx
-        a_lmo = zeros(scaled_hot_vec.len)
-        a_lmo[val_idx] = active_val
+    
+    if sblmo.N in lb
+        idx = findfirst(x->x==sblmo.N, lb)
+        a = zeros(length(x))
+        a[idx] = sblmo.N
     end
     
-    for idx in eachindex(a)
-        if idx in non_fixed_int_idx
-            non_idx = findfirst(x -> x==idx, non_fixed_int_idx)
-            if non_idx == val_idx
-                a[idx] = active_val
-            else
-                a[idx] = 0.0
+    min_val = Inf
+    min_idx = -1
+    
+    for idx in eachindex(direction)
+        if x[idx] > 0.0
+            val = direction[idx]
+            if val < 0.0 && val < min_val
+                min_val = val
+                min_idx = idx
             end
         end
     end
-    println("Inface vertex:")
-    println(a)
-    return a     
+    
+    if min_idx == -1
+        a = zeros(length(x))
+    else
+        a = zeros(length(x))
+        a[min_idx] = sblmo.N
+    end
+    return a
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    a = copy(x)
     gamma_max = 1.0
-    non_fixed_idx = equal_bound_idx(lb, ub, 0)
-    non_fixed_int_idx = int_vars[non_fixed_idx]
-    
-    lmo = FrankWolfe.UnitSimplexOracle(1.0)
-    return FrankWolfe.dicg_maximum_step(lmo, x[non_fixed_int_idx], direction[non_fixed_int_idx],)
+    for idx in eachindex(direction)
+        if true
+            value = direction[idx]
+            if value > 0
+                if idx in int_vars
+                    gamma_max = min(gamma_max,  (x[idx]-lb[idx]) / value)
+                else
+                    gamma_max = min(gamma_max,  (x[idx]-0) / value)
+                end
+            end
+            if value < 0
+                if idx in int_vars
+                    gamma_max = min(gamma_max, (x[idx]-ub[idx]) / value)
+                else
+                    gamma_max = min(gamma_max, (x[idx]-sblmo.N) / value)     
+                end
+            end
+        end
+        return gamma_max
+    end
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
