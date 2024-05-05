@@ -312,6 +312,9 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    println("x and direction in gamma compute:")
+    println(x)
+    println(direction)
     gamma_max = 1.0
     for idx in eachindex(direction)
         if true
