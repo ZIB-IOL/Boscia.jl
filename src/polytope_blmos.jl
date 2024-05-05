@@ -313,14 +313,16 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
             value = direction[idx]
             if value > 0
                 if idx in int_vars
-                    gamma_max = min(gamma_max,  (x[idx]-lb[idx]) / value)
+                    int_idx = findfirst(x->x==idx, int_vars)
+                    gamma_max = min(gamma_max,  (x[idx]-lb[int_idx]) / value)
                 else
                     gamma_max = min(gamma_max,  (x[idx]-0) / value)
                 end
             end
             if value < 0
                 if idx in int_vars
-                    gamma_max = min(gamma_max, (x[idx]-ub[idx]) / value)
+                    int_idx = findfirst(x->x==idx, int_vars)
+                    gamma_max = min(gamma_max, (x[idx]-ub[int_idx]) / value)
                 else
                     gamma_max = min(gamma_max, (x[idx]-sblmo.N) / value)     
                 end
