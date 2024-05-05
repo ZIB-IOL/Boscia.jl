@@ -119,6 +119,15 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
+function dicg_split_vertices_set!(x, vidx;kwargs...)
+    atom_left[vidx] = floor(x[vidx])
+    atom_right = zeros(length(x))
+    atom_right[vidx] = ceil(atom_right[vidx])
+    active_set_left, active_set_right = 
+          FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
+    return active_set_left, active_set_right
+end
+
 """
 Split a discarded vertices set between left and right children.
 """
