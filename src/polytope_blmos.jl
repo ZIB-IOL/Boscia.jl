@@ -90,7 +90,6 @@ end
 function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_vars; kwargs...)
     gamma_max = 1.0
     for idx in eachindex(direction)
-        if true
             value = direction[idx]
             if value > 0
                 if idx in int_vars
@@ -108,7 +107,7 @@ function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_v
                     gamma_max = min_gamma_max(sblmo, gamma_max, value, :<, idx)     
                 end
             end
-        end
+    end
         return gamma_max
 end
 
