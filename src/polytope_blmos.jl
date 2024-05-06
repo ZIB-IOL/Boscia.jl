@@ -70,32 +70,54 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
 end
 
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    idx = collect(1: length(x))
-    gamma_max = 1.0
-    lb = sblmo.lower_bounds
-    ub = sblmo.upper_bounds
-    non_fixed_idx = equal_bound_idx(lb, ub, 1)
-    non_fixed_int_idx = int_vars[non_fixed_idx]
-    for idx in eachindex(direction)
-        if idx in non_fixed_int_idx
-            value = direction[idx]
-            if (x[idx] === 0 && value > 0) || (x[idx] === 1 && value < 0)
-                return 0.0
-            end
-            if value > 0
-                gamma_max = min(gamma_max,  x[idx] / value)
-            end
-            if value < 0
-                gamma_max = min(gamma_max, - (1-x[idx]) / value)
-            end
-        end
-        return gamma_max
-    end
+    return box_maximum_step(sblmo, x, direction, lb, ub, int_vars; kwargs...)
 end
 
 function equal_bound_idx(lb, ub, sign)
     idx = lb .== ub
     return findall(x->x==sign, idx)
+end
+
+function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Symbol, ::Int)
+    if sign == :>
+        return min(gamma_max, (x[idx]-0.0) / value)
+    end
+    if sign == :<
+        return min(gamma_max, (x[idx]-sblmo.N) / value)
+    end
+end
+function min_gamma_max(sblmo::CubeSimpleBLMO, gamma_max, value, sign::Symbol, idx)
+    if sign == :>
+        return min(gamma_max, (x[idx]-sblmo.lower_bounds[idx]) / value)
+    end
+    if sign == :<
+        return min(gamma_max, (x[idx]-sblmo.upper_bounds[idx]) / value)
+    end
+end
+
+function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_vars; kwargs...)
+    gamma_max = 1.0
+    for idx in eachindex(direction)
+        if true
+            value = direction[idx]
+            if value > 0
+                if idx in int_vars
+                    int_idx = findfirst(x->x==idx, int_vars)
+                    gamma_max = min(gamma_max,  (x[idx]-lb[int_idx]) / value)
+                else
+                    gamma_max = min_gamma_max(sblmo, gamma_max, value, :>, idx)
+                end
+            end
+            if value < 0
+                if idx in int_vars
+                    int_idx = findfirst(x->x==idx, int_vars)
+                    gamma_max = min(gamma_max, (x[idx]-ub[int_idx]) / value)
+                else
+                    gamma_max = min_gamma_max(sblmo, gamma_max, value, :<, idx)     
+                end
+            end
+        end
+        return gamma_max
 end
 
 #===============================================================================================================================#
@@ -312,37 +334,10 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    println("x and direction in gamma compute:")
-    println(x)
-    println(direction)
+    gamma_max = box_maximum_step(sblmo, x, direction, lb, ub, int_vars; kwargs...)
     sx = sum(x)
     sd = sum(direction)
-    gamma_max = 1.0
-    for idx in eachindex(direction)
-        if true
-            value = direction[idx]
-            if value > 0
-                if idx in int_vars
-                    int_idx = findfirst(x->x==idx, int_vars)
-                    gamma_max = min(gamma_max,  (x[idx]-lb[int_idx]) / value)
-                else
-                    gamma_max = min(gamma_max,  (x[idx]-0) / value)
-                end
-            end
-            if value < 0
-                if idx in int_vars
-                    int_idx = findfirst(x->x==idx, int_vars)
-                    gamma_max = min(gamma_max, (x[idx]-ub[int_idx]) / value)
-                else
-                    gamma_max = min(gamma_max, (x[idx]-sblmo.N) / value)     
-                end
-            end
-        end
-    end
-    gamma_max = min(gamma_max, (sx-sblmo.N) / sd)
-    println("gamma_max:")
-    println(gamma_max)
-    return gamma_max
+    return min(gamma_max, (sx-sblmo.N) / sd)
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
