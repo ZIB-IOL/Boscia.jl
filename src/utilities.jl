@@ -123,7 +123,7 @@ function dicg_split_vertices_set!(x, vidx;kwargs...)
     atom_left = copy(x)
     atom_left[vidx] = floor(x[vidx])
     atom_right = zeros(length(x))
-    atom_right[vidx] = ceil(atom_right[vidx])
+    atom_right[vidx] = ceil(x[vidx])
     active_set_left, active_set_right = 
           FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
     return active_set_left, active_set_right
