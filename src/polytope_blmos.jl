@@ -338,11 +338,11 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, l
                 end
             end
         end
-        gamma_max = min(gamma_max, (sx-sblmo.N) / sd)
-        println("gamma_max:")
-        println(gamma_max)
-        return gamma_max
     end
+    gamma_max = min(gamma_max, (sx-sblmo.N) / sd)
+    println("gamma_max:")
+    println(gamma_max)
+    return gamma_max
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
