@@ -78,14 +78,6 @@ function equal_bound_idx(lb, ub, sign)
     return findall(x->x==sign, idx)
 end
 
-function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Symbol, ::Int)
-    if sign == :>
-        return min(gamma_max, (x[idx]-0.0) / value)
-    end
-    if sign == :<
-        return min(gamma_max, (x[idx]-sblmo.N) / value)
-    end
-end
 function min_gamma_max(sblmo::CubeSimpleBLMO, gamma_max, value, sign::Symbol, idx)
     if sign == :>
         return min(gamma_max, (x[idx]-sblmo.lower_bounds[idx]) / value)
@@ -331,6 +323,15 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
     println("a in compute inface extreme:")
     println(a)
     return a
+end
+
+function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Symbol, ::Int)
+    if sign == :>
+        return min(gamma_max, (x[idx]-0.0) / value)
+    end
+    if sign == :<
+        return min(gamma_max, (x[idx]-sblmo.N) / value)
+    end
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
