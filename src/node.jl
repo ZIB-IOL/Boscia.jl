@@ -58,7 +58,6 @@ mutable struct FrankWolfeNode{
     local_tightenings::Int
     local_potential_tightenings::Int
     dual_gap::Float64
-    global_bounds::IB
 end
 """
 Create the information of the new branching nodes 
