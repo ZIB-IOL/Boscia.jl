@@ -123,6 +123,8 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     n = length(x)
     idx = findall(!iszero, x)
     v_idx = filter(i -> lb[i] != ub[i], idx)
+    active_set_left = []
+    active_set_right = []
     active_set_left = FrankWolfe.ActiveSet()
     active_set_right = FrankWolfe.ActiveSet()
     fixed_contributions = ones(Float64, n)
@@ -151,11 +153,13 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
             push!(active_set_right, (vertex, weight))
         end
     end
-    active_set_left.weights = 1.0
-    active_set_left.atoms = active_set_left.x
-    active_set_right.weights = 1.0
-    active_set_right.atoms = active_set_right.x
-    return (active_set_left, active_set_right)
+    as_left = FrankWolfe.ActiveSet(active_set_left)
+    as_right = FrankWolfe.ActiveSet(active_set_right)
+    as_left.weights = 1.0
+    as_left.atoms = active_set_left.x
+    as_right.weights = 1.0
+    as_right.atoms = active_set_right.x
+    return (as_left, as_right)
 end
 """
 Split a discarded vertices set between left and right children.
