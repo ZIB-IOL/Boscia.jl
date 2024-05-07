@@ -67,10 +67,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
-
-    println("Splitted Variable idx:")
-    println(vidx)
-
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -279,8 +275,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Check feasibility of the iterate
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-    println("Active set:")
-    println(node.active_set)
     @assert is_linear_feasible(tree.root.problem.tlmo, x)
     for (_, v) in node.active_set
         @assert is_linear_feasible(tree.root.problem.tlmo, v)
