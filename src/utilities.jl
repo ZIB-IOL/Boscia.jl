@@ -132,7 +132,9 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
         end
     end
 
-    for idx_subset in 0:(2^length(v_idx) - 1)
+    exactness = 100
+
+    for idx_subset in 0:exactness
         vertex = copy(fixed_contributions)  
         weight = 1.0
         
