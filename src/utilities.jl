@@ -162,13 +162,12 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
         FrankWolfe.active_set_renormalize!(as_right)
         FrankWolfe.compute_active_set_iterate!(as_right)
     end
-
+    warm_start_x_left = FrankWolfe.get_active_set_iterate(as_left)
+    warm_start_x_right = FrankWolfe.get_active_set_iterate(as_right)
+    as_left = FrankWolfe.ActiveSet([(1.0, warm_start_x_left)])
+    as_right = FrankWolfe.ActiveSet([(1.0, warm_start_x_right)])
     
-    as_left.weights = [1.0]
-    as_left.atoms = [active_set_left.x]
-    as_right.weights = [1.0]
-    as_right.atoms = [active_set_right.x]
-    return (as_left, as_right)
+    return as_left, as_right
 end
 """
 Split a discarded vertices set between left and right children.
