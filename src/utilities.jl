@@ -139,7 +139,7 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
             vertex = copy(fixed_contributions)
             weight = 1.0
             for i in 1:n
-                if i != fixed_dim 
+                if i != vidx
                     bit = (idx_subset >> (i-1)) & 1
                     vertex[i] = bit * upper_bounds[i] + (1 - bit) * lower_bounds[i]
                     current_value = point[i]
