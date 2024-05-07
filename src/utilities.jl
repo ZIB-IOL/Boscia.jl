@@ -146,6 +146,7 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
                     weight *= bit == 0 ? 1 - current_value : current_value
                 end
             end
+            println(weight, vertex)
             if fixed_value == 0
                 push!(as_left, (weight, vertex))
             else
