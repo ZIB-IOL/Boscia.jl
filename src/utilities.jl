@@ -169,7 +169,8 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     warm_start_x_right = FrankWolfe.get_active_set_iterate(as_right)
     as_left = FrankWolfe.ActiveSet([(1.0, warm_start_x_left)])
     as_right = FrankWolfe.ActiveSet([(1.0, warm_start_x_right)])
-    
+    println(warm_start_x_left)
+    println(warm_start_x_right)
     return as_left, as_right
 end
 """
