@@ -151,18 +151,12 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
             push!(active_set_right, (vertex, weight))
         end
     end
-    
+    active_set_left.weights = 1.0
+    active_set_left.atoms = active_set_left.x
+    active_set_right.weights = 1.0
+    active_set_right.atoms = active_set_right.x
+    return (active_set_left, active_set_right)
 end
-
-    
-    atom_left[vidx] = floor(x[vidx])
-    atom_right = zeros(length(x))
-    atom_right[vidx] = ceil(x[vidx])
-    active_set_left, active_set_right = 
-          FrankWolfe.ActiveSet([(1.0, atom_left)]), FrankWolfe.ActiveSet([(1.0, atom_right)])
-    return active_set_left, active_set_right
-end
-
 """
 Split a discarded vertices set between left and right children.
 """
