@@ -60,12 +60,6 @@ mutable struct FrankWolfeNode{
     dual_gap::Float64
     global_bounds::IB
 end
-
-function FrankWolfeNode(std, active_set, discarded_vertices, local_bounds, level, fw_dual_gap_limit, fw_time, global_tightenings, 
-                            local_tightenings, local_potential_tightenings, dual_gap)
-  return FrankWolfeNode(std, active_set, discarded_vertices, local_bounds, level, fw_dual_gap_limit, fw_time, global_tightenings,
-                            local_tightenings, local_potential_tightenings, dual_gap, IntegerBounds())
-end
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
