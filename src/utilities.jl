@@ -125,8 +125,6 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     v_idx = filter(i -> lb[i] != ub[i], idx)
     active_set_left = []
     active_set_right = []
-    active_set_left = FrankWolfe.ActiveSet()
-    active_set_right = FrankWolfe.ActiveSet()
     fixed_contributions = ones(Float64, n)
     for i in 1:n
         if lb[i] == ub[i] 
