@@ -123,8 +123,8 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     n = length(x)
     idx = findall(!iszero, x)
     v_idx = filter(i -> lb[i] != ub[i], idx)
-    active_set_left = []
-    active_set_right = []
+    as_left = FrankWolfe.ActiveSet([(0.0, x)])
+    as_right = FrankWolfe.ActiveSet([(0.0, x)])
     fixed_contributions = ones(Float64, n)
     for i in 1:n
         if lb[i] == ub[i] 
@@ -146,13 +146,13 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
         end
 
         if vertex[vidx] == 0.0
-            push!(active_set_left, (weight, vertex))
+            push!(as_left, (weight, vertex))
         else
-            push!(active_set_right, (weight, vertex))
+            push!(as_right, (weight, vertex))
         end
     end
-    as_left = FrankWolfe.ActiveSet(active_set_left)
-    as_right = FrankWolfe.ActiveSet(active_set_right)
+    deleteat!(as_left, 1)
+    deleteat!(as_right, 1)
     as_left.weights = 1.0
     as_left.atoms = active_set_left.x
     as_right.weights = 1.0
