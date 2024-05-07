@@ -132,25 +132,25 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
         end
     end
 
-    exactness = 100
-
-    for idx_subset in 0:exactness
-        vertex = copy(fixed_contributions)  
-        weight = 1.0
-        
-        # Assign vertex values and calculate weights for variable dimensions
-        for i in 1:length(v_idx)
-            idx = v_idx[i]
-            bit = (idx_subset >> (i-1)) & 1
-            vertex[idx] = bit * ub[idx] + (1 - bit) * lb[idx]
-            current_value = x[idx]
-            weight *= bit == 0 ? 1 - current_value : current_value
-        end
-
-        if vertex[vidx] == 0.0
-            push!(as_left, (weight, vertex))
-        else
-            push!(as_right, (weight, vertex))
+    exactness = 4
+    for fixed_value in 0:1
+        fixed_contributions[vidx] = fixed_value
+        for idx_subset in 0:(2^(exactness-1) - 1)
+            vertex = copy(fixed_contributions)
+            weight = 1.0
+            for i in 1:n
+                if i != fixed_dim 
+                    bit = (idx_subset >> (i-1)) & 1
+                    vertex[i] = bit * upper_bounds[i] + (1 - bit) * lower_bounds[i]
+                    current_value = point[i]
+                    weight *= bit == 0 ? 1 - current_value : current_value
+                end
+            end
+            if fixed_value == 0
+                push!(as_left, (weight, vertex))
+            else
+                push!(as_right, (weight, vertex))
+            end
         end
     end
     deleteat!(as_left, 1)
