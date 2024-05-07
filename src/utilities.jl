@@ -116,7 +116,7 @@ function split_vertices_set!(
         FrankWolfe.active_set_renormalize!(right_as)
         FrankWolfe.compute_active_set_iterate!(right_as)
     end
-    return (active_set_left.x, active_set_right.x)
+    return (active_set_left, active_set_right)
 end
 
 function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
