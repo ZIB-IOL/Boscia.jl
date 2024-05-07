@@ -146,9 +146,9 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
         end
 
         if vertex[vidx] == 0.0
-            push!(active_set_left, (vertex, weight))
+            push!(active_set_left, (weight, vertex))
         else
-            push!(active_set_right, (vertex, weight))
+            push!(active_set_right, (weight, vertex))
         end
     end
     as_left = FrankWolfe.ActiveSet(active_set_left)
