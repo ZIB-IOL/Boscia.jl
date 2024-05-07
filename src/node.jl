@@ -269,6 +269,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         tree.root.problem.integer_variables,
     )
 
+    node.global_bounds = build_global_bounds(tlmo.blmo, tree.root.problem.integer_variables)
+
     # check for feasibility and boundedness
     status = check_feasibility(tree.root.problem.tlmo)
     if status == INFEASIBLE
