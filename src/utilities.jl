@@ -119,7 +119,7 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
-function dicg_split_vertices_set!(x, vidx;kwargs...)
+function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     atom_left = copy(x)
     atom_left[vidx] = floor(x[vidx])
     atom_right = zeros(length(x))
