@@ -153,10 +153,21 @@ function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
     end
     deleteat!(as_left, 1)
     deleteat!(as_right, 1)
-    as_left.weights = 1.0
-    as_left.atoms = active_set_left.x
-    as_right.weights = 1.0
-    as_right.atoms = active_set_right.x
+     # renormalize active set and recompute new iterates
+    if !isempty(as_left)
+        FrankWolfe.active_set_renormalize!(as_left)
+        FrankWolfe.compute_active_set_iterate!(as_left)
+    end
+    if !isempty(as_right)
+        FrankWolfe.active_set_renormalize!(as_right)
+        FrankWolfe.compute_active_set_iterate!(as_right)
+    end
+
+    
+    as_left.weights = [1.0]
+    as_left.atoms = [active_set_left.x]
+    as_right.weights = [1.0]
+    as_right.atoms = [active_set_right.x]
     return (as_left, as_right)
 end
 """
