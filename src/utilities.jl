@@ -116,11 +116,45 @@ function split_vertices_set!(
         FrankWolfe.active_set_renormalize!(right_as)
         FrankWolfe.compute_active_set_iterate!(right_as)
     end
-    return (active_set, right_as)
+    return (active_set_left.x, active_set_right.x)
 end
 
 function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
-    atom_left = copy(x)
+    n = length(x)
+    idx = findall(!iszero, x)
+    v_idx = filter(i -> lb[i] != ub[i], idx)
+    active_set_left = FrankWolfe.ActiveSet()
+    active_set_right = FrankWolfe.ActiveSet()
+    fixed_contributions = ones(Float64, n)
+    for i in 1:n
+        if lb[i] == ub[i] 
+            fixed_contributions[i] = x[i]  
+        end
+    end
+
+    for idx_subset in 0:(2^length(v_idx) - 1)
+        vertex = copy(fixed_contributions)  
+        weight = 1.0
+        
+        # Assign vertex values and calculate weights for variable dimensions
+        for i in 1:length(v_idx)
+            idx = v_idx[i]
+            bit = (idx_subset >> (i-1)) & 1
+            vertex[idx] = bit * ub[idx] + (1 - bit) * lb[idx]
+            current_value = x[idx]
+            weight *= bit == 0 ? 1 - current_value : current_value
+        end
+
+        if vertex[vidx] == 0.0
+            push!(active_set_left, (vertex, weight))
+        else
+            push!(active_set_right, (vertex, weight))
+        end
+    end
+    
+end
+
+    
     atom_left[vidx] = floor(x[vidx])
     atom_right = zeros(length(x))
     atom_right[vidx] = ceil(x[vidx])
