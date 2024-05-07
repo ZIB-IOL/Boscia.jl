@@ -111,7 +111,7 @@ function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_v
         return gamma_max
 end
 
-function build_node_bounds_all_idx(sblmo::CubeSimpleBLMO, integer_bounds::IB, n)
+function build_node_bounds_all_idx(sblmo::CubeSimpleBLMO, integer_bounds, n)
     lb = []
     ub = []
     for idx in collect(1:n)
