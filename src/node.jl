@@ -62,7 +62,7 @@ mutable struct FrankWolfeNode{
 end
 
 function FrankWolfeNode(std, active_set, discarded_vertices, local_bounds, level, fw_dual_gap_limit, fw_time, global_tightenings, 
-                            local_tightenings, local_potential_tightenings, dual_gap, global_bounds)
+                            local_tightenings, local_potential_tightenings, dual_gap)
   return FrankWolfeNode(std, active_set, discarded_vertices, local_bounds, level, fw_dual_gap_limit, fw_time, global_tightenings,
                             local_tightenings, local_potential_tightenings, dual_gap, global_bounds, IntegerBounds())
 end
