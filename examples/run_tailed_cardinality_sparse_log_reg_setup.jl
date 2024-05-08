@@ -7,10 +7,10 @@ var_A = parse(Int64, ARGS[4])
 @show seed, dimension, M, var_A
 
 try 
-    tailed_cardinality_sparse_log_reg_scip(seed, dimension, M, var_A)#, bo_mode="default")
+    tailed_cardinality_sparse_log_reg_boscia(seed, dimension, M, var_A)#, bo_mode="default")
 catch e 
     println(e)
-    file = "scip_sparse_log_reg_" * str(seed) * "_" * str(dimension)    
+    file = "boscia_sparse_log_reg_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end
