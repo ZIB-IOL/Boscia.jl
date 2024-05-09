@@ -110,26 +110,6 @@ function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_v
     end
         return gamma_max
 end
-
-function build_node_bounds_all_idx(sblmo::CubeSimpleBLMO, integer_bounds, n)
-    lb = []
-    ub = []
-    for idx in collect(1:n)
-        if haskey(integer_bounds.lower_bounds, idx)
-            push!(lb, integer_bounds.lower_bounds[idx])
-        else
-            push!(lb, sblmo.lower_bounds[idx])
-        end
-
-        if haskey(integer_bounds.upper_bounds, idx)
-            push!(ub, integer_bounds.upper_bounds[idx])
-        else
-            push!(ub, sblmo.upper_bounds[idx])
-        end 
-    end
-    return (lb, ub)
-end
-
 #===============================================================================================================================#
 """
     ProbablitySimplexSimpleBLMO(N)
