@@ -121,57 +121,31 @@ end
 
 function dicg_split_vertices_set!(blmo, x, vidx;kwargs...)
     n = length(x)
-    idx = findall(!iszero, x)
-    v_idx = filter(i -> lb[i] != ub[i], idx)
-    as_left = FrankWolfe.ActiveSet([(0.0, x)])
-    as_right = FrankWolfe.ActiveSet([(0.0, x)])
-    fixed_contributions = ones(Float64, n)
-    for i in 1:n
-        if lb[i] == ub[i] 
-            fixed_contributions[i] = x[i]  
+    x0_left = x
+    x0_right = x
+    if typeof(blmo) == SimpleBoundableLMO
+        if typeof(blmo.simple_lmo) == CubeSimpleBLMO
+            x0_left[vidx] = floor(x[vidx])
+            x0_right[vidx] = ceil(x[vidx])
         end
-    end
-
-    exactness = 4
-    for fixed_value in 0:1
-        fixed_contributions[vidx] = fixed_value
-        for idx_subset in 0:(2^(exactness-1) - 1)
-            vertex = copy(fixed_contributions)
-            weight = 1.0
-            for i in 1:n
-                if i != vidx
-                    bit = (idx_subset >> (i-1)) & 1
-                    vertex[i] = bit * ub[i] + (1 - bit) * lb[i]
-                    current_value = x[i]
-                    weight *= bit == 0 ? 1 - current_value : current_value
-                end
-            end
-            println(weight, vertex)
-            if fixed_value == 0
-                push!(as_left, (weight, vertex))
-            else
-                push!(as_right, (weight, vertex))
-            end
+        if typeof(blmo.simple_lmo) == ProbabilitySimplexSimpleBLMO
+            sum_val = sum(x) - v[idx]
+            x0_right += (n-1) / sum_val
+            x0_left[vidx] = floor(x[vidx])
+            x0_right = zeros(length(x))
+            x0_right[vidx] = 1.0
         end
+        if typeof(blmo.simple_lmo) == UnitSimplexSimpleBLMO
+            x0_left[vidx] = floor(x[vidx])
+            x0_right = zeros(length(x))
+            x0_right[vidx] = 1.0
+        end
+    else
+        error("Boscia-DICG do not support MOI yet")
     end
-    deleteat!(as_left, 1)
-    deleteat!(as_right, 1)
-     # renormalize active set and recompute new iterates
-    if !isempty(as_left)
-        FrankWolfe.active_set_renormalize!(as_left)
-        FrankWolfe.compute_active_set_iterate!(as_left)
-    end
-    if !isempty(as_right)
-        FrankWolfe.active_set_renormalize!(as_right)
-        FrankWolfe.compute_active_set_iterate!(as_right)
-    end
-    warm_start_x_left = FrankWolfe.get_active_set_iterate(as_left)
-    warm_start_x_right = FrankWolfe.get_active_set_iterate(as_right)
-    as_left = FrankWolfe.ActiveSet([(1.0, warm_start_x_left)])
-    as_right = FrankWolfe.ActiveSet([(1.0, warm_start_x_right)])
-    println(warm_start_x_left)
-    println(warm_start_x_right)
-    return as_left, as_right
+    as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
+    as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
+    retrun as_left, as_right
 end
 """
 Split a discarded vertices set between left and right children.
