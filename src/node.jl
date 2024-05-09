@@ -83,7 +83,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
           split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     else
         active_set_left, active_set_right = 
-          dicg_split_vertices_set!(x, lb, ub, vidx)
+          dicg_split_vertices_set!tree.root.problem.tlmo, x, vidx)
     end
   #================================================================================#
 
