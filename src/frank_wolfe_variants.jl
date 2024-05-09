@@ -246,23 +246,25 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
 )
-    x0 = FrankWolfe.compute_active_set_iterate!(active_set)
-
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
-    x, _, primal, dual_gap, _ = FrankWolfe.frank_wolfe(
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
         grad!,
         lmo,
-        x0;
-        line_search=line_search,
+        active_set,
         epsilon=epsilon,
         max_iteration=max_iteration,
-        verbose=verbose,
+        line_search=line_search,
+        callback=callback,
+        lazy=lazy,
+        lazy_tolerance=lazy_tolerance,
         timeout=timeout,
-        linesearch_workspace=workspace,
+        add_dropped_vertices=add_dropped_vertices,
+        use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
+        verbose=verbose,
+        away_steps=false,
     )
-    active_set = FrankWolfe.ActiveSet([(1.0, x)])
-    return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
