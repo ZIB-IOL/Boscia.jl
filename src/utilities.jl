@@ -125,6 +125,10 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
     n = length(x)
     x0_left = x
     x0_right = x
+    println("x")
+    println(x)
+    println(x[vidx])
+    println(ceil(x[vidx]))
     if typeof(blmo).name.wrapper == ManagedBoundedLMO
         if typeof(blmo.simple_lmo) == CubeSimpleBLMO
             x0_left[vidx] = floor(x[vidx])
