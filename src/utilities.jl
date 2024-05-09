@@ -145,6 +145,8 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
     else
         error("Boscia-DICG do not support MOI yet")
     end
+    println(x0_left)
+    println(x0_right)
     
     as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
     as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
