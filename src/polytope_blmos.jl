@@ -289,18 +289,13 @@ end
 
 function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
-    println("x in compute inface extreme:")
-    println(x)
-    
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
         a = zeros(length(x))
         a[idx] = sblmo.N
     end
-    
     min_val = Inf
     min_idx = -1
-    
     for idx in eachindex(direction)
         if x[idx] > 0.0
             val = direction[idx]
@@ -310,16 +305,12 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
             end
         end
     end
-    
     if min_idx == -1
         a = zeros(length(x))
     else
         a = zeros(length(x))
         a[min_idx] = sblmo.N
     end
-
-    println("a in compute inface extreme:")
-    println(a)
     return a
 end
 
