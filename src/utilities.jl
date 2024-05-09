@@ -140,6 +140,7 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
             x0_left[vidx] = floor(x[vidx])
             x0_right = zeros(length(x))
             x0_right[vidx] = 1.0
+            println("Prbability")
         end
         if typeof(blmo.simple_lmo) == UnitSimplexSimpleBLMO
             x0_left[vidx] = floor(x[vidx])
