@@ -119,7 +119,7 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
-function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int, ::IntegerBounds;kwargs...)
+function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int, ::IntegerBounds;kwargs...)where {T,R}
     blmo = tree.root.problem.tlmo.blmo
     x = FrankWolfe.get_active_set_iterate(active_set)
     n = length(x)
