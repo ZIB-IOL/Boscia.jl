@@ -82,9 +82,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set_left, active_set_right =
           split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     else
-        if (typeof(tree.root.problem.tlmo.blmo.simple_lmo) == CubeSimpleBLMO)
-          lb, ub = build_node_bounds_all_idx(tree.root.problem.tlmo.blmo.simple_lmo, node.local_bounds, tree.root.problem.tlmo.blmo.n)
-        end
         active_set_left, active_set_right = 
           dicg_split_vertices_set!(x, lb, ub, vidx)
     end
