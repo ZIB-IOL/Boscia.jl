@@ -143,9 +143,11 @@ function dicg_split_vertices_set!(blmo, x, vidx;kwargs...)
     else
         error("Boscia-DICG do not support MOI yet")
     end
+    
     as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
     as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
-    retrun as_left, as_right
+    
+    return as_left, as_right
 end
 """
 Split a discarded vertices set between left and right children.
