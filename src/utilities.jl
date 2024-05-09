@@ -119,7 +119,7 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
-function dicg_split_vertices_set!(x, lb, ub, vidx;kwargs...)
+function dicg_split_vertices_set!(blmo, x, vidx;kwargs...)
     n = length(x)
     idx = findall(!iszero, x)
     v_idx = filter(i -> lb[i] != ub[i], idx)
