@@ -123,7 +123,6 @@ function dicg_split_vertices_set!(blmo, x, vidx;kwargs...)
     n = length(x)
     x0_left = x
     x0_right = x
-    println(typeof(blmo))
     if typeof(blmo).name.wrapper == ManagedBoundedLMO
         if typeof(blmo.simple_lmo) == CubeSimpleBLMO
             x0_left[vidx] = floor(x[vidx])
