@@ -123,12 +123,8 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
     blmo = tree.root.problem.tlmo.blmo
     x = FrankWolfe.get_active_set_iterate(active_set)
     n = length(x)
-    x0_left = x
-    x0_right = x
-    println("x")
-    println(x)
-    println(x[vidx])
-    println(ceil(x[vidx]))
+    x0_left = copy(x)
+    x0_right = copy(x)
     if typeof(blmo).name.wrapper == ManagedBoundedLMO
         if typeof(blmo.simple_lmo) == CubeSimpleBLMO
             x0_left[vidx] = floor(x[vidx])
@@ -140,7 +136,6 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
             x0_left[vidx] = floor(x[vidx])
             x0_right = zeros(length(x))
             x0_right[vidx] = 1.0
-            println("Prbability")
         end
         if typeof(blmo.simple_lmo) == UnitSimplexSimpleBLMO
             x0_left[vidx] = floor(x[vidx])
@@ -150,9 +145,6 @@ function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, v
     else
         error("Boscia-DICG do not support MOI yet")
     end
-    println(x0_left)
-    println(x0_right)
-    
     as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
     as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
     
