@@ -27,7 +27,7 @@ end
 
 function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
-        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
+        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6) || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i])
             @debug(
                 "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
             )
@@ -42,28 +42,25 @@ end
 CubeSimpleBLMO
 """
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
-    lbs = sblmo.lower_bounds
-    ubs = sblmo.upper_bounds
-    indicator = [0.0, 1.0]
-    distinct_lbs = unique(lbs)
-    distinct_ubs = unique(ubs)
-    if !issubset(distinct_lbs, indicator) 
-        return false
-    end
-    if !issubset(distinct_ubs, indicator) 
-        return false
-    end
-    return true
+    lb = sblmo.lower_bounds
+    ub = sblmo.upper_bounds
+    return all(x -> (x[1] == 0 || x[1] == 1) && (x[2] == 0 || x[2] == 1), zip(lb, ub))
 end
 
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     v = copy(x)
-    non_fixed_idx = equal_bound_idx(lb, ub, 0)
+    non_fixed_idx = findall(lb .!= ub)
     non_fixed_int_idx = int_vars[non_fixed_idx]
 
+     # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
+    sx = sum(x[non_fixed_int_idx])
+    if sx <= 0
+        return v
+    end
+    
     for idx in eachindex(direction)
-        if (idx in non_fixed_int_idx) && !(x[idx] == 0) 
-            v[idx] = direction[idx] > 0 ? 0 : 1
+        if (idx in non_fixed_int_idx) && x[idx] > 0 
+            v[idx] = direction[idx] >  0 ? 0 : 1
         end
     end
     return v       
@@ -71,11 +68,6 @@ end
 
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return box_maximum_step(sblmo, x, direction, lb, ub, int_vars; kwargs...)
-end
-
-function equal_bound_idx(lb, ub, sign)
-    idx = lb .== ub
-    return findall(x->x==sign, idx)
 end
 
 function min_gamma_max(sblmo::CubeSimpleBLMO, gamma_max, value, sign::Symbol, idx)
