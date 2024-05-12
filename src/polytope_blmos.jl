@@ -71,7 +71,7 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
 end
 
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube, x, direction)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
 end
 
 function min_gamma_max(sblmo::CubeSimpleBLMO, gamma_max, value, sign::Symbol, idx)
