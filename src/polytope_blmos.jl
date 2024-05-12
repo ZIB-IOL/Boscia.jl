@@ -334,7 +334,7 @@ function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Sym
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle(), x, direction)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle{Float64}(), x, direction)
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
