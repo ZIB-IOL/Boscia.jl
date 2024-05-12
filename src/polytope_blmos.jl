@@ -298,29 +298,38 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
 end
 
 function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    a = copy(x)
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
         a = zeros(length(x))
         a[idx] = sblmo.N
     end
+
+    non_fixed_idx = findall(lb .!= ub)
+    non_fixed_int_idx = int_vars[non_fixed_idx]
+
+     # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
+    sx = sum(x[non_fixed_int_idx])
+    if sx <= 0
+        return v
+    end
+    
     min_val = Inf
     min_idx = -1
+
     for idx in eachindex(direction)
-        if x[idx] > 0.0
-            val = direction[idx]
-            if val < 0.0 && val < min_val
-                min_val = val
-                min_idx = idx
-            end
+        val = direction[idx]
+        if val < min_val && x[idx] > 0
+            min_val = val
+            min_idx = idx
         end
     end
-    if min_idx == -1
-        a = zeros(length(x))
-    else
-        a = zeros(length(x))
-        a[min_idx] = sblmo.N
+    
+
+    if sx ≉ lmo.right_side && min_val > 0
+        return zeros(length(x))
     end
+    a = zeros(length(x))
+    a[min_idx] = 1.0
     return a
 end
 
