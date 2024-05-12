@@ -60,7 +60,11 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     
     for idx in eachindex(direction)
         if (idx in non_fixed_int_idx) && x[idx] > 0 
-            v[idx] = direction[idx] >  0 ? 0 : 1
+            if x[idx] ≈ 1
+                v[idx] = 1
+            else
+                v[idx] = direction[idx] >  0 ? 0 : 1
+            end
         end
     end
     return v       
