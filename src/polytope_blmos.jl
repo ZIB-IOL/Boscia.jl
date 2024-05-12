@@ -152,7 +152,7 @@ function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpl
     return true  
 end
 
-function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
