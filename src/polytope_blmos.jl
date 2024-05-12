@@ -302,6 +302,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
         idx = findfirst(x->x==sblmo.N, lb)
         a = zeros(length(x))
         a[idx] = sblmo.N
+        return a
     end
      # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
     sx = sum(x)
