@@ -152,14 +152,28 @@ function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpl
     return true  
 end
 
-function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
-    gamma_max = 1.0
-    non_fixed_idx = equal_bound_idx(lb, ub, 0)
-    non_fixed_int_idx = int_vars[non_fixed_idx]
-    
-    lmo = FrankWolfe.ProbabilitySimplexOracle(1.0)
-    return FrankWolfe.dicg_maximum_step(lmo, x[non_fixed_int_idx], direction[non_fixed_int_idx],)
+    if sblmo.N in lb
+        idx = findfirst(x->x==sblmo.N, lb)
+        a = zeros(length(x))
+        a[idx] = sblmo.N
+    end
+    min_val = Inf
+    min_idx = -1
+    for idx in eachindex(direction)
+        val = direction[idx]
+        if val < min_val && x[idx] > 0
+            min_val = val
+            min_idx = idx
+        end
+    end
+    a[min_idx] = 1.0
+    return a
+end
+
+function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle(), x, direction)
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
@@ -320,10 +334,7 @@ function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Sym
 end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    gamma_max = box_maximum_step(sblmo, x, direction, lb, ub, int_vars; kwargs...)
-    sx = sum(x)
-    sd = sum(direction)
-    return min(gamma_max, (sx-sblmo.N) / sd)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle(), x, direction)
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
