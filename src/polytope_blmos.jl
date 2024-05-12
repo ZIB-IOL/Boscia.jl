@@ -321,7 +321,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
     end
     
 
-    if sx ≉ lmo.right_side && min_val > 0
+    if sx ≉ slmo.N && min_val > 0
         return zeros(length(x))
     end
     a = zeros(length(x))
