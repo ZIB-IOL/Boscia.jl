@@ -37,27 +37,25 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     return true
 end
 
-#===============================================================================================================================#
-"""
-CubeSimpleBLMO
-"""
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
     lb = sblmo.lower_bounds
     ub = sblmo.upper_bounds
     return all(x -> (x[1] == 0 || x[1] == 1) && (x[2] == 0 || x[2] == 1), zip(lb, ub))
 end
 
+# After splitting, splitted variable will be fixed to either 0 or 1.
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     v = copy(x)
     non_fixed_idx = findall(lb .!= ub)
     non_fixed_int_idx = int_vars[non_fixed_idx]
 
-     # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
+     # For non_fixed coordinates, zero-sum means that they are all fixed to origin.
     sx = sum(x[non_fixed_int_idx])
     if sx <= 0
         return v
     end
-    
+    # Fix the point to the same face.
+    # Zero will be return only if d_i is greater than zero.
     for idx in eachindex(direction)
         if (idx in non_fixed_int_idx) && x[idx] > 0 
             if x[idx] ≈ 1
@@ -70,43 +68,13 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     return v       
 end
 
+# Once one variable is fixed to one, then there is only one feasible point.
+# Otherwise, assgin one to the entry corresponding to the smallest entry of d.
+# Same for the UnitSimplex and ProbabilitySimplex.
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
 end
 
-function min_gamma_max(sblmo::CubeSimpleBLMO, gamma_max, value, sign::Symbol, idx)
-    if sign == :>
-        return min(gamma_max, (x[idx]-sblmo.lower_bounds[idx]) / value)
-    end
-    if sign == :<
-        return min(gamma_max, (x[idx]-sblmo.upper_bounds[idx]) / value)
-    end
-end
-
-function box_maximum_step(sblmo::SimpleBoundableLMO, x, direction, lb, ub, int_vars; kwargs...)
-    gamma_max = 1.0
-    for idx in eachindex(direction)
-            value = direction[idx]
-            if value > 0
-                if idx in int_vars
-                    int_idx = findfirst(x->x==idx, int_vars)
-                    gamma_max = min(gamma_max,  (x[idx]-lb[int_idx]) / value)
-                else
-                    gamma_max = min_gamma_max(sblmo, gamma_max, value, :>, idx)
-                end
-            end
-            if value < 0
-                if idx in int_vars
-                    int_idx = findfirst(x->x==idx, int_vars)
-                    gamma_max = min(gamma_max, (x[idx]-ub[int_idx]) / value)
-                else
-                    gamma_max = min_gamma_max(sblmo, gamma_max, value, :<, idx)     
-                end
-            end
-    end
-        return gamma_max
-end
-#===============================================================================================================================#
 """
     ProbablitySimplexSimpleBLMO(N)
 
@@ -152,12 +120,14 @@ function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpl
     return true  
 end
 
+# 
 function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
         a = zeros(length(x))
         a[idx] = sblmo.N
+        return a
     end
     min_val = Inf
     min_idx = -1
