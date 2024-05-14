@@ -89,6 +89,7 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0,
+    warm_start = true,
     kwargs...,
 )
     if verbose
@@ -202,6 +203,7 @@ function solve(
                 :use_shadow_set => use_shadow_set,
                 :heuristics => heuristics, 
                 :heu_ncalls => 0,
+                :warm_start => warm_start,
             ),
         ),
         branch_strategy=branching_strategy,

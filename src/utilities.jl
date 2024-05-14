@@ -57,11 +57,10 @@ Remark: This should not happen when using a MIP solver for the nodes!
 """
 function restart_active_set(
     node::FrankWolfeNode,
-    lmo::FrankWolfe.LinearMinimizationOracle,
+    lmo::TimeTrackingLMO,  #FrankWolfe.LinearMinimizationOracle
     nvars::Int,
 )
-    direction = Vector{Float64}(undef, nvars)
-    Random.rand!(direction)
+    direction = collect(1.0:nvars)
     v = compute_extreme_point(lmo, direction)
     push!(node.active_set, (1.0, v))
     return node.active_set

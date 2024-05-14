@@ -263,6 +263,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
+    if !tree.root.options[:warm_start]
+        Base.empty!(node.active_set)
+        restart_active_set(node, tree.root.problem.tlmo, tree.root.problem.nvars)
+    end
+
     # Check feasibility of the iterate
     active_set = node.active_set
     x = FrankWolfe.compute_active_set_iterate!(node.active_set)
