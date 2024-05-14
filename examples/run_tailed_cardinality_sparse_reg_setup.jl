@@ -2,7 +2,8 @@ include("tailed_cardinality.jl")
 
 seed = parse(Int64, ARGS[1])
 dimension = parse(Int64, ARGS[2])
-mode = parse(String, ARGS[3])
+#mode = parse(String, ARGS[3])
+mode = ARGS[3]
 @show seed, dimension, mode
 
 try 
