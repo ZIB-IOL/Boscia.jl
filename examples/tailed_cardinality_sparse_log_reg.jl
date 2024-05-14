@@ -135,7 +135,8 @@ function tailed_cardinality_sparse_log_reg_boscia(seed=1, dimension=10, M=1.0, v
     elseif bo_mode == "no_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
     elseif bo_mode == "strong_branching"
-        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
+        blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
         MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
@@ -143,7 +144,8 @@ function tailed_cardinality_sparse_log_reg_boscia(seed=1, dimension=10, M=1.0, v
         function perform_strong_branch(tree, node)
             return node.level <= length(tree.root.problem.integer_variables)/depth
         end
-        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+        blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
         MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
