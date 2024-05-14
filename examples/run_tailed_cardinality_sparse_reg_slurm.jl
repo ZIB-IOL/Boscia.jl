@@ -1,12 +1,19 @@
-modes = ["no_tightening", "local_tightening", "afw", "no_ss"]
+#modes = ["no_tightening", "local_tightening", "afw", "no_ss"]
 
-modes 
+modes = ["no_as", "no_as_no_ss", "strong_branching", "hybrid_branching"]
 
 for mode in modes
-for dimension in 15:30
-    for seed in 1:10
-        @show seed, dimension
-        run(`sbatch batch_tailed_cardinality_sparse_reg.sh $seed $dimension $mode`)
+    if mode == "hybrid_branching"
+        depths = [1,2,5,10,20]
+    else
+        depths = [1]
     end
-end
+    for depth in depths
+        for dimension in 15:30
+            for seed in 1:10
+                @show seed, dimension
+                run(`sbatch batch_tailed_cardinality_sparse_reg.sh $seed $dimension $mode $depth`)
+            end
+        end
+    end
 end
