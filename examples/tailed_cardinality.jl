@@ -113,6 +113,8 @@ function tailed_cardinality_sparse_reg_boscia(seed=1, dimension=10, full_callbac
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true) 
     elseif bo_mode == "no_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false) 
+    else
+        error("Mode not known!")
     end             
 
     total_time_in_sec=result[:total_time_in_sec]
