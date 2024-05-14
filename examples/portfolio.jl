@@ -75,7 +75,7 @@ function build_optimizer(o, mode, n, ai, bi)
     return lmo, x
 end
 
-function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mode)
+function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mode="default", depth=1)
     limit = 1800
 
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
@@ -87,10 +87,10 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
     ### warmstart_active_set no longer defined on master branch
-    # elseif bo_mode == "no_as_no_ss"
-    #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, use_shadow_set=false)
-    # elseif bo_mode == "no_as"
-    #     x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warmstart_active_set=false, warmstart_shadow_set=true)
+    elseif bo_mode == "no_as_no_ss"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false)
+    elseif bo_mode == "no_as"
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=true)
     elseif bo_mode == "no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
     elseif bo_mode == "default"
@@ -107,6 +107,21 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, use_shadow_set=false,print_iter=1) 
     elseif bo_mode == "no_tightening_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
+    elseif bo_mode == "strong_branching"
+        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
+        MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
+
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
+    elseif bo_mode == "hybrid_branching"
+        function perform_strong_branch(tree, node)
+            return node.level <= length(tree.root.problem.integer_variables)/depth
+        end
+        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+        MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
+
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
+    else
+        error("Mode not known!")
     end     
     
     total_time_in_sec=result[:total_time_in_sec]
@@ -128,8 +143,10 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
     else
         @show result[:primal_objective]
         df = DataFrame(seed=seed, dimension=n, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode=="afw"
+        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode=="afw" || bo_mode == "strong_branching"
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
+        elseif bo_mode == "hybrid_branching"
+            file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv") 
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
         end
