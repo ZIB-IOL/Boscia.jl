@@ -34,7 +34,7 @@
 #SBATCH --mail-type=FAIL
 
 # You may not place any commands before the last SBATCH directive
-julia --project run_tailed_cardinality_sparse_log_reg_setup.jl $1 $2 $3 $4 $5&> tailed_cardinality_sparse_log_reg_$2_$1_$SLURM_JOB_ID.txt
+julia --project run_tailed_cardinality_sparse_log_reg_setup.jl $1 $2 $3 $4 $5 $6 &> tailed_cardinality_sparse_log_reg_$2_$1_$SLURM_JOB_ID.txt
 
 # Finish the script
 exit 0
