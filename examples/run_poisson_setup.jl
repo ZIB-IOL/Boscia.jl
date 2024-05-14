@@ -8,10 +8,10 @@ depth = parse(Int64, ARGS[5])
 @show seed, dimension, ns
 
 try 
-    poisson_reg_pavito(seed, dimension, ns, bo_mode=mode, depth=depth)#, bo_mode="default")
+    poisson_reg_boscia(seed, dimension, ns, bo_mode=mode, depth=depth)#, bo_mode="default")
 catch e 
     println(e)
-    file = "scip_pavito_" * str(seed) * "_" * str(dimension)    
+    file = "boscia_" * mode * "_" * str(seed) * "_" * str(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end
