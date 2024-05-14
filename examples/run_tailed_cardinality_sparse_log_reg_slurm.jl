@@ -1,7 +1,8 @@
 #include("sparse_log_reg.jl")    
 
-mode = "no_tightening"
+modes = ["no_tightening", "global_tightening", "local_tightening", "afw","no_ss"]
 
+for mode in modes
 for dimension in [5:5:20;]
     for seed in 1:10
         @show seed, dimension
@@ -11,5 +12,6 @@ for dimension in [5:5:20;]
             end
         end
     end
+end
 end
 

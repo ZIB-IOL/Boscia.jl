@@ -4,7 +4,8 @@ seed = parse(Int64, ARGS[1])
 dimension = parse(Int64, ARGS[2])
 M = parse(Float64, ARGS[3])
 var_A = parse(Int64, ARGS[4])
-mode = parse(String, ARGS[5])
+mode = ARGS[5]
+#mode = parse(String, ARGS[5])
 @show seed, dimension, M, var_A, mode
 
 try 
