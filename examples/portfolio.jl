@@ -6,6 +6,7 @@ using LinearAlgebra
 using DataFrames, CSV
 using JuMP
 using Ipopt
+using HiGHS
 import MathOptInterface
 const MOI = MathOptInterface
 using Pavito

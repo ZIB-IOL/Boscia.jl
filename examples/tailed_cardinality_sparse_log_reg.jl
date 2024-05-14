@@ -7,6 +7,7 @@ using SCIP
 import MathOptInterface
 const MOI = MathOptInterface
 using Dates
+using HiGHS
 using Printf
 using DataFrames
 using CSV

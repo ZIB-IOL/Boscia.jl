@@ -6,6 +6,7 @@ using SCIP
 using JuMP
 using Ipopt
 using Pavito
+using HiGHS
 using AmplNLWriter, SHOT_jll
 using LinearAlgebra
 import MathOptInterface

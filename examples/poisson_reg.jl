@@ -3,6 +3,7 @@ using FrankWolfe
 using Random
 using SCIP
 using Pavito
+using HiGHS
 using AmplNLWriter, SHOT_jll
 # using Statistics
 using LinearAlgebra

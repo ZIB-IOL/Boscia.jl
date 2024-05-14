@@ -7,6 +7,7 @@ using SCIP
 using Pavito
 using AmplNLWriter, SHOT_jll
 import Bonobo
+using HiGHS
 import MathOptInterface
 const MOI = MathOptInterface
 using Dates
