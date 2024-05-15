@@ -195,7 +195,7 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
         elseif bo_mode == "hybrid_branching"
             file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_" * string(depth) * "_poisson_reg_"  * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
         else
-            file_name = joinpath(@__DIR__,"csv/boscia_no_warm_start_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
         end
     end
     println(file_name)

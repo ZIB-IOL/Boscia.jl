@@ -1,4 +1,5 @@
-modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss", "strong_branching", "hybrid_branching", "strong_convexity"]
+modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss", "strong_convexity"]
+#modes = ["strong_branching", "hybrid_branching"]
 
 for mode in modes
     if mode == "hybrid_branching"
