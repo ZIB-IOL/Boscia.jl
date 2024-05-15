@@ -1,8 +1,9 @@
-modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss"]
-
+#modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss"]
+modes = ["no_ss","no_as","no_as_no_ss"]
 #modes = ["strong_branching", "hybrid_branching"]
 
 for mode in modes
+    @show mode
     if mode == "hybrid_branching"
         depths = [1, 2, 5, 10, 20]
     else
