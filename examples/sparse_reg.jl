@@ -157,7 +157,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
     else
         @show result[:primal_objective]
         df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
-        if bo_mode=="default" || bo_mode=="local_tightening" || bo_mode=="global_tightening" || bo_mode=="no_tightening" || bo_mode=="afw" || bo_mode ="strong_branching"
+        if bo_mode=="default" || bo_mode=="local_tightening" || bo_mode=="global_tightening" || bo_mode=="no_tightening" || bo_mode=="afw" || bo_mode == "strong_branching"
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         elseif bo_mode == "hybrid_branching"
             file_name == = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
