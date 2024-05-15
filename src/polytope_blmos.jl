@@ -49,7 +49,8 @@ function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
         retrun true
 end
 
-# After splitting, splitted variable will be fixed to either 0 or 1.
+    
+# After splitting, split variable will be fixed to either 0 or 1.
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     v = copy(x)
     non_fixed_idx = findall(lb .!= ub)
@@ -74,9 +75,10 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     return v       
 end
 
-# Once one variable is fixed to one, then there is only one feasible point.
-# Otherwise, assgin one to the entry corresponding to the smallest entry of d.
-# Same for the UnitSimplex and ProbabilitySimplex.
+# For DICG each variable can only be either fixed to 0.0 or 1.0, or with normal bound [0.0, 1.0].
+# Observe that the entries of direction corresponding to fixed variables will always be 0.0.
+# In such case, we can use normal ZeroOneHypercube to compute gamma_max.
+# Same as in the Probability and Unit Simplex.
 function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
 end
@@ -126,7 +128,6 @@ function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpl
     return true  
 end
 
-# 
 function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
     if sblmo.N in lb
@@ -280,6 +281,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
         a[idx] = sblmo.N
         return a
     end
+        
      # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
     sx = sum(x)
     if sx <= 0
@@ -296,8 +298,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
             min_idx = idx
         end
     end
-    
-
+        
     if sx ≉ sblmo.N && min_val > 0
         return zeros(length(x))
     end
@@ -306,14 +307,6 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
     return a
 end
 
-function min_gamma_max(sblmo::UnitSimplexSimpleBLMO, gamma_max, value, sign::Symbol, ::Int)
-    if sign == :>
-        return min(gamma_max, (x[idx]-0.0) / value)
-    end
-    if sign == :<
-        return min(gamma_max, (x[idx]-sblmo.N) / value)
-    end
-end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle{Float64}(), x, direction)
