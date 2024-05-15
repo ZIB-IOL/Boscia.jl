@@ -3,7 +3,6 @@ module Boscia
 using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
-#=====================================================#
 import FrankWolfe: is_decomposition_invariant_oracle
 export is_decomposition_invariant_oracle
 
@@ -12,7 +11,6 @@ export compute_inface_extreme_point
 
 import FrankWolfe: dicg_maximum_step
 export dicg_maximum_step
-#=====================================================#
 using Random
 import Bonobo
 using Printf
