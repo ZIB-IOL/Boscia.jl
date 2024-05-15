@@ -147,7 +147,8 @@ function sparse_log_reg_boscia(seed=1, dimension=5, M=3, k=5.0, var_A=1.0, full_
     elseif bo_mode == "no_tightening_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
     elseif bo_mode == "strong_branching"
-        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, HiGHS.Optimizer())
+        blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+        branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
         MOI.set(branching_strategy.optimizer, MOI.Silent(), true)
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
@@ -155,7 +156,8 @@ function sparse_log_reg_boscia(seed=1, dimension=5, M=3, k=5.0, var_A=1.0, full_
         function perform_strong_branch(tree, node)
             return node.level <= length(tree.root.problem.integer_variables)/depth
         end
-        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, HiGHS.Optimizer(), perform_strong_branch)
+        blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+        branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
         MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
