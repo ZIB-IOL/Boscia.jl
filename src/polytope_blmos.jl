@@ -40,7 +40,13 @@ end
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
     lb = sblmo.lower_bounds
     ub = sblmo.upper_bounds
-    return all(x -> (x[1] == 0 || x[1] == 1) && (x[2] == 0 || x[2] == 1), zip(lb, ub))
+    indicator = [0.0, 1.0]
+    distinct_lbs = unique(lbs)
+    distinct_ubs = unique(ubs)
+    if !issubset(distinct_lbs, indicator) || !issubset(distinct_ubs, indicator)
+        return false
+    else
+        retrun true
 end
 
 # After splitting, splitted variable will be fixed to either 0 or 1.
@@ -56,8 +62,8 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     end
     # Fix the point to the same face.
     # Zero will be return only if d_i is greater than zero.
-    for idx in eachindex(direction)
-        if (idx in non_fixed_int_idx) && x[idx] > 0 
+    for idx in non_fixed_int_idx
+        if x[idx] > 0 
             if x[idx] ≈ 1
                 v[idx] = 1
             else
