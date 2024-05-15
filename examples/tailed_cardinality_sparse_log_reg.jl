@@ -162,7 +162,7 @@ function tailed_cardinality_sparse_log_reg_boscia(seed=1, dimension=10, M=1.0, v
     else
         df = DataFrame(seed=seed, dimension=dimension, var_A=var_A, M=M, time=total_time_in_sec, solution=result[:primal_objective], dual_gap=result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
         #file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_tailed_cardinality_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(M) * ".csv")
-        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode == "afw" || bo_mode = "strong_branching"
+        if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode == "afw" || bo_mode == "strong_branching"
             file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_tailed_cardinality_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(M) * ".csv")
         elseif bo_mode == "hybrid_branching"
             file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_" * string(depth) * "_tailed_cardinality_sparse_log_reg_" * string(seed) * "_" * string(dimension) * "_" * string(var_A) * "_" * string(M) * ".csv")
