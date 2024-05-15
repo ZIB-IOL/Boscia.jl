@@ -160,7 +160,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
         if bo_mode=="default" || bo_mode=="local_tightening" || bo_mode=="global_tightening" || bo_mode=="no_tightening" || bo_mode=="afw" || bo_mode == "strong_branching"
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         elseif bo_mode == "hybrid_branching"
-            file_name == = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
+            file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         end

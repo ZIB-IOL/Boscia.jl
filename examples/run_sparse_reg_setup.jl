@@ -10,7 +10,7 @@ try
     sparse_reg_boscia(seed, dimension, bo_mode=mode, depth=depth)#, bo_mode="default")
 catch e 
     println(e)
-    file = "boscia_sparse_reg_" * mode * "_" string(seed) * "_" * str(dimension)    
+    file = "boscia_sparse_reg_" * mode * "_" string(seed) * "_" * string(dimension)    
     open(file * ".txt","a") do io
         println(io, e)
     end
