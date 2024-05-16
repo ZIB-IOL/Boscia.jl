@@ -112,7 +112,7 @@ function merge_csvs(;example="sparse_reg", mode="default", seeds=1:10, dimension
     elseif example == "tailed_cardinality_sparse_log_reg"
         for dimension in dimensions
             for seed in seeds 
-                for m in m
+                for m in M
                     for var in var_A
                         try
                             df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Boscia/" * mode * "/" * name * "_" * example * "_" string(var) * "_" * string(m) * ".csv")))
