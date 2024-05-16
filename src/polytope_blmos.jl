@@ -45,8 +45,8 @@ function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
     distinct_ubs = unique(ubs)
     if !issubset(distinct_lbs, indicator) || !issubset(distinct_ubs, indicator)
         return false
-    else
-        return true
+    end
+    return true
 end
 
     
