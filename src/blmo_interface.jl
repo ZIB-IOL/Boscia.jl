@@ -185,6 +185,13 @@ function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
     return collect(1:N)
 end
 
+"""
+Given split variable index, return corresponding active sets for DICG as a warm start.
+"""
+function dicg_split_vertices_set!(blmo::BoundedLinearMinimizationOracle, active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int;kwargs...)where {T,R}
+    error("Not implemented yet")
+end
+
 
 ## Logs
 """
