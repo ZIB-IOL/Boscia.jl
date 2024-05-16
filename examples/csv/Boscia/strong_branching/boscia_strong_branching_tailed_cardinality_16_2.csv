@@ -1,0 +1,2 @@
+seed,n0,m0,M,time,solution,dual_gap,rel_dual_gap,termination,ncalls
+2,2,16,20.0,10.082,2.9760070981254225,7.213614949819203e-8,2.4239240320413155e-8,OPTIMAL,15
