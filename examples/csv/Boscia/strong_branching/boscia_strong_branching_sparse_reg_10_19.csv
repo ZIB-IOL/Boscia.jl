@@ -1,0 +1,2 @@
+seed,dimension,p,k,time,solution,dual_gap,rel_dual_gap,termination,ncalls
+10,19,95,4.0,9.294,2.9921497701767152,0.014660989869290653,0.004923944622816315,OPTIMAL,47
