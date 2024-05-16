@@ -1,87 +1,139 @@
 using CSV
 using DataFrames
 
-function build_non_grouped_csv(option::String; example = "sparse_reg")
-    """
-    Read out the set up data, i.e. seed, m , n etc.
-    """
-    function set_up_data(criterion, type; setting=false, long_run=false, comparison=false)
-        prob = criterion in ["AF","DF","GTIF"] ? "fusion" : "opt"
-        df_condi = if criterion in ["GTI","GTIF"]
-            DataFrame(CSV.File(joinpath(@__DIR__, "csv/GTI_" * prob * "_" * type * "_data.csv")))
-        elseif setting
-            DataFrame(CSV.File(joinpath(@__DIR__, "csv/settings_" * prob * "_" * type * "_data.csv")))
-        elseif long_run
-            DataFrame(CSV.File(joinpath(@__DIR__, "csv/long_run_" * prob * "_" * type * "_data.csv")))
-        elseif comparison
-            DataFrame(CSV.File(joinpath(@__DIR__, "csv/" * prob * "_" * type * "_data.csv")))
-        else
-            DataFrame(CSV.File(joinpath(@__DIR__, "csv/" * prob * "_" * type * "_data.csv")))
+"""
+Create the set up data like seeds, dimensions etc.
+"""
+function set_up_data(df, example::String)
+    if example in ["mip_lib_22433", "mip_lib_neos5", "mip_lib_ran14x18-disj-8", "mip_lib_pg5_34"]
+        num_seeds = 3
+        seeds = Vector{Int64}()
+        numV = collect(4:8)
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(numV)))
         end
 
-        seeds = df_condi[!,:seed]
-        dims = df_condi[!,:numberOfExperiments]
-        num_para = df_condi[!, :numberOfParameters]
-        allowed_Ex = df_condi[!,:numberOfAllowedEx]
-        fracs = df_condi[!,:frac]
-        eigmax = df_condi[!,:eigmax]
-        eigmin = df_condi[!,:eigmin]
-        ratio = df_condi[!,:ratio]
+        df[!,:seed] = seeds
+        df[!,:numV] = repeat(numV, num_seeds)
+    elseif example in ["portfolio_integer", "portfolio_mixed"]
+        num_seeds = 10
+        seeds = Vector{Int64}()
+        dimensions = collect(20:5:120)
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(dimensions))
+        end
 
-        return seeds, dims, num_para, allowed_Ex, fracs, eigmax, eigmin, ratio
+        df[!,:seed] = seeds
+        df[!,:dimension] = repeat(dimensions, num_seeds)
+    elseif example == "poisson_reg"
+        num_seeds = 10
+        seeds = Vector{Int64}()
+        dimensions = collect(50:20:100)
+        k = dimensions./2
+        Ns = [0.1,1,5,10]
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(Ns))
+        end
+
+        df[!,:seed] = repeat(seeds, length(dimensions))
+        df[!,:dimension] = repeat(dimensions, num_seeds*length(Ns))
+        df[!,:Ns] = repeat(Ns, num_seeds*length(dimensions))
+    elseif example == "sparse_log_reg"
+        num_seeds = 3
+        seeds = Vector{Int64}()
+        dimensions = collect(5:5:20)
+        M = [0.1, 1]
+        var_A = [1, 5]
+        p = 5 .* dimensions
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(M) * length(var_A)))
+        end
+
+        df[!,:seed] = repeat(seeds, length(dimensions))
+        df[!,:dimension] = repeat(dimensions, num_seeds * length(var_A) * length(M))
+        df[!,:varA] = repeat(varA, num_seeds * length(M) * length(dimensions))
+        df[!,:k] = repeat(k, num_seeds * length(var_A) * length(M))
+        df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
+    elseif example == "sparse_reg"
+        num_seeds = 10
+        seeds = Vector{Int64}()
+        dimensions = collect(15:30)
+        p = 5 .* dimensions
+        k = ceil.(dimesions ./ 5)
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(dimensions))
+        end
+
+        df[!,:seed] = seeds
+        df[!,:dimension] = repeat(dimensions, num_seeds)
+        df[!,:p] = repeat(k, num_seeds)
+        df[!,:k] = repeat(p, num_seeds)
+    elseif example == "tailed_cardinality_sparse_log_reg"
+        num_seeds = 10
+        seeds = Vector{Int64}()
+        dimensions = collect(5:5:20)
+        var_A = [1,5]
+        M = [0.1,1]
+        p = 5 .* dimensions
+        k = ceil.(dimesions ./ 5)
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(M) * length(var_A))
+        end
+
+        df[!,:seed] = repeat(seeds, length(dimensions))
+        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(A))
+        df[!,:varA] = repeat(var_A, num_seeds * length(M) * length(dimensions))
+        df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
+    elseif example == "tailed_cardinality"
+        num_seeds = 10
+        seeds = Vector{Int64}()
+        dimensions = collect(5:5:20)
+        var_A = [1,5]
+        M = [0.1,1]
+        p = 5 .* dimensions
+        k = ceil.(dimesions ./ 5)
+        for i in 1:num_seeds
+            append!(seeds, fill(i, length(M) * length(var_A))
+        end
+
+        df[!,:seed] = repeat(seeds, length(dimensions))
+        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(A))
+        df[!,:varA] = repeat(var_A, num_seeds * length(M) * length(dimensions))
+        df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
+    else
+        error("Unknown example!")
     end
+    return df
+end
 
+function build_non_grouped_csv(option::String; example = "sparse_reg")
     """
     Read out the time, solution etc from the individuals job files.
     """
-    function read_data(criterion, solver, dimensions, folder, type)
+    function read_data(example::String, solver::string, folder)
         time = []
         solution = []
         termination = []
         num_n_o_c = []
         lower_bound = []
         dual_gap = []
-        for m in dimensions
-            @show m
-            df_dim = DataFrame(CSV.File(joinpath(@__DIR__, "csv/"* folder *"/" * solver *"_" * criterion * "_" * string(m) * "_" * type * "_optimality.csv")))
 
-            dim_termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df_dim[!,:termination]]
+        @show example, solver
 
-            time = vcat(time, df_dim[!,:time])
-            if  solver == "custombb" && criterion in ["A","AF"]  #criterion in ["A","D","AF","DF"] &&
-                solution = vcat(solution, df_dim[!,:solution])
-            elseif solver == "custombb" && criterion in ["D","DF"]
-                solution = vcat(solution, df_dim[!,:solution_scaled])
-            elseif solver == "pajarito"
-                solution = vcat(solution, df_dim[!,:solution]*1/m)
-            elseif solver == "socp"
-                for i in 1:length(df_dim[!,:scaled_solution])
-                    if df_dim[!,:feasible] == "true"
-                        solution = push!(solution, df_dim[i,:scaled_solution])
-                    else
-                        solution = push!(solution, Inf)
-                    end
-                end
-                #solution = vcat(solution, df_dim[!,:scaled_solution])
-            else
-                solution = vcat(solution, df_dim[!,:solution])
-            end
-            termination = vcat(termination, dim_termination)
-            if solver == "scip"
-                num_n_o_c = vcat(num_n_o_c, df_dim[!,:calls])
-            elseif solver == "boscia"
-                num_n_o_c = vcat(num_n_o_c, df_dim[!,:num_nodes])
-            elseif solver == "custombb"
-                num_n_o_c = vcat(num_n_o_c, df_dim[!,:number_nodes])
-            elseif solver == "socp"
-                num_n_o_c = vcat(num_n_o_c, df_dim[!,:numberCuts])
-            elseif solver == "pajarito"
-                num_n_o_c = vcat(num_n_o_c, df_dim[!,:numberIterations])
-            end
-            if solver == "boscia"
-                dual_gap = vcat(dual_gap, df_dim[!,:dual_gap])
-                lower_bound = vcat(lower_bound, df_dim[!, :solution] - df_dim[!, :dual_gap]) 
-            end
+        df = DataFrame(CSV.File(joinpath(@__DIR__, folder * "/" * solver * "_" * example * ".csv")))
+
+        time = df[!,:time]
+        solution = df[!,:solution]
+        termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df[!,:termination]]
+
+        if solver == "boscia"
+            dual_gap = df[!,:dual_gap]
+            lower_bound = df[!,:solution] - df[!,:dual_gap]
+            num_n_o_c = df[!,:ncalls]
+        elseif solver == "ipopt"
+            num_n_o_c = df[!,:num_nodes]
+        elseif solver == "scip_oa"
+            num_n_o_c = df[:calls]
         end
 
         @show length(time), length(solution), length(termination), length(num_n_o_c), length(dual_gap), length(lower_bound)
@@ -106,76 +158,76 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         return rel_gap
     end
 
-    if option == "comparison"
-        criteria = ["A", "AF", "DF", "D"]
-        solvers = ["Boscia","CustomBB","Pajarito","SOCP", "SCIP"]
-        #solvers = ["Boscia","CustomBB","Pajarito", "SCIP"]
-        dimensions = [50,60,80,100,120]
+    function combine_data(df, example, solver, solver_id, minimumTime)
+        time, solution, termination, num_n_o_c, dual_gap, lower_bound = read_data(example, solver_id, "final_csvs" )
 
-        for criterion in criteria
-            @show criterion
-            seeds, dims, num_para, allowed_Ex, fracs, eigmax, eigmin, ratio = set_up_data(criterion, type, setting = option == "setting", long_run = option == "long_run", comparison = option == "comparison")
+        df[!,Symbol("time"*solver)] = time
+        df[!,Symbol("solution"*solver)] = solution
+        df[!,Symbol("termination"*solver)] = termination
+        if solver == "Boscia"
+            df[!,Symbol("numberNodes"*solver)] = num_n_o_c
+            df[!,Symbol("dualGap"*solver)] = dual_gap
+            df[!,Symbol("lb"*solver)] = lower_bound
 
-            df = DataFrame()
-
-            df[!,:seed] = seeds
-            df[!,:numberOfExperiments] = dims
-            df[!,:numberOfParameters] = num_para
-            df[!,:numberOfAllowedEx] = allowed_Ex
-            df[!,:frac] = fracs
-            df[!,:eigmax] = eigmax
-            df[!,:eigmin] = eigmin
-            df[!,:ratio] = ratio 
-
-            @show size(df)
-
-            for solver in solvers
-                if criterion in ["A","D"] && solver == "SCIP"
-                    continue
-                end
-                @show solver
-                time, solution, termination, num_n_o_c, dual_gap, lower_bound = read_data(criterion, lowercase(solver), dimensions, solver, type)
-
-                df[!,Symbol("time"*solver)] = time
-                df[!,Symbol("solution"*solver)] = solution
-                df[!,Symbol("termination"*solver)] = termination
-                df[!,Symbol("numberNodes"*solver)] = num_n_o_c
-                if solver == "Boscia"
-                    df[!,Symbol("dualGap"*solver)] = dual_gap
-                    df[!,Symbol("lb"*solver)] = lower_bound
-
-                    rel_gap = relative_gap(solution, lower_bound)
-                else
-                    df[!,Symbol("dualGap"*solver)] = solution - df[!,:lbBoscia]
-                    rel_gap = relative_gap(solution, df[!,:lbBoscia])
-                end
-                df[!,Symbol("relGap"*solver)] = rel_gap
-
-                @show size(df)
-            end
-
-            if criterion in ["AF","DF"]
-                df[!,:minimumTime] = min.(df[!,:timeBoscia], df[!,:timeSCIP], df[!,:timeCustomBB], df[!,:timePajarito], df[!,:timeSOCP])
-                df[!,:allSolved] = df[!,:terminationBoscia] + df[!,:terminationCustomBB] + df[!,:terminationSCIP] + df[!,:terminationPajarito] + df[!,:terminationSOCP].== 5
-
-                #df[!,:minimumTime] = min.(df[!,:timeBoscia], df[!,:timeSCIP], df[!,:timeCustomBB], df[!,:timePajarito])
-                #df[!,:allSolved] = df[!,:terminationBoscia] + df[!,:terminationCustomBB] + df[!,:terminationSCIP] + df[!,:terminationPajarito] .== 4
-            else
-                df[!,:minimumTime] = min.(df[!,:timeBoscia], df[!,:timeCustomBB], df[!,:timePajarito], df[!,:timeSOCP])
-                df[!,:allSolved] = df[!,:terminationBoscia] + df[!,:terminationCustomBB] + df[!,:terminationPajarito] + df[!,:terminationSOCP] .== 4
-
-                #df[!,:minimumTime] = min.(df[!,:timeBoscia], df[!,:timeCustomBB], df[!,:timePajarito])
-                #df[!,:allSolved] = df[!,:terminationBoscia] + df[!,:terminationCustomBB] + df[!,:terminationPajarito] .== 3
-            end
-
-            file_name = joinpath(@__DIR__, "csv/Results/" * criterion * "_optimality_" * type * "_non_grouped.csv")
-            CSV.write(file_name, df, append=false)
-            println("\n")
+            rel_gap = relative_gap(solution, lower_bound)
+        elseif solver in ["Ipopt", "ScipOA"]
+            df[!, Symbol("numberNodes"*solver)] = num_n_o_c
         end
-    elseif option == "setting"
+
+        rel_gap = solver == "Boscia" ? relative_gap(solution, lower_bound) : relative_gap(solution, df[!,:lbBoscia])
+        df[!,Symbol("relGap"*solver)] = rel_gap
+
+        minimumTime = min.(minimumTime, time)
+
+        return df, minimumTime
+    end
+
+    examples = ["mip_lib_22433", "mip_lib_neos5", "mip_lib_pg5_34", "mip_lib_ran14x18", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+    if option == "comparison"
+        solvers = ["Boscia", "Ipopt", "ScipOA", "Pavito", "Shot"]
+    elseif option == "settings"
+        solvers = ["Boscia","Boscia_Afw", "Boscia_No_As_No_Ss", "Boscia_No_As", "Boscia_No_Ss", "Boscia_Global_Tightening","Boscia_Local_Tightening", "Boscia_No_Tightening", "Boscia_Strong_Convexity"]
     elseif option == "branching"
+        solvers = ["Boscia","Boscia_Strong_Branching", "Boscia_Hybrid_Branching_1", "Boscia_Hybrid_Branching_2", "Boscia_Hybrid_Branching_5", "Boscia_Hybrid_Branching_10", "Boscia_Hybrid_Branching_20"]
     else
         error("Unknown option!")
+    end
+
+    for example in examples
+        @show example
+
+        # set up data
+        df = DataFrame()
+        df = set_up_data(df, example)
+
+        minimumTime = fill(Inf, length(df[!,:seed]))
+
+        # read out solver data
+        for solver in solvers
+            if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","SHOT"]
+                continue
+            end
+            if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+                continue
+            end
+            @show solver
+            if solver == "Boscia"
+                solver1 = "boscia_default"
+            elseif solver == "ScipOA"
+                solver1 = "scip_oa"
+            else
+                solver1 = lowercase(solver)
+            end
+
+            df, minimumTime = combine_data(df, example, solver, solver1, minimumTime)
+        end
+
+        df[!,:minimumTime] = minimumTime
+
+        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_non_grouped.csv")
+        CSV.write(file_name, df, append=false)
+        println("\n")
     end
 end
 
