@@ -83,6 +83,14 @@ function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, 
     return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
 end
 
+function dicg_split_vertices_set_simple(sblmo::CubeSimpleBLMO, x, vidx)
+    x0_left = copy(x)
+    x0_right = copy(x)
+    x0_left[vidx] = floor(x[vidx])
+    x0_right[vidx] = ceil(x[vidx])
+    return x0_left, x0_right
+end
+
 """
     ProbablitySimplexSimpleBLMO(N)
 
@@ -151,6 +159,16 @@ end
 
 function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle(), x, direction)
+end
+
+function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
+    x0_left = copy(x)
+    sum_val = sum(x) - v[idx]
+    x0_right += (n-1) / sum_val
+    x0_left[vidx] = floor(x[vidx])
+    x0_right = zeros(length(x))
+    x0_right[vidx] = 1.0
+    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
@@ -310,6 +328,14 @@ end
 
 function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
     return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle{Float64}(), x, direction)
+end
+
+function dicg_split_vertices_set_simple(sblmo::UnitSimplexSimpleBLMO, x, vidx)
+    x0_left = copy(x)
+    x0_left[vidx] = floor(x[vidx])
+    x0_right = zeros(length(x))
+    x0_right[vidx] = 1.0
+    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
