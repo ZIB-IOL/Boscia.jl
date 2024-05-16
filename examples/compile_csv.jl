@@ -126,7 +126,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         solution = df[!,:solution]
         termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df[!,:termination]]
 
-        if solver == "boscia"
+        if contains(solver, "boscia")
             dual_gap = df[!,:dual_gap]
             lower_bound = df[!,:solution] - df[!,:dual_gap]
             num_n_o_c = df[!,:ncalls]
@@ -225,11 +225,171 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
 
         df[!,:minimumTime] = minimumTime
 
-        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_non_grouped.csv")
+        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")
         CSV.write(file_name, df, append=false)
         println("\n")
     end
 end
 
-function build_summary_by_difficulty()
+function build_summary_by_difficulty(option::String)
+    function geo_mean(group)
+        prod = 1.0
+        n = 0
+        if isempty(group)
+            return -1
+        end
+        for element in group
+            # @show element
+            if element != Inf
+                prod = prod * abs(element)
+                n += 1
+            end
+        end
+        if n == 0
+            return Inf
+        end
+        return prod^(1/n)
+    end
+
+    function geom_shifted_mean(xs; shift=big"1.0")
+        a = length(xs)  
+        n= 0
+        prod = 1.0  
+        if a != 0 
+            for xi in xs
+                if xi != Inf 
+                    prod = prod*(xi+shift)  
+                    n += 1
+                end
+            end
+            return Float64(prod^(1/n) - shift)
+        end
+        return Inf
+    end
+
+    function custom_mean(group)
+        sum = 0.0
+        n = 0
+        dash = false
+
+        if isempty(group)
+            return -1
+        end
+        for element in group
+            if element == "-"
+                dash = true
+                continue
+            end
+            if element != Inf 
+                if typeof(element) == String7 || typeof(element) == String3
+                    element = parse(Float64, element)
+                end
+                sum += element
+                n += 1
+            end
+        end
+        if n == 0
+            return dash ? "-" : Inf
+        end
+        return sum/n
+    end
+
+    function summarize(example, timeslots, solver, option)
+        num_instances = []
+        term = []
+        term_rel = []
+        time = []
+        num_nodes = []
+        rel_gap_nt = []
+
+        @show solver
+
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")))
+
+        termination = findall(x -> x==1, df[!,Symbol("termination"*solver)])
+
+        for timeslot in timeslots
+            instances = findall(x -> x>timeslot, df[!,:minimumTime])
+            push!(num_instances, length(instances))
+
+            term_in_time = intersect(instances, termination)
+            push!(term, length(term_in_time))
+
+            push!(term_rel, length(term_in_time)/length(instances)*100)
+            push!(time, geom_shifted_mean(df[instances, Symbol("time"*solver)]))
+            if contains(solver, "Boscia") || solver in ["Ipopt", "ScipOA"]
+                push!(num_nodes, custom_mean(df[instances, Symbol("numberNodes"*solver)]))
+            end
+
+           # notSolved = intersect(instances, notAllSolved)
+            if  isempty(instances) #isempty(notSolved)
+                push!(rel_gap_nt, NaN)
+            else
+                push!(rel_gap_nt, custom_mean(df[instances,Symbol("relGap"*solver)]))
+            end
+                
+        end
+
+        # rounding
+        non_inf = findall(isfinite, rel_gap_nt)
+        rel_gap_nt[non_inf] = round.(rel_gap_nt[non_inf], digits=2) 
+        non_inf = findall(isfinite, time)
+        time[non_inf] = round.(time[non_inf], digits=2)
+        non_inf = findall(isfinite, num_nodes)
+        num_nodes[non_inf] = convert.(Int64,round.(num_nodes[non_inf]))
+        non_inf = findall(isfinite, term_rel)
+        term_rel[non_inf] = convert.(Int64, round.(term_rel[non_inf]))
+        term_rel[non_inf] = string.(term_rel[non_inf]) .* " %"
+
+        println("\n")
+
+        return num_instances, term, term_rel, time, num_nodes, rel_gap_nt
+    end
+
+    examples = ["mip_lib_22433", "mip_lib_neos5", "mip_lib_pg5_34", "mip_lib_ran14x18", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+    time_slots = [0, 10, 300, 600, 1200]
+
+    if option == "comparison"
+        solvers = ["Boscia", "Ipopt", "ScipOA", "Pavito", "Shot"]
+    elseif option == "settings"
+        solvers = ["Boscia","Boscia_Afw", "Boscia_No_As_No_Ss", "Boscia_No_As", "Boscia_No_Ss", "Boscia_Global_Tightening","Boscia_Local_Tightening", "Boscia_No_Tightening","Boscia_Strong_Convexity"]
+    elseif option == "branching"
+        solvers = ["Boscia","Boscia_Strong_Branching", "Boscia_Hybrid_Branching_1", "Boscia_Hybrid_Branching_2", "Boscia_Hybrid_Branching_5", "Boscia_Hybrid_Branching_10","Boscia_Hybrid_Branching_20"]
+    else
+        error("Unknown option!")
+    end
+
+    for example in examples 
+        df = DataFrame()
+
+        for (i, solver) in enumerate(solvers)
+            if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","SHOT"]
+                continue
+            end
+            if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+                continue
+            end
+            num_instances, num_terminated, rel_terminated, m_time, m_nodes_cuts, rel_gap_nt = summarize(criteria, timeslots, solver, option) 
+    
+            if i == 1
+                df[!,:numInstances] = num_instances
+                @show length(df[!,:numInstances])
+            end
+            @show length(num_terminated)
+            df[!,Symbol(solver*"Term")] = num_terminated
+            df[!,Symbol(solver*"TermRel")] = rel_terminated
+            df[!,Symbol(solver*"Time")] = m_time
+            df[!,Symbol(solver*"RelGapNT")] = rel_gap_nt
+
+            if contains(solver, "Boscia") || solver in ["Ipopt","ScipOA"]
+                df[!,Symbol(solver*"NodesOCuts")] = m_nodes_cuts
+            end
+        end
+        
+        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_summary_by_difficulty.csv")
+        CSV.write(file_name, df, append=false)
+        println("\n")
+        
+    end
 end
