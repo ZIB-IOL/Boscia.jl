@@ -75,17 +75,19 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
-    #================================================================================#
+  
     #different ways to split active set
     if tree.root.options[:variant] != DICG()
         # Split active set
         active_set_left, active_set_right =
           split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     else
+        # Only support SBLMO polytope.
+        # User should implement specific dicg_split_vertices_set!() for different polytopes.
         active_set_left, active_set_right = 
-          dicg_split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+          dicg_split_vertices_set!(tree.root.problem.tlmo.blmo, node.active_set, tree, vidx, node.local_bounds)
     end
-  #================================================================================#
+
 
     discarded_set_left, discarded_set_right =
           split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
