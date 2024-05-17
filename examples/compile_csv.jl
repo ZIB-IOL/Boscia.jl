@@ -20,7 +20,7 @@ function set_up_data(df, example::String)
         seeds = Vector{Int64}()
         dimensions = collect(20:5:120)
         for i in 1:num_seeds
-            append!(seeds, fill(i, length(dimensions))
+            append!(seeds, fill(i, length(dimensions)))
         end
 
         df[!,:seed] = seeds
@@ -32,7 +32,7 @@ function set_up_data(df, example::String)
         k = dimensions./2
         Ns = [0.1,1,5,10]
         for i in 1:num_seeds
-            append!(seeds, fill(i, length(Ns))
+            append!(seeds, fill(i, length(Ns)))
         end
 
         df[!,:seed] = repeat(seeds, length(dimensions))
@@ -61,7 +61,7 @@ function set_up_data(df, example::String)
         p = 5 .* dimensions
         k = ceil.(dimesions ./ 5)
         for i in 1:num_seeds
-            append!(seeds, fill(i, length(dimensions))
+            append!(seeds, fill(i, length(dimensions)))
         end
 
         df[!,:seed] = seeds
@@ -77,7 +77,7 @@ function set_up_data(df, example::String)
         p = 5 .* dimensions
         k = ceil.(dimesions ./ 5)
         for i in 1:num_seeds
-            append!(seeds, fill(i, length(M) * length(var_A))
+            append!(seeds, fill(i, length(M) * length(var_A)))
         end
 
         df[!,:seed] = repeat(seeds, length(dimensions))
@@ -93,7 +93,7 @@ function set_up_data(df, example::String)
         p = 5 .* dimensions
         k = ceil.(dimesions ./ 5)
         for i in 1:num_seeds
-            append!(seeds, fill(i, length(M) * length(var_A))
+            append!(seeds, fill(i, length(M) * length(var_A)))
         end
 
         df[!,:seed] = repeat(seeds, length(dimensions))
