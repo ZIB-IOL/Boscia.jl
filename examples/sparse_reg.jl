@@ -86,33 +86,34 @@ function build_optimizer(o, p, k, M)
     return lmo, x
 end
 
-function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default", depth=1)
+function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default", depth=1, write=true)
     limit = 1800
 
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, M)
     # println(o)
+    println("precompile")
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
-    print(lmo.o)
-    
+   # print(lmo.o)
+    println("actual run")
     if bo_mode == "afw"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
     ### warmstart_active_set no longer defined on master branch
     elseif bo_mode == "no_as_no_ss"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false, use_postsolve=false)
     elseif bo_mode == "no_as"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=true)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=true, use_postsolve=false)
     elseif bo_mode == "no_ss"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false, use_postsolve=false)
     elseif bo_mode == "default"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1, use_postsolve=false)
     elseif bo_mode == "local_tightening"
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1, use_postsolve=false) 
     elseif bo_mode == "global_tightening"
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, print_iter=1) 
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=true, print_iter=1, use_postsolve=false) 
     elseif bo_mode == "no_tightening"
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, print_iter=1) 
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=false, global_dual_tightening=false, print_iter=1, use_postsolve=false) 
     elseif bo_mode == "local_tightening_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, use_shadow_set=false, print_iter=1) 
     elseif bo_mode == "global_tightening_no_ss"
@@ -133,7 +134,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
         branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
         MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy)
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy, use_postsolve=false)
     else
         error("Mode not known!")
     end     
@@ -155,6 +156,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
         file_name = joinpath(@__DIR__, "final_csvs/boscia_" * bo_mode * "_" * string(n) * "_" *string(seed) * "_sparse_reg.csv")
         CSV.write(file_name, df, append=false)
     else
+        if write
         @show result[:primal_objective]
         df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
         if bo_mode=="default" || bo_mode=="local_tightening" || bo_mode=="global_tightening" || bo_mode=="no_tightening" || bo_mode=="afw" || bo_mode == "strong_branching"
@@ -165,6 +167,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         end
         CSV.write(file_name, df, append=false, writeheader=true)
+    end
     end
 end
 
