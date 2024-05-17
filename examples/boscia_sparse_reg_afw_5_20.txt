@@ -1,1 +1,2 @@
 AssertionError("primal <= tree.incumbent + 0.001 || isapprox(primal, tree.incumbent, atol = 1.0e-6, rtol = 0.01)")
+AssertionError("primal <= tree.incumbent + 0.001 || isapprox(primal, tree.incumbent, atol = 1.0e-6, rtol = 0.01)")
