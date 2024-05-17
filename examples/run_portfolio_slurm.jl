@@ -1,10 +1,7 @@
 
 
-#modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss"]
+modes = ["default", "no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss", "strong_branching", "hybrid_branching"]
 
-modes = ["strong_branching", "hybrid_branching"]
-
-modes = ["no_ss","no_as","no_as_no_ss"]
 for mode in modes
     @show mode
     if mode == "hybrid_branching"
@@ -14,14 +11,14 @@ for mode in modes
     end
 
     for depth in depths
-        set = "integer"
+       #= set = "integer"
 
         for dimension in [20:5:120;]
             for seed in 1:10
                 @show seed, dimension
                 run(`sbatch batch_portfolio.sh $seed $dimension $set $mode $depth`)
             end
-        end
+        end =#
 
         set = "mixed"
 
