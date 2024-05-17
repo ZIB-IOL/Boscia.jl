@@ -151,7 +151,7 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
         elseif bo_mode == "hybrid_branching"
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv") 
         else 
-            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_portfolio_" * string(dimension) * "_" * string(seed) * ".csv")    
+            file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_portfolio_" * mode * "_" * string(dimension) * "_" * string(seed) * ".csv")    
         end
         CSV.write(file_name, df, append=false, writeheader=true)
     end
