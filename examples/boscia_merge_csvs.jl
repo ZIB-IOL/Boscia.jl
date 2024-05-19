@@ -140,6 +140,9 @@ function merge_csvs(;example="sparse_reg", mode="default", seeds=1:10, dimension
         error("Unknown example")
     end
 
+    if occursin("mip_lib", example) 
+        example = replace(example, "mip_lib" => "miplib")
+    end
 
     # save csv 
     file_name = joinpath(@__DIR__, "final_csvs/" * name * "_" * example * ".csv")
