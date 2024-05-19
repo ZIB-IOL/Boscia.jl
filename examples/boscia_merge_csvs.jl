@@ -145,7 +145,7 @@ function merge_csvs(;example="sparse_reg", mode="default", seeds=1:10, dimension
     end
 
     # save csv 
-    file_name = joinpath(@__DIR__, "final_csvs/" * name * "_" * example * ".csv")
+    file_name = joinpath(@__DIR__, "final_csvs/boscia_" * mode * "_" * example * ".csv")
     CSV.write(file_name, df, append=false)
 
 end
