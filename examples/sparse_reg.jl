@@ -98,7 +98,7 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
    # print(lmo.o)
     println("actual run")
     if bo_mode == "afw"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe(), use_postsolve=false)
     ### warmstart_active_set no longer defined on master branch
     elseif bo_mode == "no_as_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false, use_postsolve=false)
