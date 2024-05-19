@@ -1,4 +1,4 @@
-seed,num_v,number_nodes,solution,termination,time
+seed,num_v,num_nodes,solution,termination,time
 1,4,731,-27695.8544845582,Optimal,113981.0
 1,5,81,21647.933949105223,Optimal,12056.0
 1,6,77,40050.50432585497,Optimal,12193.0

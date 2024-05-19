@@ -1,4 +1,4 @@
-seed,num_v,number_nodes,solution,termination,time
+seed,num_v,num_nodes,solution,termination,time
 1,4,15577,Inf,Time limit reached,1.800269e6
 1,5,16145,Inf,Time limit reached,1.800082e6
 1,6,17785,Inf,Time limit reached,1.800067e6

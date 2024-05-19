@@ -5,7 +5,7 @@ using DataFrames
 Create the set up data like seeds, dimensions etc.
 """
 function set_up_data(df, example::String)
-    if example in ["mip_lib_22433", "mip_lib_neos5", "mip_lib_ran14x18-disj-8", "mip_lib_pg5_34"]
+    if example in ["miplib_22433", "miplib_neos5", "miplib_ran14x18-disj-8", "miplib_pg5_34"]
         num_seeds = 3
         seeds = Vector{Int64}()
         numV = collect(4:8)
@@ -51,15 +51,15 @@ function set_up_data(df, example::String)
 
         df[!,:seed] = repeat(seeds, length(dimensions))
         df[!,:dimension] = repeat(dimensions, num_seeds * length(var_A) * length(M))
-        df[!,:varA] = repeat(varA, num_seeds * length(M) * length(dimensions))
-        df[!,:k] = repeat(k, num_seeds * length(var_A) * length(M))
+        df[!,:varA] = repeat(var_A, num_seeds * length(M) * length(dimensions))
+        df[!,:p] = repeat(p, num_seeds * length(var_A) * length(M))
         df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
     elseif example == "sparse_reg"
         num_seeds = 10
         seeds = Vector{Int64}()
         dimensions = collect(15:30)
         p = 5 .* dimensions
-        k = ceil.(dimesions ./ 5)
+        k = ceil.(dimensions ./ 5)
         for i in 1:num_seeds
             append!(seeds, fill(i, length(dimensions)))
         end
@@ -69,19 +69,19 @@ function set_up_data(df, example::String)
         df[!,:p] = repeat(k, num_seeds)
         df[!,:k] = repeat(p, num_seeds)
     elseif example == "tailed_cardinality_sparse_log_reg"
-        num_seeds = 10
+        num_seeds = 3
         seeds = Vector{Int64}()
         dimensions = collect(5:5:20)
         var_A = [1,5]
         M = [0.1,1]
         p = 5 .* dimensions
-        k = ceil.(dimesions ./ 5)
+        k = ceil.(dimensions ./ 5)
         for i in 1:num_seeds
             append!(seeds, fill(i, length(M) * length(var_A)))
         end
 
         df[!,:seed] = repeat(seeds, length(dimensions))
-        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(A))
+        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(var_A))
         df[!,:varA] = repeat(var_A, num_seeds * length(M) * length(dimensions))
         df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
     elseif example == "tailed_cardinality"
@@ -91,13 +91,13 @@ function set_up_data(df, example::String)
         var_A = [1,5]
         M = [0.1,1]
         p = 5 .* dimensions
-        k = ceil.(dimesions ./ 5)
+        k = ceil.(dimensions ./ 5)
         for i in 1:num_seeds
             append!(seeds, fill(i, length(M) * length(var_A)))
         end
 
         df[!,:seed] = repeat(seeds, length(dimensions))
-        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(A))
+        df[!,:dimension] = repeat(dimensions, num_seeds * length(M) * length(var_A))
         df[!,:varA] = repeat(var_A, num_seeds * length(M) * length(dimensions))
         df[!,:M] = repeat(vcat(fill(M[1], length(var_A)), fill(M[2], length(var_A))), num_seeds * length(dimensions))
     else
@@ -110,7 +110,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
     """
     Read out the time, solution etc from the individuals job files.
     """
-    function read_data(example::String, solver::string, folder)
+    function read_data(example::String, solver::String, folder)
         time = []
         solution = []
         termination = []
@@ -124,7 +124,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
 
         time = df[!,:time]
         solution = df[!,:solution]
-        termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent" ? 1 : 0 for row in df[!,:termination]]
+        termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent"  || row == "Optimal (tree empty)" ? 1 : 0 for row in df[!,:termination]]
 
         if contains(solver, "boscia")
             dual_gap = df[!,:dual_gap]
@@ -133,7 +133,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         elseif solver == "ipopt"
             num_n_o_c = df[!,:num_nodes]
         elseif solver == "scip_oa"
-            num_n_o_c = df[:calls]
+            num_n_o_c = df[!,:calls]
         end
 
         @show length(time), length(solution), length(termination), length(num_n_o_c), length(dual_gap), length(lower_bound)
@@ -164,7 +164,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         df[!,Symbol("time"*solver)] = time
         df[!,Symbol("solution"*solver)] = solution
         df[!,Symbol("termination"*solver)] = termination
-        if solver == "Boscia"
+        if occursin("Boscia", solver) #solver == "Boscia"
             df[!,Symbol("numberNodes"*solver)] = num_n_o_c
             df[!,Symbol("dualGap"*solver)] = dual_gap
             df[!,Symbol("lb"*solver)] = lower_bound
@@ -182,8 +182,6 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         return df, minimumTime
     end
 
-    examples = ["mip_lib_22433", "mip_lib_neos5", "mip_lib_pg5_34", "mip_lib_ran14x18", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
-
     if option == "comparison"
         solvers = ["Boscia", "Ipopt", "ScipOA", "Pavito", "Shot"]
     elseif option == "settings"
@@ -194,44 +192,44 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         error("Unknown option!")
     end
 
-    for example in examples
-        @show example
+    @show example
 
-        # set up data
-        df = DataFrame()
-        df = set_up_data(df, example)
+    # set up data
+    df = DataFrame()
+    df = set_up_data(df, example)
 
-        minimumTime = fill(Inf, length(df[!,:seed]))
+    @show size(df)
 
-        # read out solver data
-        for solver in solvers
-            if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","SHOT"]
-                continue
-            end
-            if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
-                continue
-            end
-            @show solver
-            if solver == "Boscia"
-                solver1 = "boscia_default"
-            elseif solver == "ScipOA"
-                solver1 = "scip_oa"
-            else
-                solver1 = lowercase(solver)
-            end
+    minimumTime = fill(Inf, length(df[!,:seed]))
 
-            df, minimumTime = combine_data(df, example, solver, solver1, minimumTime)
+    # read out solver data
+    for solver in solvers
+        if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
+            continue
+        end
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+            continue
+        end
+        @show solver
+        if solver == "Boscia"
+            solver1 = "boscia_default"
+        elseif solver == "ScipOA"
+            solver1 = "scip_oa"
+        else
+            solver1 = lowercase(solver)
         end
 
-        df[!,:minimumTime] = minimumTime
-
-        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")
-        CSV.write(file_name, df, append=false)
-        println("\n")
+        df, minimumTime = combine_data(df, example, solver, solver1, minimumTime)
     end
+
+    df[!,:minimumTime] = minimumTime
+
+    file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")
+    CSV.write(file_name, df, append=false)
+    println("\n")
 end
 
-function build_summary_by_difficulty(option::String)
+function build_summary_by_difficulty(option::String; example="sparse_reg")
     function geo_mean(group)
         prod = 1.0
         n = 0
@@ -304,28 +302,28 @@ function build_summary_by_difficulty(option::String)
 
         @show solver
 
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")))
+        df_ng = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")))
 
-        termination = findall(x -> x==1, df[!,Symbol("termination"*solver)])
+        termination = findall(x -> x==1, df_ng[!,Symbol("termination"*solver)])
 
         for timeslot in timeslots
-            instances = findall(x -> x>timeslot, df[!,:minimumTime])
+            instances = findall(x -> x>timeslot, df_ng[!,:minimumTime])
             push!(num_instances, length(instances))
 
             term_in_time = intersect(instances, termination)
             push!(term, length(term_in_time))
 
             push!(term_rel, length(term_in_time)/length(instances)*100)
-            push!(time, geom_shifted_mean(df[instances, Symbol("time"*solver)]))
+            push!(time, geom_shifted_mean(df_ng[instances, Symbol("time"*solver)]))
             if contains(solver, "Boscia") || solver in ["Ipopt", "ScipOA"]
-                push!(num_nodes, custom_mean(df[instances, Symbol("numberNodes"*solver)]))
+                push!(num_nodes, custom_mean(df_ng[instances, Symbol("numberNodes"*solver)]))
             end
 
            # notSolved = intersect(instances, notAllSolved)
             if  isempty(instances) #isempty(notSolved)
                 push!(rel_gap_nt, NaN)
             else
-                push!(rel_gap_nt, custom_mean(df[instances,Symbol("relGap"*solver)]))
+                push!(rel_gap_nt, custom_mean(df_ng[instances,Symbol("relGap"*solver)]))
             end
                 
         end
@@ -346,8 +344,6 @@ function build_summary_by_difficulty(option::String)
         return num_instances, term, term_rel, time, num_nodes, rel_gap_nt
     end
 
-    examples = ["mip_lib_22433", "mip_lib_neos5", "mip_lib_pg5_34", "mip_lib_ran14x18", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
-
     time_slots = [0, 10, 300, 600, 1200]
 
     if option == "comparison"
@@ -360,36 +356,53 @@ function build_summary_by_difficulty(option::String)
         error("Unknown option!")
     end
 
-    for example in examples 
-        df = DataFrame()
+    df = DataFrame()
+    @show size(df)
 
-        for (i, solver) in enumerate(solvers)
-            if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","SHOT"]
-                continue
-            end
-            if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
-                continue
-            end
-            num_instances, num_terminated, rel_terminated, m_time, m_nodes_cuts, rel_gap_nt = summarize(criteria, timeslots, solver, option) 
-    
-            if i == 1
-                df[!,:numInstances] = num_instances
-                @show length(df[!,:numInstances])
-            end
-            @show length(num_terminated)
-            df[!,Symbol(solver*"Term")] = num_terminated
-            df[!,Symbol(solver*"TermRel")] = rel_terminated
-            df[!,Symbol(solver*"Time")] = m_time
-            df[!,Symbol(solver*"RelGapNT")] = rel_gap_nt
-
-            if contains(solver, "Boscia") || solver in ["Ipopt","ScipOA"]
-                df[!,Symbol(solver*"NodesOCuts")] = m_nodes_cuts
-            end
+    for (i, solver) in enumerate(solvers)
+        if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
+            continue
         end
-        
-        file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_summary_by_difficulty.csv")
-        CSV.write(file_name, df, append=false)
-        println("\n")
-        
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+            continue
+        end
+        num_instances, num_terminated, rel_terminated, m_time, m_nodes_cuts, rel_gap_nt = summarize(example, time_slots, solver, option) 
+    
+        if i == 1
+            df[!,:numInstances] = num_instances
+            @show length(df[!,:numInstances])
+        end
+        @show length(num_terminated)
+        df[!,Symbol(solver*"Term")] = num_terminated
+        df[!,Symbol(solver*"TermRel")] = rel_terminated
+        df[!,Symbol(solver*"Time")] = m_time
+        df[!,Symbol(solver*"RelGapNT")] = rel_gap_nt
+
+        if contains(solver, "Boscia") || solver in ["Ipopt","ScipOA"]
+            df[!,Symbol(solver*"NodesOCuts")] = m_nodes_cuts
+        end
     end
+        
+    file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_summary_by_difficulty.csv")
+    CSV.write(file_name, df, append=false)
+    println("\n")
+end
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+for example in examples
+
+    # comparison
+    #build_non_grouped_csv("comparison", example=example)
+    #build_summary_by_difficulty("comparison", example=example)
+
+    # settings 
+    #build_non_grouped_csv("settings", example=example)
+    #build_summary_by_difficulty("settings", example=example)
+
+    # branching
+    build_non_grouped_csv("branching", example=example)
+    build_summary_by_difficulty("branching", example=example)
 end
