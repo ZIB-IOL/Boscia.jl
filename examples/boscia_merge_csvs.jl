@@ -164,12 +164,12 @@ merge_csvs(
     dimensions = 20:5:120
 )=# 
 
-#=merge_csvs(
+merge_csvs(
     example = "portfolio_integer", 
     mode = mode, 
     seeds = 1:10, 
     dimensions = 20:5:120
-) =#
+) 
 
 merge_csvs(
     example = "mip_lib_22433", 
@@ -232,6 +232,7 @@ merge_csvs(
     M = [0.1,1],
 ) 
 end
+
 merge_csvs(
     example = "mip_lib_22433", 
     mode = "strong_convexity",
