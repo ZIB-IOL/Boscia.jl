@@ -580,6 +580,9 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
+    @show x
+    @show tree.root.problem.f(x)
+
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if isempty(tree.nodes)
         status_string = "Optimal (tree empty)"
@@ -621,8 +624,10 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             lazy=true,
             verbose=verbose,
             max_iteration=max_iteration_post,
+            print_iter=1,
         )
-
+@show x
+@show tree.root.problem.f(x)
         # update tree
         if primal < tree.incumbent
             tree.root.updated_incumbent[] = true
@@ -637,7 +642,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             else
                 @info "primal >= tree.incumbent"
                 @assert primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2)
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) "primal: $(primal) and tree.incumbent: $(tree.incumbent)"
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
