@@ -81,6 +81,7 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
 
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
     o = SCIP.Optimizer()
+    #o = HiGHS.Optimizer()
     lmo, _ = build_optimizer(o, mode, n, ai, bi)
     # println(o)
     println("presolve")
@@ -88,7 +89,7 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
     
     println("actual solve")
     if bo_mode == "afw"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe(), use_postsolve=false)
     ### warmstart_active_set no longer defined on master branch
     elseif bo_mode == "no_as_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false, use_postsolve=false)
@@ -97,7 +98,7 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
     elseif bo_mode == "no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false, use_postsolve=false)
     elseif bo_mode == "default"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1, use_postsolve=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=100, use_postsolve=false)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1, use_postsolve=false) 
     elseif bo_mode == "global_tightening"
