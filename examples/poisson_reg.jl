@@ -32,7 +32,7 @@ include("BnB_Ipopt.jl")
 # It is assumed that y_i is poisson distributed and that the log 
 # of its expected value can be computed linearly.
 
-function build_function(seed, n)
+function build_function(seed, n; use_scale=true)
     Random.seed!(seed)
     p = n
 
@@ -49,7 +49,14 @@ function build_function(seed, n)
         return rand(Distributions.Poisson(exp(a)))
     end
 
+    #@show ws
+    #@show Xs
+    #@show bs
+    #@show ys
+
     α = 1.3
+    #scale = sum(abs.(Xs))
+    scale = exp(p)
     function f(θ)
         w = @view(θ[1:p])
         b = θ[end]
@@ -57,9 +64,14 @@ function build_function(seed, n)
             a = dot(w, Xs[:, i]) + b
             return 1 / n * (exp(a) - ys[i] * a)
         end
-        return s + α * norm(w)^2
+        if use_scale
+            return 1/scale * (s + α * norm(w)^2)
+        else
+            return s + α * norm(w)^2
+        end
     end
     function grad!(storage, θ)
+        θ = BigFloat.(θ)
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
@@ -72,8 +84,16 @@ function build_function(seed, n)
             storage[1:p] .-= 1 / n * ys[i] * xi
             storage[end] += 1 / n * (exp(a) - ys[i])
         end
-        storage ./= norm(storage)
-        return storage
+        #storage ./= norm(storage)
+        #@show norm(storage)
+        #@show scale
+        #=if use_scale
+            storage ./= scale
+        else
+            storage ./= norm(storage) 
+        end=#
+        #@show storage
+        return storage #float.(storage)
     end
     # @show bs, Xs, ys, ws
 
@@ -121,7 +141,7 @@ end
 function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="default", depth=1)
     limit = 1800
 
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; use_scale=false)
     k = n/2
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, Ns)
@@ -137,7 +157,7 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
     elseif bo_mode == "no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
     elseif bo_mode == "default"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, print_iter=1)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1, use_postsolve=false, fw_verbose=false)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
     elseif bo_mode == "global_tightening"
@@ -168,7 +188,10 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
     else
         error("Mode not known!")
     end     
-                
+              @show x  
+              @show Boscia.is_linear_feasible(lmo.o, x)
+              f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; use_scale=false)
+              @show f(x)
     total_time_in_sec=result[:total_time_in_sec]
     status = result[:status]
     if occursin("Optimal", result[:status])
@@ -336,11 +359,18 @@ function poisson_reg_shot(seed=1, n=20, Ns=0.1; time_limit=1800)
         time_shot = MOI.get(m, MOI.SolveTimeSec())
         vars_shot = value.(x)
 
+        @show vars_shot
+
         o_check = SCIP.Optimizer()
         lmo_check, _ = build_optimizer(o_check, p, k, Ns)
         @assert Boscia.is_linear_feasible(lmo_check.o, vars_shot)
         
         solution_shot = f(vars_shot)
+        @show solution_shot
+        ind = findall(x-> isapprox(0.0,x,rtol=1e-6,atol=1e-10), vars_shot)
+        vars_shot[ind] = round.(vars_shot[ind])
+        solution_round = f(vars_shot)
+        @show solution_round
     else 
         solution_shot = NaN
         time_shot = time_limit
@@ -473,6 +503,12 @@ function poisson_reg_ipopt(seed=1, n=20, Ns=0.1; time_limit=1800)
     else
         status = "Optimal"
     end    
+@show status
+    @show bnb_model.incumbent_solution.solution
+    @show bnb_model.incumbent
+    o_check = SCIP.Optimizer()
+        lmo_check, _ = build_optimizer(o_check, p, k, Ns)
+        @assert Boscia.is_linear_feasible(lmo_check.o, bnb_model.incumbent_solution.solution)
 
     df = DataFrame(seed=seed, dimension=n, p=p, Ns=Ns, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
