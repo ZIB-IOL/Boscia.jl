@@ -80,8 +80,8 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
     limit = 1800
 
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
-    o = SCIP.Optimizer()
-    #o = HiGHS.Optimizer()
+    #o = SCIP.Optimizer()
+    o = HiGHS.Optimizer()
     lmo, _ = build_optimizer(o, mode, n, ai, bi)
     # println(o)
     println("presolve")
