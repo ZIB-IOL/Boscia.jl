@@ -32,7 +32,7 @@ include("BnB_Ipopt.jl")
 # It is assumed that y_i is poisson distributed and that the log 
 # of its expected value can be computed linearly.
 
-function build_function(seed, n; use_scale=true)
+function build_function(seed, n)
     Random.seed!(seed)
     p = n
 
@@ -44,18 +44,15 @@ function build_function(seed, n; use_scale=true)
     end
     bs = rand(Float64)
     Xs = randn(Float64, n, p)
+    for j in 1:p 
+        Xs[:,j] ./= (maximum(Xs[:,j]) - minimum(Xs[:,j]))
+    end
     ys = map(1:n) do idx
         a = dot(Xs[idx, :], ws) + bs
         return rand(Distributions.Poisson(exp(a)))
     end
 
-    #@show ws
-    #@show Xs
-    #@show bs
-    #@show ys
-
     α = 1.3
-    #scale = sum(abs.(Xs))
     scale = exp(p)
     function f(θ)
         w = @view(θ[1:p])
@@ -64,11 +61,7 @@ function build_function(seed, n; use_scale=true)
             a = dot(w, Xs[:, i]) + b
             return 1 / n * (exp(a) - ys[i] * a)
         end
-        if use_scale
-            return 1/scale * (s + α * norm(w)^2)
-        else
-            return s + α * norm(w)^2
-        end
+        return s + α * norm(w)^2
     end
     function grad!(storage, θ)
         θ = BigFloat.(θ)
@@ -84,16 +77,7 @@ function build_function(seed, n; use_scale=true)
             storage[1:p] .-= 1 / n * ys[i] * xi
             storage[end] += 1 / n * (exp(a) - ys[i])
         end
-        #storage ./= norm(storage)
-        #@show norm(storage)
-        #@show scale
-        #=if use_scale
-            storage ./= scale
-        else
-            storage ./= norm(storage) 
-        end=#
-        #@show storage
-        return storage #float.(storage)
+        return storage
     end
     # @show bs, Xs, ys, ws
 
@@ -138,10 +122,10 @@ function build_optimizer(o, p, k, Ns)
     return lmo, (w,z,b)
 end
 
-function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="default", depth=1)
-    limit = 1800
+function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="default", depth=1, limit=1800)
+    #limit = 1800
 
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; use_scale=false)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
     k = n/2
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, Ns)
@@ -157,7 +141,7 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
     elseif bo_mode == "no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, use_shadow_set=false)
     elseif bo_mode == "default"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=1, use_postsolve=false, fw_verbose=false)
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, print_iter=100, use_postsolve=false, fw_verbose=false)
     elseif bo_mode == "local_tightening"
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, dual_tightening=true, global_dual_tightening=false, print_iter=1) 
     elseif bo_mode == "global_tightening"
@@ -188,10 +172,7 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
     else
         error("Mode not known!")
     end     
-              @show x  
-              @show Boscia.is_linear_feasible(lmo.o, x)
-              f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; use_scale=false)
-              @show f(x)
+
     total_time_in_sec=result[:total_time_in_sec]
     status = result[:status]
     if occursin("Optimal", result[:status])
