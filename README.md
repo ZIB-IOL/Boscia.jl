@@ -41,6 +41,14 @@ import Pkg
 Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
 ```
 
+If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
+**For Window Users** You need not to download whole SCIP binary instead you can follow **Custom Installation** mentioned on this page and download and link SCIP with your JULIA .
+
+
+
+
+
+
 ## Getting started
 
 Here is a simple example to get started. For more examples, see the examples folder in the package.
