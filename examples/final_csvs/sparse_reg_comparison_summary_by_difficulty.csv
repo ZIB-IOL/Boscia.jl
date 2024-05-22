@@ -1,5 +1,5 @@
 numInstances,BosciaTerm,BosciaTermRel,BosciaTime,BosciaRelGapNT,BosciaNodesOCuts,IpoptTerm,IpoptTermRel,IpoptTime,IpoptRelGapNT,IpoptNodesOCuts,ScipOATerm,ScipOATermRel,ScipOATime,ScipOARelGapNT,ScipOANodesOCuts,PavitoTerm,PavitoTermRel,PavitoTime,PavitoRelGapNT,ShotTerm,ShotTermRel,ShotTime,ShotRelGapNT
-160,147,92 %,25.14,0.01,42779,0,0 %,43706.36,0.01,11534,160,100 %,0.43,0.35,23,0,0 %,547.69,0.01,0,0 %,252.93,0.01
+160,147,92 %,25.14,0.01,42779,0,0 %,43706.36,0.01,11534,160,100 %,0.43,0.35,23,10,6 %,547.69,0.01,0,0 %,252.93,0.01
 0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,0,NaN,Inf,NaN
 0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,0,NaN,Inf,NaN
 0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,0,NaN,Inf,NaN
