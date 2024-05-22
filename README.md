@@ -7,13 +7,11 @@ A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for
 
 ## Overview
 
-The Boscia.jl solver combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound like algorithm to solve mixed-integer convex optimization problems of the form
-`min_{x ∈ C, x_I ∈ Z^n} f(x)`,
-where `f` is a differentiable convex function, `C` is a convex and compact set, and `I` is a set of indices of integral variables.
+The Boscia.jl solver uses a combination of a variant of the Frank-Wolfe algorithm and a branch-and-bound-like algorithm to solve mixed-integer convex optimization problems. These problems are of the form:
+**min_{x ∈ C, x_I ∈ Z^n} f(x)**,
+where f is a differentiable convex function, C is a convex and compact set, and I is a set of indices for integer variables.
 
-They are especially useful when we have a method to optimize a linear function over `C` and the integrality constraints in a compuationally efficient way.
-`C` is specified using the MathOptInterface API or any DSL like JuMP implementing it.
-
+This approach is particularly effective when we can efficiently optimize a linear function over C and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming **JuMP** that implements this API.
 A paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
