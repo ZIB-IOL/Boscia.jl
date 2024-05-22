@@ -11,7 +11,7 @@ The Boscia.jl solver uses a combination of a variant of the Frank-Wolfe algorith
 **min_{x ∈ C, x_I ∈ Z^n} f(x)**,
 where f is a differentiable convex function, C is a convex and compact set, and I is a set of indices for integer variables.
 
-This approach is particularly effective when we can efficiently optimize a linear function over C and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming **JuMP** that implements this API.
+This approach is particularly effective when we can efficiently optimize a linear function over C and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming (**JuMP**) that implements this API.
 A paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
@@ -19,6 +19,12 @@ A paper presenting the package with mathematical explanations and numerous examp
 `Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems, [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree, and oracles optimizing linear functions over the feasible set, for instance calling [SCIP](https://scipopt.org) or any MOI-compatible solver to solve MIP subproblems.
 
 ## Installation
+
+If you haven't downloaded JULIA yet go on this link and download it according to your system requirement . ['Julia'](https://julialang.org/downloads/).
+Once you have installed Julia , From the Julia REPL, type ] to enter the Pkg REPL mode and run 
+''' Boscia 
+pkg> add Boscia 
+'''
 
 Add the Boscia stable release with:
 
