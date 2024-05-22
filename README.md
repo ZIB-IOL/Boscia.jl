@@ -22,9 +22,11 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 If you haven't downloaded JULIA yet go on this link and download it according to your system requirement . ['Julia'](https://julialang.org/downloads/).
 Once you have installed Julia , From the Julia REPL, type ] to enter the Pkg REPL mode and run 
-''' Boscia 
-pkg> add Boscia 
-'''
+```Boscia
+pkg > add Boscia
+
+```
+or alternatively you can do this 
 
 Add the Boscia stable release with:
 
