@@ -1,2 +1,2 @@
 seed,dimension,p,Ns,k,time,num_nodes,solution,termination
-6,50,50,10.0,25.0,1.800075e6,29879,-108.40662133012586,Time limit reached
+6,50,50,10.0,25.0,472825.0,11293,0.6219551626736366,Optimal

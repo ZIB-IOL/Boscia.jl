@@ -1,2 +1,2 @@
 seed,dimension,p,k,Ns,time,solution,termination,calls
-6,70,70,35.0,10.0,0.674453,Inf,INFEASIBLE,2
+6,70,70,35.0,10.0,1800.003243,0.11828052871017475,TIME_LIMIT,484773

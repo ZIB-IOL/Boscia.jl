@@ -1,2 +1,2 @@
 seed,dimension,p,k,Ns,time,solution,termination
-2,70,70,35.0,0.1,5.513540983200073,-957.671020894329,LOCALLY_SOLVED
+2,70,70,35.0,0.1,1800,NaN,TIME_LIMIT

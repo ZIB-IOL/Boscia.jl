@@ -1,2 +1,2 @@
 seed,dimension,p,k,Ns,time,solution,termination,calls
-6,70,70,35.0,5.0,0.673419,Inf,INFEASIBLE,2
+6,70,70,35.0,5.0,38.705405999999996,0.0960157224227019,OPTIMAL,3377
