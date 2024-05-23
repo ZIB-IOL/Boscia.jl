@@ -1,6 +1,8 @@
 #modes = ["no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss"]
 #modes = ["no_ss","no_as","no_as_no_ss"]
 modes = ["strong_branching", "hybrid_branching"]
+#modes = ["no_tightening", "global_tightening", "local_tightening"]
+#modes = ["afw", "no_ss", "no_as", "no_as_no_ss"]
 
 for mode in modes
     @show mode
