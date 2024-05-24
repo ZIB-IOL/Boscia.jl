@@ -1,0 +1,2 @@
+seed,dimension,p,Ns,k,time,num_nodes,solution,termination
+10,90,90,5.0,45.0,1.800394e6,10913,0.022019428813701246,Time limit reached

@@ -1,2 +1,2 @@
 seed,num_v,time,solution,dual_gap,rel_dual_gap,number_nodes,termination,ncalls
-1,7,37.077,-11.690896291367242,0.11570218524911446,0.009896776292041094,445,Optimal (tolerance reached),6005
+1,7,40.735,-11.690896291367242,0.11570218524911446,0.009896776292041094,445,Optimal (tolerance reached),6005

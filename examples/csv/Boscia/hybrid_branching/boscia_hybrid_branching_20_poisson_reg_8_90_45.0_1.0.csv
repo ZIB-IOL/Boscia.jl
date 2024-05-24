@@ -1,0 +1,2 @@
+seed,dimension,p,k,Ns,time,solution,dual_gap,rel_dual_gap,termination,ncalls
+8,90,90,45.0,1.0,1801.761,-0.6153319048037024,0.11108259260521991,0.18052467576934186,Time limit reached,20070
