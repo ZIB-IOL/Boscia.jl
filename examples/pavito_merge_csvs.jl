@@ -4,17 +4,17 @@ using DataFrames
 function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], k=[], var_A=[])
     # setup df
     if example == "sparse_reg" 
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_1_17.csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_1_17.csv")))
     elseif occursin("miplib", example) 
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "portfolio_mixed" 
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "portfolio_integer"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(dimensions[1]) * "_" * string(seeds[1]) * ".csv")))
     elseif example == "sparse_log_reg"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(var_A[1]) * "_" * string(dimensions[1]*5) * "_" * string(Ns[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(var_A[1]) * "_" * string(dimensions[1]*5) * "_" * string(Ns[1]) * ".csv")))
     elseif example == "poisson_reg"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(float(dimensions[1]/2)) * "_" * string(Ns[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(float(dimensions[1]/2)) * "_" * string(Ns[1]) * ".csv")))
         @show df
     else @error "not a valid example"
     end
@@ -29,7 +29,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
         for seed in seeds 
             for dimension in dimensions 
                 try 
-                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * ".csv")))
+                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * ".csv")))
                     append!(df, df_temp)
                 catch e 
                     println(e)
@@ -40,7 +40,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
         for seed in seeds 
             for dimension in dimensions 
                 try 
-                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimension) * "_" * string(seed) * ".csv")))
+                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(dimension) * "_" * string(seed) * ".csv")))
                     append!(df, df_temp)
                 catch e 
                     println(e)
@@ -51,7 +51,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
         for seed in seeds 
             for dimension in dimensions 
                 try 
-                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(dimension) * "_" * string(seed) * ".csv")))
+                    df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(dimension) * "_" * string(seed) * ".csv")))
                     append!(df, df_temp)
                 catch e 
                     println(e)
@@ -65,7 +65,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
                     for var in var_A
                         k = Float64(dimension)
                         try 
-                            df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(var) * "_" * string(dimension*5) * "_" * string(ns) * ".csv")))
+                            df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(var) * "_" * string(dimension*5) * "_" * string(ns) * ".csv")))
                             append!(df, df_temp)
                         catch e
                         print(e)
@@ -81,7 +81,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
             for seed in seeds
                 for ns in Ns
                     try 
-                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(float(dimension/2)) * "_" * string(ns) * ".csv")))
+                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Pavito/pavito_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(float(dimension/2)) * "_" * string(ns) * ".csv")))
                         append!(df, df_temp)
                     catch e 
                         println(e)
@@ -99,6 +99,7 @@ end
 
 merge_csvs()
 
+#=
 merge_csvs(
     example = "portfolio_mixed", 
     seeds = 1:10, 
@@ -142,7 +143,7 @@ merge_csvs(
     Ns = [0.1,1],
     var_A = [1,5]
 ) # seed dim Ns/m k var_A
-
+=#
 merge_csvs(
     example = "poisson_reg", 
     dimensions = [50:20:100;], 
