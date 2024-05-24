@@ -1,0 +1,2 @@
+seed,dimension,p,Ns,k,time,num_nodes,solution,termination
+6,50,50,10.0,25.0,486525.0,11293,0.6219551626736366,Optimal

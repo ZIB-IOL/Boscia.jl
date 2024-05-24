@@ -1,0 +1,2 @@
+seed,dimension,p,k,Ns,time,solution,termination,calls
+6,70,70,35.0,10.0,1800.0036,0.11828052871017475,TIME_LIMIT,437823
