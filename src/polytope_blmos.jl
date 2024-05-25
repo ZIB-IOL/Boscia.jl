@@ -38,8 +38,8 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
-    lb = sblmo.lower_bounds
-    ub = sblmo.upper_bounds
+    lbs = sblmo.lower_bounds
+    ubs = sblmo.upper_bounds
     indicator = [0.0, 1.0]
     distinct_lbs = unique(lbs)
     distinct_ubs = unique(ubs)
