@@ -130,10 +130,9 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
 end
 
 function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    a = copy(x)
+    a = zeros(length(x))
     if sblmo.N in lb
         idx = findfirst(x->x==sblmo.N, lb)
-        a = zeros(length(x))
         a[idx] = sblmo.N
         return a
     end
@@ -156,8 +155,8 @@ end
 
 function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
     x0_left = copy(x)
-    sum_val = sum(x) - v[idx]
-    x0_right += (n-1) / sum_val
+    sum_val = sum(x) - x[vidx]
+    x0_right .+= (n-1) / sum_val
     x0_left[vidx] = floor(x[vidx])
     x0_right = zeros(length(x))
     x0_right[vidx] = 1.0
