@@ -65,7 +65,7 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
 
     if !is_linear_feasible(tlmo, v)
         @debug "Vertex not linear feasible $(v)"
-        @assert is_linear_feasible(tlmo, v)
+        @assert is_linear_feasible(tlmo, a)
     end
     v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
