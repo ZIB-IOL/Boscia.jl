@@ -20,7 +20,7 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
-#========================================================================================#
+
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(tlmo.blmo)
 
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
@@ -48,7 +48,7 @@ function dicg_maximum_step(tlmo::TimeTrackingLMO, x, direction)
     gamma_max = dicg_maximum_step(tlmo.blmo, x, direction)
     return gamma_max
 end
-#========================================================================================#
+
 
 # if we want to reset the info between nodes in Bonobo
 function reset!(tlmo::TimeTrackingLMO)
