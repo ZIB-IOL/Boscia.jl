@@ -29,8 +29,8 @@ function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy,
     a = compute_inface_extreme_point(tlmo.blmo, direction, x)
     
     if !is_linear_feasible(tlmo, a)
-        @debug "Vertex not linear feasible $(v)"
-        @assert is_linear_feasible(tlmo, v)
+        @debug "Vertex not linear feasible $(a)"
+        @assert is_linear_feasible(tlmo, a)
     end
 
     opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.blmo)
@@ -65,7 +65,7 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
 
     if !is_linear_feasible(tlmo, v)
         @debug "Vertex not linear feasible $(v)"
-        @assert is_linear_feasible(tlmo, a)
+        @assert is_linear_feasible(tlmo, v)
     end
     v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
