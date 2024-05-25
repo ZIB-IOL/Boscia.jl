@@ -129,13 +129,6 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     return v
 end
 
-function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
-    if !(sblmo.N == 1)
-        return false
-    end
-    return true  
-end
-
 function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     a = copy(x)
     if sblmo.N in lb
