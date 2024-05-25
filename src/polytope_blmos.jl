@@ -151,7 +151,7 @@ function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLM
 end
 
 function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle(), x, direction)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle{Float64}(), x, direction)
 end
 
 function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
