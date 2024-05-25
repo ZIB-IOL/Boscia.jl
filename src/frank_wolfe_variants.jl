@@ -171,7 +171,6 @@ end
 
 Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 
-#===============================================================================================#
 """
    DICG-Frank-Wolfe
 
@@ -268,4 +267,3 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
-#==========================================================================================#
