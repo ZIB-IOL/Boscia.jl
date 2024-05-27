@@ -59,7 +59,6 @@ mutable struct FrankWolfeNode{
     local_potential_tightenings::Int
     dual_gap::Float64
 end
-
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
@@ -68,7 +67,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
-
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -77,12 +75,22 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
+  
+    #different ways to split active set
+    if tree.root.options[:variant] != DICG()
+        # Split active set
+        active_set_left, active_set_right =
+          split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+    else
+        # Only support SBLMO polytope.
+        # User should implement specific dicg_split_vertices_set!() for different polytopes.
+        active_set_left, active_set_right = 
+          dicg_split_vertices_set!(tree.root.problem.tlmo.blmo, node.active_set, tree, vidx)
+    end
 
-    # Split active set
-    active_set_left, active_set_right =
-        split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+
     discarded_set_left, discarded_set_right =
-        split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
+          split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
     # Sanity check
     @assert isapprox(sum(active_set_left.weights), 1.0)
