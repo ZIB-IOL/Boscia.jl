@@ -17,9 +17,9 @@ function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_var
     for i in eachindex(d)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[idx] = d[idx] > 0 ? lb[idx] : ub[idx]
+            v[i] = d[i] > 0 ? lb[idx] : ub[idx]
         else
-            v[idx] = d[idx] > 0 ? sblmo.lower_bounds[idx] : sblmo.upper_bounds[idx]
+            v[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
         end
     end
     return v
@@ -27,7 +27,7 @@ end
 
 function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
-        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6) || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i])
+        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6) || !(v[i] - 1e-6 ≤ sblmo.upper_bounds[i])
             @debug(
                 "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
             )
@@ -52,18 +52,23 @@ end
     
 # After splitting, split variable will be fixed to either 0 or 1.
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+    n = length(x)
     v = copy(x)
-    non_fixed_idx = findall(lb .!= ub)
+    non_fixed_int = findall(lb .!= ub)
     non_fixed_int_idx = int_vars[non_fixed_idx]
 
+    idx = collect(1:n)
+    non_int_idx = setdiff(idx, int_vars)
+    non_fixed_idx = vcat(non_fixed_int_idx, non_int_idx)
+
      # For non_fixed coordinates, zero-sum means that they are all fixed to origin.
-    sx = sum(x[non_fixed_int_idx])
+    sx = sum(x[non_fixed_idx])
     if sx <= 0
         return v
     end
     # Fix the point to the same face.
     # Zero will be return only if d_i is greater than zero.
-    for idx in non_fixed_int_idx
+    for idx in non_fixed_idx
         if x[idx] > 0 
             if x[idx] ≈ 1
                 v[idx] = 1
@@ -154,9 +159,10 @@ function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direc
 end
 
 function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
+    n = length(x)
     x0_left = copy(x)
     sum_val = sum(x) - x[vidx]
-    x0_right .+= (n-1) / sum_val
+    x0_left .+= (n-1) / sum_val
     x0_left[vidx] = floor(x[vidx])
     x0_right = zeros(length(x))
     x0_right[vidx] = 1.0
