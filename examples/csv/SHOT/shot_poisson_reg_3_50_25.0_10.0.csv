@@ -1,0 +1,2 @@
+seed,dimension,p,k,Ns,time,solution,termination
+3,50,50,25.0,10.0,1802.9340109825134,0.8570123258651842,LOCALLY_SOLVED
