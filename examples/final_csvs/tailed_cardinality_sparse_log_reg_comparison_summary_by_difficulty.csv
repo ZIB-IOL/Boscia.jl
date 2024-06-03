@@ -1,6 +1,6 @@
-numInstances,BosciaTerm,BosciaTermRel,BosciaTime,BosciaRelGapNT,BosciaNodesOCuts,ScipOATerm,ScipOATermRel,ScipOATime,ScipOARelGapNT,ScipOANodesOCuts
-48,48,100 %,0.85,0.0,36,36,75 %,129.89,109.2,7130
-0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
-0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
-0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
-0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
+minTime,numInstances,BosciaTerm,BosciaTermRel,BosciaTime,BosciaRelGapNT,BosciaNodesOCuts,ScipOATerm,ScipOATermRel,ScipOATime,ScipOARelGapNT,ScipOANodesOCuts
+0,48,48,100 %,0.85,0.0,36,36,75 %,129.89,109.2,7130
+10,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
+300,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
+600,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
+1200,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1

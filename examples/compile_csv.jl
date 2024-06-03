@@ -124,16 +124,32 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
 
         time = df[!,:time]
         solution = df[!,:solution]
-        termination = [row == "OPTIMAL" || row == "optimal" || row == "tree.lb>primal-dual_gap" || row == "primal>=tree.incumbent"  || row == "Optimal (tree empty)" ? 1 : 0 for row in df[!,:termination]]
+        optimality = ["OPTIMAL", "optimal", "Optimal", "Optimal (tolerance reached)", "tree.lb>primal-dual_gap", "primal>=tree.incumbent", "Optimal (tree empty)", "ALMOST_LOCALLY_SOLVED", "LOCALLY_SOLVED"]
+        termination = [row in optimality ? 1 : 0 for row in df[!,:termination]]
 
+        # All the problems are feasible.
+        # If a solver returns that it isn't, it counts as non-solved.
+        infeas_idx = findall(x->x=="INFEASIBLE", df[!,:termination])
+        if !isempty(infeas_idx)
+            time[infeas_idx] = 1800.0
+        end
+        
         if contains(solver, "boscia")
             dual_gap = df[!,:dual_gap]
             lower_bound = df[!,:solution] - df[!,:dual_gap]
             num_n_o_c = df[!,:ncalls]
         elseif solver == "ipopt"
             num_n_o_c = df[!,:num_nodes]
+            time ./= 1000
         elseif solver == "scip_oa"
             num_n_o_c = df[!,:calls]
+        end
+
+        # The MIP LIB instances sometimes overshoot the time limit.
+        over_time_idx = findall(x-> x > 1850.0, df[!,:time])
+        if !isempty(over_time_idx)
+            time[over_time_idx] .= 1800.0
+            termination[over_time_idx] .= 0
         end
 
         @show length(time), length(solution), length(termination), length(num_n_o_c), length(dual_gap), length(lower_bound)
@@ -207,7 +223,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
             continue
         end
-        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "miplib")
             continue
         end
         @show solver
@@ -363,12 +379,13 @@ function build_summary_by_difficulty(option::String; example="sparse_reg")
         if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
             continue
         end
-        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "miplib")
             continue
         end
         num_instances, num_terminated, rel_terminated, m_time, m_nodes_cuts, rel_gap_nt = summarize(example, time_slots, solver, option) 
     
         if i == 1
+            df[!,:minTime] = time_slots
             df[!,:numInstances] = num_instances
             @show length(df[!,:numInstances])
         end
@@ -390,17 +407,21 @@ end
 
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
-examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", ]
+
+#examples = ["poisson_reg"]
 
 for example in examples
 
     # comparison
-    #build_non_grouped_csv("comparison", example=example)
-    #build_summary_by_difficulty("comparison", example=example)
+    build_non_grouped_csv("comparison", example=example)
+    build_summary_by_difficulty("comparison", example=example)
 
     # settings 
-    #build_non_grouped_csv("settings", example=example)
-    #build_summary_by_difficulty("settings", example=example)
+    build_non_grouped_csv("settings", example=example)
+    build_summary_by_difficulty("settings", example=example)
 
     # branching
     build_non_grouped_csv("branching", example=example)

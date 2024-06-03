@@ -14,7 +14,7 @@ function merge_csvs(;example="sparse_reg", seeds=1:10, dimensions=15:30, Ns=[], 
     elseif example == "sparse_log_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Ipopt/ipopt_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(var_A[1]) * "_" * string(dimensions[1]*5) * "_" * string(Ns[1]) * ".csv")))
     elseif example == "poisson_reg"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Ipopt/ipopt_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(float(dimensions[1]/2)) * "_" * string(Ns[1]) * ".csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Ipopt/ipopt_" * example * "_" * string(seeds[1]) * "_" * string(dimensions[1]) * "_" * string(float(dimensions[1]/2)) * "_" * string(Ns[2]) * ".csv")))
         @show df
     else 
         @error "not a valid example"

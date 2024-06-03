@@ -32,7 +32,7 @@ include("BnB_Ipopt.jl")
 # It is assumed that y_i is poisson distributed and that the log 
 # of its expected value can be computed linearly.
 
-function build_function(seed, n)
+function build_function(seed, n; Ns=0.0, use_scale=false)
     Random.seed!(seed)
     p = n
 
@@ -46,6 +46,9 @@ function build_function(seed, n)
     Xs = randn(Float64, n, p)
     for j in 1:p 
         Xs[:,j] ./= (maximum(Xs[:,j]) - minimum(Xs[:,j]))
+        if Ns == 10.0
+            Xs[:,j] .*= 0.1
+        end
     end
     ys = map(1:n) do idx
         a = dot(Xs[idx, :], ws) + bs
@@ -53,18 +56,22 @@ function build_function(seed, n)
     end
 
     α = 1.3
-    scale = exp(p)
+    scale = exp(n/2)
     function f(θ)
+        #θ = BigFloat.(θ)
         w = @view(θ[1:p])
         b = θ[end]
         s = sum(1:n) do i
             a = dot(w, Xs[:, i]) + b
             return 1 / n * (exp(a) - ys[i] * a)
         end
+        if use_scale
+            return 1/scale * (s + α * norm(w)^2)
+        end
         return s + α * norm(w)^2
     end
     function grad!(storage, θ)
-        θ = BigFloat.(θ)
+        #θ = BigFloat.(θ)
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
@@ -76,6 +83,9 @@ function build_function(seed, n)
             storage[1:p] .+= 1 / n * xi * exp(a)
             storage[1:p] .-= 1 / n * ys[i] * xi
             storage[end] += 1 / n * (exp(a) - ys[i])
+        end
+        if use_scale
+            storage .*= 1/scale
         end
         return storage
     end
@@ -124,15 +134,15 @@ end
 
 function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="default", depth=1, limit=1800)
     #limit = 1800
-
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+use_scale = false
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; Ns=Ns)
     k = n/2
     o = SCIP.Optimizer()
     lmo, _ = build_optimizer(o, p, k, Ns)
     Boscia.solve(f, grad!, lmo, verbose=false, time_limit=10)
 
     if bo_mode == "afw"
-        x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, variant=Boscia.AwayFrankWolfe())
+        x, _, result = Boscia.solve(f, grad!, lmo; verbose=true, time_limit=limit, variant=Boscia.AwayFrankWolfe())
     ### warmstart_active_set no longer defined on master branch
     elseif bo_mode == "no_as_no_ss"
         x, _, result = Boscia.solve(f, grad!, lmo; verbose=false, time_limit=limit, warm_start=false, use_shadow_set=false)
@@ -193,7 +203,10 @@ function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson_" * string(n) * "_" * string(Ns) * "-" * string(p) * "_"  * string(k) * "_" * string(seed) * ".csv")
         CSV.write(file_name, df, append=false)
     else
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=result[:primal_objective], dual_gap =result[:dual_gap], rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
+        primal = use_scale ? result[:primal_objective] * exp(n/2) : result[:primal_objective]
+        dual_gap = use_scale ? result[:dual_gap] * exp(n/2) : result[:dual_gap]
+        @show primal, dual_gap, primal - dual_gap
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time=total_time_in_sec, solution=primal, dual_gap =dual_gap, rel_dual_gap=result[:rel_dual_gap], termination=status, ncalls=result[:lmo_calls])
         if bo_mode == "default" || bo_mode == "local_tightening" || bo_mode == "global_tightening" || bo_mode == "no_tightening" || bo_mode=="afw" || bo_mode == "strong_branching"
             file_name = joinpath(@__DIR__, "csv/boscia_" * bo_mode * "_poisson_reg_"  * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
         elseif bo_mode == "hybrid_branching"
@@ -257,7 +270,7 @@ function build_pavito_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=1800)
 end
 
 function poisson_reg_pavito(seed=1, n=20, Ns=0.1; print_models=false, time_limit=1800)
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
     # @show f
     m, x = build_pavito_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=time_limit)
@@ -329,7 +342,7 @@ function build_shot_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=1800)
 end
 
 function poisson_reg_shot(seed=1, n=20, Ns=0.1; time_limit=1800)
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
     # @show f
     m, x = build_shot_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=time_limit)
@@ -384,7 +397,7 @@ end
 
 function poisson_reg_scip(seed=1, n=20, Ns=0.1)
     limit = 1800
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
 
     lmo, epigraph_ch, x, lmo_check = build_scip_optimizer(p, k, Ns, limit, f, grad!)
@@ -398,6 +411,7 @@ function poisson_reg_scip(seed=1, n=20, Ns=0.1)
         vars_scip = MOI.get(lmo.o, MOI.VariablePrimal(), x)
         #@assert sum(ai.*vars_scip) <= bi + 1e-6 # constraint violated
         solution_scip = f(vars_scip)
+        @show solution_scip
         ncalls_scip = epigraph_ch.ncalls
         @assert Boscia.is_linear_feasible(lmo_check.o, vars_scip)
 
@@ -462,7 +476,7 @@ end
 
 function poisson_reg_ipopt(seed=1, n=20, Ns=0.1; time_limit=1800)
     # build tree
-    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n)
+    f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; Ns=Ns)
     k = n/2
 
     bnb_model, expr, p, k = build_bnb_ipopt_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=time_limit)

@@ -153,12 +153,12 @@ end
 modes = ["default", "no_tightening", "global_tightening", "local_tightening", "afw", "no_ss", "no_as", "no_as_no_ss", "strong_branching", "hybrid_branching_1", "hybrid_branching_2", "hybrid_branching_5", "hybrid_branching_10", "hybrid_branching_20"]
 for mode in modes
 
-merge_csvs(
+#=merge_csvs(
     example="sparse_reg", 
     mode = mode,
     seeds=1:10, 
     dimensions=15:30
-) 
+) =#
 
 #=merge_csvs(
     example = "portfolio_mixed", 
@@ -166,7 +166,7 @@ merge_csvs(
     seeds = 1:10, 
     dimensions = 20:5:120
 )=# 
-
+#=
 merge_csvs(
     example = "portfolio_integer", 
     mode = mode, 
@@ -210,7 +210,7 @@ merge_csvs(
     Ns = [0.1,1],
     var_A = [1,5]
 ) # seed dim Ns/m k var_A
-
+=#
 merge_csvs(
     example = "poisson_reg", 
     mode = mode, 
@@ -218,7 +218,7 @@ merge_csvs(
     seeds = 1:10,
     Ns = [0.1,1,5,10]
 ) # seed dim p k Ns
-
+#=
 merge_csvs(
     example = "tailed_cardinality",
     mode = mode,
@@ -233,9 +233,9 @@ merge_csvs(
     seeds = 1:3,
     var_A = [1,5],
     M = [0.1,1],
-) 
+) =#
 end
-
+#=
 merge_csvs(
     example = "mip_lib_22433", 
     mode = "strong_convexity",
@@ -262,4 +262,4 @@ merge_csvs(
     mode = "strong_convexity",
     dimensions = 4:8, 
     seeds = 1:3
-)
+)=#
