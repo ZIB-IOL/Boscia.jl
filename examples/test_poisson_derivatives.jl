@@ -28,7 +28,7 @@ end
     for dim in [20,50,80]
         for seed in 1:10
             @show dim, seed
-            f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, dim, use_scale=true)
+            f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, dim)
             gradient = rand(2*dim + 1)
 
             @test check_gradients(grad!, f, gradient)
