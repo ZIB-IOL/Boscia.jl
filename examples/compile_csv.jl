@@ -223,7 +223,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
             continue
         end
-        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "miplib")
             continue
         end
         @show solver
@@ -379,7 +379,7 @@ function build_summary_by_difficulty(option::String; example="sparse_reg")
         if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"] && solver in ["Ipopt","Pavito","Shot"]
             continue
         end
-        if solver == "Boscia_Strong_Convexity" && !contains(example, "mip_lib")
+        if solver == "Boscia_Strong_Convexity" && !contains(example, "miplib")
             continue
         end
         num_instances, num_terminated, rel_terminated, m_time, m_nodes_cuts, rel_gap_nt = summarize(example, time_slots, solver, option) 
