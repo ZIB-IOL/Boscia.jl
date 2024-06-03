@@ -42,3 +42,5 @@ end
 poisson_reg_ipopt(1, 50, 10.0, time_limit=1800)
 poisson_reg_boscia(1, 50, 10.0, limit = 1800, bo_mode="default")
 poisson_reg_shot(1, 50, 10.0, time_limit = 1800)
+poisson_reg_pavito(1, 50, 10.0)
+poisson_reg_scip(1, 50, 10.0)
