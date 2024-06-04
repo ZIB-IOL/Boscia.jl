@@ -411,7 +411,7 @@ examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-di
 
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", ]
 
-#examples = ["poisson_reg"]
+examples = ["poisson_reg"]
 
 for example in examples
 
