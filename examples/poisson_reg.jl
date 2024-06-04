@@ -499,11 +499,13 @@ function poisson_reg_ipopt(seed=1, n=20, Ns=0.1; time_limit=1800)
         status = "Optimal"
     end    
 @show status
-    @show bnb_model.incumbent_solution.solution
+    #@show bnb_model.incumbent_solution.solution
     @show bnb_model.incumbent
-    o_check = SCIP.Optimizer()
+    if bnb_model.incumbent_solution !== nothing
+        o_check = SCIP.Optimizer()
         lmo_check, _ = build_optimizer(o_check, p, k, Ns)
         @assert Boscia.is_linear_feasible(lmo_check.o, bnb_model.incumbent_solution.solution)
+    end
 
     df = DataFrame(seed=seed, dimension=n, p=p, Ns=Ns, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_poisson_reg_" * string(seed) * "_" * string(n) *  "_" * string(k) * "_"  * string(Ns) * ".csv")
