@@ -77,8 +77,7 @@ function build_optimizer(o, example)
     return lmo
 end
 
-function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="default", depth=1)
-    limit = 600
+function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="default", depth=1, limit=1800)
 
     o = SCIP.Optimizer()
     f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
