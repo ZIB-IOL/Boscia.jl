@@ -76,7 +76,7 @@ function build_optimizer(o, mode, n, ai, bi)
     return lmo, x
 end
 
-function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mode="default", depth=1, write=true)
+function portfolio_boscia(seed=1, dimension=5, mode; full_callback=false, bo_mode="default", depth=1, write=true)
     limit = 1800
 
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
@@ -140,10 +140,11 @@ function portfolio_boscia(seed=1, dimension=5, full_callback=false; mode, bo_mod
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
-        list_open_nodes = result[:open_nodes]
+        list_active_set_size_cb = result[:list_active_set_size] 
+        list_discarded_set_size_cb = result[:list_discarded_set_size]
         list_local_tightening = result[:local_tightenings]
         list_global_tightening = result[:global_tightenings]
-        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening, list_active_set_size_cb=list_active_set_size_cb,list_discarded_set_size_cb=list_discarded_set_size_cb)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_" * string(n) * "_" *string(seed) * "_" * mode * "_portfolio.csv")
         CSV.write(file_name, df, append=false)
     else
