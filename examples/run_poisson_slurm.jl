@@ -15,9 +15,9 @@ for mode in modes
     end
 
     for depth in depths
-        for dimension in [50:20:100;]
-            for seed in 1:10
-                for ns in [0.1,1,5,10]
+        for dimension in [90]#[50:20:100;]
+            for seed in [3,4,9] #1:10
+                for ns in [1.0] #[0.1,1,5,10]
                     @show seed, dimension, ns
                     run(`sbatch batch_poisson.sh $seed $dimension $ns $mode $depth`)
                 end
