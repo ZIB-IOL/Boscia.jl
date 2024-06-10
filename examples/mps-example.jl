@@ -77,7 +77,7 @@ function build_optimizer(o, example)
     return lmo
 end
 
-function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="default", depth=1, limit=1800)
+function miplib_boscia(example, seed=1, num_v=5; full_callback=false, bo_mode="default", depth=1, limit=1800)
 
     o = SCIP.Optimizer()
     f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
@@ -423,7 +423,7 @@ function build_bnb_ipopt_model(example, vs, b_mps, max_norm; time_limit=1800)
 end
 
 # BnB tree with Ipopt
-function miplib_ipopt(seed=1, num_v=5, full_callback = false; example, time_limit=1800)
+function miplib_ipopt(example, seed=1, num_v=5; full_callback=false, time_limit=1800)
     o = SCIP.Optimizer()
     f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
 
