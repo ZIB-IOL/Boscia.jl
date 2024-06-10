@@ -86,7 +86,7 @@ function build_optimizer(o, p, k, M)
     return lmo, x
 end
 
-function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default", depth=1, write=true)
+function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", depth=1, write=true)
     limit = 1800
 
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
