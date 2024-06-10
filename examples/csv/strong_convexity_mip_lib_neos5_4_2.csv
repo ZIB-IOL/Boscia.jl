@@ -1,0 +1,4 @@
+seed,num_v,time,lowerBound,upperBound,termination,LMOcalls,localTighteings,globalTightenings,sizeActiveSet,sizeDiscardedSet
+2,4,1650.0,-12.615159110574702,-12.460510054107065,Optimal (tolerance reached),24,23,21,1,1
+2,4,2850.0,-12.615159110574702,-12.460510054107065,Optimal (tolerance reached),44,12,0,11,1
+2,4,2941.0,-12.56905348338063,-12.460510054107065,Optimal (tolerance reached),58,10,0,6,3
