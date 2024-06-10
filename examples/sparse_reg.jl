@@ -149,10 +149,11 @@ function sparse_reg_boscia(seed=1, n=5, full_callback = false; bo_mode="default"
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
-        # list_open_nodes = result[:open_nodes]
+        list_active_set_size_cb = result[:list_active_set_size] 
+        list_discarded_set_size_cb = result[:list_discarded_set_size]
         list_local_tightening = result[:local_tightenings]
         list_global_tightening = result[:global_tightenings]
-        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        df = DataFrame(seed=seed, dimension=n, time=time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening, list_active_set_size_cb=list_active_set_size_cb,list_discarded_set_size_cb=list_discarded_set_size_cb)
         file_name = joinpath(@__DIR__, "final_csvs/boscia_" * bo_mode * "_" * string(n) * "_" *string(seed) * "_sparse_reg.csv")
         CSV.write(file_name, df, append=false)
     else
@@ -383,7 +384,7 @@ function build_bnb_ipopt_model(n, p, k, M, A, y, lambda_0, lambda_2)
     return bnb_model, expr
 end
 
-function sparse_reg_ipopt(seed=1, n=5)
+function sparse_reg_ipopt(seed=1, n=5; full_callback=false)
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
     # build tree
     bnb_model, expr = build_bnb_ipopt_model(n, p, k, M, A, y, lambda_0, lambda_2)
@@ -408,9 +409,15 @@ function sparse_reg_ipopt(seed=1, n=5)
     end    
 
     @show status, bnb_model.incumbent
+    if full_callback
+        df = DataFrame(seed=seed, num_v=num_v,number_nodes = bnb_model.num_nodes, time=list_time, lowerBound = list_lb, upperBound = list_ub, termination=status,)
+        file_name =joinpath(@__DIR__,"csv/ipopt_sparse_reg_" * string(seed) * "_" * string(n) *  ".csv")
+        CSV.write(file_name, df, append=false)
+    else
     df = DataFrame(seed=seed, dimension=n, p=p, k=k, time=total_time_in_sec, num_nodes = bnb_model.num_nodes, solution=bnb_model.incumbent, termination=status)
     file_name = joinpath(@__DIR__,"csv/ipopt_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
     CSV.write(file_name, df, append=false, writeheader=true)
+    end
 end
 
 function sparse_reg_grid_search()

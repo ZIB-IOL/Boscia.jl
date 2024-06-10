@@ -136,7 +136,8 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="d
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
-        list_open_nodes = result[:open_nodes]
+        list_active_set_size_cb = result[:list_active_set_size] 
+        list_discarded_set_size_cb = result[:list_discarded_set_size]
         list_local_tightening = result[:local_tightenings]
         list_global_tightening = result[:global_tightenings]
     end
@@ -145,7 +146,7 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="d
     # end
 
     if full_callback
-        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening, list_active_set_size_cb=list_active_set_size_cb, list_discarded_set_size_cb=list_discarded_set_size_cb)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" *string(seed) *".csv")
         CSV.write(file_name, df, append=false)
     else
