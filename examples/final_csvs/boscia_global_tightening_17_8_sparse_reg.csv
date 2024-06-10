@@ -1,0 +1,2 @@
+seed,dimension,time,lowerBound,upperBound,termination,LMOcalls,localTighteings,globalTightenings,list_active_set_size_cb,list_discarded_set_size_cb
+8,17,1541.0,2.7484428613052576,2.773474195176522,OPTIMAL,13,0,78,2,2
