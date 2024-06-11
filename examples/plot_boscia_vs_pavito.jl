@@ -4,18 +4,12 @@ using CSV
 
 # function plot_boscia_vs_scip(example; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
 function plot_boscia_vs_pavito(example)
-    if example == "miplib"
-        boscia=true 
-        scip_oa=false
-        ipopt=true
-        pavito=true
-        shot=true
-    elseif example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
+    if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
         boscia=true 
         scip_oa=true
-        pavito=true
+        pavito=false
         ipopt = false
-        shot=true
+        shot=false
     else
         boscia=true 
         scip_oa=true
@@ -23,11 +17,19 @@ function plot_boscia_vs_pavito(example)
         pavito=true
         shot=true
     end
-    
-    if example == "poisson"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/poisson_non_grouped.csv")))
+
+    df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_comparison_non_grouped.csv")))
+    df[df.timeBoscia .> 1810,:timeBoscia] .= 1810.0
+    df[df.timeScipOA .> 1810,:timeScipOA] .= 1810.0
+    if !(example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"])
+        df[df.timePavito .> 1810,:timePavito] .= 1810.0
+        df[df.timeShot .> 1810,:timeShot] .= 1810.0
+        df[df.timeIpopt .> 1810,:timeIpopt] .= 1810.0
+    end
+   #= if example == "poisson"
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/poisson_non_grouped.csv")))
     elseif example == "sparse_reg"
-        df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")))
+        df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/sparse_reg_non_grouped.csv")))
     elseif example == "mixed_portfolio"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/mixed_portfolio_non_grouped.csv")))
     elseif example == "integer"
@@ -55,7 +57,7 @@ function plot_boscia_vs_pavito(example)
         df[df.time_ipopt.>1800, :time_ipopt] .= 1800
     else
         error("wrong option")
-    end
+    end =#
 
     time_limit = 1800
 
@@ -77,57 +79,67 @@ function plot_boscia_vs_pavito(example)
 
     if boscia 
         df_boscia = deepcopy(df)
-        filter!(row -> !(row.termination_boscia == 0),  df_boscia)
-        filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        filter!(row -> !(row.terminationBoscia == 0),  df_boscia)
+        #filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
 
-        time_boscia = sort(df_boscia[!,"time_boscia"])
+        time_boscia = sort(df_boscia[!,"timeBoscia"])
         push!(time_boscia, 1.1 * time_limit)
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
+        if !isempty(df_boscia)
+            ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1], markevery=0.1)
+        end
     end
 
     if scip_oa     
         df_scip = deepcopy(df)
-        filter!(row -> !(row.termination_scip == 0),  df_scip)
-        filter!(row -> !(row.optimal_scip == 0),  df_scip)
+        filter!(row -> !(row.terminationScipOA == 0),  df_scip)
+        #filter!(row -> !(row.optimal_scip == 0),  df_scip)
         
-        time_scip = sort(df_scip[!,"time_scip"])
+        time_scip = sort(df_scip[!,"timeScipOA"])
         push!(time_scip, 1.1 * time_limit)
-        ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
+        if !isempty(df_scip)
+            ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
+        end
     end
 
     if ipopt
         df_ipopt = deepcopy(df)
-        filter!(row -> !(row.termination_ipopt == 0),  df_ipopt)
-        filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
+        filter!(row -> !(row.terminationIpopt == 0),  df_ipopt)
+        #filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
 
-        time_ipopt = sort(df_ipopt[!,"time_ipopt"])
+        time_ipopt = sort(df_ipopt[!,"timeIpopt"])
         push!(time_ipopt, 1.1 * time_limit)
-        ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
+        if !isempty(df_ipopt)
+            ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
+        end
     end
 
     if pavito
         df_pavito = deepcopy(df)
-        filter!(row -> !ismissing(row.termination_pavito),  df_pavito)
-        filter!(row -> !(row.termination_pavito == 0),  df_pavito)
-        if boscia && scip_oa && ipopt && pavito
-            filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
-        elseif example == "miplib"
-            filter!(row -> !ismissing(row.optimal_pavito),  df_pavito)
-            filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
-        end
-        time_pavito = sort(df_pavito[!,"time_pavito"])
+        filter!(row -> !ismissing(row.terminationPavito),  df_pavito)
+        filter!(row -> !(row.terminationPavito == 0),  df_pavito)
+        #if boscia && scip_oa && ipopt && pavito
+        #    filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
+        #elseif example == "miplib"
+        #    filter!(row -> !ismissing(row.optimal_pavito),  df_pavito)
+        #    filter!(row -> !(row.optimal_pavito == 0),  df_pavito)
+        #end
+        time_pavito = sort(df_pavito[!,"timePavito"])
         push!(time_pavito, 1.1 * time_limit)
-        ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
+        if !isempty(df_pavito)
+            ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
+        end
     end
 
     if shot
         df_shot = deepcopy(df)
-        filter!(row -> !(row.termination_shot == 0),  df_shot)
-        filter!(row -> !(row.optimal_shot == 0),  df_shot)
+        filter!(row -> !(row.terminationShot == 0),  df_shot)
+        #filter!(row -> !(row.optimal_shot == 0),  df_shot)
 
-        time_shot = sort(df_shot[!,"time_shot"])
+        time_shot = sort(df_shot[!,"timeShot"])
         push!(time_shot, 1.1 * time_limit)
-        ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)
+        if !isempty(df_shot)
+            ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)
+        end
     end
 
     ylabel("Solved instances")
@@ -135,31 +147,45 @@ function plot_boscia_vs_pavito(example)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
-    if example == "integer" || example == "integer_50"
-        title("Pure-integer portfolio problem", loc="center")
-    elseif example == "poisson"
-        title("Poisson regression", loc="center")
+    if example == "portfolio_integer"
+        title("Pure-Integer Portfolio Problem", loc="center")
+    elseif example == "poisson_reg"
+        title("Poisson Regression", loc="center")
     elseif example == "sparse_reg"
-        title("Sparse regression", loc="center")
-    elseif example == "mixed_portfolio"
-        title("Mixed-integer portfolio problem", loc="center")
+        title("Sparse Regression", loc="center")
+    elseif example == "portfolio_mixed"
+        title("Mixed-Integer Portfolio Problem", loc="center")
     elseif example == "sparse_log_reg"
-        title("Sparse log regression", loc="center")
-    elseif example == "tailed_sparse_reg"
-        title("Tailed sparse regression", loc="center")
-    elseif example == "tailed_sparse_log_reg"
-        title("Tailed sparse log regression", loc="center")
+        title("Sparse Log Regression", loc="center")
+    elseif example == "tailed_cardinality"
+        title("Tailed Sparse Regression", loc="center")
+    elseif example == "tailed_cardinality_sparse_log_reg"
+        title("Tailed Sparse Log Regression", loc="center")
+    elseif example == "miplib_22433"
+        title("MIP Lib 22433", loc="center")
+    elseif example == "miplib_neos5"
+        title("MIP Lib neos5", loc="center")
+    elseif example == "miplib_pg5_34"
+        title("MIP Lib pg5_34", loc="center")
+    elseif example == "miplib_ran14x18-disj-8"
+        title("MIP Lib ran14x18-disj-8", loc="center")
     end
 
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
-        fancybox=true, shadow=false, ncol=2)
+        fancybox=true, shadow=false, ncol=3)
 
     fig.tight_layout()
 
-    if pavito
-        file = "images/" * example * "_boscia_pavito.pdf"
+    if pavito && !scip_oa
+        file = "plots/" * example * "_boscia_pavito.pdf"
     else 
-        file = "images/" * example * ".pdf"
+        file = "plots/" * example * "_comparison_solvers.pdf"
     end
     savefig(file)
+end
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+for example in examples
+    @show example
+    plot_boscia_vs_pavito(example)
 end
