@@ -8,7 +8,8 @@ depth = parse(Int64, ARGS[5])
 @show example, seed, num_v, mode, depth
 
 try 
-    miplib_boscia(seed, num_v, example=example, bo_mode=mode, depth=depth)
+    miplib_boscia(example, seed, num_v, bo_mode=mode, depth=depth, full_callback=true)
+    #miplib_ipopt(example, seed, num_v, full_callback=true)
 catch e 
     println(e)
     file = "boscia_miplib_" * mode * "_" * str(seed) * "_" * str(num_v)    

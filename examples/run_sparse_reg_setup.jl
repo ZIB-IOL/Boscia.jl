@@ -7,7 +7,7 @@ depth = parse(Int64, ARGS[4])
 @show seed, dimension, mode, depth
 
 try 
-    sparse_reg_boscia(seed, dimension, bo_mode=mode, depth=depth)#, bo_mode="default")
+    sparse_reg_boscia(seed, dimension, bo_mode=mode, depth=depth, full_callback=true)#, bo_mode="default")
 catch e 
     println(e)
     file = "boscia_sparse_reg_" * mode * "_" * string(seed) * "_" * string(dimension)    

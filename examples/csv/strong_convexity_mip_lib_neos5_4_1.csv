@@ -1,0 +1,10 @@
+seed,num_v,time,lowerBound,upperBound,termination,LMOcalls,localTighteings,globalTightenings,sizeActiveSet,sizeDiscardedSet
+1,4,1641.0,-10.744901172840706,-10.428783286234417,Optimal (tolerance reached),24,25,27,9,2
+1,4,2782.0,-10.744901172840706,-10.428783286234417,Optimal (tolerance reached),39,3,0,7,2
+1,4,2846.0,-10.686064710387228,-10.52163604908415,Optimal (tolerance reached),56,4,0,6,0
+1,4,2913.0,-10.686064710387228,-10.52163604908415,Optimal (tolerance reached),73,10,0,11,2
+1,4,2988.0,-10.651116483801063,-10.52163604908415,Optimal (tolerance reached),87,8,0,9,3
+1,4,3047.0,-10.651116483801063,-10.52163604908415,Optimal (tolerance reached),104,10,0,11,3
+1,4,3101.0,-10.645007884793198,-10.52163604908415,Optimal (tolerance reached),119,9,0,7,2
+1,4,3143.0,-10.645007884793198,-10.52163604908415,Optimal (tolerance reached),130,2,0,9,2
+1,4,3198.0,-10.6200239891529,-10.52163604908415,Optimal (tolerance reached),145,4,0,13,1

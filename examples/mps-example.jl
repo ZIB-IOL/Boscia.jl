@@ -77,7 +77,7 @@ function build_optimizer(o, example)
     return lmo
 end
 
-function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="default", depth=1, limit=1800)
+function miplib_boscia(example, seed=1, num_v=5; full_callback=false, bo_mode="default", depth=1, limit=1800)
 
     o = SCIP.Optimizer()
     f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
@@ -146,7 +146,7 @@ function miplib_boscia(seed=1, num_v=5, full_callback=false; example, bo_mode="d
     # end
 
     if full_callback
-        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening, list_active_set_size_cb=list_active_set_size_cb, list_discarded_set_size_cb=list_discarded_set_size_cb)
+        df = DataFrame(seed=seed, num_v=num_v, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening, sizeActiveSet=list_active_set_size_cb, sizeDiscardedSet=list_discarded_set_size_cb)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_mip_lib_" * example * "_" * string(num_v) * "_" *string(seed) *".csv")
         CSV.write(file_name, df, append=false)
     else
@@ -424,7 +424,7 @@ function build_bnb_ipopt_model(example, vs, b_mps, max_norm; time_limit=1800)
 end
 
 # BnB tree with Ipopt
-function miplib_ipopt(seed=1, num_v=5, full_callback = false; example, time_limit=1800)
+function miplib_ipopt(example, seed=1, num_v=5; full_callback=false, time_limit=1800)
     o = SCIP.Optimizer()
     f, grad!, max_norm, vs, b_mps = build_function(o, example, num_v, seed)
 
