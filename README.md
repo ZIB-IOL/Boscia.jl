@@ -11,8 +11,8 @@ The Boscia.jl solver uses a combination of a variant of the Frank-Wolfe algorith
 **min_{x ∈ C, x_I ∈ Z^n} f(x)**,
 where f is a differentiable convex function, C is a convex and compact set, and I is a set of indices for integer variables.
 
-This approach is particularly effective when we can efficiently optimize a linear function over C and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming (**JuMP**) that implements this API.
-A paper presenting the package with mathematical explanations and numerous examples can be found here:
+This approach is particularly effective if we can solve the mixed-integer linear minimization problem over C efficiently and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming (**JuMP**) that implements this API.
+The paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
 
@@ -20,7 +20,7 @@ A paper presenting the package with mathematical explanations and numerous examp
 
 ## Installation
 
-If you haven't downloaded JULIA yet go on this link and download it according to your system requirement . ['Julia'](https://julialang.org/downloads/).
+
 Once you have installed Julia , From the Julia REPL, type ] to enter the Pkg REPL mode and run 
 ```Boscia
 pkg > add Boscia
@@ -35,13 +35,11 @@ import Pkg
 Pkg.add("Boscia")
 ```
 
-Or get the latest master branch with:
-```julia
-import Pkg
-Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
-```
+
 
 If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
+If you want to use SCIP within Boscia and your OS is windows, you will have download SCIP separately, see SCIP.jl.
+Note that you do not necessarily have to download the binaries but can also use the installer provided by SCIP.
 
 
 **For Window Users** You need not to download whole SCIP binary instead you can follow **Custom Installation** mentioned on this page and download and link SCIP with your JULIA .
