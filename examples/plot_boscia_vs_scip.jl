@@ -3,40 +3,19 @@ using DataFrames
 using CSV
 
 # function plot_boscia_vs_scip(example; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
-function plot_boscia_vs_scip(example, mode)
-    if mode == "boscia_methods"
-        boscia=true 
-        scip_oa=false
-        ipopt=false
-        afw=true
-        ss=true
-        as=true
-        as_ss=true
-        boscia_methods=true
-    elseif mode == "solvers"
-        boscia=true 
-        scip_oa=true
-        ipopt=true
-        afw=false
-        ss=false
-        as=false
-        as_ss=false
-        boscia_methods=false
-        if example == "tailed_sparse_reg" || example == "tailed_sparse_log_reg"
-            ipopt = false
-        end
-    elseif example == "miplib"
-        boscia=true 
-        scip_oa=false
-        ipopt=true
-        afw=false
-        ss=false
-        as=false
-        as_ss=false
-        boscia_methods=false
-    end
+function plot_boscia_vs_scip(example)
+    boscia=true 
+    afw=true
+    ss=true
+    as=true
+    as_ss=true
+    boscia_methods=true
+
+
+    df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_settings_non_grouped.csv")))
+     
     
-    if example == "poisson"
+   #= if example == "poisson"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/poisson_non_grouped.csv")))
     elseif example == "sparse_reg"
         df = DataFrame(CSV.File(joinpath(@__DIR__, "csv/sparse_reg_non_grouped.csv")))
@@ -67,7 +46,7 @@ function plot_boscia_vs_scip(example, mode)
         df[df.time_ipopt.>1800, :time_ipopt] .= 1800
     else
         error("wrong option")
-    end
+    end =#
 
     time_limit = 1800
 
@@ -89,69 +68,45 @@ function plot_boscia_vs_scip(example, mode)
 
     if boscia 
         df_boscia = deepcopy(df)
-        filter!(row -> !(row.termination_boscia == 0),  df_boscia)
-        if boscia && scip_oa
-            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
-        elseif example == "miplib"
-            filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
-        end
-        time_boscia = sort(df_boscia[!,"time_boscia"])
+        filter!(row -> !(row.terminationBoscia == 0),  df_boscia)
+        #if boscia && scip_oa
+        #    filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        #elseif example == "miplib"
+        #    filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
+        #end
+        time_boscia = sort(df_boscia[!,"timeBoscia"])
         push!(time_boscia, 1.1 * time_limit)
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1)
-    end
-
-    if scip_oa     
-        df_scip = deepcopy(df)
-        filter!(row -> !(row.termination_scip == 0),  df_scip)
-        if boscia && scip_oa
-            filter!(row -> !(row.optimal_scip == 0),  df_scip)
-        end        
-        time_scip = sort(df_scip[!,"time_scip"])
-        push!(time_scip, 1.1 * time_limit)
-        ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
-    end
-
-    if ipopt
-        df_ipopt = deepcopy(df)
-        filter!(row -> !(row.termination_ipopt == 0),  df_ipopt)
-        if boscia && scip_oa && ipopt
-            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
-        elseif example == "miplib"
-            filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
-        end
-        time_ipopt = sort(df_ipopt[!,"time_ipopt"])
-        push!(time_ipopt, 1.1 * time_limit)
-        ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
+        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Default", color=colors[1], marker=markers[1], markevery=0.1)
     end
 
     if afw 
         df_afw = deepcopy(df)
-        filter!(row -> !(row.termination_afw == 0),  df_afw)
-        time_afw = sort(df_afw[!,"time_afw"])
+        filter!(row -> !(row.terminationBoscia_Afw == 0),  df_afw)
+        time_afw = sort(df_afw[!,"timeBoscia_Afw"])
         push!(time_afw, 1.1 * time_limit)
         ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=colors[4], marker=markers[3], markevery=0.1)
     end
 
     if ss 
         df_ss = deepcopy(df)
-        filter!(row -> !(row.termination_no_ss == 0), df_ss)
-        time_ss = sort(df_ss[!,"time_no_ss"])
+        filter!(row -> !(row.terminationBoscia_No_Ss == 0), df_ss)
+        time_ss = sort(df_ss[!,"timeBoscia_No_Ss"])
         push!(time_ss, 1.1 * time_limit)
         ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=colors[5], marker=markers[4], markevery=0.1)
     end
 
     if as 
         df_as = deepcopy(df)
-        filter!(row -> !(row.termination_no_as == 0), df_as)
-        time_as = sort(df_as[!,"time_no_as"])
+        filter!(row -> !(row.terminationBoscia_No_As == 0), df_as)
+        time_as = sort(df_as[!,"timeBoscia_No_As"])
         push!(time_as, 1.1 * time_limit)
         ax.plot(time_as, [1:nrow(df_as); nrow(df_as)], label="no active set", color=colors[6], marker=markers[5], markevery=0.1)
     end
 
     if as_ss 
         df_as_ss = deepcopy(df)
-        filter!(row -> !(row.termination_no_ws == 0), df_as_ss)
-        time_as_ss = sort(df_as_ss[!,"time_no_ws"])
+        filter!(row -> !(row.terminationBoscia_No_As_No_Ss == 0), df_as_ss)
+        time_as_ss = sort(df_as_ss[!,"timeBoscia_No_As_No_Ss"])
         push!(time_as_ss, 1.1 * time_limit)
         ax.plot(time_as_ss, [1:nrow(df_as_ss); nrow(df_as_ss)], label="no warm start", color=colors[7], marker=markers[6], markevery=0.1)
     end
@@ -161,20 +116,28 @@ function plot_boscia_vs_scip(example, mode)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
-    if example == "integer" || example == "integer_50"
-        title("Pure-integer portfolio problem", loc="center")
-    elseif example == "poisson"
-        title("Poisson regression", loc="center")
+    if example == "portfolio_integer"
+        title("Pure-Integer Portfolio Problem", loc="center")
+    elseif example == "poisson_reg"
+        title("Poisson Regression", loc="center")
     elseif example == "sparse_reg"
-        title("Sparse regression", loc="center")
-    elseif example == "mixed_portfolio"
-        title("Mixed-integer portfolio problem", loc="center")
+        title("Sparse Regression", loc="center")
+    elseif example == "portfolio_mixed"
+        title("Mixed-Integer Portfolio Problem", loc="center")
     elseif example == "sparse_log_reg"
-        title("Sparse log regression", loc="center")
-    elseif example == "tailed_sparse_reg"
-        title("Tailed sparse regression", loc="center")
-    elseif example == "tailed_sparse_log_reg"
-        title("Tailed sparse log regression", loc="center")
+        title("Sparse Log Regression", loc="center")
+    elseif example == "tailed_cardinality"
+        title("Tailed Sparse Regression", loc="center")
+    elseif example == "tailed_cardinality_sparse_log_reg"
+        title("Tailed Sparse Log Regression", loc="center")
+    elseif example == "miplib_22433"
+        title("MIP Lib 22433", loc="center")
+    elseif example == "miplib_neos5"
+        title("MIP Lib neos5", loc="center")
+    elseif example == "miplib_pg5_34"
+        title("MIP Lib pg5_34", loc="center")
+    elseif example == "miplib_ran14x18-disj-8"
+        title("MIP Lib ran14x18-disj-8", loc="center")
     end
 
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
@@ -188,9 +151,15 @@ function plot_boscia_vs_scip(example, mode)
     fig.tight_layout()
 
     if boscia_methods
-        file = "csv/" * example * "_boscia_methods.pdf"
+        file = "plots/" * example * "_boscia_settings.pdf"
     else 
         file = "csv/" * example * ".pdf"
     end
     savefig(file)
+end
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+for example in examples
+    @show example
+    plot_boscia_vs_scip(example)
 end
