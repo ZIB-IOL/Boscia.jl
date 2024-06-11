@@ -52,18 +52,16 @@ function merge_csvs(;example="sparse_reg", mode="default", seeds=1:10, dimension
     if example == "sparse_reg" 
         for seed in seeds 
             for dimension in dimensions 
-                    try 
-                        if mode == "dual_gap_decay_factor"
-                            df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Boscia/" * name * "_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(factor) * "_" * string(epsilon) * ".csv")))
-                        else
-                            df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Boscia/" * folder * "/" * name * "_" * example * "_" * string(seed) * "_" * string(dimension) * ".csv")))
-                        end
-                        append!(df, df_temp)
-                        
-                    catch e 
-                        println(e)
-                    end 
-                end
+                try 
+                    if mode == "dual_gap_decay_factor"
+                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Boscia/" * name * "_" * example * "_" * string(seed) * "_" * string(dimension) * "_" * string(factor) * "_" * string(epsilon) * ".csv")))
+                    else
+                        df_temp = DataFrame(CSV.File(joinpath(@__DIR__, "csv/Boscia/" * folder * "/" * name * "_" * example * "_" * string(seed) * "_" * string(dimension) * ".csv")))
+                    end
+                    append!(df, df_temp)    
+                catch e 
+                    println(e)
+                end 
             end 
         end
     elseif occursin("mip_lib", example) 
@@ -169,7 +167,7 @@ for mode in modes
 
     if mode == "dual_gap_decay_factor"
         for factor in [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
-            for epsilon in epsilons=[1e-2, 1e-3, 5e-3, 1e-4]
+            for epsilon in [1e-2, 1e-3, 5e-3, 1e-4]
                 merge_csvs(
                 example="sparse_reg", 
                 mode = mode,
