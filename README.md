@@ -53,7 +53,9 @@ Note that you do not necessarily have to download the binaries but can also use 
 
 Here is a simple example to get started. For more examples, see the examples folder in the package.
 
+
 ```julia
+
 using Boscia
 using FrankWolfe
 using Random
@@ -100,8 +102,6 @@ Parameter settings.
 	 Total number of varibales: 6
 	 Number of integer variables: 0
 	 Number of binary variables: 6
-
-
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -138,3 +138,4 @@ Search Statistics.
 	 LMO calls / sec: 1205.1724137931035
 	 Nodes / sec: 218.96551724137933
 	 LMO calls / node: 5.503937007874016
+```
