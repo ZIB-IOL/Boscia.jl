@@ -1,4 +1,32 @@
 ## How to implement the BLMO Interface using the cube as an example
+# The code provided is an implementation of a Bounded Linear Minimization Oracle (BLMO) for a cube, using the Julia programming language and leveraging the Boscia and Bonobo libraries. This BLMO is designed to work within the structure of these libraries to facilitate linear minimization problems within bounded constraints.
+#
+# Key Components and Functions:
+#
+# 1. CubeBLMO Structure:
+#    - `CubeBLMO` is a mutable struct representing the BLMO with fields for the number of dimensions (`n`), integer variables (`int_vars`), bounds (`bounds`), and the time taken for solving (`solving_time`).
+#
+# 2. Necessary Functions:
+#    - `compute_extreme_point`: Computes an extreme point of the cube by checking the sign of the gradient.
+#    - `build_global_bounds`: Builds global bounds for integer variables.
+#    - Information Retrieval Functions:
+#        - `get_list_of_variables`, `get_integer_variables`, `get_int_var`
+#        - `get_lower_bound_list`, `get_upper_bound_list`, `get_bound`
+#    - Bounds Management Functions:
+#        - `set_bound!`, `delete_bounds!`, `add_bound_constraint!`
+#    - Checks:
+#        - `is_constraint_on_int_var`, `is_bound_in`, `is_linear_feasible`
+#        - `has_integer_constraint`
+#
+# 3. Optional Safety Functions:
+#    - `build_LMO_correct`: Ensures the LMO is built correctly.
+#    - `check_feasibility`: Checks the feasibility of the constraints.
+#    - `is_valid_split`: Validates a split for branching in a tree structure.
+#
+# 4. Logging:
+#    - `get_BLMO_solve_data`: Retrieves the solving time data.
+
+
 using Boscia
 using Bonobo
 using Dates 

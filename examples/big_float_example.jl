@@ -1,4 +1,13 @@
-using Random
+# This script performs optimization tests using the Boscia package with high precision arithmetic
+# (BigFloat and DoubleFloat) on a function that has integer constraints. The goal is to verify
+# the correctness and performance of the optimization process using these high-precision types.
+# It includes two test sets, one using BigFloat and another using DoubleFloat, and employs 
+# custom heuristics for solving the optimization problem. The results are compared against 
+# expected values and checked for accuracy using `@test` assertionsusing Random
+
+# We first import the necessary packages, which will run the required test .
+
+
 using Boscia
 using Test
 using DoubleFloats
