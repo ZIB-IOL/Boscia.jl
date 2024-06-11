@@ -11,17 +11,6 @@ for mode in modes
         depths = [1]
     end
 
-    dual_gap_decay_factors = if mode == "dual_gap_decay_factor"
-        [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
-    else
-        [0.0]
-    end
-    epsilon = if mode == "dual_gap_decay_factor"
-        [1e-2, 1e-3, 5e-3, 1e-4]
-    else
-        [0.0]
-    end
-
     if mode == "dual_gap_decay_factor"
         dual_gap_decay_factors = [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
         epsilons = [1e-2, 1e-3, 5e-3, 1e-4]
