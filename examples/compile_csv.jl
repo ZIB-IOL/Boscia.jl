@@ -204,6 +204,15 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         solvers = ["Boscia","Boscia_Afw", "Boscia_No_As_No_Ss", "Boscia_No_As", "Boscia_No_Ss", "Boscia_Global_Tightening","Boscia_Local_Tightening", "Boscia_No_Tightening", "Boscia_Strong_Convexity"]
     elseif option == "branching"
         solvers = ["Boscia","Boscia_Strong_Branching", "Boscia_Hybrid_Branching_1", "Boscia_Hybrid_Branching_2", "Boscia_Hybrid_Branching_5", "Boscia_Hybrid_Branching_10", "Boscia_Hybrid_Branching_20"]
+    elseif option == "dual_decay"
+        factors = [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
+        epsilons = [1e-2, 1e-3, 5e-3, 1e-4]
+        solvers = []
+        for factor in factors
+            for epsilon in epsilons
+                push!(solvers, "dual_gap_decay_factor_" *string(factor) * "_" * string(epsilon))
+            end
+        end
     else
         error("Unknown option!")
     end
@@ -368,6 +377,15 @@ function build_summary_by_difficulty(option::String; example="sparse_reg")
         solvers = ["Boscia","Boscia_Afw", "Boscia_No_As_No_Ss", "Boscia_No_As", "Boscia_No_Ss", "Boscia_Global_Tightening","Boscia_Local_Tightening", "Boscia_No_Tightening","Boscia_Strong_Convexity"]
     elseif option == "branching"
         solvers = ["Boscia","Boscia_Strong_Branching", "Boscia_Hybrid_Branching_1", "Boscia_Hybrid_Branching_2", "Boscia_Hybrid_Branching_5", "Boscia_Hybrid_Branching_10","Boscia_Hybrid_Branching_20"]
+    elseif option == "dual_decay"
+        factors = [0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0]
+        epsilons = [1e-2, 1e-3, 5e-3, 1e-4]
+        solvers = []
+        for factor in factors
+            for epsilon in epsilons
+                push!(solvers, "dual_gap_decay_factor_" *string(factor) * "_" * string(epsilon))
+            end
+        end
     else
         error("Unknown option!")
     end
@@ -426,4 +444,10 @@ for example in examples
     # branching
     build_non_grouped_csv("branching", example=example)
     build_summary_by_difficulty("branching", example=example)
+
+    if example == "sparse_reg"
+        # dual decay
+        build_non_grouped_csv("dual_decay", example=example)
+        build_summary_by_difficulty("dual_decay", example=example)
+    end
 end
