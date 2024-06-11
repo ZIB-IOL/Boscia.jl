@@ -1,0 +1,2 @@
+AssertionError("primal: 4.250908956787147 and tree.incumbent: 4.142813725357829")
+AssertionError("primal: 4.250908956787147 and tree.incumbent: 4.161068298658445")
