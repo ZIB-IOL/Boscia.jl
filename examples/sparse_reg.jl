@@ -86,7 +86,7 @@ function build_optimizer(o, p, k, M)
     return lmo, x
 end
 
-function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", depth=1, write=true)
+function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", depth=1, write=true, dual_gap_decay_factor=0.0, fw_epsilon=0.0)
     limit = 1800
 
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
@@ -135,6 +135,8 @@ function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", 
         MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy, use_postsolve=false)
+    elseif bo_mode == "dual_gap_decay_factor"
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, use_postsolv=false, dual_gap_decay_factor=dual_gap_decay_factor, fw_epsilon=fw_epsilon)
     else
         error("Mode not known!")
     end     
@@ -164,6 +166,8 @@ function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", 
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         elseif bo_mode == "hybrid_branching"
             file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_" * string(depth) * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
+        elseif bo_mode == "dual_gap_decay_factor"
+            file_name = joinpath(@__DIR__,"csv/boscia_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * "_" * string(dual_gap_decay_factor) * "_" * string(epsilon) * ".csv")
         else 
             file_name = joinpath(@__DIR__,"csv/no_warm_start_" * bo_mode * "_sparse_reg_" * string(seed) * "_" * string(n) * ".csv")
         end
