@@ -4,6 +4,8 @@ include("sparse_log_reg.jl")
 
 modes = ["strong_branching", "hybrid_branching"]
 
+modes = ["default"]
+
 for mode in modes
     if mode == "hybrid_branching"
         depths = [1, 2, 5, 10, 20]
@@ -14,7 +16,7 @@ for mode in modes
     for depth in depths
 
         for dimension in [5:5:20;]
-            for seed in 1:10
+            for seed in 1:2:10#1:10
             @show seed, dimension
                 for M in [0.1,1]
                     for var_A in [1,5]
