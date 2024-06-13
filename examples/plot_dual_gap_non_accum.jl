@@ -8,31 +8,39 @@ using DataFrames
 #file_name = "experiments/csv/early_stopping_sparse_reg_25_1_Inf_0.65_0.001_2.csv"
 #file_name = "experiments/csv/early_stopping_sparse_reg_16_1_Inf_0.65_0.001_2.csv"
 #file_name = "experiments/csv/early_stopping_low_dim_400_20_1_Inf_0.8_0.001_1.csv"
-file_name = "csv/early_stopping_birkhoff_3_2_2_Inf_0.7_0.001_1.csv"
+#file_name = "csv/early_stopping_birkhoff_3_2_2_Inf_0.7_0.001_1.csv"
 #file_name = "experiments/csv/early_stopping_sparse_reg_16_1_Inf_0.7_0.001_1.csv"
 #file_name = "experiments/csv/early_stopping_low_dim_100_5_3_Inf_1.0_1.0e-7_1.csv"
 #file_name = "experiments/csv/early_stopping_portfolio_40_2_Inf_0.7_0.001_1.csv"
-df = DataFrame(CSV.File(file_name))
+#df = DataFrame(CSV.File(file_name))
 
 # file_name_2 = "experiments/csv/early_stopping_sparse_reg_25_1_Inf_0.65_1.0e-7_3.csv"
 # df2 = DataFrame(CSV.File(file_name))
 
-if occursin("sqr_dst", file_name)
-    example = "sqr_dst"
-elseif occursin("sparse_reg", file_name)
-    example = "sparse_reg"
-elseif occursin("worst_case", file_name)
-    example = "worst_case"
-elseif occursin("birkhoff", file_name)
-    example = "birkhoff"
-elseif occursin("low_dim", file_name)
-    example = "low_dim"
-elseif occursin("lasso", file_name)
-    example = "lasso"
-elseif occursin("portfolio", file_name)
-    example = "portfolio"
-end
+function plot_progress_lmo(file_name, mode)
 
+example = if occursin("sqr_dst", file_name)
+             "sqr_dst"
+        elseif occursin("sparse_reg", file_name)
+             "sparse_reg"
+        elseif occursin("worst_case", file_name)
+             "worst_case"
+        elseif occursin("birkhoff", file_name)
+            "birkhoff"
+        elseif occursin("low_dim", file_name)
+             "low_dim"
+        elseif occursin("lasso", file_name)
+             "lasso"
+        elseif occursin("mixed_portfolio", file_name)
+             "mixed_portfolio"
+        elseif occursin("integer_portfolio", file_name)
+             "integer_portfolio"
+        elseif occursin("poisson", file_name)
+            "poisson"
+        elseif occursin("sparse_log_reg", file_name)
+            "sparse_log_reg"
+        end
+#=
 data = replace(file_name, "experiments/csv/early_stopping_" * example * "_" => "")
 next_index = findfirst("_", data)
 dimension = data[1:next_index[1]-1]
@@ -45,16 +53,18 @@ min_number_lower = data[1:next_index[1]-1]
 data = data[next_index[1]+1:end] 
 next_index = findfirst("_", data)
 fw_dual_gap_precision = data[1:next_index[1]-1] 
+=#
+#if example == "sqr_dst"
+#    title = "Example : squared distance, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
+#elseif example == "sparse_reg"
+#    title = "Example : sparse regression, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
+#elseif example == "worst_case"
+#    title = "Example : worst case, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
+#end
 
-if example == "sqr_dst"
-    title = "Example : squared distance, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
-elseif example == "sparse_reg"
-    title = "Example : sparse regression, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
-elseif example == "worst_case"
-    title = "Example : worst case, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
-end
+df = DataFrame(CSV.File(file_name))
 
-len = length(df[!,"ub"])
+len = length(df[!,"upperBound"])
 
 colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
 markers = ["o", "s", "^", "P", "X", "H", "D"]
@@ -69,8 +79,8 @@ PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
 """)
 
 ax = fig.add_subplot(111)
-lns1 = ax.plot(1:len, df[!,"ub"], label="Incumbent", color=colors[end], marker=markers[2], markevery=0.05)
-lns2 = ax.plot(1:len, df[!,"lb"], label="Lower bound", color=colors[4], marker=markers[3], markevery=0.05)
+lns1 = ax.plot(1:len, df[!,"upperBound"], label="Incumbent", color=colors[end], marker=markers[2], markevery=0.05)
+lns2 = ax.plot(1:len, df[!,"lowerBound"], label="Lower bound", color=colors[4], marker=markers[3], markevery=0.05)
 #ax.plot(1:length(df2[!,"ub"]), df2[!,"lb"], label="Lower bound, adaptive gap = 0.65", color=colors[4], linestyle="dashed")
 xlabel("Number of nodes")
 #xticks(range(1, len, step=50))
@@ -80,7 +90,7 @@ ylabel("Objective value")
 #ax.set_ylim(bottom=-5500, top=-4900)
 
 ax2 = ax.twinx()
-total_lmo_calls = df[!, "list_lmo_calls"]
+total_lmo_calls = df[!, "LMOcalls"]
 previous_lmo_calls = [0]
 append!(previous_lmo_calls, total_lmo_calls[1:end-1])
 lmo_calls_non_accum = total_lmo_calls - previous_lmo_calls
@@ -100,8 +110,46 @@ fig.tight_layout()
 #yaxis!("objective value")
 
 file_name = replace(file_name, ".csv" => ".pdf")
-file_name = replace(file_name, "csv" => "images")
-file_name = replace(file_name, "early_stopping" => "dual_gap_non_accum_")
+file_name = replace(file_name, "csv" => "plots/progress_plots/" * example *"/")
+if example == "sparse_reg"
+    file_name = replace(file_name, "boscia_" => "dual_gap_non_accum_")
+else
+    file_name = replace(file_name, mode => "dual_gap_non_accum_" * mode)
+end
 #file_name = replace(file_name, "dual_gap" => "dual_gap_non_accum_")
 
 savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+end
+
+
+## sparse regression
+modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
+for mode in modes
+    for m in 15:30
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
+            plot_progress_lmo(file, mode)
+        end
+    end
+end
+
+# portfolio mixed
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
+            plot_progress_lmo(file, mode)
+        end
+    end
+end
+
+# portfolio integer
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
+            plot_progress_lmo(file, mode)
+        end
+    end
+end
+
