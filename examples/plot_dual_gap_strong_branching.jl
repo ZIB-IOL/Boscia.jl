@@ -10,9 +10,9 @@ function dual_gap_plot(example, seed, dim, mode)
     # mode = "time"
 
     if example == "sparse_reg"
-        switch = floor(5*dim/depth)
+        switch = floor(5*dim/20)
     else
-        switch = floor(dim/depth)
+        switch = floor(dim/20)
     end
 
     if example == "sparse_reg"
@@ -20,7 +20,7 @@ function dual_gap_plot(example, seed, dim, mode)
     else
         start = ""
     end
-    file_name1 = joinpath(@__DIR__, "csv/" * start * "hybrid_strong_branching_20_" * string(dim) * "_" * string(seed) * "_" * example * ".csv")
+    file_name1 = joinpath(@__DIR__, "csv/" * start * "hybrid_branching_" * string(dim) * "_" * string(seed) * "_" * example * ".csv")
     file_name2 = joinpath(@__DIR__, "csv/" * start * "default_" * string(dim) * "_" * string(seed) * "_" * example * ".csv")
     file_name3 = joinpath(@__DIR__, "csv/" * start * "strong_branching_" * string(dim) * "_" * string(seed) * "_" * example * ".csv")
 
@@ -29,7 +29,7 @@ function dual_gap_plot(example, seed, dim, mode)
     df2 = DataFrame(CSV.File(file_name2))
     df3 = DataFrame(CSV.File(file_name3))
 
-    len1 = length(df1[!,"lowerbound"])
+    len1 = length(df1[!,"lowerBound"])
     len2 = length(df2[!,"lowerBound"])
     len3 = length(df3[!,"lowerBound"])
     len = min(len1, min(len2, len3))
@@ -55,7 +55,10 @@ function dual_gap_plot(example, seed, dim, mode)
         ax.plot(1:len3, df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
         ax.set(xlabel="Number of nodes", ylabel="Lower bound")
 
-        ax.vlines(x=switch, ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
+        ymin = minimum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
+        ymax = maximum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
+
+        ax.vlines(x=switch, ymin=ymin, ymax=ymax,  label = "Switch", color=colors[7], linestyle = :dotted)
 
        #= if example == "int_sparse_reg" 
             ax.vlines(x=switch, ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
@@ -66,12 +69,17 @@ function dual_gap_plot(example, seed, dim, mode)
         end =#
 
     elseif mode == "time"
-        ax.plot(df1[1:len1,"list_time"], df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
-        ax.plot(df2[1:len2,"list_time"], df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
-        ax.plot(df3[1:len3,"list_time"], df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
+        ax.plot(df1[1:len1,"time"], df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
+        ax.plot(df2[1:len2,"time"], df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
+        ax.plot(df3[1:len3,"time"], df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
         ax.set(xlabel="Time (s)", ylabel="Lower bound")
 
-        ax.vlines(x=switch, ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
+        ymin = minimum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
+        ymax = maximum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
+
+        switch = convert(Int64, switch)
+
+        ax.vlines(df2[switch, :time], ymin=ymin, ymax=ymax,  label = "Switch", color=colors[7], linestyle = :dotted)
 
         #=if example == "int_sparse_reg" 
             ax.vlines(x=[df1[1:len, "list_time"][switch]], ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
@@ -87,7 +95,7 @@ function dual_gap_plot(example, seed, dim, mode)
             fancybox=true, shadow=false, ncol=4)
     fig.tight_layout()
 
-    file_name = "plots/progress_plots/" * example * "/branching_" * mode * "_" * example * "_" * string(dim) * "_" * string(seed) * ".pdf"
+    file_name = joinpath(@__DIR__, "plots/progress_plots/" * example * "/branching_" * mode * "_" * example * "_" * string(dim) * "_" * string(seed) * ".pdf")
     #file_name = "images/dual_gap_" * mode * "_" * example * "_" * dim_seed * ".pdf" #"images/different_branching_strategies_time.pdf"
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
 catch e
