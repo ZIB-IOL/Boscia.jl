@@ -117,6 +117,7 @@ end
 
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
+#=
 for mode in modes
     for m in 15:30
         for seed in 1:10
@@ -145,7 +146,7 @@ for mode in modes
         end
     end
 end
-
+=#
 # sparse log regression
 mode = "default"
 for dimension in [5:5:20;]
@@ -153,8 +154,7 @@ for dimension in [5:5:20;]
         for M in [0.1,1]
             for var_A in [1,5]
                 file = joinpath(@__DIR__, "csv/" * mode * "_" * "sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" * string(seed) * ".csv")
-                plot_progress_lmo(file, mode)
-                end
+                dual_gap_plot(file, mode)
             end
         end
     end
@@ -165,8 +165,8 @@ mode = "default"
 for dimension in [50:20:100;]
     for seed in [1,5,10]#1:10
         for ns in [0.1,1,5,10]
-                file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(dimension) * "_" * string(ns) * "-" * string(dimension) * "_" * string(floor(dimension/2)) * "_" * string(seed) * ".csv")
-                plot_progress_lmo(file, mode)
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(dimension) * "_" * string(ns) * "-" * string(dimension) * "_" * string(floor(dimension/2)) * "_" * string(seed) * ".csv")
+            dual_gap_plot(file, mode)
         end
     end
 end
