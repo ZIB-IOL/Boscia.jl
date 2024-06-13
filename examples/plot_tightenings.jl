@@ -12,23 +12,24 @@ using CSV
 # "sparse_log_reg", "25_5-5.0_1"
 
 function plot(example, setup)
+    try 
     if example == "sparse_reg"
-        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_reg_" * setup * ".csv")))
-        df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_reg_" * setup * ".csv")))
-        df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_reg_" * setup * ".csv")))
-        df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_reg_" * setup * ".csv")))
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_default_" * setup * "_sparse_reg.csv")))
+        df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_reg_" * setup * "_sparse_reg.csv")))
+        df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_reg_" * setup * "_sparse_reg.csv")))
+        df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_reg_" * setup * "_sparse_reg.csv")))
     elseif example == "sparse_log_reg"
         df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_sparse_log_regression_" * setup * ".csv")))
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_sparse_log_regression_" * setup * ".csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_sparse_log_regression_" * setup * ".csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_sparse_log_regression_" * setup * ".csv")))
     elseif example == "integer_portfolio"
-        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_" * setup * "_integer_portfolio.csv")))
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/default_" * setup * "_integer_portfolio.csv")))
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_" * setup * "_integer_portfolio.csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_" * setup * "_integer_portfolio.csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_" * setup * "_integer_portfolio.csv")))
     elseif example == "mixed_portfolio"
-        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/boscia_" * setup * "_mixed_portfolio.csv")))
+        df_boscia = DataFrame(CSV.File(joinpath(@__DIR__, "csv/default_" * setup * "_mixed_portfolio.csv")))
         df_global_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/global_tightening_" * setup * "_mixed_portfolio.csv")))
         df_local_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/local_tightening_" * setup * "_mixed_portfolio.csv")))
         df_no_tightening = DataFrame(CSV.File(joinpath(@__DIR__, "csv/no_tightening_" * setup * "_mixed_portfolio.csv")))
@@ -68,26 +69,26 @@ function plot(example, setup)
     """)
 
     if example != "sc_neos5" && example != "sc_ran14x18" && example != "ss"
-        df_boscia[!,:time] = df_boscia[!,:time]./1000.0
-        df_global_tightening[!,:time] = df_global_tightening[!,:time]./1000.0
-        df_local_tightening[!,:time] = df_local_tightening[!,:time]./1000.0
-        df_no_tightening[!,:time] = df_no_tightening[!,:time]./1000.0
+        #df_boscia[!,:time] = df_boscia[!,:time]./1000.0
+        #df_global_tightening[!,:time] = df_global_tightening[!,:time]./1000.0
+        #df_local_tightening[!,:time] = df_local_tightening[!,:time]./1000.0
+        #df_no_tightening[!,:time] = df_no_tightening[!,:time]./1000.0
 
         fig = plt.figure(figsize=(6.5,9.5))
-        ax = fig.add_subplot(311)
+        #ax = fig.add_subplot(311)
 
-        ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+        #ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"openNodes"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        #ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"openNodes"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        #ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"openNodes"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+        #ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"openNodes"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("Open nodes")
+        #ylabel("Open nodes")
         #locator_params(axis="y", nbins=4)
-        xlabel("Iteration")
-        ax.grid()
+        #xlabel("Iteration")
+        #ax.grid()
 
         # lb, time 
-        ax = fig.add_subplot(312)
+        ax = fig.add_subplot(211)
         ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
         ax.plot(df_global_tightening[!,"time"], df_global_tightening[!,"lowerBound"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
@@ -99,15 +100,15 @@ function plot(example, setup)
         ax.grid()
 
         # ncalls
-        ax = fig.add_subplot(313)
-        ax.plot(1:length(df_boscia[!,"openNodes"]), df_boscia[!,"LMOcalls"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_global_tightening[!,"openNodes"]), df_global_tightening[!,"LMOcalls"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
-        ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
+        ax = fig.add_subplot(212)
+        ax.plot(1:length(df_boscia[!,"time"]), df_boscia[!,"LMOcalls"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        ax.plot(1:length(df_global_tightening[!,"time"]), df_global_tightening[!,"LMOcalls"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
+        ax.plot(1:length(df_local_tightening[!,"time"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
+        ax.plot(1:length(df_no_tightening[!,"time"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
         ylabel("LMO calls")
         #locator_params(axis="y", nbins=4)
-        xlabel("Iteration")
+        xlabel("Time")
         ax.grid()
     elseif example == "sc_neos5" || example == "sc_ran14x18"
         df_boscia[!,:time] = df_boscia[!,:time]./1000.0
@@ -169,6 +170,42 @@ function plot(example, setup)
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
         fancybox=true, shadow=false, ncol=2)
     fig.tight_layout()
-    file = joinpath(@__DIR__, "csv/" * example * "_" * setup * "_tightenings.pdf")
+    file = joinpath(@__DIR__, "csv/progress_plots/" * example *  "/tightenings_" * setup * "_" * example * ".pdf")
     savefig(file)
+
+catch e 
+    println(e)
+end
+end
+
+## sparse regression
+# "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
+example = "sparse_reg"
+modes = ["nodes", "time"]
+for mode in modes
+    for m in 15:30
+        for seed in 1:10
+            plot(example, string(dim) * "_" * string(seed))
+        end
+    end
+end
+
+# portfolio mixed
+example = "mixed_portfolio"
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            plot(example, string(dim) * "_" * string(seed))
+        end
+    end
+end
+
+# portfolio integer
+example = "integer_portfolio"
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            plot(example, string(dim) * "_" * string(seed))
+        end
+    end
 end

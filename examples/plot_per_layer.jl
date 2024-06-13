@@ -5,18 +5,32 @@ using DataFrames
 using Statistics
 using PyPlot
 
-function per_layer_plot(file_name)
-    df = DataFrame(CSV.File(file_name))
-
-    if occursin("sqr_dst", file_name)
-        example = "sqr_dst"
-    elseif occursin("sparse_reg", file_name)
-        example = "sparse_reg"
-    elseif occursin("worst_case", file_name)
-        example = "worst_case"
-    elseif occursin("birkhoff", file_name)
-        example = "birkhoff"
-    end
+function per_layer_plot(file_name, mode)
+    try 
+        df = DataFrame(CSV.File(file_name))
+    
+        example = if occursin("sqr_dst", file_name)
+            "sqr_dst"
+        elseif occursin("sparse_reg", file_name)
+            "sparse_reg"
+        elseif occursin("worst_case", file_name)
+            "worst_case"
+        elseif occursin("birkhoff", file_name)
+           "birkhoff"
+        elseif occursin("low_dim", file_name)
+            "low_dim"
+        elseif occursin("lasso", file_name)
+            "lasso"
+        elseif occursin("mixed_portfolio", file_name)
+            "mixed_portfolio"
+        elseif occursin("integer_portfolio", file_name)
+            "integer_portfolio"
+        elseif occursin("poisson", file_name)
+           "poisson"
+        elseif occursin("sparse_log_reg", file_name)
+           "sparse_log_reg"
+        end
+    
 
     # data = replace(file_name, "experiments/csv/" * example * "_per_layer_" => "")
     # next_index = findfirst("_", data)
@@ -50,10 +64,10 @@ function per_layer_plot(file_name)
     # end
 
     if !("lmo_calls" in names(df))
-        df[!,"lmo_calls"] = df[!, "list_lmo_calls"]
-        lmo_calls_per_layer = df[!,:lmo_calls]
-        active_set_size = df[!,:active_set_size]
-        discarded_set_size = df[!,:discarded_set_size]
+        #df[!,"LMOcalls"] = df[!, "list_lmo_calls"]
+        lmo_calls_per_layer = df[!,:LMOcalls]
+        active_set_size = df[!,:list_active_set_size_cb]
+        discarded_set_size = df[!,:list_discarded_set_size_cb]
     else 
         # parse to array
         lmo_calls_per_layer = df[!,:lmo_calls]
@@ -113,12 +127,49 @@ function per_layer_plot(file_name)
     # plot!(x, active_set_size_per_layer, label="active set", color=:red, ylabel="set size")
     # plot!(x, discarded_set_size_per_layer, label="discarded set", color=:green)
 
+    println("figure created")
+
     file_name = replace(file_name, ".csv" => ".pdf")
-    file_name = replace(file_name, "csv" => "images")
+    file_name = replace(file_name, "csv" => "plots/progress_plots/" * example * "/")
+    if example == "sparse_reg"
+        file_name = replace(file_name, "boscia_" => "size_active_set_")
+    else
+        file_name = replace(file_name, mode => "size_active_set_" * mode)
+    end
+    #@show file_name
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
-    @show file_name
+catch e
+    println(e)
+end
 end 
 
-file_name = "csv/birkhoff_per_layer_3_3_1_Inf_0.7_0.001.csv"
-# file_name = "csv/early_stopping_birkhoff_2_3_3_Inf_0.7_0.001_2.csv"
-per_layer_plot(file_name)
+## sparse regression
+modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
+for mode in modes
+    for m in 15:30
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
+            per_layer_plot(file, mode)
+        end
+    end
+end
+#=
+# portfolio mixed
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
+            per_layer_plot(file, mode)
+        end
+    end
+end
+
+# portfolio integer
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
+            per_layer_plot(file, mode)
+        end
+    end
+end =#

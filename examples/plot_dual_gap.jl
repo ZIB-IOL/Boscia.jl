@@ -4,31 +4,34 @@ using PyPlot
 using CSV
 using DataFrames
 
-function dual_gap_plot(file_name)
-    println(file_name)
+function dual_gap_plot(file_name, mode)
+    #println(file_name)
+    try 
     df = DataFrame(CSV.File(file_name))
 
-    if occursin("sqr_dst", file_name)
-        example = "sqr_dst"
-    elseif occursin("sparse_reg", file_name) || occursin("sparsereg", file_name)
-        example = "sparse_reg"
+    example = if occursin("sqr_dst", file_name)
+        "sqr_dst"
+    elseif occursin("sparse_reg", file_name)
+        "sparse_reg"
     elseif occursin("worst_case", file_name)
-        example = "worst_case"
+        "worst_case"
     elseif occursin("birkhoff", file_name)
-        example = "birkhoff"
+       "birkhoff"
     elseif occursin("low_dim", file_name)
-        example = "low_dim"
+        "low_dim"
     elseif occursin("lasso", file_name)
-        example = "lasso"
-    elseif occursin("portfolio", file_name)
-        example = "portfolio"
-    elseif occursin("sparsereg_int", file_name)
-        example = "sparsereg_int"
+        "lasso"
+    elseif occursin("mixed_portfolio", file_name)
+        "mixed_portfolio"
+    elseif occursin("integer_portfolio", file_name)
+        "integer_portfolio"
     elseif occursin("poisson", file_name)
-        example = "poisson"
+       "poisson"
+    elseif occursin("sparse_log_reg", file_name)
+       "sparse_log_reg"
     end
 
-    data = replace(file_name, "examples/csv/early_stopping_" * example * "_" => "")
+    #=data = replace(file_name, "examples/csv/early_stopping_" * example * "_" => "")
     next_index = findfirst("_", data)
     dimension = data[1:next_index[1]-1]
     data = data[next_index[1]+1:end] 
@@ -39,15 +42,15 @@ function dual_gap_plot(file_name)
     min_number_lower = data[1:next_index[1]-1]
     data = data[next_index[1]+1:end] 
     next_index = findfirst("_", data)
-    fw_dual_gap_precision = data[1:next_index[1]-1] 
+    fw_dual_gap_precision = data[1:next_index[1]-1] =#
 
-    if example == "sqr_dst"
+    #=if example == "sqr_dst"
         title = "Example : squared distance, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
     elseif example == "sparse_reg"
         title = "Example : sparse regression, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
     elseif example == "worst_case"
         title = "Example : worst case, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
-    end
+    end =#
 
     if !("ub" in names(df))
         df[!,"ub"] = df[!,"upperBound"]
@@ -98,25 +101,48 @@ function dual_gap_plot(file_name)
     #yaxis!("objective value")
 
     file_name = replace(file_name, ".csv" => ".pdf")
-    file_name = replace(file_name, "final_csvs/" => "plots/")
-    file_name = replace(file_name, "csv" => "images")
-    file_name = replace(file_name, "early_stopping" => "dual_gap")
+    file_name = replace(file_name, "csv/" => "plots/progress_plots/" * example * "/")
+    if example == "sparse_reg"
+        file_name = replace(file_name, "boscia_" => "dual_gap_")
+    else
+        file_name = replace(file_name, mode => "dual_gap_" * mode)
+    end
 
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+catch e
+    println(e)
+    return
+end
 end
 
-# file_name = "examples/csv/early_stopping_birkhoff_3_3_1_Inf_0.7_0.001_1.csv"
-#file_name = "examples/csv/early_stopping_worst_case_16_1_Inf_0.7_0.001_3.csv"
-#file_name = "examples/csv/early_stopping_low_dim_100_5_1_Inf_1.0_0.001_1.csv"
-#file_name = "examples/csv/early_stopping_portfolio_40_2_Inf_0.7_0.001_1.csv"
-# file_name = "csv/early_stopping_int_sparsereg_40_30_20.0_0.6_0.001_1.csv"
+## sparse regression
+modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
+for mode in modes
+    for m in 15:30
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
+            dual_gap_plot(file, mode)
+        end
+    end
+end
 
-file_name = "final_csvs/boscia_default_10_2_sparse_reg.csv"
-dual_gap_plot(file_name)
+# portfolio mixed
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
+            dual_gap_plot(file, mode)
+        end
+    end
+end
 
-file_name = "final_csvs/early_stopping_birkhoff_3_3_1_Inf_0.7_0.001_1.csv"
-dual_gap_plot(file_name)
-
-file_name = "final_csvs/early_stopping_birkhoff_3_2_3_Inf_0.7_0.001_1.csv"
-dual_gap_plot(file_name)
+# portfolio integer
+for mode in modes
+    for m in 20:5:120
+        for seed in 1:10
+            file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
+            dual_gap_plot(file, mode)
+        end
+    end
+end
 

@@ -61,7 +61,7 @@ fw_dual_gap_precision = data[1:next_index[1]-1]
 #elseif example == "worst_case"
 #    title = "Example : worst case, Dimension : " * string(dimension) * "\n min_number_lower=" * string(min_number_lower) * ", fw_dual_gap_precision=" * string(fw_dual_gap_precision)
 #end
-
+try
 df = DataFrame(CSV.File(file_name))
 
 len = length(df[!,"upperBound"])
@@ -119,19 +119,23 @@ end
 #file_name = replace(file_name, "dual_gap" => "dual_gap_non_accum_")
 
 savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+catch e
+    println(e)
+    return
+end
 end
 
 
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
-for mode in modes
+#=for mode in modes
     for m in 15:30
         for seed in 1:10
             file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
             plot_progress_lmo(file, mode)
         end
     end
-end
+end=#
 
 # portfolio mixed
 for mode in modes
