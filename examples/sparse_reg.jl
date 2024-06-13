@@ -136,7 +136,7 @@ function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", 
 
         x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=limit, branching_strategy = branching_strategy, use_postsolve=false)
     elseif bo_mode == "dual_gap_decay_factor"
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, use_postsolv=false, dual_gap_decay_factor=dual_gap_decay_factor, fw_epsilon=fw_epsilon)
+        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, use_postsolve=false, dual_gap_decay_factor=dual_gap_decay_factor, fw_epsilon=fw_epsilon, time_limit=limit)
     else
         error("Mode not known!")
     end     

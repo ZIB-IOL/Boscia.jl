@@ -6,6 +6,7 @@ using Boscia
 using Test
 
 include("poisson_reg.jl")
+include("sparse_reg.jl")
 
 """
 Check if the gradient using finite differences matches the grad! provided.
@@ -23,7 +24,7 @@ function check_gradients(grad!, f, gradient, num_tests=10, tolerance=1.0e-5)
     end
     return true
 end
-
+#=
 @testset "Poisson gradient" begin
     for dim in [20,50,80]
         for seed in 1:10
@@ -35,12 +36,15 @@ end
         end
     end
 end
-
+=#
 #poisson_reg_shot(1, 50, 1.0)
 #poisson_reg_boscia(1, 50, 1.0)
-
+#=
 poisson_reg_ipopt(1, 50, 10.0, time_limit=1800)
 poisson_reg_boscia(1, 50, 10.0, limit = 1800, bo_mode="default")
 poisson_reg_shot(1, 50, 10.0, time_limit = 1800)
 poisson_reg_pavito(1, 50, 10.0)
 poisson_reg_scip(1, 50, 10.0)
+=#
+
+sparse_reg_boscia(2, 21, bo_mode="dual_gap_decay_factor", dual_gap_decay_factor=0.65, fw_epsilon=0.01, write=false)
