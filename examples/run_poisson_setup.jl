@@ -8,8 +8,8 @@ depth = parse(Int64, ARGS[5])
 @show seed, dimension, ns
 
 try 
-    #poisson_reg_boscia(seed, dimension, ns, bo_mode=mode, depth=depth)#, bo_mode="default")
-    poisson_reg_ipopt(seed, dimension, ns)
+    poisson_reg_boscia(seed, dimension, ns, true, bo_mode=mode, depth=depth)#, bo_mode="default")
+    #poisson_reg_ipopt(seed, dimension, ns)
     #poisson_reg_shot(seed, dimension, ns)  # check job 2317211 (1, 90, 1.0)
     #poisson_reg_scip(seed, dimension, ns)
     #poisson_reg_pavito(seed, dimension, ns)

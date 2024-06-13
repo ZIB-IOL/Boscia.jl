@@ -193,13 +193,13 @@ use_scale = false
         ub_list = result[:list_ub]
         time_list = result[:list_time]
         list_lmo_calls = result[:list_lmo_calls_acc]
-        list_open_nodes = result[:open_nodes]
+        #list_open_nodes = result[:open_nodes]
         list_local_tightening = result[:local_tightenings]
         list_global_tightening = result[:global_tightenings]
     end
 
     if full_callback
-        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, openNodes=list_open_nodes, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
+        df = DataFrame(seed=seed, dimension=n, p=p, k=k, Ns=Ns, time= time_list, lowerBound= lb_list, upperBound = ub_list, termination=status, LMOcalls = list_lmo_calls, localTighteings=list_local_tightening, globalTightenings=list_global_tightening)
         file_name = joinpath(@__DIR__, "csv/" * bo_mode * "_poisson_" * string(n) * "_" * string(Ns) * "-" * string(p) * "_"  * string(k) * "_" * string(seed) * ".csv")
         CSV.write(file_name, df, append=false)
     else

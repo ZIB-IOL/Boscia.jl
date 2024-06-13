@@ -1,0 +1,5 @@
+AssertionError("primal: 6.267101225767226 and tree.incumbent: 6.122064613329894")
+AssertionError("primal: 6.267101225767226 and tree.incumbent: 6.144101444556843")
+AssertionError("primal: 6.325106433491422 and tree.incumbent: 6.074563179430385")
+AssertionError("primal: 6.226226050837004 and tree.incumbent: 6.045433127350084")
+AssertionError("primal: 6.277210063253939 and tree.incumbent: 6.130067789486789")
