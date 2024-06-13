@@ -37,7 +37,7 @@ example = if occursin("sqr_dst", file_name)
              "integer_portfolio"
         elseif occursin("poisson", file_name)
             "poisson"
-        elseif occursin("sparse_log_reg", file_name)
+        elseif occursin("sparse_log_regression", file_name)
             "sparse_log_reg"
         end
 #=
@@ -157,3 +157,27 @@ for mode in modes
     end
 end
 
+# sparse log regression
+mode = "default"
+for dimension in [5:5:20;]
+    for seed in 1:2:10
+        for M in [0.1,1]
+            for var_A in [1,5]
+                file = joinpath(@__DIR__, "csv/" * mode * "_" * "sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" * string(seed) * ".csv")
+                plot_progress_lmo(file, mode)
+                end
+            end
+        end
+    end
+end
+
+# poisson
+mode = "default"
+for dimension in [50:20:100;]
+    for seed in [1,5,10]#1:10
+        for ns in [0.1,1,5,10]
+                file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(dimension) * "_" * string(ns) * "-" * string(dimension) * "_" * string(floor(dimension/2)) * "_" * string(seed) * ".csv")
+                plot_progress_lmo(file, mode)
+        end
+    end
+end
