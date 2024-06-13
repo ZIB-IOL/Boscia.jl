@@ -171,7 +171,7 @@ for mode in modes
                 merge_csvs(
                 example="sparse_reg", 
                 mode = mode,
-                seeds=1:5, 
+                seeds=1:3, 
                 dimensions=15:30,
                 factor=factor,
                 epsilon=epsilon,
