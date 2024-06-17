@@ -247,6 +247,23 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         df, minimumTime = combine_data(df, example, solver, solver1, minimumTime)
     end
 
+    if option == "comparison"
+        scip_not_optimal = 0
+        for (idx, _) in enumerate(df[!,:solutionScipOA])
+            if df[idx, :terminationScipOA] == 1 && df[idx, :solutionScipOA] > df[idx,:solutionBoscia] + 1e-2
+               # @show df[idx, :solutionBoscia], df[idx,:solutionScipOA], df[idx,:terminationScipOA]
+                df[idx,:terminationScipOA] = 0
+                df[idx,:timeScipOA] = 1800.0
+                scip_not_optimal += 1
+            end
+        end
+        if scip_not_optimal != 0
+            println("\n SCIP FALSE POSITIVES")
+            @show scip_not_optimal
+            println("\n")
+        end
+    end
+
     df[!,:minimumTime] = minimumTime
 
     file_name = joinpath(@__DIR__, "final_csvs/" * example * "_" * option * "_non_grouped.csv")
@@ -349,8 +366,7 @@ function build_summary_by_difficulty(option::String; example="sparse_reg")
                 push!(rel_gap_nt, NaN)
             else
                 push!(rel_gap_nt, custom_mean(df_ng[instances,Symbol("relGap"*solver)]))
-            end
-                
+            end 
         end
 
         # rounding
@@ -425,17 +441,17 @@ end
 
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
-examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+#examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
-examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", ]
+#examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", ]
 
-examples = ["sparse_reg"]
+#examples = ["sparse_reg"]
 
 for example in examples
 
     # comparison
-    #build_non_grouped_csv("comparison", example=example)
-    #build_summary_by_difficulty("comparison", example=example)
+    build_non_grouped_csv("comparison", example=example)
+    build_summary_by_difficulty("comparison", example=example)
 
     # settings 
     #build_non_grouped_csv("settings", example=example)
@@ -445,9 +461,9 @@ for example in examples
     #build_non_grouped_csv("branching", example=example)
     #build_summary_by_difficulty("branching", example=example)
 
-    if example == "sparse_reg"
+    #=if example == "sparse_reg"
         # dual decay
         build_non_grouped_csv("dual_decay", example=example)
         build_summary_by_difficulty("dual_decay", example=example)
-    end
+    end =#
 end

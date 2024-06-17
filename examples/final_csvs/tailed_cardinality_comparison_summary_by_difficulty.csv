@@ -1,5 +1,5 @@
 minTime,numInstances,BosciaTerm,BosciaTermRel,BosciaTime,BosciaRelGapNT,BosciaNodesOCuts,ScipOATerm,ScipOATermRel,ScipOATime,ScipOARelGapNT,ScipOANodesOCuts
-0,160,160,100 %,0.3,0.0,59,160,100 %,0.46,-0.0,41
+0,160,160,100 %,0.3,0.0,59,79,49 %,52.59,-0.0,41
 10,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
 300,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
 600,0,0,NaN,Inf,NaN,-1,0,NaN,Inf,NaN,-1
