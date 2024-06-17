@@ -15,7 +15,7 @@ function plot_boscia_vs_pavito(example)
         scip_oa=true
         ipopt=true
         pavito=true
-        shot=true
+        shot=false
     end
 
     df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_comparison_non_grouped.csv")))
@@ -171,13 +171,16 @@ function plot_boscia_vs_pavito(example)
         title("MIP Lib ran14x18-disj-8", loc="center")
     end
 
+    ncol = shot ? 3 : 4
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
-        fancybox=true, shadow=false, ncol=3)
+        fancybox=true, shadow=false, ncol=ncol)
 
     fig.tight_layout()
 
     if pavito && !scip_oa
         file = "plots/" * example * "_boscia_pavito.pdf"
+    elseif !shot
+        file = joinpath(@__DIR__, "plots/" * example * "_comparison_solvers_without_shot.pdf")
     else 
         file = "plots/" * example * "_comparison_solvers.pdf"
     end
