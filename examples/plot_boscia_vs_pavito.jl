@@ -3,7 +3,7 @@ using DataFrames
 using CSV
 
 # function plot_boscia_vs_scip(example; boscia=true, scip_oa=false, ipopt=false, afw=true, ss=true, as=true, as_ss=true, boscia_methods=true)
-function plot_boscia_vs_pavito(example)
+function plot_boscia_vs_pavito(example; use_shot=true)
     if example in ["tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
         boscia=true 
         scip_oa=true
@@ -15,7 +15,7 @@ function plot_boscia_vs_pavito(example)
         scip_oa=true
         ipopt=true
         pavito=true
-        shot=false
+        shot=use_shot
     end
 
     df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_comparison_non_grouped.csv")))
@@ -182,7 +182,7 @@ function plot_boscia_vs_pavito(example)
     elseif !shot
         file = joinpath(@__DIR__, "plots/" * example * "_comparison_solvers_without_shot.pdf")
     else 
-        file = "plots/" * example * "_comparison_solvers.pdf"
+        file = joinpath(@__DIR__, "plots/" * example * "_comparison_solvers.pdf")
     end
     savefig(file)
 end
@@ -191,4 +191,5 @@ examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-di
 for example in examples
     @show example
     plot_boscia_vs_pavito(example)
+    plot_boscia_vs_pavito(example, use_shot=false)
 end
