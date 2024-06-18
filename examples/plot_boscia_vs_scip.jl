@@ -100,7 +100,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_As == 0), df_as)
         time_as = sort(df_as[!,"timeBoscia_No_As"])
         push!(time_as, 1.1 * time_limit)
-        ax.plot(time_as, [1:nrow(df_as); nrow(df_as)], label="no active set", color=colors[6], marker=markers[5], markevery=0.1)
+        ax.plot(time_as, [1:nrow(df_as); nrow(df_as)], label="no warm start", color=colors[6], marker=markers[5], markevery=0.1)
     end
 
     if as_ss 
@@ -108,7 +108,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_As_No_Ss == 0), df_as_ss)
         time_as_ss = sort(df_as_ss[!,"timeBoscia_No_As_No_Ss"])
         push!(time_as_ss, 1.1 * time_limit)
-        ax.plot(time_as_ss, [1:nrow(df_as_ss); nrow(df_as_ss)], label="no warm start", color=colors[7], marker=markers[6], markevery=0.1)
+        ax.plot(time_as_ss, [1:nrow(df_as_ss); nrow(df_as_ss)], label="no warm start \nand no shadow set", color=colors[7], marker=markers[6], markevery=0.1)
     end
 
     ylabel("Solved instances")
@@ -151,9 +151,9 @@ function plot_boscia_vs_scip(example)
     fig.tight_layout()
 
     if boscia_methods
-        file = "plots/" * example * "_boscia_settings.pdf"
+        file = joinpath(@__DIR__, "plots/" * example * "_boscia_settings.pdf")
     else 
-        file = "csv/" * example * ".pdf"
+        file = joinpath(@__DIR__, "csv/" * example * ".pdf")
     end
     savefig(file)
 end

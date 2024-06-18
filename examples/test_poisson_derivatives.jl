@@ -47,4 +47,16 @@ poisson_reg_pavito(1, 50, 10.0)
 poisson_reg_scip(1, 50, 10.0)
 =#
 
-sparse_reg_boscia(2, 21, bo_mode="dual_gap_decay_factor", dual_gap_decay_factor=0.65, fw_epsilon=0.01, write=false)
+#sparse_reg_boscia(2, 21, bo_mode="dual_gap_decay_factor", dual_gap_decay_factor=0.65, fw_epsilon=0.01, write=false)
+
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+
+for example in examples
+    @show example
+    file_name = joinpath(@__DIR__, "final_csvs/" * example * "_comparison_summary_by_difficulty.csv")
+    df = DataFrame(CSV.File(joinpath(@__DIR__, "final_csvs/" * example * "_comparison_summary_by_difficulty.csv")))
+    df_scip = select(df, :minTime, :numInstances,:ScipOATerm, :ScipOATermRel, :ScipOATime, :ScipOARelGapNT)
+
+    print(df_scip)
+    println("\n")
+end
