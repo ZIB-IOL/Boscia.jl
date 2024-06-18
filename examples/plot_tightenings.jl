@@ -89,7 +89,7 @@ function plot(example, setup)
 
         # lb, time 
         ax = fig.add_subplot(211)
-        ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        ax.plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Default", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
         ax.plot(df_global_tightening[!,"time"], df_global_tightening[!,"lowerBound"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         ax.plot(df_local_tightening[!,"time"], df_local_tightening[!,"lowerBound"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(df_no_tightening[!,"time"], df_no_tightening[!,"lowerBound"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
@@ -101,7 +101,7 @@ function plot(example, setup)
 
         # ncalls
         ax = fig.add_subplot(212)
-        ax.plot(1:length(df_boscia[!,"time"]), df_boscia[!,"LMOcalls"], label="BO (ours)", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
+        ax.plot(1:length(df_boscia[!,"time"]), df_boscia[!,"LMOcalls"], label="Default", color=colors[1], marker=markers[1], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_global_tightening[!,"time"]), df_global_tightening[!,"LMOcalls"], label="Global tightening", color=colors[end], marker=markers[2], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_local_tightening[!,"time"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_no_tightening[!,"time"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
