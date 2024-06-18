@@ -78,8 +78,11 @@ function dual_gap_plot(example, seed, dim, mode)
         ymax = maximum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
 
         switch = convert(Int64, switch)
+        if example == "integer_portfolio"
+            ax.set_xscale("log")
+        end
 
-        ax.vlines(df2[switch, :time], ymin=ymin, ymax=ymax,  label = "Switch", color=colors[7], linestyle = :dotted)
+        #ax.vlines(df2[switch, :time], ymin=ymin, ymax=ymax,  label = "Switch", color=colors[7], linestyle = :dotted)
 
         #=if example == "int_sparse_reg" 
             ax.vlines(x=[df1[1:len, "list_time"][switch]], ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
@@ -107,9 +110,10 @@ end
 # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
 example = "sparse_reg"
 modes = ["nodes", "time"]
+modes = ["time"]
 for mode in modes
-    for m in 15:30
-        for seed in 1:10
+    for m in [22] #15:30
+        for seed in [9]#1:10
             dual_gap_plot(example, seed, m, mode)
         end
     end
@@ -118,8 +122,8 @@ end
 # portfolio mixed
 example = "mixed_portfolio"
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [50]#20:5:120
+        for seed in [1]#1:10
             dual_gap_plot(example, seed, m, mode)
         end
     end
@@ -128,8 +132,8 @@ end
 # portfolio integer
 example = "integer_portfolio"
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [120]#20:5:120
+        for seed in [2]#1:10
             dual_gap_plot(example, seed, m, mode)
         end
     end
