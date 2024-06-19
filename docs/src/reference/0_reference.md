@@ -1,3 +1,3 @@
 # API Reference
 
-The pages in this section reference the documentation for specific types and functions.
+In this section we present the algorithm interface and the possible settings.
