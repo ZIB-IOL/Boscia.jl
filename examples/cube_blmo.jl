@@ -1,5 +1,5 @@
 ## How to implement the BLMO Interface using the cube as an example
-# The code provided is an implementation of a Bounded Linear Minimization Oracle (BLMO) for a cube, using the Julia programming language and leveraging the Boscia and Bonobo libraries. This BLMO is designed to work within the structure of these libraries to facilitate linear minimization problems within bounded constraints.
+# The code provided is an implementation of a Bounded Linear Minimization Oracle (BLMO) for a cube,  and leveraging the Boscia and Bonobo libraries. This BLMO is designed to work within the structure of these libraries to facilitate linear minimization problems within bounded constraints.
 #
 # Key Components and Functions:
 #
