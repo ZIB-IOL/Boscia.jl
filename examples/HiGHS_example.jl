@@ -2,7 +2,7 @@
 # The problem involves a 6-dimensional variable `x` that is constrained to be between 0 and 1 (inclusive) and is also restricted to binary values (0 or 1).
 # The objective function `f(x)` is a quadratic function representing the squared Euclidean distance from a vector `diffw` (which is set to 0.5 for all components).
 # The gradient of the objective function is computed by `grad!`.
-# The `HiGHS.Optimizer` is used to handle the optimization problem and the `FrankWolfe.MathOptLMO` interface connects it to the Frank-Wolfe algorithm.
+# The `HiGHS.Optimizer` is used to handle the linear minimization problem and the `FrankWolfe.MathOptLMO` interface connects it to the Frank-Wolfe algorithm.
 # The final solution `x` and the result status are obtained using `Boscia.solve`.using Boscia
 
 
