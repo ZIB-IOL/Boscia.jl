@@ -6,6 +6,7 @@
     # The objective function f(x) represents the squared Euclidean distance between y and A * x.
     # The optimization problem is solved using the Boscia and FrankWolfe packages with the SCIP optimizer.
     # The final solution x and the result status are obtained using `Boscia.solve`.using Statistics
+    # The solve function is the one doing the heavy lifting, i.e. creating and solving the branch-and-bound tree!
 
     
 using Boscia
