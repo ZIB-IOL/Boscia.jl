@@ -1,4 +1,4 @@
-# Algorithms 
+# Algorithm
 
 This section contains information about interface.jl
 
