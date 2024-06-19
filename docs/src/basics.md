@@ -1,6 +1,6 @@
 # How does it work  ?
 
-Boscia focuses on mixed-integer convex problems in which the linear constraints and objectives are convex and presents a new algorithmic framework for solving these problems that exploit recent advances in so-called Frank-Wolfe (FW) or Conditional Gradient (CG) methods. The problem class we consider is of the type: 
+Boscia focuses on mixed-integer convex problems in which the constraints linear , objective non linear  are convex and presents a new algorithmic framework for solving these problems that exploit recent advances in so-called Frank-Wolfe (FW) or Conditional Gradient (CG) methods. The problem class we consider is of the type: 
 $$
 \min ( f(x) ) \text{ where } x \in \mathbb{R}^n, \, x \in X
 $$
