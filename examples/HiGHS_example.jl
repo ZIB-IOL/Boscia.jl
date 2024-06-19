@@ -3,7 +3,9 @@
 # The objective function `f(x)` is a quadratic function representing the squared Euclidean distance from a vector `diffw` (which is set to 0.5 for all components).
 # The gradient of the objective function is computed by `grad!`.
 # The `HiGHS.Optimizer` is used to handle the linear minimization problem and the `FrankWolfe.MathOptLMO` interface connects it to the Frank-Wolfe algorithm.
-# The final solution `x` and the result status are obtained using `Boscia.solve`.using Boscia
+# The final solution `x` and the result status are obtained using `Boscia.solve`
+
+using Boscia
 
 
 using FrankWolfe
