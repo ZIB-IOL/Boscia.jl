@@ -1,6 +1,6 @@
 # How does it work  ?
 
-Boscia focuses on mixed-integer convex problems in which the nonlinear constraints and objectives are convex and presents a new algorithmic framework for solving these problems that exploit recent advances in so-called Frank-Wolfe (FW) or Conditional Gradient (CG) methods. The problem class we consider is of the type: 
+Boscia focuses on mixed-integer convex problems in which the linear constraints and objectives are convex and presents a new algorithmic framework for solving these problems that exploit recent advances in so-called Frank-Wolfe (FW) or Conditional Gradient (CG) methods. The problem class we consider is of the type: 
 $$
 \min ( f(x) ) \text{ where } x \in \mathbb{R}^n, \, x \in X
 $$
@@ -30,7 +30,10 @@ Frank-Wolfe methods produce primal feasible iterates and an FW gap, offering man
 
 ## Tree stae-dependent termination and evolving error 
 
-We implement termination criteria in node processing to reduce iterations, prioritizing nodes with promising lower bounds. An adaptive Frank-Wolfe gap criterion increases precision with depth in the branch-and-bound tree. BPCG's convex combinations of integer extreme points ensure rapid convergence, even with reduced precision runs. This approach balances efficiency and accuracy in solving optimization problems.
+We implement termination criteria in node processing to reduce iterations, prioritizing nodes with promising lower bounds. An adaptive Frank-Wolfe gap criterion increases precision with depth in the branch-and-bound tree. Frank Wolfe's convex combinations of integer extreme points ensure valid dual bound, even with reduced precision runs. This approach balances efficiency and accuracy in solving optimization problems.we have Hybrid branching which couples strong branching and most infeasible branching. Strong branching is very expensive to do for the whole tree and it's usually more beneficial to utilize strong branching only up to a certain depth.
+
+
+
 
 ## Strong Branching 
 
