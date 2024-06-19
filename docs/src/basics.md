@@ -21,7 +21,7 @@ The classic FW algorithm's reliance on an LMO is inefficient for polytopes due t
 
 # Branch and Bound Techniques 
 
-In this section, we present the techniques derived from branch-and-bound techniques that can be used in our
+In this section, we present the techniques derived from Frank Wolfe that can be used in our
 framework .
 
 ## FW gap based termination 
