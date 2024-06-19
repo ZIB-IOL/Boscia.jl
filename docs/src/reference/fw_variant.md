@@ -1,6 +1,6 @@
-# FW_variant
+Here is the list with the currently supported Frank-Wolfe variants.
 
-This file contains information about all the frank_wolfe_variants.jl
+
 
 ## Frank Wolfe 
 
