@@ -1,12 +1,20 @@
-# LMO 
+# The Bounded Linear Minimization Oracle (BLMO)
 
-This section contains information about interface blmo_interface.jl , build_lmo.jl and time_tracking_lmo.jl
+This section describes the general interface to the Bounded Linear Minimization Oracle and the preimplemented types of BLMO.
 
-## BLMO_Interface 
+## General BLMO interface 
 
 ```@autodocs
 Modules = [Boscia]
 Pages = ["blmo_interface.jl"]
+```
+
+
+## Time Tracking Wrapper 
+
+```@autodocs
+Modules = [Boscia]
+Pages = ["time_tracking_lmo.jl"]
 ```
 
 ## Build LMO
@@ -16,9 +24,3 @@ Modules = [Boscia]
 Pages = ["build_lmo.jl"]
 ```
 
-## Time Tracking LMO
-
-```@autodocs
-Modules = [Boscia]
-Pages = ["time_tracking_lmo.jl"]
-```
