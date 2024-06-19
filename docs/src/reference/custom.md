@@ -1,6 +1,6 @@
-# CusBono IntBound Problem 
+# Bonobo 
 
-This section contain information about custom_bonobo.jl , integer_bounds.jl and problem.jl
+This section contains the customization of the branch-and-bound implementation of Bonobo.jl.
 
 ## Custom Bonobo 
 
