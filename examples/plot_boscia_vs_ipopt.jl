@@ -54,7 +54,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     if ub_ipopt_int !== nothing
         axs[1].plot(df_ipopt[ub_ipopt_int:end-1,"time"], df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="BnB Ipopt UB", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
-    axs[1].set(xlabel="Time (s)", ylabel ="Lower bound")
+    axs[1].set(xlabel="Time (s)", ylabel ="Objective value")
     axs[1].grid()
 
     if example == "22433" || example == "pg5_34"
@@ -68,7 +68,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     if ub_ipopt_int !== nothing
         axs[2].plot(ub_ipopt_int:len_ipopt-1, df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
-    axs[2].set(xlabel="Numder of nodes", ylabel ="Lower bound")
+    axs[2].set(xlabel="Numder of nodes", ylabel ="Objective value")
     axs[2].grid()
 
     lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=11,   # bbox_to_anchor=(0.5, 0.05)
@@ -123,7 +123,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     if ub_ipopt_int !== nothing
         axs[1].plot(df_ipopt[ub_ipopt_int:end-1,"time"], df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="Strong convexity UB", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
-    axs[1].set(xlabel="Time (s)", ylabel ="Lower bound")
+    axs[1].set(xlabel="Time (s)", ylabel ="Objective value")
     axs[1].grid()
 
     if example == "22433" || example == "pg5_34"
@@ -137,7 +137,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     if ub_ipopt_int !== nothing
         axs[2].plot(ub_ipopt_int:len_ipopt-1, df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
-    axs[2].set(xlabel="Numder of nodes", ylabel ="Lower bound")
+    axs[2].set(xlabel="Numder of nodes", ylabel ="Objective value")
     axs[2].grid()
 
     lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=11,   # bbox_to_anchor=(0.5, 0.05)
