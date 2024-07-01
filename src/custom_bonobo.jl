@@ -101,9 +101,9 @@ end
 function add_new_solution!(
     tree::Bonobo.BnBTree{N,R,V,S},
     node::Bonobo.AbstractNode,
-    objective::Float64,
+    objective::R,
     solution::V,
-    origin::Symbol,
+    origin::S,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     sol = FrankWolfeSolution(objective, solution, node, origin)
     sol.solution[tree.root.problem.integer_variables] .= round.(sol.solution[tree.root.problem.integer_variables])
