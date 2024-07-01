@@ -234,12 +234,7 @@ function solve(
         @assert is_linear_feasible(blmo, start_solution) &&
                 is_integer_feasible(tree, start_solution)
         node = tree.nodes[1]
-        sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
-        push!(tree.solutions, sol)
-        if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
-            tree.incumbent_solution = sol
-            tree.incumbent = sol.objective
-        end
+        add_new_solution!(tree, node, f(start_solution), start_solution, :start)
     end
 
     # build callbacks
