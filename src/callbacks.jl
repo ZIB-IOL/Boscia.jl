@@ -36,13 +36,7 @@ function build_FW_callback(
                 if best_val < tree.incumbent
                     tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
-                    sol = FrankWolfeSolution(best_val, best_v, node, :Solver)
-                    push!(tree.solutions, sol)
-                    if tree.incumbent_solution === nothing ||
-                       sol.objective < tree.incumbent_solution.objective
-                        tree.incumbent_solution = sol
-                    end
-                    tree.incumbent = best_val
+                    add_new_solution!(tree, node, best_val, best_v, :Solver)
                     Bonobo.bound!(tree, node.id)
                 end
             end
@@ -60,13 +54,7 @@ function build_FW_callback(
                 tree.root.updated_incumbent[] = true
                 #TODO: update solution without adding node
                 node = tree.nodes[tree.root.current_node_id[]]
-                sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
-                push!(tree.solutions, sol)
-                if tree.incumbent_solution === nothing ||
-                   sol.objective < tree.incumbent_solution.objective
-                    tree.incumbent_solution = sol
-                end
-                tree.incumbent = val
+                add_new_solution!(tree, node, val, copy(state.v), :vertex)
                 Bonobo.bound!(tree, node.id)
             end
         end
