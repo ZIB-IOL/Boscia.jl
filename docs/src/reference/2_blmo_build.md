@@ -24,3 +24,24 @@ Modules = [Boscia]
 Pages = ["build_lmo.jl"]
 ```
 
+## MOI Oracle
+
+```@autodocs
+Modules = [Boscia]
+Pages = ["MOI_bounded_oracle.jl"]
+
+```
+## Managed BLMO
+
+```@autodocs
+Modules = [Boscia]
+Pages = ["managed_blmo.jl"]
+```
+
+## Polytopes
+
+```@autodocs
+Modules = [Boscia]
+Pages = ["polytope_blmos.jl"]
+```
+

@@ -9,8 +9,6 @@ A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for
 
 The Boscia.jl solver uses a combination of a variant of the Frank-Wolfe algorithm and a branch-and-bound-like algorithm to solve mixed-integer convex optimization problems. These problems are of the form:
 **min_{x ∈ C, x_I ∈ Z^n} f(x)**,
-where f is a differentiable convex function, C is a convex and compact set, and I is a set of indices for integer variables.
-
 This approach is particularly effective if we can solve the mixed-integer linear minimization problem over C efficiently and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming (**JuMP**) that implements this API.
 The paper presenting the package with mathematical explanations and numerous examples can be found here:
 
@@ -26,10 +24,8 @@ Once you have installed Julia , From the Julia REPL, type ] to enter the Pkg REP
 pkg > add Boscia
 
 ```
-or alternatively you can do this 
 
-Add the Boscia stable release with:
-
+or alternatively via Pkg in any Julia code:
 ```julia
 import Pkg
 Pkg.add("Boscia")
@@ -37,7 +33,10 @@ Pkg.add("Boscia")
 
 
 
+Suggested change
 If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
+
+
 If you want to use SCIP within Boscia and your OS is windows, you will have download SCIP separately, see SCIP.jl.
 Note that you do not necessarily have to download the binaries but can also use the installer provided by SCIP.
 
@@ -55,7 +54,6 @@ Here is a simple example to get started. For more examples, see the examples fol
 
 
 ```julia
-
 using Boscia
 using FrankWolfe
 using Random

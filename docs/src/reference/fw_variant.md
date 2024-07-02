@@ -1,8 +1,8 @@
+# Frank Wolfe Variant
 Here is the list with the currently supported Frank-Wolfe variants.
 
 
-
-## Frank Wolfe 
+ 
 
 ```@autodocs
 Modules = [Boscia]

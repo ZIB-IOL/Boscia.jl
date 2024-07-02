@@ -6,7 +6,7 @@ working_dir = @__DIR__
 # Function to copy contents of README.md to index.md
 function copy_readme_to_index()
     readme_path = joinpath(working_dir, "..", "README.md")  # Adjusted path
-    index_path = joinpath(working_dir, k"src", "index.md")
+    index_path = joinpath(working_dir, "src", "index.md")
     readme_content = read(readme_path, String)
     write(index_path, readme_content)
 end
