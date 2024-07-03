@@ -1,7 +1,10 @@
+using SparseArrays
+
 struct PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
     stable::Bool
     bounded_lmo::BLMO
+    μ::Float64
 end
 
 # """ Function that keeps track of which branching candidates are stable """
@@ -13,123 +16,6 @@ end
 #         return false
 #     end
 # end
-
-
-function pseudo_weight_update!(
-    tree::Bonobo.BnBTree, 
-    node::Bonobo.AbstractNode, 
-    idx::Int,
-    values,
-    pseudos::Dict{Int,Array{Float64}},
-    branch_tracker::Dict{Int, Int},
-    branching::PSEUDO_COST{BLMO}
-) where BLMO <: BoundedLinearMinimizationOracle
-    @assert !isempty(node.active_set)
-    active_set = copy(node.active_set)
-    empty!(active_set)
-    current_dual_gap = node.dual_gap# if this is a fw_node this should be the fw_dual_gap
-
-    fx = floor(values[idx])
-    # create LMO
-    boundsLeft = copy(node.local_bounds)
-    if haskey(boundsLeft.upper_bounds, idx)
-        delete!(boundsLeft.upper_bounds, idx)
-    end
-    push!(boundsLeft.upper_bounds, (idx => fx))
-    build_LMO(
-                branching.bounded_lmo,
-                tree.root.problem.integer_variable_bounds,
-                boundsLeft,
-                Bonobo.get_branching_indices(tree.root),
-            )
-    status = check_feasibility(branching.bounded_lmo)
-    if status == OPTIMAL
-        empty!(active_set)
-        for (λ, v) in node.active_set
-            if v[idx] <= values[idx]
-                push!(active_set, ((λ, v)))
-            end
-        end
-        @assert !isempty(active_set)
-        FrankWolfe.active_set_renormalize!(active_set)
-        x, primal, dual_gap, active_set
-        _, _, primal_relaxed, dual_gap_relaxed, _ =
-            FrankWolfe.blended_pairwise_conditional_gradient(
-                tree.root.problem.f,
-                tree.root.problem.g,
-                branching.bounded_lmo,
-                active_set,
-                verbose=false,
-                epsilon=branching.solving_epsilon,
-                max_iteration=5,
-            )
-        left_update = current_dual_gap - dual_gap_relaxed
-    else
-        @debug "Left non-optimal status $(status)"
-        left_update = Inf
-    end
-
-    #right node: x_i >=  floor(̂x_i)
-    cx = ceil(values[idx])
-    boundsRight = copy(node.local_bounds)
-    if haskey(boundsRight.lower_bounds, idx)
-        delete!(boundsRight.lower_bounds, idx)
-    end
-    push!(boundsRight.lower_bounds, (idx => cx))
-    build_LMO(
-        branching.bounded_lmo,
-        tree.root.problem.integer_variable_bounds,
-        boundsRight,
-        Bonobo.get_branching_indices(tree.root),
-    )
-    status = check_feasibility(branching.bounded_lmo)
-    if status == OPTIMAL
-        empty!(active_set)
-        for (λ, v) in node.active_set
-            if v[idx] >= values[idx]
-                push!(active_set, (λ, v))
-            end
-        end
-        if isempty(active_set)
-            @show values[idx]
-            @show length(active_set)
-            @info [active_set.atoms[idx] for idx in eachindex(active_set)]
-            error("Empty active set, unreachable")
-        end
-        FrankWolfe.active_set_renormalize!(active_set)
-        _, _, primal_relaxed, dual_gap_relaxed, _ =
-            FrankWolfe.blended_pairwise_conditional_gradient(
-                tree.root.problem.f,
-                tree.root.problem.g,
-                branching.bounded_lmo,
-                active_set,
-                verbose=false,
-                epsilon=branching.solving_epsilon,
-                max_iteration=5,
-            )
-        right_update = current_dual_gap	 - dual_gap_relaxed
-    else
-        @debug "Right non-optimal status $(status)"
-        right_update = Inf
-    end
-    # reset LMO
-    build_LMO(
-        branching.bounded_lmo,
-        tree.root.problem.integer_variable_bounds,
-        node.local_bounds,
-        Bonobo.get_branching_indices(tree.root),
-    )
-    pseudos[idx][1] = update_avg(left_update, pseudos[idx][1], branch_tracker[idx])
-    pseudos[idx][2] = update_avg(right_update, pseudos[idx][2], branch_tracker[idx])
-    branch_tracker[idx] += 1
-end
-
-function best_pseudo_choice(# currently not in use. To be implemented later in order to improve readability
-    tree::Bonobo.BnBTree,
-)
-    branching_candidates = Bonobo.get_branching_indices(tree.root)
-    return argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))    
-end
 
 
 """
@@ -148,23 +34,44 @@ function Bonobo.get_branching_variable(
     branching::PSEUDO_COST{BLMO},
     node::Bonobo.AbstractNode,
 ) where BLMO <: BoundedLinearMinimizationOracle
-    #the following should create the dictionaries only on first function call and then use existing ones
-    local pseudos = Dict{Int,Array{Float64}}(idx=>zeros(2) for idx in Boscia.get_integer_variables(branching.bounded_lmo))
-    local branch_tracker = Dict{Int, Int}(idx=> 0 for idx in Boscia.get_integer_variables(branching.bounded_lmo))
+    #the following should create the arrays and vectors only on first function call and then use existing one
+    local pseudos = sparse(
+        repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
+        vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
+        ones(2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
+        )
+    local branch_tracker = sparse(
+        repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
+        vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
+        ones(Int64, 2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
+        )
+
     local call_tracker = 0
-    
+    local strategy_switch = branching.iterations_until_stable + 1
+
     best_idx = -1
     all_stable = true
     for idx in Bonobo.get_branching_indices(tree.root)
-        if branch_tracker[idx] >= branching.iterations_until_stable
-            all_stable = true
-        else 
+        if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch
             all_stable = false
             break
         end
     end
     if !all_stable# THEN Use Most Infeasible
         values = Bonobo.get_relaxed_values(tree, node)
+        if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+            idx = node.branched_on
+            update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
+            if node.branched_right
+                pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
+                branch_tracker[idx, 1] += 1
+    
+            else
+                pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
+                branch_tracker[idx, 2] += 1
+    
+            end
+        end
         max_distance_to_feasible = 0.0
         for i in  Bonobo.get_branching_indices(tree.root)
             value = values[i]
@@ -176,30 +83,40 @@ function Bonobo.get_branching_variable(
                 end
             end
         end
-        if best_idx != -1
-            pseudo_weight_update!(tree, node, best_idx, values, pseudos, branch_tracker, branching)
-        end
+        
+            # Instead of doing extra computations it makes more sense to
+            # save the current fw_dual_gap for the child nodes including which variable has been branched on 
+            # and if the node is a result of an up or down branch
+            # then one updates the corresponding pseduo once the fw_dual_gap of the child nodes has been computed.
+            # Implementation idea:
+            # -> update FrankWolfeNode to store above mentioned information
+            # -> update get_branching_nodes_info in order for new nodes to be created with updated information 
+            # -> 
+        println(best_idx)
         return best_idx
     else
-        println("Pseudos are stable")
+        #println("Pseudos are stable")
+        values = Bonobo.get_relaxed_values(tree, node)
         # Pseudocosts have stabilized
         call_tracker +=1
         println("pseudocosts have stabilized ", call_tracker)
 
         branching_candidates = Bonobo.get_branching_indices(tree.root)
         best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
+        #best_idx = argmax(map(idx-> (1-μ)*minimum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) + μ * maximum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) ))
+        println(best_idx)
         return best_idx
     end
 end
 
 function update_avg(new_val::Float64, avg::Float64, N::Int)
     # N is the number of values used to compute the current avg
-    # avg is the current average
+    # avg is the current average shifted by 1
     # new_val is the value that the current average has to be updated with
     if N > 1
-        return 1/(N+1) * (N * avg + new_val)        
+        return 1/(N+1) * (N * (avg - 1) + new_val) + 1  #        
     else
-        return new_val
+        return new_val+ avg # note that we initialize the pseudo costs with 1 as such we need to shift pseudocosts correspondingly
     end
 end
 #pseudos = Dict{Int,Array{Float64}}(i=>zeros(2) for idx in get_integer_variables(blmo))
