@@ -59,8 +59,9 @@ const Mi = (Ai + Ai') / 2
     heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, depth), 0.2, :follow_gradient)
     heuristics = [heu]
     # heuristics = []
-    iterations_stable = 3::Int# how many times until we consider a pseudocost as stable
-    x, _, result = Boscia.solve(f, grad!, lmo, branching_strategy=Boscia.PSEUDO_COST(iterations_stable,false, lmo), verbose=true, time_limit=600, custom_heuristics=heuristics)
+    iterations_stable = 3 # how many times until we consider a pseudocost as stable
+    μ = 0.7 # μ used in the computation of the branching score
+    x, _, result = Boscia.solve(f, grad!, lmo, branching_strategy=Boscia.PSEUDO_COST(iterations_stable,false, lmo, μ), verbose=true, time_limit=600, custom_heuristics=heuristics)
     @test dot(ai, x) <= bi + 1e-2
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
