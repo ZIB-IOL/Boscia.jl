@@ -221,6 +221,9 @@ function solve(
             local_tightenings=0,
             local_potential_tightenings=0,
             dual_gap=-Inf,
+            parent_lower_bound_base=Inf,
+            branched_on=-1,
+            branched_right=false
         ),
     )
 
