@@ -8,6 +8,7 @@ import Bonobo
 using Printf
 using Dates
 using MathOptInterface
+using SparseArrays
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
