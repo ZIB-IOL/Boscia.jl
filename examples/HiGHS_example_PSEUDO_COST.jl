@@ -7,9 +7,9 @@ import MathOptInterface
 
 const MOI = MathOptInterface
 
-n = 6
+n = 7
 
-const diffw = 0.5 * ones(n)
+const diffw = Random.rand(Bool, n) * 0.6 .+ 0.3
 o = HiGHS.Optimizer()
 
 MOI.set(o, MOI.Silent(), true)
@@ -33,4 +33,5 @@ end
 #pseudos = Dict{Int,Array{Float64}}(idx=>zeros(2) for idx in Boscia.get_integer_variables(lmo))
 #branch_tracker = Dict{Int, Float64}(idx=> 0 for idx in Boscia.get_integer_variables(lmo))
 iterations_stable = 1::Int
-x, _, result = Boscia.solve(f, grad!, lmo, branching_strategy=Boscia.PSEUDO_COST(iterations_stable,false, lmo), verbose=true)
+μ = 0.7 # μ used in the computation of the branching score
+x, _, result = Boscia.solve(f, grad!, lmo, branching_strategy=Boscia.PSEUDO_COST(iterations_stable,false, lmo, μ), verbose=true)
