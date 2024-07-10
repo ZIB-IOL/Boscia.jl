@@ -103,9 +103,9 @@ function per_layer_plot(file_name, mode)
     ax.plot(1:len, discarded_set_size_per_layer_mean, label="Discarded set", color=colors[4], marker=markers[3])
 
     ax2 = ax.twinx()
-    ax2.plot(1:len, lmo_calls_per_layer_mean, label="LMO calls", color=colors[1], marker=markers[1])
+    ax2.plot(1:len, lmo_calls_per_layer_mean, label="BLMO calls", color=colors[1], marker=markers[1])
     xticks(range(1, len, step=5))
-    ylabel("LMO calls", Dict("color"=>"blue"))
+    ylabel("BLMO calls", Dict("color"=>"blue"))
     setp(ax2.get_yticklabels(),color="blue")
     ax.set(xlabel="Node depth")
 
@@ -145,20 +145,20 @@ end
 
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
-#=
+
 for mode in modes
-    for m in 15:30
-        for seed in 1:10
+    for m in [15]#15:30
+        for seed in [4] #1:10
             file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
             per_layer_plot(file, mode)
         end
     end
 end
-=#
+
 # portfolio mixed
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [30]#20:5:120
+        for seed in [8]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
             per_layer_plot(file, mode)
         end
@@ -167,8 +167,8 @@ end
 
 # portfolio integer
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [20]#20:5:120
+        for seed in [6]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
             per_layer_plot(file, mode)
         end
