@@ -83,8 +83,8 @@ function dual_gap_plot(file_name, mode)
     # ax.set_ylim(bottom=-5500, top=-4900)
 
     ax2 = ax.twinx()
-    lns3 = ax2.plot(1:len, df[!, "list_lmo_calls"], label="Total LMO calls", color=colors[1], marker=markers[1], markevery=0.05)
-    ylabel("LMO calls", Dict("color"=>colors[1]))
+    lns3 = ax2.plot(1:len, df[!, "list_lmo_calls"], label="Total BLMO calls", color=colors[1], marker=markers[1], markevery=0.05)
+    ylabel("BLMO calls", Dict("color"=>colors[1]))
     setp(ax2.get_yticklabels(),color=colors[1])
 
     #PyPlot.title(title)
@@ -117,10 +117,10 @@ end
 
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
-#=
+
 for mode in modes
-    for m in 15:30
-        for seed in 1:10
+    for m in [19]#15:30
+        for seed in [3]#1:10
             file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
             dual_gap_plot(file, mode)
         end
@@ -129,8 +129,8 @@ end
 
 # portfolio mixed
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [45]#20:5:120
+        for seed in [1]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
             dual_gap_plot(file, mode)
         end
@@ -139,18 +139,18 @@ end
 
 # portfolio integer
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [35]#20:5:120
+        for seed in [10]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
             dual_gap_plot(file, mode)
         end
     end
 end
-=#
+
 # sparse log regression
 mode = "default"
-for dimension in [5:5:20;]
-    for seed in 1:2:10
+for dimension in [15]#[5:5:20;]
+    for seed in [7,9]#1:2:10
         for M in [0.1,1]
             for var_A in [1,5]
                 file = joinpath(@__DIR__, "csv/" * mode * "_" * "sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" * string(seed) * ".csv")
@@ -162,9 +162,9 @@ end
 
 # poisson
 mode = "default"
-for dimension in [50:20:100;]
-    for seed in [1,5,10]#1:10
-        for ns in [0.1,1,5,10]
+for dimension in [70]#[50:20:100;]
+    for seed in [1]#[1,5,10]#1:10
+        for ns in [1.0]#[0.1,1,5,10]
             file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(dimension) * "_" * string(ns) * "-" * string(dimension) * "_" * string(floor(dimension/2)) * "_" * string(seed) * ".csv")
             dual_gap_plot(file, mode)
         end

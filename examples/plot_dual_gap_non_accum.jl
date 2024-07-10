@@ -94,8 +94,8 @@ total_lmo_calls = df[!, "LMOcalls"]
 previous_lmo_calls = [0]
 append!(previous_lmo_calls, total_lmo_calls[1:end-1])
 lmo_calls_non_accum = total_lmo_calls - previous_lmo_calls
-ax2.plot(1:len, lmo_calls_non_accum, label="LMO calls", color=colors[1], marker=markers[1], markevery=0.05, alpha=0.5)
-ylabel("LMO calls", Dict("color"=>colors[1]))
+ax2.plot(1:len, lmo_calls_non_accum, label="BLMO calls", color=colors[1], marker=markers[1], markevery=0.05, alpha=0.5)
+ylabel("BLMO calls", Dict("color"=>colors[1]))
 setp(ax2.get_yticklabels(),color=colors[1])
 
 #PyPlot.title(title)
@@ -128,19 +128,20 @@ end
 
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
-#=for mode in modes
-    for m in 15:30
-        for seed in 1:10
+
+for mode in modes
+    for m in [15]#15:30
+        for seed in [7]#1:10
             file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(m) * "_" * string(seed) * "_sparse_reg.csv")
             plot_progress_lmo(file, mode)
         end
     end
-end=#
-#=
+end
+
 # portfolio mixed
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [55]#20:5:120
+        for seed in [4]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_mixed_portfolio.csv")
             plot_progress_lmo(file, mode)
         end
@@ -149,20 +150,20 @@ end
 
 # portfolio integer
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [20]#20:5:120
+        for seed in [9]#1:10
             file = joinpath(@__DIR__, "csv/" * mode * "_" * string(m) * "_" * string(seed) * "_integer_portfolio.csv")
             plot_progress_lmo(file, mode)
         end
     end
 end
-=#
+
 # sparse log regression
 mode = "default"
-for dimension in [5:5:20;]
-    for seed in 1:2:10
-        for M in [0.1,1]
-            for var_A in [1,5]
+for dimension in [5]#[5:5:20;]
+    for seed in [9]#1:2:10
+        for M in [0.1]#[0.1,1]
+            for var_A in [5]#[1,5]
                 file = joinpath(@__DIR__, "csv/" * mode * "_" * "sparse_log_regression_" * string(dimension) * "_" * string(M) * "-" * string(var_A) * "_" * string(seed) * ".csv")
                 plot_progress_lmo(file, mode)
             end
@@ -172,9 +173,9 @@ end
 
 # poisson
 mode = "default"
-for dimension in [50:20:100;]
-    for seed in [1,5,10]#1:10
-        for ns in [0.1,1,5,10]
+for dimension in [70]#[50:20:100;]
+    for seed in [1]#[1,5,10]#1:10
+        for ns in [10.0]#[0.1,1,5,10]
             file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(dimension) * "_" * string(ns) * "-" * string(dimension) * "_" * string(floor(dimension/2)) * "_" * string(seed) * ".csv")
             plot_progress_lmo(file, mode)
         end
