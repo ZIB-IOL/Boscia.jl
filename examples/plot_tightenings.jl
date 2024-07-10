@@ -106,7 +106,7 @@ function plot(example, setup)
         ax.plot(1:length(df_local_tightening[!,"time"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_no_tightening[!,"time"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("LMO calls")
+        ylabel("BLMO calls")
         #locator_params(axis="y", nbins=4)
         xlabel("Iteration")
         ax.grid()
@@ -143,7 +143,7 @@ function plot(example, setup)
         ax.plot(1:length(df_local_tightening[!,"openNodes"]), df_local_tightening[!,"LMOcalls"], label="Local tightening", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_no_tightening[!,"openNodes"]), df_no_tightening[!,"LMOcalls"], label="No tightening", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
  
-        ylabel("LMO calls")
+        ylabel("BLMO calls")
         #locator_params(axis="y", nbins=4)
         xlabel("Iteration")
         if setup == "50_3"
@@ -161,7 +161,7 @@ function plot(example, setup)
         ax.plot(1:length(df_ss_lt[!,"openNodes"]), df_ss_lt[!,"LMOcalls"], label="Local tightening without shadow set", color=colors[2], marker=markers[3], markevery=0.1, alpha=.5)
         ax.plot(1:length(df_ss_nt[!,"openNodes"]), df_ss_nt[!,"LMOcalls"], label="No tightening without shadow set", color=colors[3], marker=markers[4], markevery=0.1, alpha=.5)
 
-        ylabel("LMO calls")
+        ylabel("BLMO calls")
         #locator_params(axis="y", nbins=4)
         xlabel("Iteration")
         ax.grid()
@@ -183,8 +183,8 @@ end
 example = "sparse_reg"
 modes = ["nodes", "time"]
 for mode in modes
-    for m in 15:30
-        for seed in 1:10
+    for m in [23] #15:30
+        for seed in [5] #1:10
             plot(example, string(m) * "_" * string(seed))
         end
     end
@@ -193,8 +193,8 @@ end
 # portfolio mixed
 example = "mixed_portfolio"
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [75] #20:5:120
+        for seed in [10] #1:10
             plot(example, string(m) * "_" * string(seed))
         end
     end
@@ -203,8 +203,8 @@ end
 # portfolio integer
 example = "integer_portfolio"
 for mode in modes
-    for m in 20:5:120
-        for seed in 1:10
+    for m in [120]#20:5:120
+        for seed in [1]#1:10
             plot(example, string(m) * "_" * string(seed))
         end
     end
