@@ -33,21 +33,23 @@ function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree, 
     branching::PSEUDO_COST{BLMO},
     node::Bonobo.AbstractNode,
+    pseudos::SparseMatrixCSC{Float64, Int64},
+    branch_tracker::SparseMatrixCSC{Int64, Int64},
 ) where BLMO <: BoundedLinearMinimizationOracle
     #the following should create the arrays and vectors only on first function call and then use existing one
-    local pseudos = sparse(
-        repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
-        vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
-        ones(2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
-        )
-    local branch_tracker = sparse(
-        repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
-        vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
-        ones(Int64, 2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
-        )
+    # local pseudos = sparse(
+    #     repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
+    #     vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
+    #     ones(2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
+    #     )
+    # local branch_tracker = sparse(
+    #     repeat(Boscia.get_integer_variables(branching.bounded_lmo), 2),
+    #     vcat(ones(length(Boscia.get_integer_variables(branching.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching.bounded_lmo)))), 
+    #     ones(Int64, 2 * length(Boscia.get_integer_variables(branching.bounded_lmo)))
+    #     )
 
-    local call_tracker = 0
-    local strategy_switch = branching.iterations_until_stable + 1
+    #local call_tracker = 0
+    strategy_switch = branching.iterations_until_stable + 1
 
     best_idx = -1
     all_stable = true
@@ -60,6 +62,7 @@ function Bonobo.get_branching_variable(
     if !all_stable# THEN Use Most Infeasible
         values = Bonobo.get_relaxed_values(tree, node)
         if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+            #println("if clause of update")
             idx = node.branched_on
             update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
             if node.branched_right
@@ -71,6 +74,10 @@ function Bonobo.get_branching_variable(
                 branch_tracker[idx, 2] += 1
     
             end
+            # println("pseudos")
+            # display(pseudos)
+            # println("\n branch_tracker")
+            # display(branch_tracker)
         end
         max_distance_to_feasible = 0.0
         for i in  Bonobo.get_branching_indices(tree.root)
@@ -92,19 +99,19 @@ function Bonobo.get_branching_variable(
             # -> update FrankWolfeNode to store above mentioned information
             # -> update get_branching_nodes_info in order for new nodes to be created with updated information 
             # -> 
-        println(best_idx)
+        #println(best_idx)
         return best_idx
     else
         #println("Pseudos are stable")
         values = Bonobo.get_relaxed_values(tree, node)
         # Pseudocosts have stabilized
         call_tracker +=1
-        println("pseudocosts have stabilized ", call_tracker)
+        println("pseudocosts decision is made")
 
         branching_candidates = Bonobo.get_branching_indices(tree.root)
-        best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
-        #best_idx = argmax(map(idx-> (1-μ)*minimum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) + μ * maximum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) ))
-        println(best_idx)
+        #best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
+        best_idx = argmax(map(idx-> (1-μ)*minimum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) + μ * maximum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) ))
+        #println(best_idx)
         return best_idx
     end
 end
