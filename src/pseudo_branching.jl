@@ -50,69 +50,73 @@ function Bonobo.get_branching_variable(
 
     #local call_tracker = 0
     strategy_switch = branching.iterations_until_stable + 1
-
     best_idx = -1
     all_stable = true
+    branching_candidates = Int[]# this shall contain the indices of the potential branching variables
+    values = Bonobo.get_relaxed_values(tree, node)
+    branch_counter = []
     for idx in Bonobo.get_branching_indices(tree.root)
-        if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch
-            all_stable = false
-            break
+        value = values[idx]
+        if !Bonobo.is_approx_feasible(tree, value)
+            push!(branching_candidates, idx)
+            push!(branch_counter, (branch_tracker[idx, 1], branch_tracker[idx, 2]))
+            if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
+                all_stable = false
+            end
         end
     end
+    # if rand() > 0.95# for debugging on if strategy behaves as intended
+    #     println("\n branch_counter")
+    #     println(branch_counter)
+    # end
+
+    length(branching_candidates) == 0 && return best_idx
+    length(branching_candidates) == 1 && return branching_candidates[1]
     if !all_stable# THEN Use Most Infeasible
-        values = Bonobo.get_relaxed_values(tree, node)
         if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
             #println("if clause of update")
             idx = node.branched_on
             update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
             if node.branched_right
+                update = update / (ceil(values[idx]) - values[idx])  
                 pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
                 branch_tracker[idx, 1] += 1
     
             else
+                update = update / (values[idx] - floor(values[idx]))  
                 pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
                 branch_tracker[idx, 2] += 1
     
             end
             # println("pseudos")
             # display(pseudos)
-            # println("\n branch_tracker")
-            # display(branch_tracker)
+            # if rand() > 0.99# for debugging on if strategy behaves as intended
+            #     println("\n branch_tracker")
+            #     println(sum(branch_tracker))
+            # end
         end
         max_distance_to_feasible = 0.0
-        for i in  Bonobo.get_branching_indices(tree.root)
+        for i in branching_candidates
             value = values[i]
-            if !Bonobo.is_approx_feasible(tree, value)
-                distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
-                if distance_to_feasible > max_distance_to_feasible
-                    best_idx = i
-                    max_distance_to_feasible = distance_to_feasible
-                end
+            distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
+            if distance_to_feasible > max_distance_to_feasible
+                best_idx = i
+                max_distance_to_feasible = distance_to_feasible
             end
         end
-        
-            # Instead of doing extra computations it makes more sense to
-            # save the current fw_dual_gap for the child nodes including which variable has been branched on 
-            # and if the node is a result of an up or down branch
-            # then one updates the corresponding pseduo once the fw_dual_gap of the child nodes has been computed.
-            # Implementation idea:
-            # -> update FrankWolfeNode to store above mentioned information
-            # -> update get_branching_nodes_info in order for new nodes to be created with updated information 
-            # -> 
         #println(best_idx)
         return best_idx
     else
-        #println("Pseudos are stable")
-        values = Bonobo.get_relaxed_values(tree, node)
         # Pseudocosts have stabilized
-        call_tracker +=1
         println("pseudocosts decision is made")
-
-        branching_candidates = Bonobo.get_branching_indices(tree.root)
         #best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
-        best_idx = argmax(map(idx-> (1-μ)*minimum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) + μ * maximum(pseudos[idx] .* [values[idx] - floor(values[idx]), ceil(values[idx]) - values[idx]]) ))
-        #println(best_idx)
-        return best_idx
+        #inner = pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])
+
+        branching_scores = map(idx-> ((1 - branching.μ) * min(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])) + branching.μ * max(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx]))),
+                            branching_candidates)
+        branching_scores = sparsevec(branching_candidates, branching_scores)
+        best_idx = argmax(branching_scores)      
+        return best_idx 
     end
 end
 
