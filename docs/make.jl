@@ -21,7 +21,7 @@ copy_readme_to_index()
 makedocs(
     sitename = "Boscia.jl",
     modules = [Boscia],
-    format = Documenter.HTML(repolink = "https://github.com/saurabhintoml/Boscia.jl.git"),
+    format = Documenter.HTML(repolink = "https://github.com/ZIB-IOL/Boscia.jl"),
     pages = [
         "Home" => "index.md",
         "How does it work?" => "basics.md",
