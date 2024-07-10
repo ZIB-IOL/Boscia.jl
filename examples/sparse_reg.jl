@@ -1,4 +1,8 @@
-using Statistics
+# This code performs sparse regression using the Boscia optimization framework. The objective is to minimize the function
+# ||y - Aβ||² + λ_0 ∑ z_i + λ_2 ||β||², subject to the constraints -Mz_i <= β_i <= Mz_i and ∑ z_i <= k, where z_i ∈ {0,1} 
+# for i = 1,..,p. It sets up the SCIP optimizer, defines the objective function and its gradient, and solves the optimization 
+# problem using the FrankWolfe method. Finally, it ensures that the obtained solution is optimal.using Statistics
+
 using Boscia
 using FrankWolfe
 using Random

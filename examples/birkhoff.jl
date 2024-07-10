@@ -1,3 +1,11 @@
+# This script demonstrates the use of Frank-Wolfe algorithm on the Birkhoff polytope with
+# permutation matrices. It utilizes the Boscia and SCIP packages to solve a bilinear optimization
+# problem. The objective is to minimize the Frobenius norm between a weighted sum of permutation
+# matrices and a given doubly stochastic matrix Xstar. The script defines the objective function
+# and its gradient, constructs a Linear Minimization Oracle (LMO) using SCIP, and performs the
+# optimization. The results are validated using test sets to ensure the solution quality.
+
+
 using Boscia
 using FrankWolfe
 using Test
