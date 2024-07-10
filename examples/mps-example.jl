@@ -2,9 +2,9 @@
 # as the objective function. The number of variables is 429, with no integer variables. The code reads the MPS file, sets up 
 # the SCIP optimizer, and uses the FrankWolfe method for optimization. It pushes the optimum towards the interior by utilizing 
 # a trick and then defines the objective function and its gradient. Finally, it solves the optimization problem using Boscia 
-# and ensures the obtained solution is optimal.using Boscia
+# and ensures the obtained solution is optimal.
 
-
+using Boscia
 using FrankWolfe
 using Test
 using Random

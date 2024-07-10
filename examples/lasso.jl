@@ -5,8 +5,9 @@
     #   - z_i ∈ {0,1} for i = 1, ..., p
     # The objective function f(x) represents the squared Euclidean distance between y and A * β, with additional penalty terms.
     # The optimization problem is solved using the Boscia and FrankWolfe packages with the SCIP optimizer.
-    # The final solution x and the result status are obtained using `Boscia.solve`.using Statistics
-    
+    # The final solution x and the result status are obtained using `Boscia.solve`.
+
+using Statistics
 using Distributions
 using Boscia
 using FrankWolfe

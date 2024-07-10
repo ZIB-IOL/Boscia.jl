@@ -14,11 +14,6 @@ $$
 $$
 
 
-## BPCG 
-
-
-The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. BPCG maintains a smaller active set of vertices, enhancing performance. We use a modified lazified BPCG from FrankWolfe.jl.
-
 # Branch and Bound Techniques 
 
 In this section, we present the techniques derived from Frank Wolfe that can be used in our
@@ -42,6 +37,13 @@ In tackling large discrete optimization problems, our method utilizes Frank-Wolf
 ## Dual fixing and tightening 
 
 In subproblems where variables are at bounds, our approach utilizes convexity and primal solutions to tighten dual bounds effectively. Drawing from methods pioneered by Dantzig and extended in various contexts, we leverage Frank-Wolfe methods and FW gaps, adaptable to scenarios without explicit dual solutions, such as those involving MIP-based LMOs.
+
+
+
+
+## BPCG (used as default)
+
+The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. BPCG maintains a smaller active set of vertices, enhancing performance. We use a modified lazified BPCG from FrankWolfe.jl.
 
 
 

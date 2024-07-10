@@ -2,9 +2,9 @@
 # sets up two different optimization approaches: one using the SCIP optimizer and the other using a simple bounded linear minimization 
 # oracle (BLMO) tailored for a cube. The function `f(x)` represents a quadratic function involving a matrix `W` and a reference point. 
 # The optimization problem is solved using Boscia and FrankWolfe packages, and the final solution and the result status are obtained 
-# using `Boscia.solve`.using Boscia
+# using `Boscia.solve`.
 
-
+using Boscia
 using FrankWolfe
 using Test
 using Random
