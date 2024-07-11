@@ -69,32 +69,32 @@ function Bonobo.get_branching_variable(
     #     println("\n branch_counter")
     #     println(branch_counter)
     # end
+    if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+        #println("if clause of update")
+        idx = node.branched_on
+        update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
+        if node.branched_right
+            update = update / (ceil(values[idx]) - values[idx])  
+            pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
+            branch_tracker[idx, 1] += 1
+
+        else
+            update = update / (values[idx] - floor(values[idx]))  
+            pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
+            branch_tracker[idx, 2] += 1
+
+        end
+        # println("pseudos")
+        # display(pseudos)
+        # if rand() > 0.99# for debugging on if strategy behaves as intended
+        #     println("\n branch_tracker")
+        #     println(sum(branch_tracker))
+        # end
+    end
 
     length(branching_candidates) == 0 && return best_idx
     length(branching_candidates) == 1 && return branching_candidates[1]
     if !all_stable# THEN Use Most Infeasible
-        if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
-            #println("if clause of update")
-            idx = node.branched_on
-            update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
-            if node.branched_right
-                update = update / (ceil(values[idx]) - values[idx])  
-                pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
-                branch_tracker[idx, 1] += 1
-    
-            else
-                update = update / (values[idx] - floor(values[idx]))  
-                pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
-                branch_tracker[idx, 2] += 1
-    
-            end
-            # println("pseudos")
-            # display(pseudos)
-            # if rand() > 0.99# for debugging on if strategy behaves as intended
-            #     println("\n branch_tracker")
-            #     println(sum(branch_tracker))
-            # end
-        end
         max_distance_to_feasible = 0.0
         for i in branching_candidates
             value = values[i]
