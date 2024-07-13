@@ -61,6 +61,7 @@ mutable struct FrankWolfeNode{
     parent_lower_bound_base::Float64
     branched_on::Int
     branched_right::Bool
+    distance_to_int::Float64
 end
 
 # For i.e. pseudocost branching we require additional information to be stored in FrankWolfeNode
@@ -74,7 +75,7 @@ FrankWolfeNode(
     FrankWolfeNode(std, active_set, discarded_vertices,
     local_bounds, level, fw_dual_gap_limit, 
     fw_time, global_tightenings, local_tightenings, 
-    local_potential_tightenings, dual_gap, Inf, -1, false)
+    local_potential_tightenings, dual_gap, Inf, -1, false, 0.0)
 
 """
 Create the information of the new branching nodes 
@@ -90,6 +91,9 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
+    left_distance = x[vidx] - floor(x[vidx])
+    right_distance = ceil(x[vidx]) - x[vidx]
+
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
@@ -161,6 +165,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         parent_lower_bound_base=lower_bound_base,
         branched_on=vidx,
         branched_right=false, 
+        distance_to_int=left_distance,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -176,6 +181,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         parent_lower_bound_base=lower_bound_base,
         branched_on=vidx,
         branched_right=true,
+        distance_to_int=right_distance,
     )
 
     # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
