@@ -5,6 +5,7 @@ struct PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBran
     stable::Bool
     bounded_lmo::BLMO
     μ::Float64
+    decision_function::String
 end
 
 # """ Function that keeps track of which branching candidates are stable """
@@ -65,21 +66,24 @@ function Bonobo.get_branching_variable(
             end
         end
     end
-    # if rand() > 0.95# for debugging on if strategy behaves as intended
-    #     println("\n branch_counter")
-    #     println(branch_counter)
-    # end
+    if rand() > 0.99# for debugging on if strategy behaves as intended
+        println("\n branch_counter")
+        println(branch_counter)
+    end
     if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
         #println("if clause of update")
         idx = node.branched_on
         update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
+        update = update / node.distance_to_int
+        if isinf(update)
+            @debug "update is $(Inf)"
+        end
         if node.branched_right
-            update = update / (ceil(values[idx]) - values[idx])  
+            #println(update)  
             pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
             branch_tracker[idx, 1] += 1
-
         else
-            update = update / (values[idx] - floor(values[idx]))  
+            #println(update)
             pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
             branch_tracker[idx, 2] += 1
 
@@ -108,14 +112,25 @@ function Bonobo.get_branching_variable(
         return best_idx
     else
         # Pseudocosts have stabilized
-        println("pseudocosts decision is made")
+        #println("pseudocosts decision is made")
         #best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
         #inner = pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])
 
-        branching_scores = map(idx-> ((1 - branching.μ) * min(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])) + branching.μ * max(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx]))),
-                            branching_candidates)
+        if branching.decision_function == "weighted_sum"
+            #println(branching.decision_function)
+            branching_scores = map(idx-> ((1 - branching.μ) * min(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])) + branching.μ * max(pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx]))),
+                                branching_candidates)
+        
+        elseif branching.decision_function == "product"
+            #println(branching.decision_function)
+            branching_scores = map(idx-> max(pseudos[idx, 1] * (values[idx] - floor(values[idx])), branching.μ) * max(pseudos[idx, 2] * (ceil(values[idx]) - values[idx]), branching.μ), 
+                                branching_candidates)
+
+        end
         branching_scores = sparsevec(branching_candidates, branching_scores)
-        best_idx = argmax(branching_scores)      
+        #display(branching_scores)
+        best_idx = argmax(branching_scores) 
+        #println(best_idx)     
         return best_idx 
     end
 end
