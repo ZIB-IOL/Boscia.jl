@@ -160,7 +160,7 @@ function solve(
         0,
         0,
         0,
-        0.0,
+        0.0
     )
 
     # Create standard heuristics
@@ -223,7 +223,8 @@ function solve(
             dual_gap=-Inf,
             parent_lower_bound_base=Inf,
             branched_on=-1,
-            branched_right=false
+            branched_right=false,
+            distance_to_int=0.0
         ),
     )
 
