@@ -4,7 +4,7 @@
 A simple LMO that computes the extreme point given the node specific bounds on the integer variables.
 Can be stateless since all of the bound management is done by the ManagedBoundedLMO.   
 """
-abstract type SimpleBoundableLMO end
+abstract type SimpleBoundableLMO <: FrankWolfe.LinearMinimizationOracle end
 
 """
 Computes the extreme point given an direction d, the current lower and upper bounds on the integer variables, and the set of integer variables.
