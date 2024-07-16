@@ -88,7 +88,7 @@ function per_layer_plot(file_name, mode)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(7,3.5))
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -131,6 +131,17 @@ function per_layer_plot(file_name, mode)
 
     file_name = replace(file_name, ".csv" => ".pdf")
     file_name = replace(file_name, "csv" => "plots/progress_plots/" * example * "/")
+    if example == "sparse_reg"
+        file_name = replace(file_name, "boscia_" => "size_active_set_")
+    else
+        file_name = replace(file_name, mode => "size_active_set_" * mode)
+    end
+    #@show file_name
+    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+
+
+    file_name = replace(file_name, ".csv" => ".pdf")
+    file_name = replace(file_name, "csv" => "plots/progress_plots/")
     if example == "sparse_reg"
         file_name = replace(file_name, "boscia_" => "size_active_set_")
     else

@@ -60,6 +60,7 @@ function plot(example, setup)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -171,6 +172,9 @@ function plot(example, setup)
         fancybox=true, shadow=false, ncol=2)
     fig.tight_layout()
     file = joinpath(@__DIR__, "plots/progress_plots/" * example *  "/tightenings_" * setup * "_" * example * ".pdf")
+    savefig(file)
+
+    file = joinpath(@__DIR__, "plots/progress_plots/tightenings_" * setup * "_" * example * ".pdf")
     savefig(file)
 
 catch e 

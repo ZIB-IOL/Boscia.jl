@@ -69,7 +69,7 @@ len = length(df[!,"upperBound"])
 colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
 markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-fig = plt.figure(figsize=(7,3.5))
+fig = plt.figure(figsize=(6.5,3.5))
 PyPlot.matplotlib[:rc]("text", usetex=true)
 PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
 PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -111,6 +111,18 @@ fig.tight_layout()
 
 file_name = replace(file_name, ".csv" => ".pdf")
 file_name = replace(file_name, "csv" => "plots/progress_plots/" * example *"/")
+if example == "sparse_reg"
+    file_name = replace(file_name, "boscia_" => "dual_gap_non_accum_")
+else
+    file_name = replace(file_name, mode => "dual_gap_non_accum_" * mode)
+end
+#file_name = replace(file_name, "dual_gap" => "dual_gap_non_accum_")
+
+savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+
+
+file_name = replace(file_name, ".csv" => ".pdf")
+file_name = replace(file_name, "csv" => "plots/progress_plots/")
 if example == "sparse_reg"
     file_name = replace(file_name, "boscia_" => "dual_gap_non_accum_")
 else

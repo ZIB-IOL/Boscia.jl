@@ -24,7 +24,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     colors = ["b", "m", "c", "r", "g", "y", "k"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
     
-    #fig = plt.figure(figsize=(7.3, 5))
+    fig = plt.figure(figsize=(6.5,3.5))
     fig, axs = plt.subplots(2, sharex=false)
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
@@ -93,7 +93,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     colors = ["b", "m", "c", "r", "g", "y", "k"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
     
-    #fig = plt.figure(figsize=(7.3, 5))
+    fig = plt.figure(figsize=(6.5,3.5))
     fig, axs = plt.subplots(2, sharex=false)
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
@@ -147,10 +147,14 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
 
     savefig(file_name,  bbox_extra_artists=(lgd,), bbox_inches="tight")
 end
+plot_boscia_vs_ipopt("neos5", seed=1, num_v=6)
+plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=5)
+plot_boscia_vs_ipopt("neos5", seed=3, num_v=8)
+plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=8)
 
-for seed in 1:3
-    for num_v in 5:8
-        plot_boscia_vs_ipopt("neos5", seed=seed, num_v=num_v)
-        plot_boscia_vs_strong_convexity("neos5", seed=seed, num_v=num_v)
-    end
-end
+#for seed in 1:3
+    #for num_v in 5:8
+        #plot_boscia_vs_ipopt("neos5", seed=seed, num_v=num_v)
+        #plot_boscia_vs_strong_convexity("neos5", seed=seed, num_v=num_v)
+    #end
+#end

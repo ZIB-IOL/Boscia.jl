@@ -64,7 +64,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(6.5,3.5))
+    fig = plt.figure(figsize=(7.3, 5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)

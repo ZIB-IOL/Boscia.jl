@@ -37,7 +37,7 @@ function dual_gap_plot(example, seed, dim, mode)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(7,3.5))
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -101,6 +101,10 @@ function dual_gap_plot(example, seed, dim, mode)
     file_name = joinpath(@__DIR__, "plots/progress_plots/" * example * "/branching_" * mode * "_" * example * "_" * string(dim) * "_" * string(seed) * ".pdf")
     #file_name = "images/dual_gap_" * mode * "_" * example * "_" * dim_seed * ".pdf" #"images/different_branching_strategies_time.pdf"
     savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+
+    file_name = joinpath(@__DIR__, "plots/progress_plots/branching_" * mode * "_" * example * "_" * string(dim) * "_" * string(seed) * ".pdf")
+    #file_name = "images/dual_gap_" * mode * "_" * example * "_" * dim_seed * ".pdf" #"images/different_branching_strategies_time.pdf"
+    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
 catch e
     println(e)
 end
@@ -111,13 +115,14 @@ end
 example = "sparse_reg"
 modes = ["nodes", "time"]
 modes = ["time"]
+#=
 for mode in modes
     for m in [22] #15:30
         for seed in [9]#1:10
             dual_gap_plot(example, seed, m, mode)
         end
     end
-end
+end=#
 
 # portfolio mixed
 example = "mixed_portfolio"
@@ -128,7 +133,7 @@ for mode in modes
         end
     end
 end
-
+#=
 # portfolio integer
 example = "integer_portfolio"
 for mode in modes
@@ -137,4 +142,4 @@ for mode in modes
             dual_gap_plot(example, seed, m, mode)
         end
     end
-end
+end=#

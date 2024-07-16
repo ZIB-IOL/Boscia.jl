@@ -30,7 +30,7 @@ function plot_dual_decay(dim, seed)
     colors = ["b", "m", "c", "r", "g", "y", "k", "peru"]
     markers = ["o", "s", "^", "P", "X", "H", "D"]
 
-    fig = plt.figure(figsize=(7,3.5))
+    fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
@@ -69,9 +69,10 @@ catch e
     return
 end
 end
+plot_dual_decay(27, 1)
 
-for dim in 15:30
-    for seed in 1:3
-        plot_dual_decay(dim, seed)
-    end
-end
+#for dim in 15:30
+#    for seed in 1:3
+#        plot_dual_decay(dim, seed)
+#    end
+#end
