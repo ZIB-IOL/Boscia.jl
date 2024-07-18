@@ -441,11 +441,7 @@ end
 
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
-#examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
-
-#examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", ]
-
-#examples = ["sparse_reg"]
+examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
 for example in examples
 
@@ -454,16 +450,10 @@ for example in examples
     build_summary_by_difficulty("comparison", example=example)
 
     # settings 
-    #build_non_grouped_csv("settings", example=example)
-    #build_summary_by_difficulty("settings", example=example)
+    build_non_grouped_csv("settings", example=example)
+    build_summary_by_difficulty("settings", example=example)
 
     # branching
-    #build_non_grouped_csv("branching", example=example)
-    #build_summary_by_difficulty("branching", example=example)
-
-    #=if example == "sparse_reg"
-        # dual decay
-        build_non_grouped_csv("dual_decay", example=example)
-        build_summary_by_difficulty("dual_decay", example=example)
-    end =#
+    build_non_grouped_csv("branching", example=example)
+    build_summary_by_difficulty("branching", example=example)
 end
