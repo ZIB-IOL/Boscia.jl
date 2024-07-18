@@ -16,7 +16,7 @@ for solver in solvers
             for dimension in [20:5:120;]
                 for seed in 1:10
                     @show seed, dimension
-                    run(`sbatch batch_portfolio.sh $seed $dimension $set $mode $depth`)
+                    run(`sbatch batch_portfolio.sh $seed $dimension $set $mode $depth $solver`)
                 end
             end 
 
@@ -25,7 +25,7 @@ for solver in solvers
             for dimension in [20:5:120;]
                 for seed in 1:10
                     @show seed, dimension
-                    run(`sbatch batch_portfolio.sh $seed $dimension $set $mode $depth`)
+                    run(`sbatch batch_portfolio.sh $seed $dimension $set $mode $depth $solver`)
                 end
             end
         end
