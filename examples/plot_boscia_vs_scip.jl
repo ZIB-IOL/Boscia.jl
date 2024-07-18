@@ -131,13 +131,13 @@ function plot_boscia_vs_scip(example)
     elseif example == "tailed_cardinality_sparse_log_reg"
         title("Tailed Sparse Log Regression", loc="center")
     elseif example == "miplib_22433"
-        title("MIP Lib 22433", loc="center")
+        title("MIP LIB 22433", loc="center")
     elseif example == "miplib_neos5"
-        title("MIP Lib neos5", loc="center")
+        title("MIP LIB neos5", loc="center")
     elseif example == "miplib_pg5_34"
-        title("MIP Lib pg5_34", loc="center")
+        title("MIP LIB pg5_34", loc="center")
     elseif example == "miplib_ran14x18-disj-8"
-        title("MIP Lib ran14x18-disj-8", loc="center")
+        title("MIP LIB ran14x18-disj-8", loc="center")
     end
 
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
