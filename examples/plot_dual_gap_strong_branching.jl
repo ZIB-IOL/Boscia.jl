@@ -114,15 +114,15 @@ end
 # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
 example = "sparse_reg"
 modes = ["nodes", "time"]
-modes = ["time"]
-#=
+#modes = ["time"]
+
 for mode in modes
     for m in [22] #15:30
         for seed in [9]#1:10
             dual_gap_plot(example, seed, m, mode)
         end
     end
-end=#
+end
 
 # portfolio mixed
 example = "mixed_portfolio"
@@ -133,7 +133,7 @@ for mode in modes
         end
     end
 end
-#=
+
 # portfolio integer
 example = "integer_portfolio"
 for mode in modes
@@ -142,4 +142,4 @@ for mode in modes
             dual_gap_plot(example, seed, m, mode)
         end
     end
-end=#
+end

@@ -129,7 +129,7 @@ function per_layer_plot(file_name, mode)
 
     println("figure created")
 
-    file_name = replace(file_name, ".csv" => ".pdf")
+    #=file_name = replace(file_name, ".csv" => ".pdf")
     file_name = replace(file_name, "csv" => "plots/progress_plots/" * example * "/")
     if example == "sparse_reg"
         file_name = replace(file_name, "boscia_" => "size_active_set_")
@@ -137,7 +137,7 @@ function per_layer_plot(file_name, mode)
         file_name = replace(file_name, mode => "size_active_set_" * mode)
     end
     #@show file_name
-    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")=#
 
 
     file_name = replace(file_name, ".csv" => ".pdf")

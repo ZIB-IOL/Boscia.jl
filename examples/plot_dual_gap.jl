@@ -100,7 +100,7 @@ function dual_gap_plot(file_name, mode)
     # plot!(twinx(), df[!, "list_lmo_calls"], label="#lmo calls", color=:green)
     #yaxis!("objective value")
 
-    file_name = replace(file_name, ".csv" => ".pdf")
+    #=file_name = replace(file_name, ".csv" => ".pdf")
     file_name = replace(file_name, "csv/" => "plots/progress_plots/" * example * "/")
     if example == "sparse_reg"
         file_name = replace(file_name, "boscia_" => "dual_gap_")
@@ -108,7 +108,7 @@ function dual_gap_plot(file_name, mode)
         file_name = replace(file_name, mode => "dual_gap_" * mode)
     end
 
-    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+    savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")=#
 
     file_name = replace(file_name, ".csv" => ".pdf")
     file_name = replace(file_name, "csv/" => "plots/progress_plots/")

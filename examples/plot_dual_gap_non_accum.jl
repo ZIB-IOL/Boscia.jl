@@ -109,7 +109,7 @@ fig.tight_layout()
 # plot!(twinx(), df[!, "list_lmo_calls"], label="#lmo calls", color=:green)
 #yaxis!("objective value")
 
-file_name = replace(file_name, ".csv" => ".pdf")
+#=file_name = replace(file_name, ".csv" => ".pdf")
 file_name = replace(file_name, "csv" => "plots/progress_plots/" * example *"/")
 if example == "sparse_reg"
     file_name = replace(file_name, "boscia_" => "dual_gap_non_accum_")
@@ -118,7 +118,7 @@ else
 end
 #file_name = replace(file_name, "dual_gap" => "dual_gap_non_accum_")
 
-savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")
+savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches="tight")=#
 
 
 file_name = replace(file_name, ".csv" => ".pdf")
