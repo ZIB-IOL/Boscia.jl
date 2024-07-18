@@ -156,6 +156,46 @@ dual_gap_plot("mixed_portfolio", 1, 50, "nodes")
 dual_gap_plot("mixed_portfolio", 1, 50, "time")
 ```
 
+To compare the number of terminations:
+Run the corresponding slurm file, `run_*example*_slurm.jl`.
+```julia
+julia --project run_sparse_reg_slurm.jl
+```
+
+```julia
+julia --project
+include("plot_boscia_vs_pavito.jl")
+include("plot_boscia_vs_scip.jl")
+
+include("boscia_merge_csvs.jl")
+merge_csvs("sparse_reg")
+include("ipopt_merge_csvs.jl")
+merge_csvs("sparse_reg")
+include("pavito_merge_csvs.jl")
+merge_csvs("sparse_reg")
+include("shot_merge_csvs.jl")
+merge_csvs("sparse_reg")
+include("scip_merge_csvs.jl")
+merge_csvs("sparse_reg")
+
+include("compile_csv.jl")
+
+# comparison
+build_non_grouped_csv("comparison", example="sparse_reg")
+build_summary_by_difficulty("comparison", example="sparse_reg")
+
+# settings 
+build_non_grouped_csv("settings", example="sparse_reg")
+build_summary_by_difficulty("settings", example="sparse_reg")
+
+# branching
+build_non_grouped_csv("branching", example="sparse_reg")
+build_summary_by_difficulty("branching", example="sparse_reg")
+
+plot_boscia_vs_pavito("sparse_reg", use_shot=false)
+plot_boscia_vs_scip("sparse_reg")
+```
+
 #### Appendix: 
 
 | Figure | create figure with | build required CSV with |
