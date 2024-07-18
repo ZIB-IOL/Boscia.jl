@@ -1,3 +1,0 @@
-AssertionError("primal: 5.328976356091481 and tree.incumbent: 5.228444264186711")
-AssertionError("primal: 5.294416129878464 and tree.incumbent: 5.207928625552013")
-AssertionError("primal: 5.328976356091481 and tree.incumbent: 5.209053872260523")

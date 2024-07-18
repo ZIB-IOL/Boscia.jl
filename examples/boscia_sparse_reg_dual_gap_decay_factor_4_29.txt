@@ -1,5 +1,0 @@
-AssertionError("primal: 5.521068734094021 and tree.incumbent: 5.465640665109023")
-AssertionError("primal: 5.521068734094021 and tree.incumbent: 5.465640665109023")
-AssertionError("primal: 5.521068734094021 and tree.incumbent: 5.465640665109023")
-AssertionError("primal: 5.521068734094021 and tree.incumbent: 5.465640665109023")
-AssertionError("primal: 5.521068734094021 and tree.incumbent: 5.465640665109023")
