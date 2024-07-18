@@ -25,8 +25,8 @@ The examples tested are all included in the test folder, see `runtests.jl`.
 | Poisson regression | run_poisson_slurm.jl  | run_poisson_setup.jl |
 | sparse regression | run_sparse_reg_slurm.jl | run_sparse_reg_setup.jl |
 | sparse log regression |run_sparse_log_reg_slurm.jl | run_sparse_log_reg_setup.jl |
-| tailed cardinality | <span style="color:red">missing</span> | <span style="color:red">missing</span> |
-| tailed cardinality sparse log regression |<span style="color:red">missing</span> | <span style="color:red">missing</span> |
+| tailed cardinality | run_tailed_cardinality_sparse_reg_slurm.jl | run_tailed_cardinality_sparse_reg_setup.jl |
+| tailed cardinality sparse log regression | run_tailed_cardinality_sparse_log_reg_slurm.jl| run_tailed_cardinality_sparse_log_reg_setup.jl |
 | miplib instances |run_miplib_slurm.jl | run_miplib_setup.jl |
 
 To create all csv files, run: 
