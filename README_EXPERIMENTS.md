@@ -46,7 +46,10 @@ We generate one CSV per instance. Merge instance CSV by running `*_merge_csvs.jl
 ```julia 
 julia --project boscia_merge_csvs.jl
 ```
-<span style="color:red">Function to build merged CSV file with all solvers is still missing.</span>
+To generate the summary csvs, run `compile_csv.jl`. This generates summary files for each problem, one comparing the different solver setups, one comparing the different settings in Boscia.jl, and the last comparing the branching strategies. It creates both `*_non_grouped.csv` files where all the csv are just merged into one, and `*_mode_summary_by_difficulty.csv` where the instances are sorted by difficulty (i.e. minimum time taken to solve it). To generate all files call:
+```julia 
+julia --project compile_csv.jl
+```
 
 | Example | Boscia (default) | Pavito |  SHOT | Ipopt | SCIP (OA) | AFW | Boscia variants<span style="color:red">*</span> | Strong Branching |
 |---|---|---|---|---|---|---|---|---|
