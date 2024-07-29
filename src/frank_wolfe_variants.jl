@@ -197,9 +197,25 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    pre_computed_set=nothing,
 )
-    x0 = FrankWolfe.compute_active_set_iterate!(active_set)
-    # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
+
+    # We pick a point by averaging the pre_computed_atoms as warm-start.  
+    num_pre_computed_set = length(pre_computed_set)
+    x0 = sum(pre_computed_set) / num_pre_computed_set
+
+    # We keep track of computed extreme points by creating logging callback.
+    function make_callback(pre_computed_set)
+        return function callback(state, args...)
+            if state.tt !== FrankWolfe.last || state.tt !== FrankWolfe.pp
+                push!(pre_computed_set, state.v)
+            end
+            return true
+        end
+    end
+
+    callback = make_callback(pre_computed_set)
+    
     x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
@@ -213,9 +229,9 @@ function solve_frank_wolfe(
         lazy=lazy,
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
+        callback=callback,
     )
-    active_set = FrankWolfe.ActiveSet([(1.0, x)])
-    return x, primal, dual_gap, active_set
+    return x, primal, dual_gap, pre_computed_set
 end
 
 Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
