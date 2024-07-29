@@ -119,6 +119,20 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
+function split_pre_computed_set!(x, pre_computed_set::Vector, tree, vidx::Int;atol=1e-5,rtol=1e-5,kwargs...)
+    pre_computed_set_left = []
+    pre_computed_set_right = []
+    for atom in pre_computed_set
+        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol=atol, rtol=rtol)
+            push!(pre_computed_set_right, atom)
+        elseif atom[vidx] <= floor(x[vidx]) || isapprox(atom[vidx], floor(x[vidx]), atol=atol, rtol=rtol)
+            push!(pre_computed_set_left, atom)
+        end
+    end
+
+    return pre_computed_set_left, pre_computed_set_right
+end
+
 function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int, ::IntegerBounds;kwargs...)where {T,R}
     blmo = tree.root.problem.tlmo.blmo
     x = FrankWolfe.get_active_set_iterate(active_set)
