@@ -53,6 +53,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    pre_computed_set=nothing,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
@@ -101,6 +102,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    pre_computed_set=nothing,
 )
     x, _, primal, dual_gap, _, active_set = blended_conditional_gradient(
         f,
@@ -147,6 +149,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    pre_computed_set=nothing,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         f,
@@ -260,6 +263,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    pre_computed_set=nothing,
 )
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
