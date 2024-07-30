@@ -296,50 +296,34 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
-  if tree.root.options[:variant] != DICG()
-      x, primal, dual_gap, active_set = solve_frank_wolfe(
-          tree.root.options[:variant],
-          tree.root.problem.f,
-          tree.root.problem.g,
-          tree.root.problem.tlmo,
-          node.active_set;
-          epsilon=node.fw_dual_gap_limit,
-          max_iteration=tree.root.options[:max_fw_iter],
-          line_search=tree.root.options[:lineSearch],
-          lazy=tree.root.options[:lazy],
-          lazy_tolerance=tree.root.options[:lazy_tolerance],
-          add_dropped_vertices=tree.root.options[:use_shadow_set],
-          use_extra_vertex_storage=tree.root.options[:use_shadow_set],
-          extra_vertex_storage=node.discarded_vertices,
-          callback=tree.root.options[:callback],
-          verbose=tree.root.options[:fwVerbose],
-      )
-      # update active set of the node
-      node.active_set = active_set
-  else
-      x, primal, dual_gap, pre_computed_set = solve_frank_wolfe(
-          tree.root.options[:variant],
-          tree.root.problem.f,
-          tree.root.problem.g,
-          tree.root.problem.tlmo,
-          node.active_set;
-          epsilon=node.fw_dual_gap_limit,
-          max_iteration=tree.root.options[:max_fw_iter],
-          line_search=tree.root.options[:lineSearch],
-          lazy=tree.root.options[:lazy],
-          lazy_tolerance=tree.root.options[:lazy_tolerance],
-          add_dropped_vertices=tree.root.options[:use_shadow_set],
-          use_extra_vertex_storage=tree.root.options[:use_shadow_set],
-          extra_vertex_storage=node.discarded_vertices,
-          callback=tree.root.options[:callback],
-          verbose=tree.root.options[:fwVerbose],
-          pre_computed_set=node.pre_computed_set,
-      )
-      # update set of computed atoms
-      node.pre_computed_set = pre_computed_set
-      node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
-  end
+    x, primal, dual_gap, atoms_set = solve_frank_wolfe(
+        tree.root.options[:variant],
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.tlmo,
+        node.active_set;
+        epsilon=node.fw_dual_gap_limit,
+        max_iteration=tree.root.options[:max_fw_iter],
+        line_search=tree.root.options[:lineSearch],
+        lazy=tree.root.options[:lazy],
+        lazy_tolerance=tree.root.options[:lazy_tolerance],
+        add_dropped_vertices=tree.root.options[:use_shadow_set],
+        use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+        extra_vertex_storage=node.discarded_vertices,          
+        callback=tree.root.options[:callback],
+        verbose=tree.root.options[:fwVerbose],
+        pre_computed_set=node.pre_computed_set,
+    )
 
+    if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
+        # update active set of the node
+        node.active_set = atoms_set
+    else
+        # update set of computed atoms and active set
+        node.pre_computed_set = atoms_set
+        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+    end
+  
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
 
