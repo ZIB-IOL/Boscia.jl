@@ -133,37 +133,6 @@ function split_pre_computed_set!(x, pre_computed_set::Vector, tree, vidx::Int;at
     return pre_computed_set_left, pre_computed_set_right
 end
 
-function dicg_split_vertices_set!(active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int, ::IntegerBounds;kwargs...)where {T,R}
-    blmo = tree.root.problem.tlmo.blmo
-    x = FrankWolfe.get_active_set_iterate(active_set)
-    n = length(x)
-    x0_left = copy(x)
-    x0_right = copy(x)
-    if typeof(blmo).name.wrapper == ManagedBoundedLMO
-        if typeof(blmo.simple_lmo) == CubeSimpleBLMO
-            x0_left[vidx] = floor(x[vidx])
-            x0_right[vidx] = ceil(x[vidx])
-        end
-        if typeof(blmo.simple_lmo) == ProbabilitySimplexSimpleBLMO
-            sum_val = sum(x) - v[idx]
-            x0_right += (n-1) / sum_val
-            x0_left[vidx] = floor(x[vidx])
-            x0_right = zeros(length(x))
-            x0_right[vidx] = 1.0
-        end
-        if typeof(blmo.simple_lmo) == UnitSimplexSimpleBLMO
-            x0_left[vidx] = floor(x[vidx])
-            x0_right = zeros(length(x))
-            x0_right[vidx] = 1.0
-        end
-    else
-        error("Boscia-DICG do not support MOI yet")
-    end
-    as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
-    as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
-    
-    return as_left, as_right
-end
 """
 Split a discarded vertices set between left and right children.
 """
