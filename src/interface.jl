@@ -107,6 +107,8 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
+
+    println("Boscia-version")
     n, _ = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
@@ -148,6 +150,9 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
+    # For DICG, we use PrecomputedSet instead of ActiveSet to store information.
+    pre_computed_set = [v]
+
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
         NodeInfo(1, f(v), f(v)),
@@ -161,6 +166,7 @@ function solve(
         0,
         0,
         0.0,
+        [v],
     )
 
     # Create standard heuristics
@@ -221,6 +227,7 @@ function solve(
             local_tightenings=0,
             local_potential_tightenings=0,
             dual_gap=-Inf,
+            pre_computed_set=pre_computed_set,
         ),
     )
 

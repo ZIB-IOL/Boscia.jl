@@ -119,6 +119,20 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
+function split_pre_computed_set!(x, pre_computed_set::Vector, tree, vidx::Int;atol=1e-5,rtol=1e-5,kwargs...)
+    pre_computed_set_left = []
+    pre_computed_set_right = []
+    for atom in pre_computed_set
+        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol=atol, rtol=rtol)
+            push!(pre_computed_set_right, atom)
+        elseif atom[vidx] <= floor(x[vidx]) || isapprox(atom[vidx], floor(x[vidx]), atol=atol, rtol=rtol)
+            push!(pre_computed_set_left, atom)
+        end
+    end
+
+    return pre_computed_set_left, pre_computed_set_right
+end
+
 """
 Split a discarded vertices set between left and right children.
 """
