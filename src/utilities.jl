@@ -234,7 +234,7 @@ function save_results(
     result::Dict{Symbol, Any},
     settings::String,
     example_name::String,
-    seed::UInt64,
+    seed,
     file_name::String,
     over_write::Bool
     )
@@ -244,12 +244,15 @@ function save_results(
     l2 = []# save all vector results of length equal to that of result[:list_ub]
     l3 = []# save all vector results of length equal to that of lmo_calls_per_layer
     for key in keys(result)
-        if length(result[key]) == 1 || isa(result[key], String)
+        if string(key) in ["dual_bound","dual_gap","heu_lmo_calls","lmo_calls","number_nodes","primal_objective","rel_dual_gap","status","total_time_in_sec"]
             push!(l1, key)
-        elseif length(result[key]) == length(result[:list_ub])
+        elseif string(key) in ["global_tightenings", "list_active_set_size", "list_discarded_set_size",
+            "list_lb","list_lmo_calls_acc","list_num_nodes","list_time","list_ub","local_potential_tightenings","local_tightenings","node_level"]
             push!(l2, key)
-        elseif length(result[key]) == length(result[:lmo_calls_per_layer])
+        elseif string(key) in ["active_set_size_per_layer", "discarded_set_size_per_layer", "lmo_calls_per_layer"]
             push!(l3, key)
+        elseif string(key) != "raw_solution"
+            println(key, " has not been saved ")
         end
     end
     l11 = Dict(string(key) => result[key] for key in l1)
@@ -277,9 +280,9 @@ function save_results(
         append = false
     else
         if isfile(file_name1)# using this method the first line of the file will have column names
-            append = false
-        else
             append = true
+        else
+            append = false
         end
     end
     CSV.write(file_name1, l11, append= append)
