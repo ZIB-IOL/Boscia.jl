@@ -27,7 +27,9 @@ which are set in the following ways:
 2. If the node has a higher lower bound than the incumbent the kwarg `worse_than_incumbent` is set to `true`.
 """
 function Bonobo.optimize!(
-    tree::Bonobo.BnBTree{<:FrankWolfeNode};
+    tree::Bonobo.BnBTree{<:FrankWolfeNode},
+    pseudos::SparseMatrixCSC{Float64, Int64},
+    branch_tracker::SparseMatrixCSC{Int64, Int64};
     callback=(args...; kwargs...) -> (),
 )
     #println("OWN OPTIMIZE")
@@ -72,7 +74,11 @@ function Bonobo.optimize!(
         end
 
         Bonobo.close_node!(tree, node)
-        Bonobo.branch!(tree, node)
+        if !isa(tree.options.branch_strategy, Boscia.PSEUDO_COST)
+            Bonobo.branch!(tree, node)  
+        else 
+            pseudo_branch!(tree, node, pseudos, branch_tracker)
+        end
         callback(tree, node)
     end
     return Bonobo.sort_solutions!(tree.solutions, tree.sense)
@@ -114,4 +120,24 @@ function Bonobo.get_solution(
         return nothing
     end
     return tree.solutions[result].solution
+end
+
+"""
+    pseudo_branch!(tree, node, pseudos, branch_tracker)
+
+Get the branching variable with [`get_branching_variable`](@ref) and then calls [`get_branching_nodes_info`](@ref) and [`add_node!`](@ref).
+"""
+function pseudo_branch!(
+    tree::Bonobo.BnBTree{<:FrankWolfeNode}, 
+    node::Bonobo.AbstractNode, 
+    pseudos::SparseMatrixCSC{Float64, Int64},
+    branch_tracker::SparseMatrixCSC{Int64, Int64}
+    )
+    variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node, pseudos, branch_tracker)
+    # no branching variable selected => return
+    variable_idx == -1 && return
+    nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx)
+    for node_info in nodes_info
+        Bonobo.add_node!(tree, node, node_info)
+    end
 end
