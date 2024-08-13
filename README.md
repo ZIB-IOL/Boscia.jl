@@ -31,15 +31,8 @@ import Pkg
 Pkg.add("Boscia")
 ```
 
-
-
-
-
-If you want to use SCIP within Boscia and your OS is windows, you will have download SCIP separately, see SCIP.jl.
-Note that you do not necessarily have to download the binaries but can also use the installer provided by SCIP.
-
-
-**For Window Users** You need not to download whole SCIP binary instead you can follow **Custom Installation** mentioned on this page and download and link SCIP with your JULIA .
+If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
+Note, for Window users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
 
 
 
