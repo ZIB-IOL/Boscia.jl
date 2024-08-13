@@ -35,6 +35,10 @@ If you don't have SCIP  , you can on go this link and add SCIP as instructed ['S
 Note, for Window users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
 
 
+
+
+
+
 ## Getting started
 
 Here is a simple example to get started. For more examples, see the examples folder in the package.
