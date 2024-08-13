@@ -31,7 +31,7 @@ import Pkg
 Pkg.add("Boscia")
 ```
 
-If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
+If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl).
 Note, for Window users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
 
 
