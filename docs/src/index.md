@@ -33,6 +33,8 @@ Pkg.add("Boscia")
 
 
 
+Suggested change
+If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl)
 
 
 If you want to use SCIP within Boscia and your OS is windows, you will have download SCIP separately, see SCIP.jl.

@@ -1,4 +1,14 @@
-using Statistics
+# This script performs integer sparse regression, aiming to minimize the norm of (y - A * x)² subject to constraints.
+    # The constraints are:
+    #   - 0 <= x_i <= l, where l = 5
+    #   - ∑ x_i <= k, where k = 4
+    #   - x_i ∈ Z for i = 1, ..., n
+    # The objective function f(x) represents the squared Euclidean distance between y and A * x.
+    # The optimization problem is solved using the Boscia and FrankWolfe packages with the SCIP optimizer.
+    # The final solution x and the result status are obtained using `Boscia.solve`.using Statistics
+    # The solve function is the one doing the heavy lifting, i.e. creating and solving the branch-and-bound tree!
+
+    
 using Boscia
 using FrankWolfe
 using Random
