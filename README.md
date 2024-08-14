@@ -2,14 +2,20 @@
 
 [![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12720675.svg)](https://doi.org/10.5281/zenodo.12720675)
 
 A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for convex relaxations and a branch-and-bound algorithm.
 
 ## Overview
 
-The Boscia.jl solver uses a combination of a variant of the Frank-Wolfe algorithm and a branch-and-bound-like algorithm to solve mixed-integer convex optimization problems. These problems are of the form:
-**min_{x ∈ C, x_I ∈ Z^n} f(x)**,
-This approach is particularly effective if we can solve the mixed-integer linear minimization problem over C efficiently and handle the integer constraints. The set C is specified using the MathOptInterface API or any domain-specific language (DSL) like Julia for Mathematical Programming (**JuMP**) that implements this API.
+The Boscia.jl solver combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound-like algorithm to solve mixed-integer convex optimization problems of the form
+$\min_{x ∈ C, x_I ∈ \mathbb{Z}^n} f(x)$,
+where $f$ is a differentiable convex function, $C$ is a convex and compact set, and $I$ is a set of indices of integral variables.
+
+This approach is especially effective when we have a method to optimize a linear function over $C$ and the integrality constraints in a computationally efficient way.
+The set `C` can modelled using the Julia package **MathOptInterface** (or **JuMP**). 
+We also implemented simple polytopes like the hypercube, the unit simplex and the probability simplex. Also, we intend to extend this list by combinatorial polytopes, e.g. the matching polytope.
+
 The paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
@@ -18,21 +24,21 @@ The paper presenting the package with mathematical explanations and numerous exa
 
 ## Installation
 
+Add the Boscia stable release with:
 
-Once you have installed Julia , From the Julia REPL, type ] to enter the Pkg REPL mode and run 
-```Boscia
-pkg > add Boscia
-
-```
-
-or alternatively via Pkg in any Julia code:
 ```julia
 import Pkg
 Pkg.add("Boscia")
 ```
 
-If you don't have SCIP  , you can on go this link and add SCIP as instructed ['SCIP'](https://github.com/scipopt/SCIP.jl).
-Note, for Window users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
+Or get the latest master branch with:
+```julia
+import Pkg
+Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
+```
+
+For the installation of `SCIP.jl`, see [here](https://github.com/scipopt/SCIP.jl).
+Note, for Windows users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
 
 
 
