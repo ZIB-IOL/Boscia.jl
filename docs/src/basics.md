@@ -47,6 +47,8 @@ AFW maintains the simplicity of the original algorithm while achieving faster co
 
 ### Blended Conditional Gradient (BCG)
 
+TODO
+
 ### Blended Pairwise Conditional Gradient (BPCG)
 
 The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. BPCG maintains a smaller active set of vertices, enhancing performance. We use a modified lazified BPCG from FrankWolfe.jl.
@@ -72,9 +74,14 @@ We implement termination criteria in node processing to reduce iterations, prior
 
 ## The Bounded Linear Minimization Oracles (BLMO)
 
-### Mixed Integer Linear Solver 
+The **Bounded Linear Minimization Oracle (BLMO)** represent the feasible region $C$ with the integrality constraints and handles the computation of mixed-integer linear sub-problems. The bound management is also handled by the BLMO. 
+There are two options for the BLMO.
 
-Via `MathOptInterface.jl`
+### Mixed Integer Linear Solver via JuMP
+
+The first option is a MIP solver like `SCIP` via the `MathOptInterface` or `JuMP` package. 
+For examples, see the Poisson Regression in `poisson_reg.jl`, the Sparse Regression with a grouped lasso in `lasso.jl`.
+In `mps-example.jl`, the feasible region is encoded in an MPS file.
 
 ### Customized BLMO's
 
