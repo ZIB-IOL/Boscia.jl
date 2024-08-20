@@ -51,22 +51,31 @@ TODO
 
 ### Blended Pairwise Conditional Gradient (BPCG)
 
-The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. BPCG maintains a smaller active set of vertices, enhancing performance. We use a modified lazified BPCG from FrankWolfe.jl.
+The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. 
+The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. 
+BPCG maintains a smaller active set of vertices, enhancing performance. 
+We use a modified lazified BPCG from FrankWolfe.jl.
 
 
 
 ## Branch-and-Bound techniques 
 
-In this section, we present the techniques derived from Frank Wolfe that can be used in our
-framework .
+In this section, we present the techniques derived from Frank Wolfe that can be used in our framework .
 
 ### Dual gap based termination 
 
-Frank-Wolfe methods produce primal feasible iterates and an FW gap, offering many inexpensive iterations with a gradually increasing dual bound. This allows early termination of nodes when the dual bound reaches the best incumbent's objective value, avoiding unnecessary computations. Nodes can be stopped anytime to produce a useful dual bound, aiding overall progress. This flexibility contrasts with other nonlinear solvers, enabling more efficient optimization.
+Frank-Wolfe methods produce primal feasible iterates and an FW gap, offering many inexpensive iterations with a gradually increasing dual bound. 
+This allows early termination of nodes when the dual bound reaches the best incumbent's objective value, avoiding unnecessary computations. 
+Nodes can be stopped anytime to produce a useful dual bound, aiding overall progress. 
+This flexibility contrasts with other nonlinear solvers, enabling more efficient optimization.
 
 ### Tree state-dependent termination and evolving error 
 
-We implement termination criteria in node processing to reduce iterations, prioritizing nodes with promising lower bounds. An adaptive Frank-Wolfe gap criterion increases precision with depth in the branch-and-bound tree. Frank Wolfe's convex combinations of integer extreme points ensure valid dual bound, even with reduced precision runs. This approach balances efficiency and accuracy in solving optimization problems.we have Hybrid branching which couples strong branching and most infeasible branching. Strong branching is very expensive to do for the whole tree and it's usually more beneficial to utilize strong branching only up to a certain depth.
+We implement termination criteria in node processing to reduce iterations, prioritizing nodes with promising lower bounds. 
+An adaptive Frank-Wolfe gap criterion increases precision with depth in the branch-and-bound tree. 
+Frank Wolfe's convex combinations of integer extreme points ensure valid dual bound, even with reduced precision runs. 
+This approach balances efficiency and accuracy in solving optimization problems.we have Hybrid branching which couples strong branching and most infeasible branching. 
+Strong branching is very expensive to do for the whole tree and it's usually more beneficial to utilize strong branching only up to a certain depth.
 
 ### Warm-starting via the active set
 
@@ -74,7 +83,8 @@ We implement termination criteria in node processing to reduce iterations, prior
 
 ## The Bounded Linear Minimization Oracles (BLMO)
 
-The **Bounded Linear Minimization Oracle (BLMO)** represent the feasible region $C$ with the integrality constraints and handles the computation of mixed-integer linear sub-problems. The bound management is also handled by the BLMO. 
+The **Bounded Linear Minimization Oracle (BLMO)** represent the feasible region $C$ with the integrality constraints and handles the computation of mixed-integer linear sub-problems. 
+The bound management is also handled by the BLMO. 
 There are two options for the BLMO.
 
 ### Mixed Integer Linear Solver via JuMP
@@ -91,11 +101,14 @@ Point to the tutorial
 
 ## Strong branching and tightenings 
 
-In tackling large discrete optimization problems, our method utilizes Frank-Wolfe algorithms to approximate lower bound improvements efficiently. By relaxing strong branching to continuous LPs for the Linear Minimization Oracle and controlling FW iterations or gap tolerances, we balance computational cost with accuracy. This approach optimizes variable selection in branch-and-bound algorithms, enhancing scalability and efficiency in solving complex discrete optimization challenges.
+In tackling large discrete optimization problems, our method utilizes Frank-Wolfe algorithms to approximate lower bound improvements efficiently. 
+By relaxing strong branching to continuous LPs for the Linear Minimization Oracle and controlling FW iterations or gap tolerances, we balance computational cost with accuracy. 
+This approach optimizes variable selection in branch-and-bound algorithms, enhancing scalability and efficiency in solving complex discrete optimization challenges.
 
 ### Dual fixing and tightening 
 
-In subproblems where variables are at bounds, our approach utilizes convexity and primal solutions to tighten dual bounds effectively. Drawing from methods pioneered by Dantzig and extended in various contexts, we leverage Frank-Wolfe methods and FW gaps, adaptable to scenarios without explicit dual solutions, such as those involving MIP-based LMOs.
+In subproblems where variables are at bounds, our approach utilizes convexity and primal solutions to tighten dual bounds effectively. 
+Drawing from methods pioneered by Dantzig and extended in various contexts, we leverage Frank-Wolfe methods and FW gaps, adaptable to scenarios without explicit dual solutions, such as those involving MIP-based LMOs.
 
 
 
