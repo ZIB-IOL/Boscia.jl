@@ -647,7 +647,7 @@ function dicg_maximum_step(blmo::MathOptBLMO, x, direction; kwargs...)
         lmo,
         x,
         direction;
-        kwargs
+        kwargs...,
     )
 end
 
