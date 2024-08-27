@@ -133,8 +133,15 @@ function Bonobo.get_solution(
     return tree.solutions[result].solution
 end
 
-function clean_solution(tree, solution, node; max_iter=5)
-    fix_bounds = IntegerBounds()
+"""
+Clean up new solutions. Especially useful, if the integer variables are used in Indicator constraints etc.
+"""
+function clean_solution(tree, solution, node)
+    x = solution
+    primal = tree.root.problem.f(x)
+
+    if tree.root.options[:clean_solutions]
+        fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
             push!(fix_bounds, (i => round(solution[i])), :lessthan)
             push!(fix_bounds, (i => round(solution[i])), :greaterthan)
@@ -158,7 +165,7 @@ function clean_solution(tree, solution, node; max_iter=5)
             active_set,
             line_search=FrankWolfe.Adaptive(verbose=false),
             lazy=true,
-            max_iteration=max_iter,
+            max_iteration=tree.root.options[:max_clean_iter],
         )
         free_model(tree.root.problem.tlmo.blmo)
         build_LMO(
@@ -167,6 +174,7 @@ function clean_solution(tree, solution, node; max_iter=5)
             node.local_bounds,
             tree.root.problem.integer_variables,
         )
+    end
 
     return x, primal
 end
