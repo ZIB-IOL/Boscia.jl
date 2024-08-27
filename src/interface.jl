@@ -53,7 +53,13 @@ use_shadow_set         - The shadow set is the set of discarded vertices which i
                         performance might improve by disabling this option. 
 custom_heuristics      - List of  custom heuristic from the user.    
 prob_rounding          - The probability for calling the rounding heuristics. Since the feasibility has to be checked, it might
-                        expensive to do this for every node.                    
+                        expensive to do this for every node.   
+                            
+Returns
+
+- x - the solution.
+- tlmo - the blmo wrapped in a TimeTrackingLMO instance.
+- result - dictionary containg the statistics and information for plotting progress plots.
 """
 function solve(
     f,
