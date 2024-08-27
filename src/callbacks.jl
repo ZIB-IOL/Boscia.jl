@@ -20,7 +20,11 @@ function build_FW_callback(
                 @info "$(state.v)"
                 check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
                 @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
-            end
+            end  
+            if !is_integer_feasible(tree, state.v)
+                @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
+                @assert is_integer_feasible(tree, state.v)
+            end    
         end
         push!(fw_iterations, state.t)
 
