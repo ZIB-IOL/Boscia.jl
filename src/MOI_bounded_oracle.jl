@@ -635,8 +635,8 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0, 
-    clean_solutions=true, 
-    max_clean_iter=5,
+    clean_solutions=false, 
+    max_clean_iter=10,
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
