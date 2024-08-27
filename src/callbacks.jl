@@ -38,7 +38,6 @@ function build_FW_callback(
                     tree.root.options[:domain_oracle],
                 )
                 if best_val < tree.incumbent
-                    tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
                     add_new_solution!(tree, node, best_val, best_v, :Solver)
                     Bonobo.bound!(tree, node.id)
@@ -55,7 +54,6 @@ function build_FW_callback(
         if tree.root.options[:domain_oracle](state.v)
             val = tree.root.problem.f(state.v)
             if val < tree.incumbent
-                tree.root.updated_incumbent[] = true
                 #TODO: update solution without adding node
                 node = tree.nodes[tree.root.current_node_id[]]
                 add_new_solution!(tree, node, val, copy(state.v), :vertex)

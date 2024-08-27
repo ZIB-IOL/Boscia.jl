@@ -30,7 +30,6 @@ end
 Add a new solution found from the heuristic to the tree.
 """
 function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
-    tree.root.updated_incumbent[] = true
     node = tree.nodes[tree.root.current_node_id[]]
     add_new_solution!(tree, node, val, x, heuristic_name)
     Bonobo.bound!(tree, node.id)

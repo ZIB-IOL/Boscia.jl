@@ -84,7 +84,7 @@ function Bonobo.update_best_solution!(
 )
     isinf(node.ub) && return false
     node.ub >= tree.incumbent && return false
-    tree.root.updated_incumbent[] = true
+    @show node.ub, tree.incumbent
     #tree.incumbent = node.ub
 
     Bonobo.add_new_solution!(tree, node)
@@ -114,6 +114,7 @@ function add_new_solution!(
 
     push!(tree.solutions, sol)
     if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
+        tree.root.updated_incumbent[] = true
         tree.incumbent_solution = sol
         tree.incumbent = sol.objective
     end
@@ -141,6 +142,7 @@ function clean_solution(tree, solution, node)
     primal = tree.root.problem.f(x)
 
     if tree.root.options[:clean_solutions]
+        println("Clean solutions")
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
             push!(fix_bounds, (i => round(solution[i])), :lessthan)
