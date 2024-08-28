@@ -29,7 +29,8 @@ which are set in the following ways:
 function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode},
     pseudos::SparseMatrixCSC{Float64, Int64},
-    branch_tracker::SparseMatrixCSC{Int64, Int64};
+    branch_tracker::SparseMatrixCSC{Int64, Int64},
+    infeas_tracker::SparseMatrixCSC{Int64, Int64};
     callback=(args...; kwargs...) -> (),
 )
     #println("OWN OPTIMIZE")
@@ -39,6 +40,14 @@ function Bonobo.optimize!(
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
             @debug "\n node closed without upd\n"
+            if isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
+                idx = node.branched_on
+                if node.branched_right
+                    infeas_tracker[idx, 1] += 1
+                else
+                    infeas_tracker[idx, 2] += 1
+                end
+            end
             ## add the nodes which become infeasible to a special storage (yet to be implemented)
             Bonobo.close_node!(tree, node)
             callback(tree, node; node_infeasible=true)
@@ -49,7 +58,7 @@ function Bonobo.optimize!(
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent 
-            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST)# In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
+            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) || isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)# In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
                 #println("node closed but we do update anyway")
                 if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
                     #println("if clause of update")
@@ -100,10 +109,12 @@ function Bonobo.optimize!(
         end
 
         Bonobo.close_node!(tree, node)
-        if !isa(tree.options.branch_strategy, Boscia.PSEUDO_COST)
-            Bonobo.branch!(tree, node)  
+        if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) 
+            Bonobo.pseudo_branch!(tree, node, pseudos, branch_tracker)  
+        elseif isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
+            Bonobo.hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker, infeas_tracker) 
         else 
-            pseudo_branch!(tree, node, pseudos, branch_tracker)
+            branch!(tree, node)
         end
         callback(tree, node)
     end
@@ -157,9 +168,30 @@ function pseudo_branch!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode}, 
     node::Bonobo.AbstractNode, 
     pseudos::SparseMatrixCSC{Float64, Int64},
-    branch_tracker::SparseMatrixCSC{Int64, Int64}
+    branch_tracker::SparseMatrixCSC{Int64, Int64},
     )
     variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node, pseudos, branch_tracker)
+    # no branching variable selected => return
+    variable_idx == -1 && return
+    nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx)
+    for node_info in nodes_info
+        Bonobo.add_node!(tree, node, node_info)
+    end
+end
+
+"""
+    hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker)
+
+Get the branching variable with [`get_branching_variable`](@ref) and then calls [`get_branching_nodes_info`](@ref) and [`add_node!`](@ref).
+"""
+function hierarchy_pseudo_branch!(
+    tree::Bonobo.BnBTree{<:FrankWolfeNode}, 
+    node::Bonobo.AbstractNode, 
+    pseudos::SparseMatrixCSC{Float64, Int64},
+    branch_tracker::SparseMatrixCSC{Int64, Int64},
+    infeas_tracker::SparseMatrixCSC{Int64, Int64}
+    )
+    variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node, pseudos, branch_tracker, infeas_tracker)
     # no branching variable selected => return
     variable_idx == -1 && return
     nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx)
