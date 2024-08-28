@@ -3,6 +3,7 @@ using FrankWolfe
 using StableRNGs
 using SCIP
 using Distributions
+using LinearAlgebra
 using MathOptInterface
 const MOI = MathOptInterface
 
@@ -189,3 +190,4 @@ end
 args3 = build_portfolio(n=30, seed=1234)
 #Boscia.solve(args3...; variant=Boscia.Blended(), verbose=true)
 Boscia.solve(args3...; variant=Boscia.BPCG(), verbose=true)
+
