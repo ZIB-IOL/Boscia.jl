@@ -157,7 +157,6 @@ function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree, 
     branching::HIERARCHY_PSEUDO_COST{BLMO},
     node::Bonobo.AbstractNode,
-    infeasible_tracker::SparseMatrixCSC{Int64, Int64},
     pseudos::SparseMatrixCSC{Float64, Int64},
     branch_tracker::SparseMatrixCSC{Int64, Int64},
     infeas_tracker::SparseMatrixCSC{Int64, Int64},
@@ -202,20 +201,18 @@ function Bonobo.get_branching_variable(
         #display(pseudos)
     end
 
+    println("--- before --- ")
+    display(branching_candidates)
+    # compute score of how (often) branching on a variable resulted in infeasiblity
+    best_score = max_infeas_score(branching_candidates, infeas_tracker)
+    
+    branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, infeas_tracker) >= best_score]
+    println("--- after --- ")
+    display(branching_candidates)
+
     if length(branching_candidates) == 0 
         return best_idx
     elseif length(branching_candidates) == 1
-        best_idx = branch_tracker[1]
-        infeas_tracker[best_idx, 2] += 1
-        return best_idx
-    end
-
-    # compute score of how (often) branching on a variable resulted in infeasiblity
-    best_score = maximum(infeas_score, branching_candidates)
-    
-    branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, branch_tracker, infeas_tracker) == best_score]
-
-    if length(branching_candidates) == 1 
         best_idx = branching_candidates[1]
         infeas_tracker[best_idx, 2] += 1
         return best_idx
@@ -264,5 +261,19 @@ end
 
 
 function infeas_score(idx::Int, infeas_tracker::SparseMatrixCSC{Int64, Int64})
-    return  infeas_tracker[idx, 1] / infeas_tracker[idx, 2]# ratio of how often branching on variable idx leads to node infeasiblity of children
+    infeas_tracker[idx, 1] == 1 && return 0
+    return  (infeas_tracker[idx, 1]) / (infeas_tracker[idx, 2])# ratio of how often branching on variable idx leads to node infeasiblity of children
+end
+
+function max_infeas_score(idxs::Vector{Int64}, infeas_tracker::SparseMatrixCSC{Int64, Int64})
+    max_score = 0
+    for idx in idxs
+        if infeas_tracker[idx, 1] == 1
+            continue
+        else
+            max_score = max(max_score, (infeas_tracker[idx, 1]) / (infeas_tracker[idx, 2]))
+        end
+    end
+
+    return max_score
 end

@@ -110,11 +110,11 @@ function Bonobo.optimize!(
 
         Bonobo.close_node!(tree, node)
         if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) 
-            Bonobo.pseudo_branch!(tree, node, pseudos, branch_tracker)  
+            pseudo_branch!(tree, node, pseudos, branch_tracker)  
         elseif isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
-            Bonobo.hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker, infeas_tracker) 
+            hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker, infeas_tracker) 
         else 
-            branch!(tree, node)
+            Bonobo.branch!(tree, node)
         end
         callback(tree, node)
     end
