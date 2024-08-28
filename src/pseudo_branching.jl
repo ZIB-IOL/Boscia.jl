@@ -43,27 +43,31 @@ function Bonobo.get_branching_variable(
     all_stable = true
     branching_candidates = Int[]# this shall contain the indices of the potential branching variables
     values = Bonobo.get_relaxed_values(tree, node)
-    # branch_counter = []
+    #branch_counter = []
     # for idx in Bonobo.get_branching_indices(tree.root)
     for idx in tree.branching_indices
         value = values[idx]
         if !Bonobo.is_approx_feasible(tree, value)
             push!(branching_candidates, idx)
-            # push!(branch_counter, (branch_tracker[idx, 1], branch_tracker[idx, 2]))
+            #push!(branch_counter, (branch_tracker[idx, 1], branch_tracker[idx, 2]))
+            #push!(branch_counter, idx)
             if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
                 all_stable = false
             end
         end
     end
-    # if rand() > 0.5# for debugging on if strategy behaves as intended
-    #     println("\n branch_counter")
-    #     println(branch_counter)
+    # for entry in branch_counter
+    #     if !isequal(branch_tracker[entry, 1], branch_tracker[entry, 2])
+    #         println("\n",  entry,"\n")
+    #     end
+    #     #break
     # end
-    if node.parent_lower_bound_base != Inf# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+    if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
         #println("if clause of update")
         idx = node.branched_on
         update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
         update = update / node.distance_to_int
+
         # if rand() > 0.99
         #     update += 0.1
         # end
@@ -81,11 +85,7 @@ function Bonobo.get_branching_variable(
 
         end
         # println("pseudos")
-        # display(pseudos)
-        # if rand() > 0.99# for debugging on if strategy behaves as intended
-        #     println("\n branch_tracker")
-        #     println(sum(branch_tracker))
-        # end
+        #display(pseudos)
     end
     length(branching_candidates) == 0 && return best_idx
     length(branching_candidates) == 1 && return branching_candidates[1]
@@ -101,11 +101,7 @@ function Bonobo.get_branching_variable(
         end
         return best_idx
     else
-        # Pseudocosts have stabilized
-        #println("pseudocosts decision is made")
-        #best_idx = argmax(map(idx-> maximum(pseudos[idx]), branching_candidates))# argmax randomly chosen and to be replaced later
-        #inner = pseudos[idx, 1] * (values[idx] - floor(values[idx])), pseudos[idx, 2] * (ceil(values[idx]) - values[idx])
-
+        #println("\npd made\n")
         if branching.decision_function == "weighted_sum"
             #println(branching.decision_function)
             branching_scores = map(idx-> ((1 - branching.μ) * min((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx])) + branching.μ * max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]))),

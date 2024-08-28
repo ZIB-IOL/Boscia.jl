@@ -38,6 +38,8 @@ function Bonobo.optimize!(
         lb, ub = Bonobo.evaluate_node!(tree, node)
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
+            @debug "\n node closed without upd\n"
+            ## add the nodes which become infeasible to a special storage (yet to be implemented)
             Bonobo.close_node!(tree, node)
             callback(tree, node; node_infeasible=true)
             continue
@@ -46,7 +48,31 @@ function Bonobo.optimize!(
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
-        if node.lb >= tree.incumbent
+        if node.lb >= tree.incumbent 
+            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST)# In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
+                #println("node closed but we do update anyway")
+                if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+                    #println("if clause of update")
+                    idx = node.branched_on
+                    update = lb - node.parent_lower_bound_base
+                    update = update / node.distance_to_int
+                    if isinf(update)
+                        @debug "update is $(Inf)"
+                    end
+                    if node.branched_right
+                        #println(update)  
+                        pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
+                        branch_tracker[idx, 1] += 1
+                    else
+                        #println(update)
+                        pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
+                        branch_tracker[idx, 2] += 1
+                    end
+                else 
+                    println(string("node.parent_lower_bound_base is ", node.parent_lower_bound_base))
+                end
+            end
+            
             Bonobo.close_node!(tree, node)
             callback(
                 tree,
