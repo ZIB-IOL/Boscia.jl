@@ -22,7 +22,7 @@ function build_FW_callback(
                 @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
             end
         end
-        if !is_integer_feasible(tree, state.v)
+        if  state.tt != FrankWolfe.simplex_descent && !is_integer_feasible(tree, state.v)
             @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
             @assert is_integer_feasible(tree, state.v)
         end  
@@ -58,7 +58,7 @@ function build_FW_callback(
             return false
         end
 
-        if tree.root.options[:domain_oracle](state.v)
+        if tree.root.options[:domain_oracle](state.v) && state.tt != FrankWolfe.simplex_descent
             val = tree.root.problem.f(state.v)
             if val < tree.incumbent
                 tree.root.updated_incumbent[] = true
