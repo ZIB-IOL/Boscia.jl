@@ -85,6 +85,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+    #println(vidx)
 
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
@@ -188,7 +189,13 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domain_oracle]
-
+    
+    # the nodes which get pruned by strong convexity do not give pseudocost updates at present.
+    if prune_left
+        @debug string("pruned left ", vidx)
+    elseif prune_right
+        @debug string("pruned right ", vidx)
+    end
     nodes = if !prune_left && !prune_right
         [node_info_left, node_info_right]
     elseif prune_left
