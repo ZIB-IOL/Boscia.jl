@@ -21,15 +21,11 @@ function build_FW_callback(
                 check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
                 @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
             end  
-            if !is_integer_feasible(tree, state.v)
+            if state.tt != FrankWolfe.simplex_descent && !is_integer_feasible(tree, state.v)
                 @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
                 @assert is_integer_feasible(tree, state.v)
             end    
         end
-        if  state.tt != FrankWolfe.simplex_descent && !is_integer_feasible(tree, state.v)
-            @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
-            @assert is_integer_feasible(tree, state.v)
-        end  
         push!(fw_iterations, state.t)
 
         if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
