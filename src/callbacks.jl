@@ -26,6 +26,10 @@ function build_FW_callback(
                 @assert is_integer_feasible(tree, state.v)
             end    
         end
+        if  state.tt != FrankWolfe.simplex_descent && !is_integer_feasible(tree, state.v)
+            @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
+            @assert is_integer_feasible(tree, state.v)
+        end  
         push!(fw_iterations, state.t)
 
         if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
@@ -51,7 +55,7 @@ function build_FW_callback(
             return false
         end
 
-        if tree.root.options[:domain_oracle](state.v)
+        if tree.root.options[:domain_oracle](state.v) && state.tt != FrankWolfe.simplex_descent
             val = tree.root.problem.f(state.v)
             if val < tree.incumbent
                 #TODO: update solution without adding node
