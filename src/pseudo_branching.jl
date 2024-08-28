@@ -23,7 +23,9 @@ end
     get_branching_variable(
     tree::Bonobo.BnBTree, 
     branching::PSEUDO_COST,
-    node::Bonobo.AbstractNode
+    node::Bonobo.AbstractNode,
+    pseudos::SparseMatrixCSC,
+    branch_tracker::SparseMatrixCSC
 )
 
 Get branching variable using Pseudocost branching after costs have stabilized. 
@@ -43,20 +45,16 @@ function Bonobo.get_branching_variable(
     all_stable = true
     branching_candidates = Int[]# this shall contain the indices of the potential branching variables
     values = Bonobo.get_relaxed_values(tree, node)
-    #branch_counter = []
-    # for idx in Bonobo.get_branching_indices(tree.root)
     for idx in tree.branching_indices
         value = values[idx]
         if !Bonobo.is_approx_feasible(tree, value)
             push!(branching_candidates, idx)
-            #push!(branch_counter, (branch_tracker[idx, 1], branch_tracker[idx, 2]))
-            #push!(branch_counter, idx)
             if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
                 all_stable = false
             end
         end
     end
-    # for entry in branch_counter
+    # for entry in branching_candidates
     #     if !isequal(branch_tracker[entry, 1], branch_tracker[entry, 2])
     #         println("\n",  entry,"\n")
     #     end
@@ -67,10 +65,6 @@ function Bonobo.get_branching_variable(
         idx = node.branched_on
         update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
         update = update / node.distance_to_int
-
-        # if rand() > 0.99
-        #     update += 0.1
-        # end
         if isinf(update)
             @debug "update is $(Inf)"
         end
@@ -115,23 +109,7 @@ function Bonobo.get_branching_variable(
         branching_scores = sparsevec(branching_candidates, branching_scores)
         #display(branching_scores)
         best_idx = argmax(branching_scores)
-        # max_distance_to_feasible = 0.0
-        # best_idx_base = -1
-        # for i in branching_candidates
-        #     value = values[i]
-        #     distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
-        #     if distance_to_feasible > max_distance_to_feasible
-        #         best_idx_base = i
-        #         max_distance_to_feasible = distance_to_feasible
-        #     end
-        # end
-        # if best_idx != best_idx_base
-        #     println(best_idx, best_idx_base)
-        #     println("different branching decision made")
-        # end
 
-        #println(pseudos[best_idx, 1], pseudos[best_idx,2]) 
-        #println(best_idx)     
         return best_idx 
     end
 end
@@ -146,6 +124,145 @@ function update_avg(new_val::Float64, avg::Float64, N::Int)
         return new_val + avg # note that we initialize the pseudo costs with 1 as such we need to shift pseudocosts correspondingly
     end
 end
-#pseudos = Dict{Int,Array{Float64}}(i=>zeros(2) for idx in get_integer_variables(blmo))
 
-#branch_tracker = Dict{Int, Int}(idx-> 0 for idx in get_integer_variables(blmo))
+
+
+
+
+struct HIERARCHY_PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
+    iterations_until_stable::Int
+    gradient_influence::Bool
+    bounded_lmo::BLMO
+    μ::Float64
+    decision_function::String
+end
+
+
+
+
+"""
+    get_branching_variable(
+    tree::Bonobo.BnBTree, 
+    branching::PSEUDO_COST,
+    node::Bonobo.AbstractNode,
+    pseudos::SparseMatrixCSC,
+    branch_tracker::SparseMatrixCSC
+)
+
+Get branching variable using Pseudocost branching after costs have stabilized. 
+Prior to stabilization an adaptation of the Bonobo MOST_INFEASIBLE is used.
+
+"""
+function Bonobo.get_branching_variable(
+    tree::Bonobo.BnBTree, 
+    branching::HIERARCHY_PSEUDO_COST{BLMO},
+    node::Bonobo.AbstractNode,
+    infeasible_tracker::SparseMatrixCSC{Int64, Int64},
+    pseudos::SparseMatrixCSC{Float64, Int64},
+    branch_tracker::SparseMatrixCSC{Int64, Int64},
+    infeas_tracker::SparseMatrixCSC{Int64, Int64},
+) where BLMO <: BoundedLinearMinimizationOracle
+
+    strategy_switch = branching.iterations_until_stable + 1
+    best_idx = -1
+    all_stable = true
+    branching_candidates = Int[]# this shall contain the indices of the potential branching variables
+    values = Bonobo.get_relaxed_values(tree, node)
+    for idx in tree.branching_indices
+        value = values[idx]
+        if !Bonobo.is_approx_feasible(tree, value)
+            push!(branching_candidates, idx)
+        end
+    end
+    # for entry in branching_candidates
+    #     if !isequal(branch_tracker[entry, 1], branch_tracker[entry, 2])
+    #         println("\n",  entry,"\n")
+    #     end
+    #     #break
+    # end
+    if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+        #println("if clause of update")
+        idx = node.branched_on
+        update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
+        update = update / node.distance_to_int
+        if isinf(update)
+            @debug "update is $(Inf)"
+        end
+        if node.branched_right
+            #println(update)  
+            pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
+            branch_tracker[idx, 1] += 1
+        else
+            #println(update)
+            pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
+            branch_tracker[idx, 2] += 1
+
+        end
+        # println("pseudos")
+        #display(pseudos)
+    end
+
+    if length(branching_candidates) == 0 
+        return best_idx
+    elseif length(branching_candidates) == 1
+        best_idx = branch_tracker[1]
+        infeas_tracker[best_idx, 2] += 1
+        return best_idx
+    end
+
+    # compute score of how (often) branching on a variable resulted in infeasiblity
+    best_score = maximum(infeas_score, branching_candidates)
+    
+    branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, branch_tracker, infeas_tracker) == best_score]
+
+    if length(branching_candidates) == 1 
+        best_idx = branching_candidates[1]
+        infeas_tracker[best_idx, 2] += 1
+        return best_idx
+    end
+
+    for idx in branching_candidates
+        if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
+            all_stable = false
+        end
+    end
+    
+
+
+    if !all_stable# THEN Use Most Infeasible
+        max_distance_to_feasible = 0.0
+        for i in branching_candidates
+            value = values[i]
+            distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
+            if distance_to_feasible > max_distance_to_feasible
+                best_idx = i
+                max_distance_to_feasible = distance_to_feasible
+            end
+        end
+        infeas_tracker[best_idx, 2] += 1
+        return best_idx
+    else
+        #println("\npd made\n")
+        if branching.decision_function == "weighted_sum"
+            #println(branching.decision_function)
+            branching_scores = map(idx-> ((1 - branching.μ) * min((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx])) + branching.μ * max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]))),
+                                branching_candidates)
+        
+        elseif branching.decision_function == "product"
+            #println(branching.decision_function)
+            branching_scores = map(idx-> max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), branching.μ) * max((pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]), branching.μ), 
+                                branching_candidates)
+        end
+        branching_scores = sparsevec(branching_candidates, branching_scores)
+        #display(branching_scores)
+        best_idx = argmax(branching_scores)
+
+        infeas_tracker[best_idx, 2] += 1
+        return best_idx
+    end
+end
+
+
+function infeas_score(idx::Int, infeas_tracker::SparseMatrixCSC{Int64, Int64})
+    return  infeas_tracker[idx, 1] / infeas_tracker[idx, 2]# ratio of how often branching on variable idx leads to node infeasiblity of children
+end

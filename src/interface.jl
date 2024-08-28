@@ -295,7 +295,7 @@ function solve(
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
     #the following should create the arrays and vectors only on first function call and then use existing one
-    if isa(branching_strategy, Boscia.PSEUDO_COST)
+    if isa(branching_strategy, Boscia.PSEUDO_COST) || isa(branching_strategy, Boscia.HIERARCHY_PSEUDO_COST) 
         pseudos = sparse(
             repeat(Boscia.get_integer_variables(branching_strategy.bounded_lmo), 2),
             vcat(ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))), 
@@ -306,12 +306,19 @@ function solve(
             vcat(ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))), 
             ones(Int64, 2 * length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))
             )
+        infeas_tracker = sparse(
+            repeat(Boscia.get_integer_variables(branching_strategy.bounded_lmo), 2),
+            vcat(ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))), 
+            ones(Int64, 2 * length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))
+            )
     else
         pseudos = sparse([1], [1], [0.0])
             
         branch_tracker = sparse([1], [1], Int[0])
+
+        infeas_tracker = sparse([1], [1], Int[0])
     end 
-    Bonobo.optimize!(tree, pseudos, branch_tracker; callback=bnb_callback)
+    Bonobo.optimize!(tree, pseudos, branch_tracker, infeas_tracker; callback=bnb_callback)
 
     x = postsolve(tree, result, time_ref, verbose, max_iteration_post)
 
