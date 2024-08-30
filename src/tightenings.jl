@@ -181,62 +181,158 @@ function global_tightening(tree, node)
 end
 
 """
-Tighten the lower bound using strong convexity of the objective.
+Tighten the lower bound using strong convexity and/or sharpness of the objective.
 """
-function tightening_strong_convexity(tree, x, lower_bound)
+function tightening_lowerbound(tree, node, x, lower_bound)
     μ = tree.root.options[:strong_convexity]
-    if μ > 0
-        @debug "Using strong convexity $μ"
-        strong_convexity_bound = lower_bound
+    M = tree.root.options[:sharpness_constant]
+    θ = tree.root.options[:sharpness_exponent]
+
+    if μ > 0 || (M > 0 && θ != Inf)
+        @debug "Tightening lower bound using strong convexity $μ and/or sharpness ($θ, $M)"
         num_fractional = 0
+        bound_improvement = 0.0
         for j in tree.root.problem.integer_variables
             if x[j] > floor(x[j]) + 1e-6 && x[j] < ceil(x[j]) - 1e-6
                 num_fractional += 1
-                new_left_increment = μ / 2 * (x[j] - floor(x[j]))^2
-                new_right_increment = μ / 2 * (ceil(x[j]) - x[j])^2
+                new_left_increment = (x[j] - floor(x[j]))^2
+                new_right_increment = (ceil(x[j]) - x[j])^2
                 new_increment = min(new_left_increment, new_right_increment)
-                strong_convexity_bound += new_increment
+                bound_improvement += new_increment
             end
         end
-        @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-        @assert num_fractional == 0 || strong_convexity_bound > lower_bound
-        lower_bound = strong_convexity_bound
+        strong_convexity_bound = -Inf
+        sharpness_bound = -Inf
+
+        # strong convexity
+        if μ > 0 
+            @debug "Using strong convexity $μ"
+            strong_convexity = lower_bound + μ / 2 * bound_improvement
+            @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
+            @assert num_fractional == 0 || strong_convexity_bound > lower_bound
+        end
+
+        # sharpness
+        if M > 0 && θ != Inf
+
+            @debug "Using sharpness θ=$θ and M=$M"
+            fx = tree.root.problem.f(x)
+
+            # build the root LMO
+            free_model(tree.root.problem.tlmo.blmo)
+            build_LMO(
+                tree.root.problem.tlmo,
+                tree.root.problem.integer_variable_bounds,
+                IntegerBounds(),
+                tree.root.problem.integer_variables,
+            )
+
+            gradient = zeros(tree.root.problem.nvars)
+            tree.root.problem.g(gradient, x)
+            v = compute_extreme_point(tree.root.problem.tlmo, gradient)
+            root_dual_gap = FrankWolfe.fast_dot(gradient, x) - FrankWolfe.fast_dot(gradient, v)
+
+            free_model(tree.root.problem.tlmo.blmo)
+            build_LMO(
+                tree.root.problem.tlmo,
+                tree.root.problem.integer_variable_bounds,
+                node.local_bounds,
+                tree.root.problem.integer_variables,
+            )
+
+            sharpness_bound = M^(- 1 / θ) * (sqrt(bound_improvement) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            @debug "Sharpness: $lower_bound -> $sharpness_bound"
+            @assert num_fractional == 0 || sharpness_bound > lower_bound
+        end
+
+        lower_bound = max(strong_convexity_bound, sharpness_bound)
     end
     return lower_bound
 end
 
 """
-Use strong convexity to potentially remove one of the children nodes 
+Use strong convexity and/or sharpness to potentially remove one of the children nodes 
 """
 function prune_children(tree, node, lower_bound_base, x, vidx)
     prune_left = false
     prune_right = false
 
     μ = tree.root.options[:strong_convexity]
-    if μ > 0
-        @debug "Using strong convexity $μ"
+    M = tree.root.options[:sharpness_constant]
+    θ = tree.root.options[:sharpness_exponent]
+
+    strong_convexity_bound
+
+    if μ > 0 || (M > 0 && θ != Inf)
+        bound_improvement = 0.0
         for j in tree.root.problem.integer_variables
             if vidx == j
                 continue
             end
-            lower_bound_base += μ / 2 * min((x[j] - floor(x[j]))^2, (ceil(x[j]) - x[j])^2)
+            bound_improvement += min((x[j] - floor(x[j]))^2, (ceil(x[j]) - x[j])^2)
         end
-        new_bound_left = lower_bound_base + μ / 2 * (x[vidx] - floor(x[vidx]))^2
-        new_bound_right = lower_bound_base + μ / 2 * (ceil(x[vidx]) - x[vidx])^2
-        if new_bound_left > tree.incumbent
-            @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
-            prune_left = true
-        end
-        if new_bound_right > tree.incumbent
-            @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
-            prune_right = true
-        end
-        @assert !(
-            (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
-            (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
-        ) "both sides should not be pruned"
-    end
+        new_bound_left = bound_improvement + (x[vidx] - floor(x[vidx]))^2
+        new_bound_right = bound_improvement + (ceil(x[vidx]) - x[vidx])^2
 
+        # strong convexity
+        if μ > 0
+            new_bound_left = lower_bound_base + μ / 2 * new_bound_left
+            new_bound_right = lower_bound_base + μ / 2 * new_bound_right
+
+            if new_bound_left > tree.incumbent
+                @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
+                prune_left = true
+            end
+            if new_bound_right > tree.incumbent
+                @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
+                prune_right = true
+            end
+            @assert !(
+                (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
+                (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
+            ) 
+        # sharpness
+        elseif M > 0 && θ != Inf
+            x = tree.root.problem.f(x)
+            # build the root LMO
+            free_model(tree.root.problem.tlmo.blmo)
+            build_LMO(
+                tree.root.problem.tlmo,
+                tree.root.problem.integer_variable_bounds,
+                IntegerBounds(),
+                tree.root.problem.integer_variables,
+            )
+            gradient = zeros(tree.root.problem.nvars)
+            tree.root.problem.g(gradient, x)
+            v = compute_extreme_point(tree.root.problem.tlmo, gradient)
+            root_dual_gap = FrankWolfe.fast_dot(gradient, x) - FrankWolfe.fast_dot(gradient, v)
+
+            free_model(tree.root.problem.tlmo.blmo)
+            build_LMO(
+                tree.root.problem.tlmo,
+                tree.root.problem.integer_variable_bounds,
+                node.local_bounds,
+                tree.root.problem.integer_variables,
+            )
+
+            new_bound_left = M^(- 1 / θ) * (sqrt(new_bound_left) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            new_bound_right = M^(- 1 / θ) * (sqrt(new_bound_right) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+
+            if new_bound_left > tree.incumbent
+                @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
+                prune_left = true
+            end
+            if new_bound_right > tree.incumbent
+                @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
+                prune_right = true
+            end
+            @assert !(
+                (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
+                (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
+            ) 
+        end
+    end
+   
     # If both nodes are pruned, when one of them has to be equal to the incumbent.
     # Thus, we have proof of optimality by strong convexity.
     if prune_left && prune_right

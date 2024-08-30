@@ -267,7 +267,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     lower_bound = primal - dual_gap
     # improvement of the lower bound using strong convexity
-    lower_bound = tightening_strong_convexity(tree, x, lower_bound)
+    lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
 
     # Found an upper bound
     if is_integer_feasible(tree, x)
