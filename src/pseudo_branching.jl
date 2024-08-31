@@ -277,3 +277,43 @@ function max_infeas_score(idxs::Vector{Int64}, infeas_tracker::SparseMatrixCSC{I
 
     return max_score
 end
+
+"""
+    Largest_Gradient <: AbstractBranchStrategy
+
+The `LARGEST GRADIENT` strategy always picks the variable which has the largest absolute value entry in the current gradient and can be branched on.
+"""
+struct LARGEST_GRADIENT <: Bonobo.AbstractBranchStrategy end
+
+
+"""
+    get_branching_variable(
+    tree::Bonobo.BnBTree, 
+    node::Bonobo.AbstractNode
+)
+
+Get branching variable using Largest_Gradient branching 
+
+"""
+function Bonobo.get_branching_variable(
+    tree::Bonobo.BnBTree, 
+    branching::LARGEST_GRADIENT,
+    node::Bonobo.AbstractNode,
+) 
+
+    values = Bonobo.get_relaxed_values(tree, node)
+    nabla = similar(values)
+    x_new = copy(values)
+    gradiant_at_values = tree.root.problem.g(nabla,x_new)
+    best_idx = -1
+    max_gradient = 0.0
+    for i in tree.branching_indices
+        value = values[i]
+        if !Bonobo.is_approx_feasible(tree, value)
+            if abs(gradiant_at_values[i]) > max_gradient
+                best_idx = i
+            end
+        end
+    end
+    return best_idx
+end
