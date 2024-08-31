@@ -8,6 +8,9 @@ import Bonobo
 using Printf
 using Dates
 using MathOptInterface
+using SparseArrays
+using CSV
+using DataFrames
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
@@ -23,6 +26,7 @@ include("callbacks.jl")
 include("problem.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
+include("pseudo_branching.jl")
 include("utilities.jl")
 include("interface.jl")
 include("managed_blmo.jl")
