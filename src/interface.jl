@@ -43,6 +43,8 @@ dual_tightening        - whether to use dual tightening techniques (make sure yo
 global_dual_tightening - dual tightening maintained globally valid (when new solutions are found)
 bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
 strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
+sharpness_constant     - the constant M > 0 for (θ, M)-sharpness.
+sharpness_exponent     - the exponent θ ∈ [0, 1/2] for (θ, M)-sharpness.
 domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
                          In case of the non trivial domain oracle, the starting point has to be feasible for f. Also, depending 
                          on the Line Search method, you might have to provide the domain oracle to it, too.
@@ -83,6 +85,8 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
+    sharpness_constant = 0.0,
+    sharpness_exponent = Inf,
     domain_oracle=x -> true,
     start_solution=nothing,
     fw_verbose=false,
@@ -196,6 +200,8 @@ function solve(
                 :max_fw_iter => max_fw_iter,
                 :print_iter => print_iter,
                 :strong_convexity => strong_convexity,
+                :sharpness_constant => sharpness_constant,
+                :sharpness_exponent => sharpness_exponent,
                 :time_limit => time_limit,
                 :usePostsolve => use_postsolve,
                 :variant => variant,
