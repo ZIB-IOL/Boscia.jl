@@ -240,7 +240,8 @@ function tightening_lowerbound(tree, node, x, lower_bound)
                 tree.root.problem.integer_variables,
             )
 
-            sharpness_bound = M^(- 1 / θ) * (sqrt(bound_improvement) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            #sharpness_bound = M^(- 1 / θ) * (sqrt(bound_improvement) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            sharpness_bound = M^(- 1 / θ) * (sqrt(bound_improvement) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound > lower_bound
         end
@@ -291,7 +292,7 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             ) 
         # sharpness
         elseif M > 0 && θ != Inf
-            x = tree.root.problem.f(x)
+            fx = tree.root.problem.f(x)
             # build the root LMO
             free_model(tree.root.problem.tlmo.blmo)
             build_LMO(
@@ -313,8 +314,11 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
                 tree.root.problem.integer_variables,
             )
 
-            new_bound_left = M^(- 1 / θ) * (sqrt(new_bound_left) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
-            new_bound_right = M^(- 1 / θ) * (sqrt(new_bound_right) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            #new_bound_left = M^(- 1 / θ) * (sqrt(new_bound_left) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+            #new_bound_right = M^(- 1 / θ) * (sqrt(new_bound_right) - M * root_dual_gap^θ)^(1 / θ) + fx - root_dual_gap
+
+            new_bound_left = M^(- 1 / θ) * (sqrt(new_bound_left) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            new_bound_right = M^(- 1 / θ) * (sqrt(new_bound_right) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
 
             if new_bound_left > tree.incumbent
                 @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
