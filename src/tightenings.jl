@@ -201,15 +201,15 @@ function tightening_lowerbound(tree, node, x, lower_bound)
                 bound_improvement += new_increment
             end
         end
-        strong_convexity_bound = -Inf
+        strong_convexity_bound = lower_bound
         sharpness_bound = -Inf
 
         # strong convexity
         if μ > 0 
             @debug "Using strong convexity $μ"
-            strong_convexity = lower_bound + μ / 2 * bound_improvement
+            strong_convexity_bound += μ / 2 * bound_improvement
             @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-            @assert num_fractional == 0 || strong_convexity_bound > lower_bound
+            @assert num_fractional == 0 || strong_convexity_bound > lower_bound 
         end
 
         # sharpness
@@ -260,8 +260,6 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
     μ = tree.root.options[:strong_convexity]
     M = tree.root.options[:sharpness_constant]
     θ = tree.root.options[:sharpness_exponent]
-
-    strong_convexity_bound
 
     if μ > 0 || (M > 0 && θ != Inf)
         bound_improvement = 0.0
