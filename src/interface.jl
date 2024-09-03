@@ -209,6 +209,7 @@ function solve(
                 :heuristics => heuristics, 
                 :heu_ncalls => 0,
             ),
+            result=Dict{Symbol,Any}(),
         ),
         branch_strategy=branching_strategy,
         dual_gap_limit=rel_dual_gap,
@@ -258,7 +259,6 @@ function solve(
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
     node_level = Int[]
-    result = Dict{Symbol,Any}()
     lmo_calls_per_layer = Vector{Vector{Int}}()
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
@@ -279,7 +279,7 @@ function solve(
         fw_iterations,
         list_active_set_size_cb,
         list_discarded_set_size_cb,
-        result,
+        tree.root.result,
         lmo_calls_per_layer,
         active_set_size_per_layer,
         discarded_set_size_per_layer,
@@ -299,7 +299,7 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, result, time_ref, verbose, max_iteration_post)
+    x = postsolve(tree, tree.root.result, time_ref, verbose, max_iteration_post)
 
     # Check solution and polish
     x_polished = x
@@ -322,7 +322,7 @@ function solve(
     end
     println() # cleaner output
 
-    return x, tree.root.problem.tlmo, result
+    return x, tree.root.problem.tlmo, tree.root.result
 end
 
 """
