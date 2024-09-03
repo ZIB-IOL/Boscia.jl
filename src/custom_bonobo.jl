@@ -76,7 +76,7 @@ function Bonobo.optimize!(
         callback(tree, node)
     end
     # To make sure that we collect the statistics in case the time limit is crashed.
-    if haskey(tree.root.result, :global_tightenings)
+    if !haskey(tree.root.result, :global_tightenings)
         y = Bonobo.get_solution(tree)
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(y)[], 1)
         dummy_node = FrankWolfeNode(
