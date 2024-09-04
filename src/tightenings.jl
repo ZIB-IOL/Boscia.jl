@@ -218,7 +218,7 @@ function tightening_lowerbound(tree, node, x, lower_bound)
             @debug "Using sharpness θ=$θ and M=$M"
             fx = tree.root.problem.f(x)
 
-            sharpness_bound = M^(- 1 / θ) * (sqrt(bound_improvement) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound > lower_bound
         end
@@ -271,8 +271,8 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
         elseif M > 0 && θ != Inf
             fx = tree.root.problem.f(x)
 
-            new_bound_left = M^(- 1 / θ) * (sqrt(new_bound_left) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
-            new_bound_right = M^(- 1 / θ) * (sqrt(new_bound_right) - M * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            new_bound_left = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_left) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            new_bound_right = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_right) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
 
             if new_bound_left > tree.incumbent
                 @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
