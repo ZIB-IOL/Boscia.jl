@@ -106,10 +106,7 @@ function add_new_solution!(
     origin::Symbol,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V},T<:Real}
     sol = FrankWolfeSolution(objective, solution, node, origin)
-    sol.solution[tree.root.problem.integer_variables] .= round.(sol.solution[tree.root.problem.integer_variables])
-
-    x, objective = clean_solution(tree, solution, node)
-    sol.solution = x
+    sol.solution = solution
     sol.objective = objective
 
     push!(tree.solutions, sol)
@@ -134,49 +131,3 @@ function Bonobo.get_solution(
     return tree.solutions[result].solution
 end
 
-"""
-Clean up new solutions. Especially useful, if the integer variables are used in Indicator constraints etc.
-"""
-function clean_solution(tree, solution, node)
-    x = solution
-    primal = tree.root.problem.f(x)
-
-    if tree.root.options[:clean_solutions]
-        println("Clean solutions")
-        fix_bounds = IntegerBounds()
-        for i in tree.root.problem.integer_variables
-            push!(fix_bounds, (i => round(solution[i])), :lessthan)
-            push!(fix_bounds, (i => round(solution[i])), :greaterthan)
-        end
-
-        free_model(tree.root.problem.tlmo.blmo)
-        build_LMO(
-            tree.root.problem.tlmo,
-            tree.root.problem.integer_variable_bounds,
-            fix_bounds,
-            tree.root.problem.integer_variables,
-        )
-        # Postprocessing
-        direction = ones(length(solution))
-        v = compute_extreme_point(tree.root.problem.tlmo, direction)
-        active_set = FrankWolfe.ActiveSet([(1.0, v)])
-        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
-            tree.root.problem.f,
-            tree.root.problem.g,
-            tree.root.problem.tlmo,
-            active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
-            lazy=true,
-            max_iteration=tree.root.options[:max_clean_iter],
-        )
-        free_model(tree.root.problem.tlmo.blmo)
-        build_LMO(
-            tree.root.problem.tlmo,
-            tree.root.problem.integer_variable_bounds,
-            node.local_bounds,
-            tree.root.problem.integer_variables,
-        )
-    end
-
-    return x, primal
-end
