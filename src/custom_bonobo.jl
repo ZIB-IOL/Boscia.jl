@@ -30,7 +30,6 @@ function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode};
     callback=(args...; kwargs...) -> (),
 )
-    #println("OWN OPTIMIZE")
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         lb, ub = Bonobo.evaluate_node!(tree, node)
@@ -84,8 +83,6 @@ function Bonobo.update_best_solution!(
 )
     isinf(node.ub) && return false
     node.ub >= tree.incumbent && return false
-    @show node.ub, tree.incumbent
-    #tree.incumbent = node.ub
 
     Bonobo.add_new_solution!(tree, node)
     return true
