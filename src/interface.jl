@@ -44,6 +44,9 @@ global_dual_tightening - dual tightening maintained globally valid (when new sol
 bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
 strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
 sharpness_constant     - the constant M > 0 for (θ, M)-sharpness.
+                         f is (θ, M)-sharpness: f satisfies
+                         min_{x* ∈ X*} || x - x* || ≤ M (f(x) - f*)
+                         where X* is the set minimizer of f. 
 sharpness_exponent     - the exponent θ ∈ [0, 1/2] for (θ, M)-sharpness.
 domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
                          In case of the non trivial domain oracle, the starting point has to be feasible for f. Also, depending 
