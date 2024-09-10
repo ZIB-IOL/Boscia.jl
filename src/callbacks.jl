@@ -2,7 +2,7 @@
 Frank-Wolfe Callback.
 
 Is called in every Frank-Wolfe iteration.
-Node evaluation can be dymamically stopped here.
+Node evaluation can be dynamically stopped here.
 Time limit is checked.
 If the vertex is providing a better incumbent, it is added as solution.
 """
