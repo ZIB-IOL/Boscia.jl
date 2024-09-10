@@ -106,8 +106,7 @@ end
 Branch-and-Bound Callback.
 Collects statistics and prints logs if verbose is turned on.
 
-Output of Boscia
-
+Output of Boscia:
     iter :          current iteration of Boscia
     node id :       current node id
     lower bound :   tree_lb(tree)
