@@ -161,15 +161,18 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domain_oracle]
 
-    nodes = if !prune_left && !prune_right
+    domain_right = domain_oracle(x_right)
+    domain_left = domain_oracle(x_left)
+
+    nodes = if !prune_left && !prune_right && domain_right && domain_left
         [node_info_left, node_info_right]
     elseif prune_left
         [node_info_right]
     elseif prune_right
         [node_info_left]
-    elseif domain_oracle(x_right)
+    elseif domain_right #domain_oracle(x_right)
         [node_info_right]
-    elseif domain_oracle(x_left)
+    elseif domain_left #domain_oracle(x_left)
         [node_info_left]
     else
         warn("No childern nodes can be created.")
