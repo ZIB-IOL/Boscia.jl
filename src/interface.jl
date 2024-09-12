@@ -58,7 +58,15 @@ use_shadow_set         - The shadow set is the set of discarded vertices which i
                         performance might improve by disabling this option. 
 custom_heuristics      - List of  custom heuristic from the user.    
 prob_rounding          - The probability for calling the rounding heuristics. Since the feasibility has to be checked, it might
-                        expensive to do this for every node.                    
+                        expensive to do this for every node. 
+clean_solutions        - Flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
+max_clean_iter         - Maximum number of iteration in the Frank-Wolfe call for polishing new solutions.
+                            
+Returns
+
+- x - the solution.
+- tlmo - the blmo wrapped in a TimeTrackingLMO instance.
+- result - dictionary containg the statistics and information for plotting progress plots.
 """
 function solve(
     f,
@@ -96,6 +104,8 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0,
+    clean_solutions=false, 
+    max_clean_iter=10,
     kwargs...,
 )
     if verbose
@@ -211,6 +221,8 @@ function solve(
                 :use_shadow_set => use_shadow_set,
                 :heuristics => heuristics, 
                 :heu_ncalls => 0,
+                :max_clean_iter => max_clean_iter,
+                :clean_solutions => clean_solutions,
             ),
             result=Dict{Symbol,Any}(),
         ),
@@ -244,12 +256,7 @@ function solve(
         @assert is_linear_feasible(blmo, start_solution) &&
                 is_integer_feasible(tree, start_solution)
         node = tree.nodes[1]
-        sol = FrankWolfeSolution(f(start_solution), start_solution, node, :start)
-        push!(tree.solutions, sol)
-        if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
-            tree.incumbent_solution = sol
-            tree.incumbent = sol.objective
-        end
+        add_new_solution!(tree, node, f(start_solution), start_solution, :start)
     end
 
     # build callbacks

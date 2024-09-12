@@ -27,7 +27,11 @@ function build_FW_callback(
                 @info "$(state.v)"
                 check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
                 @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
-            end
+            end  
+            if state.step_type != FrankWolfe.ST_SIMPLEXDESCENT && !is_integer_feasible(tree, state.v)
+                @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
+                @assert is_integer_feasible(tree, state.v)
+            end    
         end
         push!(fw_iterations, state.t)
 
@@ -41,15 +45,8 @@ function build_FW_callback(
                     tree.root.options[:domain_oracle],
                 )
                 if best_val < tree.incumbent
-                    tree.root.updated_incumbent[] = true
                     node = tree.nodes[tree.root.current_node_id[]]
-                    sol = FrankWolfeSolution(best_val, best_v, node, :Solver)
-                    push!(tree.solutions, sol)
-                    if tree.incumbent_solution === nothing ||
-                       sol.objective < tree.incumbent_solution.objective
-                        tree.incumbent_solution = sol
-                    end
-                    tree.incumbent = best_val
+                    add_new_solution!(tree, node, best_val, best_v, :Solver)
                     Bonobo.bound!(tree, node.id)
                 end
             end
@@ -61,19 +58,12 @@ function build_FW_callback(
             return false
         end
 
-        if tree.root.options[:domain_oracle](state.v)
+        if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
             val = tree.root.problem.f(state.v)
             if val < tree.incumbent
-                tree.root.updated_incumbent[] = true
                 #TODO: update solution without adding node
                 node = tree.nodes[tree.root.current_node_id[]]
-                sol = FrankWolfeSolution(val, copy(state.v), node, :vertex)
-                push!(tree.solutions, sol)
-                if tree.incumbent_solution === nothing ||
-                   sol.objective < tree.incumbent_solution.objective
-                    tree.incumbent_solution = sol
-                end
-                tree.incumbent = val
+                add_new_solution!(tree, node, val, copy(state.v), :vertex)
                 Bonobo.bound!(tree, node.id)
             end
         end
