@@ -172,6 +172,36 @@ function linearly_independent_rows(A)
     return S # then x= zeros(m) and x[S] = 1
 end
 
+function add_to_min(x, u)
+    perm = sortperm(x)
+    j = findfirst(x->x != 0, x[perm])
+    
+    for i in j:length(x)
+        if x[perm[i]] < u[perm[i]]
+            x[perm[i]] += 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+
+function remove_from_max(x)
+    perm = sortperm(x, rev = true)
+    j = findlast(x->x != 0, x[perm])
+    
+    for i in 1:j
+        if x[perm[i]] > 1
+            x[perm[i]] -= 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+
 """
 Build start point used in FrankWolfe and Boscia for the A-Optimal and D-Optimal Design Problem.
 The functions are self concordant and so not every point in the feasible region
@@ -180,7 +210,7 @@ is in the domain of f and grad!.
 function build_start_point(A, N, ub)
     # Get n linearly independent rows of A
     m, n = size(A)
-    S = linearly_independent_rows(A,m,n)
+    S = linearly_independent_rows(A)
     @assert length(S) == n
     
     x = zeros(m)
@@ -215,7 +245,7 @@ Create first incumbent for Boscia and custom BB in a greedy fashion.
 function greedy_incumbent(A, N, ub)
     # Get n linearly independent rows of A
     m, n = size(A)
-    S = linearly_independent_rows(A,m,n)
+    S = linearly_independent_rows(A)
     @assert length(S) == n
 
     # set entries to their upper bound
@@ -250,6 +280,6 @@ function build_domain_oracle(A, n)
     return function domain_oracle(x)
         S = findall(x-> !iszero(x),x)
         #@show rank(A[S,:]) == n
-        return size(S) >= n && rank(A[S,:]) == n 
+        return length(S) >= n && rank(A[S,:]) == n 
     end
 end
