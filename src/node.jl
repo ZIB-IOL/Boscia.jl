@@ -175,7 +175,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     elseif domain_left #domain_oracle(x_left)
         [node_info_left]
     else
-        warn("No childern nodes can be created.")
+        @warn "No childern nodes can be created."
     end
     return nodes
 end
