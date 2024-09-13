@@ -40,7 +40,7 @@ include("oed_utils.jl")
 """
 
 seed = 1234
-m = 50
+m = 100
 verbose = true
 
 ## A-Optimal Design Problem
@@ -58,8 +58,9 @@ f, grad! = build_a_criterion(A, build_safe=true)
 blmo = build_blmo(m, N, ub)
 x0, active_set = build_start_point(A, N, ub)
 z = greedy_incumbent(A, N, ub)
+domain_oracle = build_domain_oracle(A, n)
 
-x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M) 
+x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle) 
 
 f, grad! = build_a_criterion(A, build_safe=false)
 blmo = build_blmo(m, N, ub)
@@ -67,7 +68,7 @@ x0, active_set = build_start_point(A, N, ub)
 z = greedy_incumbent(A, N, ub)
 domain_oracle = build_domain_oracle(A, n)
 
-x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M)
+x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
 
 
 ## D-Optimal Design Problem
@@ -85,8 +86,11 @@ f, grad! = build_d_criterion(A, build_safe=true)
 blmo = build_blmo(m, N, ub)
 x0, active_set = build_start_point(A, N, ub)
 z = greedy_incumbent(A, N, ub)
+domain_oracle = build_domain_oracle(A, n)
 
-x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M)
+x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
+
+A, n, N, ub = build_data(seed, m)
 
 f, grad! = build_d_criterion(A, build_safe=false)
 blmo = build_blmo(m, N, ub)
@@ -94,5 +98,4 @@ x0, active_set = build_start_point(A, N, ub)
 z = greedy_incumbent(A, N, ub)
 domain_oracle = build_domain_oracle(A, n)
 
-x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, fw_verbose=true)
-
+x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)

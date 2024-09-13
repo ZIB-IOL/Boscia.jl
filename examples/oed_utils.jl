@@ -105,7 +105,7 @@ a domain oracle as an input like Secant or MonotonicGenericStepSize.
 """
 function build_d_criterion(A; μ =0.0, build_safe=false)
     m, n = size(A)
-    a = m
+    a = 1#m
     domain_oracle = build_domain_oracle(A, n)
 
     function f_d(x)
@@ -275,11 +275,21 @@ end
 """
 Check if given point is in the domain of f, i.e. X = transpose(A) * diagm(x) * A 
 positive definite.
+
+(a) Check the rank of A restricted to the rows activated by x.
+(b) Check if the resulting information matrix A' * diagm(x) * A is psd.
+
+(b) is a bit faster for smaller dimensions (< 100). For larger (> 200) (a) is faster.
 """
 function build_domain_oracle(A, n)
     return function domain_oracle(x)
         S = findall(x-> !iszero(x),x)
-        #@show rank(A[S,:]) == n
         return length(S) >= n && rank(A[S,:]) == n 
     end
+end
+
+function build_domain_oracle2(A)
+    return function domain_oracle2(x)
+        return isposdef(Symmetric(A' * diagm(x) * A))
+    end 
 end
