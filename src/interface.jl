@@ -159,8 +159,8 @@ function solve(
         for a in active_set.atoms
             @assert is_linear_feasible(blmo, a)
         end
-        v = active_set.atoms[1]
         x = FrankWolfe.compute_active_set_iterate!(active_set)
+        v = x
         @assert isfinite(f(x))
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
