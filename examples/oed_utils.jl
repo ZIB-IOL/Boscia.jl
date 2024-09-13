@@ -119,7 +119,7 @@ function build_d_criterion(A; μ =0.0, build_safe=false)
         X = Symmetric(X)
         F = cholesky(X) 
         for i in 1:length(x)        
-            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) * 1/γ
+            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) 
         end
         return storage
     end
@@ -141,7 +141,7 @@ function build_d_criterion(A; μ =0.0, build_safe=false)
         X = Symmetric(X)
         F = cholesky(X) 
         for i in 1:length(x)        
-            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) * 1/γ
+            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) 
         end
         # https://stackoverflow.com/questions/46417005/exclude-elements-of-array-based-on-index-julia
         return storage
