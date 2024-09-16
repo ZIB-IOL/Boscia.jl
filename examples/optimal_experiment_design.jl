@@ -45,57 +45,57 @@ verbose = true
 
 ## A-Optimal Design Problem
 
-A, n, N, ub = build_data(seed, m)
+Ex_mat, n, N, ub = build_data(seed, m)
 
 # sharpness constants
-σ = minimum(A' * A)
-a = maximum(ub) * maximum([norm(A[i,:])^2 for i=1:size(A,1)])
+σ = minimum(Ex_mat' * Ex_mat)
+a = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
 θ = 1/2
 M = n * σ^4 / a^2
 
 
-f, grad! = build_a_criterion(A, build_safe=true)
+f, grad! = build_a_criterion(Ex_mat, build_safe=true)
 blmo = build_blmo(m, N, ub)
-x0, active_set = build_start_point(A, N, ub)
-z = greedy_incumbent(A, N, ub)
-domain_oracle = build_domain_oracle(A, n)
+x0, active_set = build_start_point(Ex_mat, N, ub)
+z = greedy_incumbent(Ex_mat, N, ub)
+domain_oracle = build_domain_oracle(Ex_mat, n)
 
 x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle) 
 
-f, grad! = build_a_criterion(A, build_safe=false)
+f, grad! = build_a_criterion(Ex_mat, build_safe=false)
 blmo = build_blmo(m, N, ub)
-x0, active_set = build_start_point(A, N, ub)
-z = greedy_incumbent(A, N, ub)
-domain_oracle = build_domain_oracle(A, n)
+x0, active_set = build_start_point(Ex_mat, N, ub)
+z = greedy_incumbent(Ex_mat, N, ub)
+domain_oracle = build_domain_oracle(Ex_mat, n)
 
 x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
 
 
 ## D-Optimal Design Problem
 
-A, n, N, ub = build_data(seed, m)
+Ex_mat, n, N, ub = build_data(seed, m)
 
 # sharpness constants
-σ = minimum(A' * A)
-a = maximum(ub) * maximum([norm(A[i,:])^2 for i=1:size(A,1)])
+σ = minimum(Ex_mat' * Ex_mat)
+a = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
 θ = 1/2
 M = n * σ^4 / (2 * a^2)
 
 
-f, grad! = build_d_criterion(A, build_safe=true)
+f, grad! = build_d_criterion(Ex_mat, build_safe=true)
 blmo = build_blmo(m, N, ub)
-x0, active_set = build_start_point(A, N, ub)
-z = greedy_incumbent(A, N, ub)
-domain_oracle = build_domain_oracle(A, n)
+x0, active_set = build_start_point(Ex_mat, N, ub)
+z = greedy_incumbent(Ex_mat, N, ub)
+domain_oracle = build_domain_oracle(Ex_mat, n)
 
 x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
 
-A, n, N, ub = build_data(seed, m)
+Ex_mat, n, N, ub = build_data(seed, m)
 
-f, grad! = build_d_criterion(A, build_safe=false)
+f, grad! = build_d_criterion(Ex_mat, build_safe=false)
 blmo = build_blmo(m, N, ub)
-x0, active_set = build_start_point(A, N, ub)
-z = greedy_incumbent(A, N, ub)
-domain_oracle = build_domain_oracle(A, n)
+x0, active_set = build_start_point(Ex_mat, N, ub)
+z = greedy_incumbent(Ex_mat, N, ub)
+domain_oracle = build_domain_oracle(Ex_mat, n)
 
 x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
