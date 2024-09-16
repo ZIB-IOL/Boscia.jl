@@ -11,11 +11,6 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
-seed = rand(UInt64)
-seed = 0x61746adc8587896d
-@show seed
-Random.seed!(seed)
-
 n = 20
 x_sol = rand(1:floor(Int, n/4), n)
 N = sum(x_sol)
