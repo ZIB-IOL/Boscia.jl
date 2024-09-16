@@ -49,9 +49,9 @@ Ex_mat, n, N, ub = build_data(seed, m)
 
 # sharpness constants
 σ = minimum(Ex_mat' * Ex_mat)
-a = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
+λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
 θ = 1/2
-M = n * σ^4 / a^2
+M = n * σ^4 / λ_max^2
 
 
 f, grad! = build_a_criterion(Ex_mat, build_safe=true)
@@ -77,9 +77,9 @@ Ex_mat, n, N, ub = build_data(seed, m)
 
 # sharpness constants
 σ = minimum(Ex_mat' * Ex_mat)
-a = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
+λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
 θ = 1/2
-M = n * σ^4 / (2 * a^2)
+M = n * σ^4 / (2 * λ_max^2)
 
 
 f, grad! = build_d_criterion(Ex_mat, build_safe=true)
