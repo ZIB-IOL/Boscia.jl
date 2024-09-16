@@ -11,6 +11,11 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
+seed = rand(UInt64)
+seed = 0x61746adc8587896d
+@show seed
+Random.seed!(seed)
+
 n = 20
 x_sol = rand(1:floor(Int, n/4), n)
 N = sum(x_sol)
@@ -159,7 +164,7 @@ diffi = x_sol + 0.3 * dir
     heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0, verbose=true)
 
     @test f(x) ≥ f(x_sol)
     if isapprox(sum(x_sol), N)
