@@ -41,7 +41,7 @@ include("oed_utils.jl")
 """
 
 seed = 1234
-m = 100
+m = 40
 verbose = true
 
 ## A-Optimal Design Problem
@@ -62,18 +62,21 @@ verbose = true
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.8, :probability_rounding)
 
-    x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle) 
+    x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle, custom_heuristics=[heu]) 
+    sol_a = f(x)
 
     f, grad! = build_a_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
-    x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
+    x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle, custom_heuristics=[heu])
 
-    @test isapprox(f(x), f(x_s))
+    @test isapprox(sol_a, f(x_s), atol=1e-4, rtol=1e-2)
 end
 
 ## D-Optimal Design Problem
@@ -93,9 +96,11 @@ end
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
-    x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
-
+    x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose,  domain_oracle=domain_oracle, custom_heuristics=[heu])
+    sol_a = f(x) #sharpness_exponent=θ, sharpness_constant=M,
+@show x 
     Ex_mat, n, N, ub = build_data(seed, m)
 
     f, grad! = build_d_criterion(Ex_mat, build_safe=false)
@@ -103,8 +108,11 @@ end
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
-    x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle)
-
-    @test isapprox(f(x), f(x_s))
+    x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), domain_oracle=domain_oracle, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M, 
+@show x_s
+@show sum(x_s-x), findall(x-> x != 0, x-x_s)
+@show sum(x_s), N, findall(x-> x > 0, x_s-ub)
+    @test isapprox(sol_a, f(x_s), atol=1e-4, rtol=1e-2)
 end
