@@ -159,14 +159,11 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         line_search=tree.root.options[:lineSearch],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
-        add_dropped_vertices=tree.root.options[:use_shadow_set],
-        use_extra_vertex_storage=tree.root.options[:use_shadow_set],
-        extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
     )
 
-    @assert sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars]))) == length(tlmo.blmo.int_vars) "$(sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars])))) == $(length(tlmo.blmo.int_vars)) $(x_rounded)"
+    @assert sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars]))) == length(tlmo.blmo.int_vars) "$(sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars])))) == $(length(tlmo.blmo.int_vars)) $(x_rounded[tlmo.blmo.int_vars])"
 
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
