@@ -159,7 +159,7 @@ diffi = x_sol + 0.3 * dir
     heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
     x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0)
+        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, custom_heuristics=[heu], rounding_prob=0.0, verbose=false)
 
     @test f(x) ≥ f(x_sol)
     if isapprox(sum(x_sol), N)

@@ -161,15 +161,18 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
     domain_oracle = tree.root.options[:domain_oracle]
 
-    nodes = if !prune_left && !prune_right
+    domain_right = domain_oracle(x_right)
+    domain_left = domain_oracle(x_left)
+
+    nodes = if !prune_left && !prune_right && domain_right && domain_left
         [node_info_left, node_info_right]
     elseif prune_left
         [node_info_right]
     elseif prune_right
         [node_info_left]
-    elseif domain_oracle(x_right)
+    elseif domain_right # x_right in domain
         [node_info_right]
-    elseif domain_oracle(x_left)
+    elseif domain_left # x_left in domain
         [node_info_left]
     else
         warn("No childern nodes can be created.")
@@ -320,7 +323,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
-        @assert lower_bound <= tree.incumbent + 1e-5 "lower_bound <= tree.incumbent + 1e-5 : $(lower_bound) <= $(tree.incumbent + 1e-5)"
+        @assert lower_bound <= tree.incumbent + node.fw_dual_gap_limit "lower_bound <= tree.incumbent + node.fw_dual_gap_limit : $(lower_bound) <= $(tree.incumbent + node.fw_dual_gap_limit)"
     end
 
     # Call heuristic 
