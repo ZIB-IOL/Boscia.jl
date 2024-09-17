@@ -126,9 +126,6 @@ function update_avg(new_val::Float64, avg::Float64, N::Int)
 end
 
 
-
-
-
 struct HIERARCHY_PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
     gradient_influence::Bool
@@ -136,8 +133,6 @@ struct HIERARCHY_PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.Ab
     μ::Float64
     decision_function::String
 end
-
-
 
 
 """
@@ -201,14 +196,14 @@ function Bonobo.get_branching_variable(
         #display(pseudos)
     end
 
-    println("--- before --- ")
-    display(branching_candidates)
+    #println("--- before --- ")
+    #display(branching_candidates)
     # compute score of how (often) branching on a variable resulted in infeasiblity
     best_score = max_infeas_score(branching_candidates, infeas_tracker)
     
     branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, infeas_tracker) >= best_score]
-    println("--- after --- ")
-    display(branching_candidates)
+    #println("--- after --- ")
+    #display(branching_candidates)
 
     if length(branching_candidates) == 0 
         return best_idx
@@ -227,17 +222,32 @@ function Bonobo.get_branching_variable(
 
 
     if !all_stable# THEN Use Most Infeasible
-        max_distance_to_feasible = 0.0
-        for i in branching_candidates
-            value = values[i]
-            distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
-            if distance_to_feasible > max_distance_to_feasible
-                best_idx = i
-                max_distance_to_feasible = distance_to_feasible
+        if branching.gradient_influence# score function as product of gradient at variable and largest distance to int
+            nabla = similar(values)
+            x_new = copy(values)
+            gradient_at_values = tree.root.problem.g(nabla,x_new)# is this information already computed elsewhere?
+            max_score = 0.0
+            for i in branching_candidates
+                value = values[i] * abs(gradient_at_values[i])
+                if value > max_score
+                    best_idx = i
+                    max_score = value
+                end
             end
+            return best_idx
+        else
+            max_distance_to_feasible = 0.0
+            for i in branching_candidates
+                value = values[i]
+                distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
+                if distance_to_feasible > max_distance_to_feasible
+                    best_idx = i
+                    max_distance_to_feasible = distance_to_feasible
+                end
+            end
+            infeas_tracker[best_idx, 2] += 1
+            return best_idx
         end
-        infeas_tracker[best_idx, 2] += 1
-        return best_idx
     else
         #println("\npd made\n")
         if branching.decision_function == "weighted_sum"
@@ -278,42 +288,3 @@ function max_infeas_score(idxs::Vector{Int64}, infeas_tracker::SparseMatrixCSC{I
     return max_score
 end
 
-"""
-    Largest_Gradient <: AbstractBranchStrategy
-
-The `LARGEST GRADIENT` strategy always picks the variable which has the largest absolute value entry in the current gradient and can be branched on.
-"""
-struct LARGEST_GRADIENT <: Bonobo.AbstractBranchStrategy end
-
-
-"""
-    get_branching_variable(
-    tree::Bonobo.BnBTree, 
-    node::Bonobo.AbstractNode
-)
-
-Get branching variable using Largest_Gradient branching 
-
-"""
-function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
-    branching::LARGEST_GRADIENT,
-    node::Bonobo.AbstractNode,
-) 
-
-    values = Bonobo.get_relaxed_values(tree, node)
-    nabla = similar(values)
-    x_new = copy(values)
-    gradiant_at_values = tree.root.problem.g(nabla,x_new)
-    best_idx = -1
-    max_gradient = 0.0
-    for i in tree.branching_indices
-        value = values[i]
-        if !Bonobo.is_approx_feasible(tree, value)
-            if abs(gradiant_at_values[i]) > max_gradient
-                best_idx = i
-            end
-        end
-    end
-    return best_idx
-end

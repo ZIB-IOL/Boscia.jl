@@ -41,12 +41,7 @@ function Bonobo.optimize!(
         if isnan(lb) && isnan(ub)
             @debug "\n node closed without upd\n"
             if isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
-                idx = node.branched_on
-                if node.branched_right
-                    infeas_tracker[idx, 1] += 1
-                else
-                    infeas_tracker[idx, 2] += 1
-                end
+                infeas_tracker[node.branched_on, 1] += 1
             end
             ## add the nodes which become infeasible to a special storage (yet to be implemented)
             Bonobo.close_node!(tree, node)
