@@ -116,3 +116,7 @@ end
 @show sum(x_s), N, findall(x-> x > 0, x_s-ub)
     @test isapprox(sol_a, f(x_s), atol=1e-4, rtol=1e-2)
 end
+
+# in interface.jl at the polishing solution
+@show x_polished
+        @show findall(x -> x != round.(x), x_polished[tree.root.problem.integer_variables])
