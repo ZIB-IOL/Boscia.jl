@@ -403,7 +403,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             else
                 @info "primal >= tree.incumbent"
                 @assert primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2)
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) "primal <= tree.incumbent + 1e-3 ||
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2): primal=$(primal) and tree.incumbent=$(tree.incumbent)"
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
