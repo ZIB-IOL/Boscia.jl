@@ -220,7 +220,7 @@ function tightening_lowerbound(tree, node, x, lower_bound)
 
             sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
-            @assert num_fractional == 0 || sharpness_bound > lower_bound
+            @assert num_fractional == 0 || sharpness_bound >= lower_bound "$(num_fractional) == 0 || $(sharpness_bound) > $(lower_bound)"
         end
 
         lower_bound = max(strong_convexity_bound, sharpness_bound)
