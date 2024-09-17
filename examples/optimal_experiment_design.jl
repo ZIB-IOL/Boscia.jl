@@ -75,6 +75,8 @@ verbose = true
 
     x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle, custom_heuristics=[heu]) 
 
+    @show x
+    @show x_s
     @test isapprox(f(x), f(x_s), atol=1e-4, rtol=1e-2)
 end
 
@@ -99,7 +101,7 @@ end
 
     x, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose,  domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) 
 
-    Ex_mat, n, N, ub = build_data(seed, m)
+   # Ex_mat, n, N, ub = build_data(seed, m)
 
     f, grad! = build_d_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
@@ -110,6 +112,8 @@ end
 
     x_s, _, result = Boscia.solve(f, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) 
 
+    @show x 
+    @show x_s
     @test isapprox(f(x), f(x_s), atol=1e-4, rtol=1e-2)
 end
 
