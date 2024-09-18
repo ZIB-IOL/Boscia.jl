@@ -1,9 +1,9 @@
 """
-    Largest_Gradient <: AbstractBranchStrategy
+    LargestGradient <: AbstractBranchStrategy
 
-The `LARGEST GRADIENT` strategy always picks the variable which has the largest absolute value entry in the current gradient and can be branched on.
+The `LargestGradient` strategy always picks the variable which has the largest absolute value entry in the current gradient and can be branched on.
 """
-struct LARGEST_GRADIENT <: Bonobo.AbstractBranchStrategy end
+struct LargestGradient <: Bonobo.AbstractBranchStrategy end
 
 
 """
@@ -17,7 +17,7 @@ Get branching variable using Largest_Gradient branching
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree, 
-    branching::LARGEST_GRADIENT,
+    branching::LargestGradient,
     node::Bonobo.AbstractNode,
 ) 
     values = Bonobo.get_relaxed_values(tree, node)
@@ -40,13 +40,13 @@ end
 
 
 """
-    LARGEST_MOST_INFEASIBLE_GRADIENT <: AbstractBranchStrategy
+    LargestMostInfeasibleGradient <: AbstractBranchStrategy
 
-The `LARGEST_MOST_INFEASIBLE_GRADIENT` strategy always picks the variable which has the largest absolute value 
+The `LargestMostInfeasibleGradient` strategy always picks the variable which has the largest absolute value 
 entry in the current gradient multiplied by the maximum distance to being fixed.
 """
 
-struct LARGEST_MOST_INFEASIBLE_GRADIENT <: Bonobo.AbstractBranchStrategy end
+struct LargestMostInfeasibleGradient <: Bonobo.AbstractBranchStrategy end
 
 
 """
@@ -60,7 +60,7 @@ Get branching variable using LARGEST_MOST_INFEASIBLE_GRADIENT branching
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree, 
-    branching::LARGEST_MOST_INFEASIBLE_GRADIENT,
+    branching::LargestMostInfeasibleGradient,
     node::Bonobo.AbstractNode,
 )   
     values = Bonobo.get_relaxed_values(tree, node)
@@ -69,9 +69,10 @@ function Bonobo.get_branching_variable(
     x_new = copy(values)
     gradient_at_values = tree.root.problem.g(nabla,x_new)# is this information already computed elsewhere?
     max_score = 0.0
-    for i in branching_candidates
+    for i in tree.branching_indices
+        value = values[i]
         if !Bonobo.is_approx_feasible(tree, value)
-            value = values[i] * abs(gradient_at_values[i])
+            value *= abs(gradient_at_values[i])
             if value > max_score
                 best_idx = i
                 max_score = value
