@@ -6,10 +6,8 @@ m    - number of experiments.
 fusion - boolean deiciding whether we build the fusion or standard problem.
 corr - boolean deciding whether we build the independent or correlated data.   
 """
-function build_data(seed, m)
+function build_data(m)
     # set up
-    Random.seed!(seed)
-
     n = Int(floor(m/10))
     
     B = rand(m,n)
