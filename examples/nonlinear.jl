@@ -11,10 +11,6 @@ using Dates
 # using SCIP
 # const MOI = MathOptInterface
 
-n = 40
-seed = 10
-
-Random.seed!(seed)
 
 ################################################################
 # alternative implementation of LMO using MOI and SCIP
