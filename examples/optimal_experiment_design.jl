@@ -53,7 +53,7 @@ verbose = true
     σ = minimum(Ex_mat' * Ex_mat)
     λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
     θ = 1/2
-    M = n * σ^4 / λ_max^2
+    M = n * σ^4 / λ_max^3
 
 
     g, grad! = build_a_criterion(Ex_mat, build_safe=true)
@@ -95,7 +95,7 @@ end
     σ = minimum(Ex_mat' * Ex_mat)
     λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
     θ = 1/2
-    M = n * σ^4 / (2 * λ_max^2)
+    M = n * σ^4 / λ_max^2
 
 
     g, grad! = build_d_criterion(Ex_mat, build_safe=true)
