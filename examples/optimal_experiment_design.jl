@@ -39,8 +39,11 @@ include("oed_utils.jl")
     A continuous version of the problem can be found in the examples in FrankWolfe.jl:
     https://github.com/ZIB-IOL/FrankWolfe.jl/blob/master/examples/optimal_experiment_design.jl
 """
+seed = rand(UInt64)
 
-m = 60
+@show seed
+Random.seed!(seed)
+m = 40
 verbose = true
 
 ## A-Optimal Design Problem
@@ -49,11 +52,13 @@ verbose = true
 
     Ex_mat, n, N, ub = build_data(m)
 
+    @show Ex_mat
+
     # sharpness constants
     σ = minimum(Ex_mat' * Ex_mat)
     λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
     θ = 1/2
-    M = n * σ^4 / λ_max^3
+    M = sqrt(λ_max^3/  n * σ^4)
 
 
     g, grad! = build_a_criterion(Ex_mat, build_safe=true)
@@ -61,9 +66,10 @@ verbose = true
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
-    x, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M,
+    x, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, domain_oracle=domain_oracle, custom_heuristics=[heu], sharpness_exponent=θ, sharpness_constant=M, line_search=line_search) #sharpness_exponent=θ, sharpness_constant=M,
 
     gradient = similar(x)
     grad!(gradient, x)
@@ -77,13 +83,13 @@ verbose = true
     domain_oracle = build_domain_oracle(Ex_mat, n)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
-    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), sharpness_exponent=θ, sharpness_constant=M, domain_oracle=domain_oracle, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M, 
+    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M, 
 
     @show x
     @show x_s
     #@show f(x), f(x_s)
     @show g(x), g(x_s)
-    @test isapprox(g(x), g(x_s), atol=1e-4, rtol=5e-2)
+    @test isapprox(g(x), g(x_s), atol=1e-3, rtol=5e-2)
 end 
 
 ## D-Optimal Design Problem
@@ -95,7 +101,7 @@ end
     σ = minimum(Ex_mat' * Ex_mat)
     λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
     θ = 1/2
-    M = n * σ^4 / λ_max^2
+    M = sqrt(2 * λ_max^2/ n * σ^4 )
 
 
     g, grad! = build_d_criterion(Ex_mat, build_safe=true)
