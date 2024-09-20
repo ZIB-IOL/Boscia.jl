@@ -11,10 +11,6 @@ using Dates
 # using SCIP
 # const MOI = MathOptInterface
 
-n = 40
-seed = 10
-
-Random.seed!(seed)
 
 ################################################################
 # alternative implementation of LMO using MOI and SCIP
@@ -113,6 +109,6 @@ heu2 = Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.8, :lmo_rounding)
 heuristics = [heu, heu2]
 # heuristics = []
 
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=500, custom_heuristics=heuristics)
+x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=500, custom_heuristics=heuristics, time_limit=300)
 
 @show x
