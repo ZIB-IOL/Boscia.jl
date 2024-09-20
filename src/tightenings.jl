@@ -229,7 +229,8 @@ function tightening_lowerbound(tree, node, x, lower_bound)
 end
 
 """
-Use strong convexity and/or sharpness to potentially remove one of the children nodes 
+Use strong convexity and/or sharpness to potentially remove one of the children nodes.
+If both sharpness and strong convexity parameters are provided, strong convexity is preferred.
 """
 function prune_children(tree, node, lower_bound_base, x, vidx)
     prune_left = false
