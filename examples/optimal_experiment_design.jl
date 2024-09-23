@@ -52,8 +52,6 @@ verbose = true
 
     Ex_mat, n, N, ub = build_data(m)
 
-    @show Ex_mat
-
     # sharpness constants
     σ = minimum(Ex_mat' * Ex_mat)
     λ_max = maximum(ub) * maximum([norm(Ex_mat[i,:])^2 for i=1:size(Ex_mat,1)])
