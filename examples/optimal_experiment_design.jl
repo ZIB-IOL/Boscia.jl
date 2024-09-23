@@ -64,6 +64,10 @@ verbose = true
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
+    x, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, time_limit=10, verbose=false, domain_oracle=domain_oracle, custom_heuristics=[heu], sharpness_exponent=θ, sharpness_constant=M, line_search=line_search)
+
+    x0, active_set = build_start_point(Ex_mat, N, ub)
+    z = greedy_incumbent(Ex_mat, N, ub)
     x, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, domain_oracle=domain_oracle, custom_heuristics=[heu], sharpness_exponent=θ, sharpness_constant=M, line_search=line_search) #sharpness_exponent=θ, sharpness_constant=M,
 
     gradient = similar(x)
