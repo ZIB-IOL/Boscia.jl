@@ -39,10 +39,7 @@ include("oed_utils.jl")
     A continuous version of the problem can be found in the examples in FrankWolfe.jl:
     https://github.com/ZIB-IOL/FrankWolfe.jl/blob/master/examples/optimal_experiment_design.jl
 """
-seed = rand(UInt64)
 
-@show seed
-Random.seed!(seed)
 m = 40
 verbose = true
 
