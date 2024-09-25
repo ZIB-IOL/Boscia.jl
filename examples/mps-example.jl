@@ -16,10 +16,6 @@ const MOI = MathOptInterface
 # Number of binaries    231
 # Number of constraints 198
 
-seed = rand(UInt64)
-@show seed
-Random.seed!(seed)
-
 src = MOI.FileFormats.Model(filename="22433.mps")
 MOI.read_from_file(src, joinpath(@__DIR__, "mps-examples/mps-files/22433.mps"))
 

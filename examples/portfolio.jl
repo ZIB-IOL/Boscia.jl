@@ -7,10 +7,6 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 
-# seed = 0x946d4b7835e92ffa takes 90 minutes to solve! -> not anymore
-seed = 0x946d4b7835e92ffa
-Random.seed!(seed)
-
 n = 30
 const ri = rand(n)
 const ai = rand(n)

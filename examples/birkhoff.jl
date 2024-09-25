@@ -12,12 +12,6 @@ import HiGHS
 # https://arxiv.org/pdf/2011.02752.pdf
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
 
-# For bug hunting:
-seed = rand(UInt64)
-@show seed
-seed = 0x3eb09305cecf69f0
-Random.seed!(seed)
-
 
 # min_{X, θ} 1/2 * || ∑_{i in [k]} θ_i X_i - Xhat ||^2
 # θ ∈ Δ_k (simplex)

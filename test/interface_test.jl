@@ -117,6 +117,63 @@ end
     end
 end
 
+@testset "Normbox - strong convexity and sharpness" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    @testset "Strong convexity" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        μ = 1.0
+
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, strong_convexity=μ)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+
+    @testset "Sharpness" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        θ = 1/2
+        M = 2.0
+
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, sharpness_constant=M, sharpness_exponent=θ)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+
+    @testset "Strong convexity and sharpness" begin
+        int_vars = collect(1:n)
+        lbs = zeros(n)
+        ubs = ones(n)
+
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        μ = 1.0
+        θ = 1/2
+        M = 2.0
+
+        x, _, result =
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, strong_convexity=μ, sharpness_constant=M, sharpness_exponent=θ)
+
+        @test x == round.(diffi)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+end
+
 @testset "Start with Active Set" begin
 
     function f(x)

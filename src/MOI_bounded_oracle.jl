@@ -693,12 +693,16 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
+    sharpness_constant = 0.0,
+    sharpness_exponent = Inf,
     domain_oracle=x -> true,
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0, 
+    clean_solutions=false, 
+    max_clean_iter=10,
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
@@ -728,12 +732,16 @@ function solve(
         global_dual_tightening=global_dual_tightening,
         bnb_callback=bnb_callback,
         strong_convexity=strong_convexity,
+        sharpness_constant=sharpness_constant,
+        sharpness_exponent=sharpness_exponent,
         domain_oracle=domain_oracle,
         start_solution=start_solution,
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
         custom_heuristics=custom_heuristics,
         rounding_prob=rounding_prob,
+        clean_solutions=clean_solutions,
+        max_clean_iter=max_clean_iter,
         kwargs...,
     )
 end

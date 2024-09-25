@@ -30,15 +30,8 @@ end
 Add a new solution found from the heuristic to the tree.
 """
 function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
-    tree.root.updated_incumbent[] = true
     node = tree.nodes[tree.root.current_node_id[]]
-    sol = FrankWolfeSolution(val, x, node, heuristic_name)
-    push!(tree.solutions, sol)
-    if tree.incumbent_solution === nothing ||
-        sol.objective < tree.incumbent_solution.objective
-        tree.incumbent_solution = sol
-    end
-    tree.incumbent = val
+    add_new_solution!(tree, node, val, x, heuristic_name)
     Bonobo.bound!(tree, node.id)
 end
 
@@ -60,7 +53,7 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                 min_val = Inf
                 min_idx = -1
                 for (i, x_heu) in enumerate(list_x_heu)
-                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : true
+                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : false
                     if feasible
                         val = tree.root.problem.f(x_heu)
                         if val < min_val
@@ -166,12 +159,11 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         line_search=tree.root.options[:lineSearch],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
-        add_dropped_vertices=tree.root.options[:use_shadow_set],
-        use_extra_vertex_storage=tree.root.options[:use_shadow_set],
-        extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
     )
+
+    @assert sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars]))) == length(tlmo.blmo.int_vars) "$(sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars])))) == $(length(tlmo.blmo.int_vars)) $(x_rounded[tlmo.blmo.int_vars])"
 
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)

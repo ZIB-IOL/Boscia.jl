@@ -1,7 +1,7 @@
 name = "Boscia"
 uuid = "36b166db-dac5-4d05-b36a-e6c4cef071c9"
 authors = ["ZIB IOL"]
-version = "0.1.25"
+version = "0.1.29"
 
 [deps]
 Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
@@ -28,7 +28,7 @@ Bonobo = "0.1.3"
 DataStructures = "0.18"
 Dates = "1.6"
 Distributions = "0.25"
-FrankWolfe = "0.2.24, 0.3"
+FrankWolfe = "0.4"
 HiGHS = "1"
 LinearAlgebra = "1.6"
 MathOptInterface = "1"
