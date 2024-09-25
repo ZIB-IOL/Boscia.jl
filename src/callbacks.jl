@@ -131,7 +131,7 @@ function build_FW_callback(
                 return false
             end
 
-            if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
+            if tree.root.options[:domain_oracle](state.v)
                 val = tree.root.problem.f(state.v)
                 if val < tree.incumbent
                     #TODO: update solution without adding node
