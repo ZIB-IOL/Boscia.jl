@@ -4,7 +4,7 @@ Frank-Wolfe variant used to compute the problems at node level.
 A `FrankWolfeVariant` must implement
 ```
 solve_frank_wolfe(fw::FrankWolfeVariant, f, grad!, lmo, active_set, line_search, epsilon, max_iteration,
-    added_dropped_vertices, use_extra_vertex_storage, callback, lazy, timeout, verbose, workspace))
+	added_dropped_vertices, use_extra_vertex_storage, callback, lazy, timeout, verbose, workspace))
 ```
 It may also implement `build_frank_wolfe_workspace(x)` which creates a
 workspace structure that is passed as last argument to `solve_frank_wolfe`.
@@ -15,8 +15,8 @@ abstract type FrankWolfeVariant end
 Base.print(io::IO, fw::FrankWolfeVariant) = print(io, split(string(typeof(fw)), ".")[end])
 
 """
-    solve_frank_wolfe(fw::FrankWolfeVariant, f, grad!, lmo, active_set, line_search, epsilon, max_iteration,
-    added_dropped_vertices, use_extra_vertex_storage, callback, lazy, timeout, verbose, workspace)
+	solve_frank_wolfe(fw::FrankWolfeVariant, f, grad!, lmo, active_set, line_search, epsilon, max_iteration,
+	added_dropped_vertices, use_extra_vertex_storage, callback, lazy, timeout, verbose, workspace)
 
 Returns the optimal solution x to the node problem, its primal and dual gap and the active set. 
 """
@@ -26,7 +26,7 @@ build_frank_wolfe_workspace(::FrankWolfeVariant, x) = nothing
 
 
 """
-    Away-Frank-Wolfe
+	Away-Frank-Wolfe
 
 In every iteration, it computes the worst performing vertex, called away vertex, in the active set with regard to the gradient.
 If enough local progress can be made, weight is shifted from the away vertex to all other vertices. 
@@ -80,7 +80,7 @@ Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 
 
 """
-    Blended Conditional Gradient
+	Blended Conditional Gradient
 """
 struct Blended <: FrankWolfeVariant end
 
@@ -127,7 +127,7 @@ end
 Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
 
 """
-    Blended Pairwise Conditional Gradient
+	Blended Pairwise Conditional Gradient
 """
 struct BPCG <: FrankWolfeVariant end
 
@@ -168,7 +168,6 @@ function solve_frank_wolfe(
         timeout=timeout,
         verbose=verbose,
     )
-
     return x, primal, dual_gap, active_set
 end
 
@@ -202,23 +201,44 @@ function solve_frank_wolfe(
     workspace=nothing,
     pre_computed_set=nothing,
 )
-
-    # We pick a point by averaging the pre_computed_atoms as warm-start.  
-    num_pre_computed_set = length(pre_computed_set)
-    x0 = sum(pre_computed_set) / num_pre_computed_set
-
-    # We keep track of computed extreme points by creating logging callback.
-    function make_callback(pre_computed_set)
-        return function callback(state, args...)
-            if state.tt !== FrankWolfe.last || state.tt !== FrankWolfe.pp
-                push!(pre_computed_set, state.v)
-            end
-            return true
+    if pre_computed_set === nothing
+        # We pick a random point.
+        d = FrankWolfe.get_active_set_iterate(active_set)
+        x0 = FrankWolfe.compute_extreme_point(lmo, d)
+        DICG_callback = callback
+    else
+        if !isempty(pre_computed_set)
+            # We pick a point by averaging the pre_computed_atoms as warm-start.  
+            num_pre_computed_set = length(pre_computed_set)
+            x0 = sum(pre_computed_set) / num_pre_computed_set
+        else
+            # We pick a random point.
+            d = FrankWolfe.get_active_set_iterate(active_set)
+            x0 = FrankWolfe.compute_extreme_point(lmo, d)
         end
+
+        # We keep track of computed extreme points by creating logging callback.
+        function make_callback(pre_computed_set)
+            return function DICG_callback(state, args...)
+                if !callback(state, args...)
+                    return false
+                end
+
+                if state.tt !== FrankWolfe.last || state.tt !== FrankWolfe.pp
+                    idx = findfirst(x -> x == state.v, pre_computed_set)
+
+                    if idx == nothing && length(pre_computed_set) < (length(state.v) + 1)
+                        push!(pre_computed_set, state.v)
+                    end
+
+                end
+
+                return true
+            end
+        end
+        DICG_callback = make_callback(pre_computed_set)
     end
 
-    callback = make_callback(pre_computed_set)
-    
     x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
@@ -232,15 +252,17 @@ function solve_frank_wolfe(
         lazy=lazy,
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
-        callback=callback,
+        callback=DICG_callback,
+        extra_vertex_storage=pre_computed_set,
     )
+
     return x, primal, dual_gap, pre_computed_set
 end
 
 Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
-    Vanilla-Frank-Wolfe
+	Vanilla-Frank-Wolfe
 
 """
 struct VanillaFrankWolfe <: FrankWolfeVariant end
@@ -284,6 +306,7 @@ function solve_frank_wolfe(
         verbose=verbose,
         away_steps=false,
     )
+	return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
