@@ -54,14 +54,8 @@ function Bonobo.get_branching_variable(
             end
         end
     end
-    # for entry in branching_candidates
-    #     if !isequal(branch_tracker[entry, 1], branch_tracker[entry, 2])
-    #         println("\n",  entry,"\n")
-    #     end
-    #     #break
-    # end
-    if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
-        #println("if clause of update")
+    # if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+    if !isinf(node.parent_lower_bound_base)
         idx = node.branched_on
         update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
         update = update / node.distance_to_int
@@ -69,17 +63,13 @@ function Bonobo.get_branching_variable(
             @debug "update is $(Inf)"
         end
         if node.branched_right
-            #println(update)  
             pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
             branch_tracker[idx, 1] += 1
         else
-            #println(update)
             pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
             branch_tracker[idx, 2] += 1
 
         end
-        # println("pseudos")
-        #display(pseudos)
     end
     length(branching_candidates) == 0 && return best_idx
     length(branching_candidates) == 1 && return branching_candidates[1]
@@ -95,19 +85,15 @@ function Bonobo.get_branching_variable(
         end
         return best_idx
     else
-        #println("\npd made\n")
         if branching.decision_function == "weighted_sum"
-            #println(branching.decision_function)
             branching_scores = map(idx-> ((1 - branching.μ) * min((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx])) + branching.μ * max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]))),
                                 branching_candidates)
         
         elseif branching.decision_function == "product"
-            #println(branching.decision_function)
             branching_scores = map(idx-> max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), branching.μ) * max((pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]), branching.μ), 
                                 branching_candidates)
         end
         branching_scores = sparsevec(branching_candidates, branching_scores)
-        #display(branching_scores)
         best_idx = argmax(branching_scores)
 
         return best_idx 
@@ -121,7 +107,8 @@ function update_avg(new_val::Float64, avg::Float64, N::Int)
     if N > 1
         return 1/(N+1) * (N * (avg - 1) + new_val) + 1  #        
     else
-        return new_val + avg # note that we initialize the pseudo costs with 1 as such we need to shift pseudocosts correspondingly
+        # note that we initialize the pseudo costs with 1 as such we need to shift pseudocosts correspondingly
+        return new_val + avg 
     end
 end
 
@@ -143,9 +130,14 @@ end
     pseudos::SparseMatrixCSC,
     branch_tracker::SparseMatrixCSC
 )
-
-Get branching variable using Pseudocost branching after costs have stabilized. 
-Prior to stabilization an adaptation of the Bonobo MOST_INFEASIBLE is used.
+This strategy first chooses the branching varaibles which have most often led to infeasiblity.
+If there are multiple such candidates then among these candidates another strategy is used 
+    if candidate pseudocosts are stable then a pseudocost decision is made 
+    else
+        if gradient_influence=false
+            decision is made based on MOST_INFEASIBLE strategy
+        else 
+            decision is made on LARGEST_MOST_INFEASIBLE_GRADIENT  
 
 """
 function Bonobo.get_branching_variable(
@@ -160,7 +152,8 @@ function Bonobo.get_branching_variable(
     strategy_switch = branching.iterations_until_stable + 1
     best_idx = -1
     all_stable = true
-    branching_candidates = Int[]# this shall contain the indices of the potential branching variables
+    # the following shall contain the indices of the potential branching variables
+    branching_candidates = Int[]
     values = Bonobo.get_relaxed_values(tree, node)
     for idx in tree.branching_indices
         value = values[idx]
@@ -168,14 +161,8 @@ function Bonobo.get_branching_variable(
             push!(branching_candidates, idx)
         end
     end
-    # for entry in branching_candidates
-    #     if !isequal(branch_tracker[entry, 1], branch_tracker[entry, 2])
-    #         println("\n",  entry,"\n")
-    #     end
-    #     #break
-    # end
-    if !isinf(node.parent_lower_bound_base)# if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
-        #println("if clause of update")
+    # if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
+    if !isinf(node.parent_lower_bound_base)
         idx = node.branched_on
         update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
         update = update / node.distance_to_int
@@ -183,28 +170,17 @@ function Bonobo.get_branching_variable(
             @debug "update is $(Inf)"
         end
         if node.branched_right
-            #println(update)  
             pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
             branch_tracker[idx, 1] += 1
         else
-            #println(update)
             pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
             branch_tracker[idx, 2] += 1
 
         end
-        # println("pseudos")
-        #display(pseudos)
     end
-
-    #println("--- before --- ")
-    #display(branching_candidates)
     # compute score of how (often) branching on a variable resulted in infeasiblity
     best_score = max_infeas_score(branching_candidates, infeas_tracker)
-    
     branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, infeas_tracker) >= best_score]
-    #println("--- after --- ")
-    #display(branching_candidates)
-
     if length(branching_candidates) == 0 
         return best_idx
     elseif length(branching_candidates) == 1
@@ -214,18 +190,18 @@ function Bonobo.get_branching_variable(
     end
 
     for idx in branching_candidates
-        if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
+        # check if pseudocost is stable for this idx
+        if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch 
             all_stable = false
         end
     end
     
-
-
     if !all_stable# THEN Use Most Infeasible
-        if branching.gradient_influence# score function as product of gradient at variable and largest distance to int
+        if branching.gradient_influence
+            # score function as product of gradient at variable and largest distance to int
             nabla = similar(values)
             x_new = copy(values)
-            gradient_at_values = tree.root.problem.g(nabla,x_new)# is this information already computed elsewhere?
+            gradient_at_values = tree.root.problem.g(nabla,x_new)
             max_score = 0.0
             for i in branching_candidates
                 value = values[i] * abs(gradient_at_values[i])
@@ -249,21 +225,16 @@ function Bonobo.get_branching_variable(
             return best_idx
         end
     else
-        #println("\npd made\n")
         if branching.decision_function == "weighted_sum"
-            #println(branching.decision_function)
             branching_scores = map(idx-> ((1 - branching.μ) * min((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx])) + branching.μ * max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]))),
                                 branching_candidates)
         
         elseif branching.decision_function == "product"
-            #println(branching.decision_function)
             branching_scores = map(idx-> max((pseudos[idx, 1] - 1) * (values[idx] - floor(values[idx])), branching.μ) * max((pseudos[idx, 2] - 1) * (ceil(values[idx]) - values[idx]), branching.μ), 
                                 branching_candidates)
         end
         branching_scores = sparsevec(branching_candidates, branching_scores)
-        #display(branching_scores)
         best_idx = argmax(branching_scores)
-
         infeas_tracker[best_idx, 2] += 1
         return best_idx
     end
@@ -272,7 +243,8 @@ end
 
 function infeas_score(idx::Int, infeas_tracker::SparseMatrixCSC{Int64, Int64})
     infeas_tracker[idx, 1] == 1 && return 0
-    return  (infeas_tracker[idx, 1]) / (infeas_tracker[idx, 2])# ratio of how often branching on variable idx leads to node infeasiblity of children
+    # ratio of how often branching on variable idx leads to node infeasiblity of children
+    return  (infeas_tracker[idx, 1]) / (infeas_tracker[idx, 2])
 end
 
 function max_infeas_score(idxs::Vector{Int64}, infeas_tracker::SparseMatrixCSC{Int64, Int64})
@@ -305,7 +277,7 @@ struct LargestGradient <: Bonobo.AbstractBranchStrategy end
     node::Bonobo.AbstractNode
 )
 
-Get branching variable using Largest_Gradient branching 
+Get branching variable which has the largest absolute value in the gradient
 
 """
 function Bonobo.get_branching_variable(
@@ -321,7 +293,8 @@ function Bonobo.get_branching_variable(
     max_gradient = 0.0
     for i in tree.branching_indices
         value = values[i]
-        if !Bonobo.is_approx_feasible(tree, value)# check if variable is branching candidate
+        # check if variable is branching candidate
+        if !Bonobo.is_approx_feasible(tree, value)
             if abs(gradient_at_values[i]) > max_gradient
                 best_idx = i
             end
@@ -360,7 +333,7 @@ function Bonobo.get_branching_variable(
     best_idx = -1
     nabla = similar(values)
     x_new = copy(values)
-    gradient_at_values = tree.root.problem.g(nabla,x_new)# is this information already computed elsewhere?
+    gradient_at_values = tree.root.problem.g(nabla,x_new)
     max_score = 0.0
     for i in tree.branching_indices
         value = values[i]
