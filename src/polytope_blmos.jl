@@ -55,7 +55,7 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     n = length(x)
     v = copy(x)
     non_fixed_int = findall(lb .!= ub)
-    non_fixed_int_idx = int_vars[non_fixed_idx]
+    non_fixed_int_idx = int_vars[non_fixed_int]
 
     idx = collect(1:n)
     non_int_idx = setdiff(idx, int_vars)
