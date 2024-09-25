@@ -23,7 +23,7 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
 
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(tlmo.blmo)
 
-function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy, kwargs...)
+function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)
     a = compute_inface_extreme_point(tlmo.blmo, direction, x)
