@@ -295,7 +295,7 @@ function solve(
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
     #the following should create the arrays and vectors only on first function call and then use existing one
-    if isa(branching_strategy, Boscia.PSEUDO_COST) || isa(branching_strategy, Boscia.HIERARCHY_PSEUDO_COST) 
+    if isa(branching_strategy, Boscia.PSEUDO_COST) 
         pseudos = sparse(
             repeat(Boscia.get_integer_variables(branching_strategy.bounded_lmo), 2),
             vcat(ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo))), 2*ones(length(Boscia.get_integer_variables(branching_strategy.bounded_lmo)))), 

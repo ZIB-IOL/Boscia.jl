@@ -41,7 +41,7 @@ function Bonobo.optimize!(
         if isnan(lb) && isnan(ub)
             @debug "\n node closed without upd\n"
             if isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
-                infeas_tracker[node.branched_on, 1] += 1
+                tree.options.branch_strategy.infeas_tracker[node.branched_on, 1] += 1
             end
             ## add the nodes which become infeasible to a special storage (yet to be implemented)
             Bonobo.close_node!(tree, node)
@@ -54,7 +54,7 @@ function Bonobo.optimize!(
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent 
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
-            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) || isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
+            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) 
                 # if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
                 if !isinf(node.parent_lower_bound_base)
                     idx = node.branched_on
@@ -69,6 +69,30 @@ function Bonobo.optimize!(
                     else
                         pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
                         branch_tracker[idx, 2] += 1
+                    end 
+                end
+            elseif isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
+                if !isinf(node.parent_lower_bound_base)
+                    idx = node.branched_on
+                    update = lb - node.parent_lower_bound_base
+                    update = update / node.distance_to_int
+                    if isinf(update)
+                        @debug "update is $(Inf)"
+                    end
+                    if node.branched_right
+                        tree.options.branch_strategy.pseudos[idx, 1] = update_avg(
+                            update, 
+                            tree.options.branch_strategy.pseudos[idx, 1], 
+                            tree.options.branch_strategy.branch_tracker[idx, 1]
+                            )
+                        tree.options.branch_strategy.branch_tracker[idx, 1] += 1
+                    else
+                        tree.options.branch_strategy.pseudos[idx, 2] = update_avg(
+                            update, 
+                            tree.options.branch_strategy.pseudos[idx, 2], 
+                            tree.options.branch_strategy.branch_tracker[idx, 2]
+                            )
+                        tree.options.branch_strategy.branch_tracker[idx, 2] += 1
                     end 
                 end
             end
@@ -102,8 +126,6 @@ function Bonobo.optimize!(
         Bonobo.close_node!(tree, node)
         if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) 
             pseudo_branch!(tree, node, pseudos, branch_tracker)  
-        elseif isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST)
-            hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker, infeas_tracker) 
         else 
             Bonobo.branch!(tree, node)
         end
@@ -170,23 +192,23 @@ function pseudo_branch!(
     end
 end
 
-"""
-    hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker)
+# """
+#     hierarchy_pseudo_branch!(tree, node, pseudos, branch_tracker)
 
-Get the branching variable with [`get_branching_variable`](@ref) and then calls [`get_branching_nodes_info`](@ref) and [`add_node!`](@ref).
-"""
-function hierarchy_pseudo_branch!(
-    tree::Bonobo.BnBTree{<:FrankWolfeNode}, 
-    node::Bonobo.AbstractNode, 
-    pseudos::SparseMatrixCSC{Float64, Int64},
-    branch_tracker::SparseMatrixCSC{Int64, Int64},
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-    )
-    variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node, pseudos, branch_tracker, infeas_tracker)
-    # no branching variable selected => return
-    variable_idx == -1 && return
-    nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx)
-    for node_info in nodes_info
-        Bonobo.add_node!(tree, node, node_info)
-    end
-end
+# Get the branching variable with [`get_branching_variable`](@ref) and then calls [`get_branching_nodes_info`](@ref) and [`add_node!`](@ref).
+# """
+# function hierarchy_pseudo_branch!(
+#     tree::Bonobo.BnBTree{<:FrankWolfeNode}, 
+#     node::Bonobo.AbstractNode, 
+#     pseudos::SparseMatrixCSC{Float64, Int64},
+#     branch_tracker::SparseMatrixCSC{Int64, Int64},
+#     infeas_tracker::SparseMatrixCSC{Int64, Int64}
+#     )
+#     variable_idx = Bonobo.get_branching_variable(tree, tree.options.branch_strategy, node, pseudos, branch_tracker, infeas_tracker)
+#     # no branching variable selected => return
+#     variable_idx == -1 && return
+#     nodes_info = Bonobo.get_branching_nodes_info(tree, node, variable_idx)
+#     for node_info in nodes_info
+#         Bonobo.add_node!(tree, node, node_info)
+#     end
+# end
