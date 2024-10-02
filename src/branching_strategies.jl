@@ -9,6 +9,7 @@ mutable struct PSEUDO_COST <: Bonobo.AbstractBranchStrategy
     branch_tracker::SparseMatrixCSC{Int64, Int64}
     function PSEUDO_COST(
         iterations_until_stable,
+        alternative,
         bounded_lmo,
         μ,
         decision_function
