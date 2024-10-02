@@ -1,11 +1,38 @@
 using SparseArrays
 
-struct PSEUDO_COST{BLMO<:BoundedLinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
+mutable struct PSEUDO_COST <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
-    stable::Bool
-    bounded_lmo::BLMO
     μ::Float64
     decision_function::String
+    pseudos::SparseMatrixCSC{Float64, Int64}
+    branch_tracker::SparseMatrixCSC{Int64, Int64}
+    function PSEUDO_COST(
+        iterations_until_stable,
+        bounded_lmo,
+        μ,
+        decision_function
+        ) 
+        int_vars = Boscia.get_integer_variables(bounded_lmo)
+        int_var_number = length(int_vars)
+        # create sparse array for pseudocosts
+        pseudos = sparse(
+            repeat(int_vars, 2),
+            vcat(ones(int_var_number), 2*ones(int_var_number)), 
+            ones(2 * int_var_number)
+            )
+        # create sparse array for keeping track of how often a pseudocost has been updated
+        branch_tracker = sparse(
+            repeat(int_vars, 2),
+            vcat(ones(int_var_number), 2*ones(int_var_number)), 
+            ones(Int64, 2 * int_var_number)
+            )
+        new(
+            iterations_until_stable,
+            μ,
+            decision_function,
+            pseudos,
+            branch_tracker)
+    end
 end
 
 
@@ -24,43 +51,25 @@ Prior to stabilization an adaptation of the Bonobo MOST_INFEASIBLE is used.
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree, 
-    branching::PSEUDO_COST{BLMO},
+    branching::PSEUDO_COST,
     node::Bonobo.AbstractNode,
-    pseudos::SparseMatrixCSC{Float64, Int64},
-    branch_tracker::SparseMatrixCSC{Int64, Int64},
-) where BLMO <: BoundedLinearMinimizationOracle
-
+)
     strategy_switch = branching.iterations_until_stable + 1
     best_idx = -1
     all_stable = true
-    branching_candidates = Int[]# this shall contain the indices of the potential branching variables
+    # this shall contain the indices of the potential branching variables
+    branching_candidates = Int[]
     values = Bonobo.get_relaxed_values(tree, node)
     for idx in tree.branching_indices
         value = values[idx]
         if !Bonobo.is_approx_feasible(tree, value)
             push!(branching_candidates, idx)
-            if branch_tracker[idx, 1] < strategy_switch || branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
+            if branching.branch_tracker[idx, 1] < strategy_switch || branching.branch_tracker[idx, 2] < strategy_switch# check if pseudocost is stable for this idx 
                 all_stable = false
             end
         end
     end
-    # if this node is a result of branching on some variable then update pseudocost of corresponding branching variable
-    if !isinf(node.parent_lower_bound_base)
-        idx = node.branched_on
-        update = (tree.root.problem.f(values) - node.dual_gap) - node.parent_lower_bound_base
-        update = update / node.distance_to_int
-        if isinf(update)
-            @debug "update is $(Inf)"
-        end
-        if node.branched_right
-            pseudos[idx, 1] = update_avg(update, pseudos[idx, 1], branch_tracker[idx, 1])
-            branch_tracker[idx, 1] += 1
-        else
-            pseudos[idx, 2] = update_avg(update, pseudos[idx, 2], branch_tracker[idx, 2])
-            branch_tracker[idx, 2] += 1
-
-        end
-    end
+    update_pseudocost!(tree, node, branching, values)
     length(branching_candidates) == 0 && return best_idx
     length(branching_candidates) == 1 && return branching_candidates[1]
     if !all_stable# THEN Use Most Infeasible
@@ -75,18 +84,8 @@ function Bonobo.get_branching_variable(
         end
         return best_idx
     else
-        if branching.decision_function == "weighted_sum"
-            branching_scores = map(idx-> ((1 - branching.μ) * min((pseudos[idx, 2] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 1] - 1) * (ceil(values[idx]) - values[idx])) + branching.μ * max((pseudos[idx, 2] - 1) * (values[idx] - floor(values[idx])), (pseudos[idx, 1] - 1) * (ceil(values[idx]) - values[idx]))),
-                                branching_candidates)
-        
-        elseif branching.decision_function == "product"
-            branching_scores = map(idx-> max((pseudos[idx, 2] - 1) * (values[idx] - floor(values[idx])), branching.μ) * max((pseudos[idx, 1] - 1) * (ceil(values[idx]) - values[idx]), branching.μ), 
-                                branching_candidates)
-        end
-        branching_scores = sparsevec(branching_candidates, branching_scores)
-        best_idx = argmax(branching_scores)
-
-        return best_idx 
+        # All candidates pseudo stable thus make pseudocost decision
+        return pseudocost_decision(branching, branching_candidates, values)
     end
 end
 
