@@ -2,6 +2,7 @@ using SparseArrays
 
 mutable struct PSEUDO_COST <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
+    alternative::String
     μ::Float64
     decision_function::String
     pseudos::SparseMatrixCSC{Float64, Int64}
@@ -28,6 +29,7 @@ mutable struct PSEUDO_COST <: Bonobo.AbstractBranchStrategy
             )
         new(
             iterations_until_stable,
+            alternative,
             μ,
             decision_function,
             pseudos,
@@ -72,15 +74,13 @@ function Bonobo.get_branching_variable(
     update_pseudocost!(tree, node, branching, values)
     length(branching_candidates) == 0 && return best_idx
     length(branching_candidates) == 1 && return branching_candidates[1]
-    if !all_stable# THEN Use Most Infeasible
-        max_distance_to_feasible = 0.0
-        for i in branching_candidates
-            value = values[i]
-            distance_to_feasible = Bonobo.get_distance_to_feasible(tree, value)
-            if distance_to_feasible > max_distance_to_feasible
-                best_idx = i
-                max_distance_to_feasible = distance_to_feasible
-            end
+    if !all_stable# THEN Use alternative
+        if branching.alternative == "largest_most_infeasible_gradient"
+            best_idx = largest_most_infeasible_gradient_decision(tree, branching_candidates, values)
+        elseif branching.alternative == "largest_gradient"
+            best_idx = largest_gradient_decision(tree, branching_candidates, values)
+        else
+            best_idx = most_infeasible_decision(tree, branching_candidates, values)
         end
         return best_idx
     else
