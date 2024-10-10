@@ -82,7 +82,7 @@ verbose = true
     domain_oracle = build_domain_oracle(Ex_mat, n)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
-    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M, 
+    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(domain_oracle=domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) #sharpness_exponent=θ, sharpness_constant=M, 
 
     @show x
     @show x_s
@@ -117,7 +117,7 @@ end
     domain_oracle = build_domain_oracle(Ex_mat, n)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
-    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(40, 1e-8, domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) 
+    x_s, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(domain_oracle=domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) 
 
     @show x 
     @show x_s
