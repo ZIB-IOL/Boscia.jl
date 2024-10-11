@@ -27,7 +27,7 @@ end
 
 function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
-        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
+        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6) || !(v[i] - 1e-6 ≤ sblmo.upper_bounds[i])
             @debug(
                 "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
             )
@@ -37,6 +37,65 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     return true
 end
 
+function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
+    lbs = sblmo.lower_bounds
+    ubs = sblmo.upper_bounds
+    indicator = [0.0, 1.0]
+    distinct_lbs = unique(lbs)
+    distinct_ubs = unique(ubs)
+    if !issubset(distinct_lbs, indicator) || !issubset(distinct_ubs, indicator)
+        return false
+    end
+    return true
+end
+
+    
+# After splitting, split variable will be fixed to either 0 or 1.
+function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+    n = length(x)
+    v = copy(x)
+    non_fixed_int = findall(lb .!= ub)
+    non_fixed_int_idx = int_vars[non_fixed_int]
+
+    idx = collect(1:n)
+    non_int_idx = setdiff(idx, int_vars)
+    non_fixed_idx = vcat(non_fixed_int_idx, non_int_idx)
+
+     # For non_fixed coordinates, zero-sum means that they are all fixed to origin.
+    sx = sum(x[non_fixed_idx])
+    if sx <= 0
+        return v
+    end
+    # Fix the point to the same face.
+    # Zero will be return only if d_i is greater than zero.
+    for idx in non_fixed_idx
+        if x[idx] > 0 
+            if x[idx] ≈ 1
+                v[idx] = 1
+            else
+                v[idx] = direction[idx] >  0 ? 0 : 1
+            end
+        end
+    end
+    return v       
+end
+
+# For DICG each variable can only be either fixed to 0.0 or 1.0, or with normal bound [0.0, 1.0].
+# Observe that the entries of direction corresponding to fixed variables will always be 0.0.
+# In such case, we can use normal ZeroOneHypercube to compute gamma_max.
+# Same as in the Probability and Unit Simplex.
+function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
+end
+
+function dicg_split_vertices_set_simple(sblmo::CubeSimpleBLMO, x, vidx)
+    x0_left = copy(x)
+    x0_right = copy(x)
+    x0_left[vidx] = floor(x[vidx])
+    x0_right[vidx] = ceil(x[vidx])
+    return x0_left, x0_right
+end
+
 """
     ProbablitySimplexSimpleBLMO(N)
 
@@ -44,6 +103,13 @@ Scaled Probability Simplex: ∑ x = N.
 """
 struct ProbabilitySimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
+end
+
+function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
 end
 
 """
@@ -66,6 +132,41 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
         end
     end
     return v
+end
+
+function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+    a = zeros(length(x))
+    if sblmo.N in lb
+        idx = findfirst(x->x==sblmo.N, lb)
+        a[idx] = sblmo.N
+        return a
+    end
+    min_val = Inf
+    min_idx = -1
+    for idx in eachindex(direction)
+        val = direction[idx]
+        if val < min_val && x[idx] > 0
+            min_val = val
+            min_idx = idx
+        end
+    end
+    a[min_idx] = 1.0
+    return a
+end
+
+function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle{Float64}(), x, direction)
+end
+
+function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
+    n = length(x)
+    x0_left = copy(x)
+    sum_val = sum(x) - x[vidx]
+    x0_left .+= (n-1) / sum_val
+    x0_left[vidx] = floor(x[vidx])
+    x0_right = zeros(length(x))
+    x0_right[vidx] = 1.0
+    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
@@ -156,6 +257,13 @@ struct UnitSimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
 end
 
+function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
+    if !(sblmo.N == 1)
+        return false
+    end
+    return true  
+end
+
 """
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
@@ -180,6 +288,52 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
         end
     end
     return v
+end
+
+function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+    if sblmo.N in lb
+        idx = findfirst(x->x==sblmo.N, lb)
+        a = zeros(length(x))
+        a[idx] = sblmo.N
+        return a
+    end
+        
+     # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
+    sx = sum(x)
+    if sx <= 0
+        return zeros(length(x))
+    end
+    
+    min_val = Inf
+    min_idx = -1
+
+    for idx in eachindex(direction)
+        val = direction[idx]
+        if val < min_val && x[idx] > 0
+            min_val = val
+            min_idx = idx
+        end
+    end
+        
+    if sx ≉ sblmo.N && min_val > 0
+        return zeros(length(x))
+    end
+    a = zeros(length(x))
+    a[min_idx] = 1.0
+    return a
+end
+
+
+function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle{Float64}(), x, direction)
+end
+
+function dicg_split_vertices_set_simple(sblmo::UnitSimplexSimpleBLMO, x, vidx)
+    x0_left = copy(x)
+    x0_left[vidx] = floor(x[vidx])
+    x0_right = zeros(length(x))
+    x0_right[vidx] = 1.0
+    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)

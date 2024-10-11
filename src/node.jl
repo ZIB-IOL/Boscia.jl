@@ -14,14 +14,14 @@ This needs to be added by every `AbstractNode` as `std::NodeInfo`
 
 This variant is more flexibel than Bonobo.BnBNodeInfo.
 """
-mutable struct NodeInfo{T<:Real} 
-    id :: Int
-    lb :: T
-    ub :: T 
+mutable struct NodeInfo{T<:Real}
+    id::Int
+    lb::T
+    ub::T
 end
 
-function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where T<:Real
-    return NodeInfo(std.id, T(std.lb), T(std.ub)) 
+function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
+    return NodeInfo(std.id, T(std.lb), T(std.ub))
 end
 
 """
@@ -40,6 +40,7 @@ A node in the branch-and-bound tree storing information for a Frank-Wolfe subpro
     All other integer bounds are stored in the root.
 'level' stores the level in the tree
 'fw_dual_gap_limit' set the tolerance for the dual gap in the FW algorithms
+'pre_computed_set' stores specifically the extreme points computed in DICG for warm-start.
 """
 mutable struct FrankWolfeNode{
     AT<:FrankWolfe.ActiveSet,
@@ -58,8 +59,8 @@ mutable struct FrankWolfeNode{
     local_tightenings::Int
     local_potential_tightenings::Int
     dual_gap::Float64
+    pre_computed_set::Any
 end
-
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
@@ -68,7 +69,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
-
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -78,9 +78,32 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
 
-    # Split active set
-    active_set_left, active_set_right =
-        split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+    #different ways to split active set
+    if tree.root.options[:variant] != DICG()
+
+        # Keep the same pre_computed_set
+        pre_computed_set_left, pre_computed_set_right =
+            node.pre_computed_set, node.pre_computed_set
+
+        # Split active set
+        active_set_left, active_set_right =
+            split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+    else
+
+        if node.pre_computed_set !== nothing
+            # Split pre_computed_set
+            pre_computed_set_left, pre_computed_set_right =
+                split_pre_computed_set!(x, node.pre_computed_set, tree, vidx)
+        else
+            pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
+        end
+        # Only support SBLMO polytope.
+        # User should implement specific dicg_split_vertices_set!() for different polytopes.
+        active_set_left, active_set_right =
+            dicg_split_vertices_set!(tree.root.problem.tlmo.blmo, node.active_set, tree, vidx)
+    end
+
+
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
@@ -108,25 +131,28 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    # Sanity check
-    for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+
+    if tree.root.options[:variant] != DICG()
+        # Sanity check
+        for v in active_set_left.atoms
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    for v in discarded_set_left.storage
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        for v in discarded_set_left.storage
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    for v in active_set_right.atoms
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        for v in active_set_right.atoms
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    for v in discarded_set_right.storage
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        for v in discarded_set_right.storage
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
     end
 
@@ -142,6 +168,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_tightenings=0,
         local_potential_tightenings=0,
         dual_gap=NaN,
+        pre_computed_set=pre_computed_set_left,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -154,6 +181,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_tightenings=0,
         local_potential_tightenings=0,
         dual_gap=NaN,
+        pre_computed_set=pre_computed_set_right,
     )
 
     # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
@@ -225,20 +253,22 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         error("Feasible region unbounded! Please check your constraints!")
         return NaN, NaN
     end
-
-    # Check feasibility of the iterate
-    active_set = node.active_set
-    x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-    @assert is_linear_feasible(tree.root.problem.tlmo, x)
-    for (_, v) in node.active_set
-        @assert is_linear_feasible(tree.root.problem.tlmo, v)
+    
+    if tree.root.options[:variant] != DICG()
+        # Check feasibility of the iterate
+        active_set = node.active_set
+        x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+        @assert is_linear_feasible(tree.root.problem.tlmo, x)
+        for (_, v) in node.active_set
+            @assert is_linear_feasible(tree.root.problem.tlmo, v)
+        end
     end
 
     # time tracking FW
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
-    x, primal, dual_gap, active_set = solve_frank_wolfe(
+    x, primal, dual_gap, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
@@ -254,13 +284,20 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
+        pre_computed_set=node.pre_computed_set,
     )
 
+    if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
+        # update active set of the node
+        node.active_set = atoms_set
+    else
+        # update set of computed atoms and active set
+        node.pre_computed_set = atoms_set
+        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+    end
+    
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
-
-    # update active set of the node
-    node.active_set = active_set
 
     # tightening bounds at node level
     dual_tightening(tree, node, x, dual_gap)
