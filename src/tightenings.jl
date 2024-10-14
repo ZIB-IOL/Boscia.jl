@@ -218,7 +218,13 @@ function tightening_lowerbound(tree, node, x, lower_bound)
             @debug "Using sharpness θ=$θ and M=$M"
             fx = tree.root.problem.f(x)
 
-            sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            bound_update = sqrt(bound_improvement) - M / 2 * node.dual_gap^θ
+            if bound_update < sqrt(eps())
+                bound_update = 0.0
+            end
+            @assert bound_update >= 0.0
+
+            sharpness_bound = M^(- 1 / θ) * 1/ 2 * bound_update^(1 / θ) + fx - node.dual_gap
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound >= lower_bound "$(num_fractional) == 0 || $(sharpness_bound) > $(lower_bound)"
         end
