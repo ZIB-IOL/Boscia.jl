@@ -218,8 +218,9 @@ function tightening_lowerbound(tree, node, x, lower_bound)
             @debug "Using sharpness θ=$θ and M=$M"
             fx = tree.root.problem.f(x)
 
-            @show bound_improvement
-            @show node.dual_gap
+            if node.dual_gap < sqrt(eps())
+                node.dual_gap = 0.0
+            end
 
             bound_update = sqrt(bound_improvement) - M / 2 * node.dual_gap^θ
             if bound_update < sqrt(eps())
