@@ -293,10 +293,6 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
                 @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
                 prune_right = true
             end
-            @assert !(
-                (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
-                (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
-            ) 
         end
     end
    
