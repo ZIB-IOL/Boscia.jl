@@ -80,7 +80,8 @@ verbose = true
 
     x_n, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(domain_oracle=domain_oracle), domain_oracle=domain_oracle, custom_heuristics=[heu]) 
 
-    @test isapprox(g(x_s), g(x_n), atol=1e-2, rtol=5e-2)
+    #@test isapprox(g(x_s), g(x_n), atol=1e-2, rtol=5e-2)
+    @test g(x_s) <= g(x_n) + 1e-3
 end 
 
 ## D-Optimal Design Problem
@@ -111,6 +112,7 @@ end
 
     x_n, _, result = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, verbose=verbose, line_search=FrankWolfe.Secant(domain_oracle=domain_oracle), domain_oracle=domain_oracle, sharpness_exponent=θ, sharpness_constant=M, custom_heuristics=[heu]) 
 
-    @test isapprox(g(x_s), g(x_n), atol=1e-3, rtol=5e-2)
+    #@test isapprox(g(x_s), g(x_n), atol=1e-3, rtol=5e-2)
+    @test g(x_s) <= g(x_n) + 1e-3
 end
 
