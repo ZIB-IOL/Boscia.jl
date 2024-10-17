@@ -76,12 +76,12 @@ function build_birkhoff_lmo()
         # doubly stochastic constraints
         MOI.add_constraint.(
             o,
-            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            X[i] * ones(n),
             MOI.EqualTo(1.0),
         )
         MOI.add_constraint.(
             o,
-            vec(sum(X[i], dims=2, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            X[i]' * ones(n),
             MOI.EqualTo(1.0),
         )
         # 0 ≤ Y_i ≤ X_i
