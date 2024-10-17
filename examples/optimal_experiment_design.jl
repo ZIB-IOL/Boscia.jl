@@ -81,7 +81,7 @@ verbose = true
     z = greedy_incumbent(Ex_mat, N, ub)
     line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
 
-    x_s, _, result = Boscia.solve(
+    x_s, _, result_s = Boscia.solve(
         g, 
         grad!, 
         blmo, 
@@ -93,7 +93,9 @@ verbose = true
         line_search=line_search,
     )
 
-    @test g(x_s) <= g(x) + 1e-3
+    @test result_s[:dual_bound] <= g(x)
+    @test result[:dual_bound] <= g(x_s)
+    @test isapprox(g(x), g(x_s), rtol=1e-2) 
 end 
 
 ## D-Optimal Design Problem
@@ -144,6 +146,8 @@ end
         line_search=line_search,
     )
 
-    @test g(x_s) <= g(x) + 1e-3
+    @test result_s[:dual_bound] <= g(x)
+    @test result[:dual_bound] <= g(x_s)
+    @test isapprox(g(x), g(x_s), rtol=1e-2) 
 end
 
