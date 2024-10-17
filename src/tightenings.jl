@@ -218,17 +218,13 @@ function tightening_lowerbound(tree, node, x, lower_bound)
             @debug "Using sharpness θ=$θ and M=$M"
             fx = tree.root.problem.f(x)
 
-            if node.dual_gap < sqrt(eps())
+            if node.dual_gap < 0.0
+                @assert abs(node.dual_gap) > eps() "node dual gap is negative: $(node.dual_gap)"
                 node.dual_gap = 0.0
             end
 
-            bound_update = sqrt(bound_improvement) - M / 2 * node.dual_gap^θ
-            if bound_update < sqrt(eps())
-                bound_update = 0.0
-            end
-            @assert bound_update >= 0.0
+            sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
 
-            sharpness_bound = M^(- 1 / θ) * 1/ 2 * bound_update^(1 / θ) + fx - node.dual_gap
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound >= lower_bound "$(num_fractional) == 0 || $(sharpness_bound) > $(lower_bound)"
         end
@@ -292,7 +288,7 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             if new_bound_right > tree.incumbent
                 @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
                 prune_right = true
-            end
+            end 
         end
     end
    
