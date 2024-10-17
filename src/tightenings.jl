@@ -288,7 +288,7 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             if new_bound_right > tree.incumbent
                 @debug "prune right, from $(node.lb) -> $new_bound_right, ub $(tree.incumbent), lb $(node.lb)"
                 prune_right = true
-            end 
+            end
         end
     end
    
