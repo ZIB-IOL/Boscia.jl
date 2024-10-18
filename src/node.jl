@@ -280,8 +280,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return lower_bound, primal
         # Sanity check: If the incumbent is better than the lower bound of the root node
         # and the root node is not integer feasible, something is off!
-        # And we have made no bound improvement via strong convexity or sharpness.
-    elseif node.id == 1 && (tree.root.options[:strong_convexity] == 0.0 && tree.root.options[:sharpness_constant] == 0.0 && tree.root.options[:sharpness_exponent] == Inf)
+    elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + node.fw_dual_gap_limit "lower_bound <= tree.incumbent + node.fw_dual_gap_limit : $(lower_bound) <= $(tree.incumbent + node.fw_dual_gap_limit)"
