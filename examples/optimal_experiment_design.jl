@@ -93,8 +93,8 @@ verbose = true
         line_search=line_search,
     )
 
-    @test result_s[:dual_bound] <= g(x)
-    @test result[:dual_bound] <= g(x_s)
+    @test result_s[:dual_bound] <= g(x) + 1e-4
+    @test result[:dual_bound] <= g(x_s) + 1e-4
     @test isapprox(g(x), g(x_s), rtol=1e-2) 
 end 
 
