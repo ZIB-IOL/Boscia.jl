@@ -95,7 +95,7 @@ verbose = true
 
     @test result_s[:dual_bound] <= g(x) + 1e-4
     @test result[:dual_bound] <= g(x_s) + 1e-4
-    @test isapprox(g(x), g(x_s), rtol=1e-2) 
+    @test isapprox(g(x), g(x_s), atol=1e-3) 
 end 
 
 ## D-Optimal Design Problem
