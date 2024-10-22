@@ -168,12 +168,7 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    if use_DICG_warm_start
-        # For DICG, we use PrecomputedSet instead of ActiveSet to store information.
-        pre_computed_set = [v]
-    else
-        pre_computed_set = nothing
-    end
+    pre_computed_set = use_DICG_warm_start ? [v] : nothing
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
@@ -314,11 +309,16 @@ function solve(
         num_int,
     )
 
-    if tree.root.options[:variant] != DICG()
-        fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations, time_ref, tree.root.options[:time_limit])
-    else
-        fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations, time_ref, tree.root.options[:time_limit]; use_DICG=true)
-    end
+    fw_callback = build_FW_callback(
+        tree, 
+        min_number_lower, 
+        true, 
+        fw_iterations, 
+        min_fw_iterations, 
+        time_ref, 
+        tree.root.options[:time_limit], 
+        use_DICG=tree.root.options[:varinat] == DICG(),
+    )
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
