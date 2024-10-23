@@ -113,18 +113,20 @@ end
 mutable struct HIERARCHY_PSEUDO_COST <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
     alternative::String
+    stable_alternative::String
     μ::Float64
     decision_function::String
     pseudos::SparseMatrixCSC{Float64, Int64}
     branch_tracker::SparseMatrixCSC{Int64, Int64}
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-
+    cutoff::Float64
     function HIERARCHY_PSEUDO_COST(
         iterations_until_stable,
         alternative,
+        stable_alternative,
         bounded_lmo,
         μ,
-        decision_function
+        decision_function;
+        cutoff=1e-3
         ) 
         int_vars = Boscia.get_integer_variables(bounded_lmo)
         int_var_number = length(int_vars)
@@ -140,17 +142,15 @@ mutable struct HIERARCHY_PSEUDO_COST <: Bonobo.AbstractBranchStrategy
             vcat(ones(int_var_number), 2*ones(int_var_number)), 
             ones(Int64, 2 * int_var_number)
             )
-        # create sparse array for keeping track of how often a branching has resulted in infeas.
-        # of resulting node
-        infeas_tracker = deepcopy(branch_tracker)
         new(
             iterations_until_stable,
             alternative,
+            stable_alternative,
             μ,
             decision_function,
             pseudos,
             branch_tracker,
-            infeas_tracker)
+            cutoff)
     end
 end
 
@@ -186,30 +186,84 @@ function Bonobo.get_branching_variable(
         #branching is no longer possible 
         return -1
     end
-    # Top level Selection criteria: Choose what leads most often to infeasible child nodes
-    best_score = max_infeas_score(branching_candidates, branching.infeas_tracker)
-    # keep candidates with highest score only
-    branching_candidates = Int[idx for idx in branching_candidates if infeas_score(idx, branching.infeas_tracker) >= best_score]
+    fractional_scores = Float64[Bonobo.get_distance_to_feasible(tree, values[idx]) for idx in branching_candidates]
+    # Check if branching candidates are fractional enough 
+    frac_enough_cand = Int[]
 
-    if length(branching_candidates) == 1
-        # if only one candidate exists all strategies will choose it
-        best_idx = branching_candidates[1]
-    elseif !candidates_pseudo_stable(branching, branching_candidates)
+    infeas_cutoff = (maximum(fractional_scores) + mean(fractional_scores))/2
+    for (i, idx) in enumerate(branching_candidates)
+        if fractional_scores[i] > max(infeas_cutoff, branching.cutoff)
+           push!(frac_enough_cand, idx) 
+        end
+    end
+    if isempty(frac_enough_cand)
+        # no candidate looks promising so we choose any
+        return rand(branching_candidates)
+    end
+    if length(frac_enough_cand) == 1
+        # if only one candidate remains we choose it
+        return frac_enough_cand[1]
+    end
+    
+    if !candidates_pseudo_stable(branching, frac_enough_cand)
         if branching.alternative == "largest_most_infeasible_gradient"
-            best_idx = largest_most_infeasible_gradient_decision(tree, branching_candidates, values)
+            best_idx = largest_most_infeasible_gradient_decision(tree, frac_enough_cand, values)
         elseif branching.alternative == "largest_gradient"
-            best_idx = largest_gradient_decision(tree, branching_candidates, values)
+            best_idx = largest_gradient_decision(tree, frac_enough_cand, values)
         else
-            best_idx = most_infeasible_decision(tree, branching_candidates, values)
+            best_idx = most_infeasible_decision(tree, frac_enough_cand, values)
         end
     else
-        best_idx = pseudocost_decision(branching, branching_candidates, values)
+        pseudo_approved_candidates = pseudo_selection(branching, frac_enough_cand, values)
+        if branching.stable_alternative == "largest_most_infeasible_gradient"
+            best_idx = largest_most_infeasible_gradient_decision(tree, pseudo_approved_candidates, values)
+        elseif branching.stable_alternative == "largest_gradient"
+            best_idx = largest_gradient_decision(tree, pseudo_approved_candidates, values)
+        else
+            best_idx = most_infeasible_decision(tree, pseudo_approved_candidates, values)
+        end
     end
-    # update number of times the candidate has been branched on
-    branching.infeas_tracker[best_idx, 2] += 1
     return best_idx
 end
 
+function pseudo_selection(
+    branching::Bonobo.AbstractBranchStrategy,
+    candidates::Vector{Int},
+    values::Vector{Float64}
+)
+    if branching.decision_function == "product"
+        branching_scores = map(
+            idx-> μ_product(
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2], 
+                    branching.pseudos[idx, 1], 
+                    values[idx]
+                ),
+                branching.μ
+            ),
+            candidates)
+    elseif branching.decision_function == "weighted_sum"
+        branching_scores = map(
+            idx-> pseudocost_convex_combination(
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2], 
+                    branching.pseudos[idx, 1], 
+                    values[idx]
+                ),
+                branching.μ
+            ),
+            candidates)
+    end
+    #pseudo_cutoff  = (mean(branching_scores) + maximum(branching_scores))/2
+    pseudo_cutoff = 3/4 * maximum(branching_scores) + 1/4 * mean(branching_scores)
+    pseudo_approved_candidates = Int[]
+    for (i, idx) in enumerate(candidates)
+        if branching_scores[i] >= pseudo_cutoff
+            push!(pseudo_approved_candidates, idx)
+        end
+    end 
+    return pseudo_approved_candidates
+end
 
 """
 largest_most_infeasible_gradient_decision(
@@ -552,46 +606,6 @@ function μ_product(
 )
     return max(pseudocost_tuple[1], μ) * max(pseudocost_tuple[2], μ) 
 end
-
-
-"""
-infeas_score(
-    idx::Int, 
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-    )
-Description: calculates ratio of how often branching on candidate idx
-             has led to infeasibilty of a resulting node.
-"""
-function infeas_score(
-    idx::Int, 
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-    )
-    infeas_tracker[idx, 1] == 1 && return 0
-    # ratio of how often branching on variable idx leads to node infeasiblity of children
-    return  (infeas_tracker[idx, 1]) / (infeas_tracker[idx, 2])
-end
-
-"""
-max_infeas_score(
-    idxs::Vector{Int64}, 
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-    )
-\nDescription: 
-\nCalculates maximum infeasibilty score over all branching candidates 
-\n Infeasibility score as ratio of how (often) branching on a variable resulted in infeasiblity of resulting node
-            
-"""
-function max_infeas_score(
-    idxs::Vector{Int64}, 
-    infeas_tracker::SparseMatrixCSC{Int64, Int64}
-    )
-    max_score = 0
-    for idx in idxs
-        max_score = max(max_score, infeas_score(idx, infeas_tracker))
-    end
-    return max_score
-end
-
 
 
 

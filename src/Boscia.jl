@@ -4,6 +4,7 @@ using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
 using Random
+using Statistics
 import Bonobo
 using Printf
 using Dates
