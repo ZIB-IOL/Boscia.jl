@@ -133,6 +133,35 @@ function split_pre_computed_set!(x, pre_computed_set::Vector, tree, vidx::Int;at
     return pre_computed_set_left, pre_computed_set_right
 end
 
+function build_dicg_start_point(lmo::TimeTrackingLMO)
+	blmo = lmo.blmo
+	n, _ = get_list_of_variables(blmo)
+	d = ones(n)
+	x0 = FrankWolfe.compute_extreme_point(lmo, d)
+	return x0
+end
+
+function dicg_start_point_initialize(lmo::TimeTrackingLMO, active_set::FrankWolfe.ActiveSet{T, R}, pre_computed_set) where {T, R}
+	if lmo.ncalls == 0
+		return FrankWolfe.get_active_set_iterate(active_set)
+	end
+	if pre_computed_set === nothing
+		x0 = build_dicg_start_point(lmo)
+	else
+		if !isempty(pre_computed_set)
+			# We pick a point by averaging the pre_computed_atoms as warm-start.  
+			num_pre_computed_set = length(pre_computed_set)
+			x0 = sum(pre_computed_set) / num_pre_computed_set
+		else
+			# We pick a random point.
+			d = FrankWolfe.get_active_set_iterate(active_set)
+			d = ones(length(d))
+			x0 = FrankWolfe.compute_extreme_point(lmo, d)
+		end
+	end
+end
+
+
 """
 Split a discarded vertices set between left and right children.
 """
