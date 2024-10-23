@@ -201,43 +201,25 @@ function solve_frank_wolfe(
     workspace=nothing,
     pre_computed_set=nothing,
 )
-    if pre_computed_set === nothing
-        # We pick a random point.
-        d = FrankWolfe.get_active_set_iterate(active_set)
-        x0 = FrankWolfe.compute_extreme_point(lmo, d)
-        DICG_callback = callback
-    else
-        if !isempty(pre_computed_set)
-            # We pick a point by averaging the pre_computed_atoms as warm-start.  
-            num_pre_computed_set = length(pre_computed_set)
-            x0 = sum(pre_computed_set) / num_pre_computed_set
-        else
-            # We pick a random point.
-            d = FrankWolfe.get_active_set_iterate(active_set)
-            x0 = FrankWolfe.compute_extreme_point(lmo, d)
-        end
-
-        # We keep track of computed extreme points by creating logging callback.
-        function make_callback(pre_computed_set)
-            return function DICG_callback(state, args...)
-                if !callback(state, args...)
-                    return false
-                end
-
-                if state.tt !== FrankWolfe.last || state.tt !== FrankWolfe.pp
-                    idx = findfirst(x -> x == state.v, pre_computed_set)
-
-                    if idx == nothing && length(pre_computed_set) < (length(state.v) + 1)
-                        push!(pre_computed_set, state.v)
-                    end
-
-                end
-
-                return true
-            end
-        end
-        DICG_callback = make_callback(pre_computed_set)
+    # We keep track of computed extreme points by creating logging callback.
+    function make_callback(pre_computed_set)
+	return function DICG_callback(state)
+		if !callback(state, pre_computed_set)
+			return false
+		end
+		return true
+	end
     end
+    
+    x0 = dicg_start_point_initialize(lmo, active_set, pre_computed_set)
+	
+    if x0 == nothing
+	return NaN, Inf, Inf, pre_computed_set
+    else
+	@assert is_linear_feasible(lmo, x0)
+    end
+
+    DICG_callback = make_callback(pre_computed_set)
 
     x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
