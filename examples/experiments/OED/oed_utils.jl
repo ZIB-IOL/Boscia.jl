@@ -458,7 +458,6 @@ function Boscia.bounded_dicg_maximum_step(
 		di = direction[idx]
 		if di > 0
 			gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
-			# gamma_max = nextfloat(gamma_max, -1)
 
 		elseif di < 0
 			gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
@@ -469,20 +468,6 @@ function Boscia.bounded_dicg_maximum_step(
 		end
 	end
 
-	# for idx in eachindex(int_vars)
-	# 	var = int_vars[idx]
-	# 	di = direction[var]
-	# 	if di > 0
-	# 		gamma_max = min(gamma_max, (x[var] - lb[idx]) / di)
-
-	# 	elseif di < 0
-	# 		gamma_max = min(gamma_max, (ub[idx] - x[var]) / -di)
-	# 	end
-
-	# 	if gamma_max == 0.0
-	# 		return 0.0
-	# 	end
-	# end
 
 	return gamma_max
 end
