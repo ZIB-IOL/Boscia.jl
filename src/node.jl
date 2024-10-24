@@ -204,6 +204,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         [node_info_left]
     else
         @warn "No childern nodes can be created."
+        Vector{typeof(node_info_left)}()
     end
     return nodes
 end
