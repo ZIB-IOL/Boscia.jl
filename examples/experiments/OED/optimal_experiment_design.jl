@@ -49,7 +49,7 @@ function oed_boscia(
 	seed,
 	dim;
 	mode = "bpcg",
-	type = "A-Optimal",
+	type = "D-Optimal",
 	line_search = nothing,
 	fw_epsilon = 1e-2,
 	use_DICG_warm_start = false,
@@ -147,13 +147,14 @@ function oed_boscia(
 		g, grad! = build_d_criterion(Ex_mat, build_safe = true)
 		blmo = build_blmo(m, N, ub)
 		x0, active_set = build_start_point(Ex_mat, N, ub)
-		build_dicg_start_point = build_start_point_func(Ex_mat, N)
+		Boscia.build_dicg_start_point = build_start_point_func(Ex_mat, N)
 		z = greedy_incumbent(Ex_mat, N, ub)
 		domain_oracle = build_domain_oracle(Ex_mat, n)
 		if mode == "dicg"
-			line_search = FrankWolfe.Adaptive()
+			# line_search = FrankWolfe.Adaptive()
+			line_search = FrankWolfe.Secant(domain_oracle = domain_oracle)
 		else
-			line_search = FrankWolfe.Secant(40, 1e-8, domain_oracle)
+			line_search = FrankWolfe.Secant(domain_oracle = domain_oracle)
 		end
 		heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
 
@@ -194,14 +195,11 @@ function oed_boscia(
 				start_solution = z,
 				variant = variant,
 				verbose = verbose,
+				fw_verbose = true,
 				lazy = lazy,
 				fw_epsilon = fw_epsilon,
 				domain_oracle = domain_oracle,
-				custom_heuristics = [heu],
-				sharpness_exponent = θ,
-				time_limit = time_limit,
-				sharpness_constant = M,
-				line_search = line_search,
+				custom_heuristics = [heu], time_limit = time_limit, line_search = line_search,
 				use_DICG_warm_start = use_DICG_warm_start,
 			) #sharpness_exponent=θ, sharpness_constant=M,
 
@@ -269,6 +267,6 @@ function oed_boscia(
 
 end
 
-oed_boscia(10, 80; mode = "bpcg", variant = Boscia.BPCG(), line_search = FrankWolfe.Adaptive(), lazy = false, write = false)
+oed_boscia(10, 180; mode = "bpcg", variant = Boscia.BPCG(), lazy = false, write = false)
 
 # oed_boscia(2, 30;)
