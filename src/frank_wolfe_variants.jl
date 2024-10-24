@@ -36,44 +36,45 @@ In case lazification is activated, the FW vertex is only computed if not enough 
 struct AwayFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::AwayFrankWolfe,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    pre_computed_set=nothing,
+	frank_wolfe_variant::AwayFrankWolfe,
+	f,
+	grad!,
+	lmo,
+	active_set;
+	line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
+	epsilon = 1e-7,
+	max_iteration = 10000,
+	add_dropped_vertices = false,
+	use_extra_vertex_storage = false,
+	extra_vertex_storage = nothing,
+	callback = nothing,
+	lazy = false,
+	lazy_tolerance = 2.0,
+	timeout = Inf,
+	verbose = false,
+	workspace = nothing,
+	pre_computed_set = nothing,
+	kwargs...,
 )
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        line_search=line_search,
-        callback=callback,
-        lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
-        timeout=timeout,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        verbose=verbose,
-    )
+	x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+		f,
+		grad!,
+		lmo,
+		active_set,
+		epsilon = epsilon,
+		max_iteration = max_iteration,
+		line_search = line_search,
+		callback = callback,
+		lazy = lazy,
+		lazy_tolerance = lazy_tolerance,
+		timeout = timeout,
+		add_dropped_vertices = add_dropped_vertices,
+		use_extra_vertex_storage = use_extra_vertex_storage,
+		extra_vertex_storage = extra_vertex_storage,
+		verbose = verbose,
+	)
 
-    return x, primal, dual_gap, active_set
+	return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
@@ -85,43 +86,44 @@ Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 struct Blended <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::Blended,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    pre_computed_set=nothing,
+	frank_wolfe_variant::Blended,
+	f,
+	grad!,
+	lmo,
+	active_set;
+	line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
+	epsilon = 1e-7,
+	max_iteration = 10000,
+	add_dropped_vertices = false,
+	use_extra_vertex_storage = false,
+	extra_vertex_storage = nothing,
+	callback = nothing,
+	lazy = false,
+	lazy_tolerance = 2.0,
+	timeout = Inf,
+	verbose = false,
+	workspace = nothing,
+	pre_computed_set = nothing,
+	kwargs...,
 )
-    x, _, primal, dual_gap, _, active_set = blended_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        callback=callback,
-        timeout=timeout,
-        verbose=verbose,
-        lazy_tolerance=lazy_tolerance,
-    )
+	x, _, primal, dual_gap, _, active_set = blended_conditional_gradient(
+		f,
+		grad!,
+		lmo,
+		active_set,
+		line_search = line_search,
+		epsilon = epsilon,
+		max_iteration = max_iteration,
+		add_dropped_vertices = add_dropped_vertices,
+		use_extra_vertex_storage = use_extra_vertex_storage,
+		extra_vertex_storage = extra_vertex_storage,
+		callback = callback,
+		timeout = timeout,
+		verbose = verbose,
+		lazy_tolerance = lazy_tolerance,
+	)
 
-    return x, primal, dual_gap, active_set
+	return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
@@ -132,43 +134,47 @@ Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
 struct BPCG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::BPCG,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    pre_computed_set=nothing,
+	frank_wolfe_variant::BPCG,
+	f,
+	grad!,
+	lmo,
+	active_set;
+	line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
+	epsilon = 1e-7,
+	max_iteration = 10000,
+	add_dropped_vertices = false,
+	use_extra_vertex_storage = false,
+	extra_vertex_storage = nothing,
+	callback = nothing,
+	lazy = false,
+	lazy_tolerance = 2.0,
+	timeout = Inf,
+	verbose = false,
+	workspace = nothing,
+	pre_computed_set = nothing,
+	kwargs...,
 )
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        callback=callback,
-        lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
-        timeout=timeout,
-        verbose=verbose,
-    )
-    return x, primal, dual_gap, active_set
+	# d = FrankWolfe.get_active_set_iterate(active_set)
+	# x0 = FrankWolfe.compute_extreme_point(lmo, d)
+	# active_set = FrankWolfe.ActiveSet([(1.0, x0)])
+	x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+		f,
+		grad!,
+		lmo,
+		active_set,
+		line_search = line_search,
+		epsilon = epsilon,
+		max_iteration = max_iteration,
+		add_dropped_vertices = add_dropped_vertices,
+		use_extra_vertex_storage = use_extra_vertex_storage,
+		extra_vertex_storage = extra_vertex_storage,
+		callback = callback,
+		lazy = lazy,
+		lazy_tolerance = lazy_tolerance,
+		timeout = timeout,
+		verbose = verbose,
+	)
+	return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
@@ -182,81 +188,116 @@ The Decomposition-invariant Frank-Wolfe.
 struct DICG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::DICG,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    pre_computed_set=nothing,
+	frank_wolfe_variant::DICG,
+	f,
+	grad!,
+	lmo,
+	active_set;
+	line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
+	epsilon = 1e-7,
+	max_iteration = 100000,
+	add_dropped_vertices = false,
+	use_extra_vertex_storage = false,
+	extra_vertex_storage = nothing,
+	callback = nothing,
+	lazy = false,
+	lazy_tolerance = 2.0,
+	timeout = Inf,
+	verbose = false,
+	workspace = nothing,
+	pre_computed_set = nothing,
+	kwargs...,
 )
-    if pre_computed_set === nothing
-        # We pick a random point.
-        d = FrankWolfe.get_active_set_iterate(active_set)
-        x0 = FrankWolfe.compute_extreme_point(lmo, d)
-        DICG_callback = callback
-    else
-        if !isempty(pre_computed_set)
-            # We pick a point by averaging the pre_computed_atoms as warm-start.  
-            num_pre_computed_set = length(pre_computed_set)
-            x0 = sum(pre_computed_set) / num_pre_computed_set
-        else
-            # We pick a random point.
-            d = FrankWolfe.get_active_set_iterate(active_set)
-            x0 = FrankWolfe.compute_extreme_point(lmo, d)
-        end
 
-        # We keep track of computed extreme points by creating logging callback.
-        function make_callback(pre_computed_set)
-            return function DICG_callback(state, args...)
-                if !callback(state, args...)
-                    return false
-                end
+	# We keep track of computed extreme points by creating logging callback.
+	function make_callback(pre_computed_set)
+		return function DICG_callback(state)
+			if !callback(state, pre_computed_set)
+				return false
+			end
 
-                if state.tt !== FrankWolfe.last || state.tt !== FrankWolfe.pp
-                    idx = findfirst(x -> x == state.v, pre_computed_set)
+			# if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
+			# 	idx = findfirst(x -> x == state.v, pre_computed_set)
 
-                    if idx == nothing && length(pre_computed_set) < (length(state.v) + 1)
-                        push!(pre_computed_set, state.v)
-                    end
+			# 	if idx == nothing && length(pre_computed_set) < (length(state.v) + 1)
+			# 		push!(pre_computed_set, state.v)
+			# 	end
 
-                end
 
-                return true
-            end
-        end
-        DICG_callback = make_callback(pre_computed_set)
-    end
+			# 	# if length(pre_computed_set) < (length(state.v) + 1)
+			# 	# 	push!(pre_computed_set, state.v)
 
-    x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        x0;
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        verbose=verbose,
-        timeout=timeout,
-        lazy=lazy,
-        linesearch_workspace=workspace,
-        lazy_tolerance=lazy_tolerance,
-        callback=DICG_callback,
-        extra_vertex_storage=pre_computed_set,
-    )
+			# 	# end
 
-    return x, primal, dual_gap, pre_computed_set
+			# end
+			return true
+		end
+	end
+
+	# if pre_computed_set === nothing
+	# 	if lmo.ncalls == 0
+	# 		x0 = FrankWolfe.get_active_set_iterate(active_set)
+	# 	else
+	# 		x0 = build_dicg_start_point(lmo)
+	# 		# println("generated....")
+	# 		if x0 !== nothing
+	# 			@assert isfinite(f(x0))
+	# 			@assert is_linear_feasible(lmo, x0)
+	# 		else
+	# 			# println("no point...")
+	# 			return NaN, Inf, Inf, pre_computed_set
+	# 		end
+
+	# 		# # We pick a random point.
+	# 		# d = FrankWolfe.get_active_set_iterate(active_set)
+	# 		# x0 = FrankWolfe.compute_extreme_point(lmo, d)
+	# 	end
+	# 	DICG_callback = callback
+	# else
+	# 	if lmo.ncalls == 0
+	# 		x0 = FrankWolfe.get_active_set_iterate(active_set)
+	# 	elseif !isempty(pre_computed_set)
+	# 		# We pick a point by averaging the pre_computed_atoms as warm-start.  
+	# 		num_pre_computed_set = length(pre_computed_set)
+	# 		x0 = sum(pre_computed_set) / num_pre_computed_set
+	# 	else
+	# 		# We pick a random point.
+	# 		d = FrankWolfe.get_active_set_iterate(active_set)
+	# 		d = ones(length(d))
+	# 		x0 = FrankWolfe.compute_extreme_point(lmo, d)
+	# 	end
+
+	# 	DICG_callback = make_callback(pre_computed_set)
+	# end
+
+	x0 = dicg_start_point_initialize(lmo, active_set, pre_computed_set)
+	if x0 == nothing
+		return NaN, Inf, Inf, pre_computed_set
+	else
+		@assert is_linear_feasible(lmo, x0)
+	end
+
+	DICG_callback = make_callback(pre_computed_set)
+
+	x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+		f,
+		grad!,
+		lmo,
+		x0;
+		line_search = line_search,
+		epsilon = epsilon,
+		max_iteration = max_iteration,
+		verbose = verbose,
+		timeout = timeout,
+		lazy = lazy,
+		linesearch_workspace = workspace,
+		lazy_tolerance = lazy_tolerance,
+		callback = DICG_callback,
+		extra_vertex_storage = pre_computed_set,
+	)
+
+
+	return x, primal, dual_gap, pre_computed_set
 end
 
 Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
@@ -268,44 +309,45 @@ Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 struct VanillaFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VanillaFrankWolfe,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    pre_computed_set=nothing,
+	frank_wolfe_variant::VanillaFrankWolfe,
+	f,
+	grad!,
+	lmo,
+	active_set;
+	line_search::FrankWolfe.LineSearchMethod = FrankWolfe.Adaptive(),
+	epsilon = 1e-7,
+	max_iteration = 10000,
+	add_dropped_vertices = false,
+	use_extra_vertex_storage = false,
+	extra_vertex_storage = nothing,
+	callback = nothing,
+	lazy = false,
+	lazy_tolerance = 2.0,
+	timeout = Inf,
+	verbose = false,
+	workspace = nothing,
+	pre_computed_set = nothing,
+	kwargs...,
 )
-    # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        line_search=line_search,
-        callback=callback,
-        lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
-        timeout=timeout,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        verbose=verbose,
-        away_steps=false,
-    )
+	# Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
+	x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
+		f,
+		grad!,
+		lmo,
+		active_set,
+		epsilon = epsilon,
+		max_iteration = max_iteration,
+		line_search = line_search,
+		callback = callback,
+		lazy = lazy,
+		lazy_tolerance = lazy_tolerance,
+		timeout = timeout,
+		add_dropped_vertices = add_dropped_vertices,
+		use_extra_vertex_storage = use_extra_vertex_storage,
+		extra_vertex_storage = extra_vertex_storage,
+		verbose = verbose,
+		away_steps = false,
+	)
 	return x, primal, dual_gap, active_set
 end
 
