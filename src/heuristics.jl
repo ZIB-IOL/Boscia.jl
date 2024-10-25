@@ -53,7 +53,7 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                 min_val = Inf
                 min_idx = -1
                 for (i, x_heu) in enumerate(list_x_heu)
-                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) : false
+                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) && tree.root.options[:domain_oracle](x_heu) : false
                     if feasible
                         val = tree.root.problem.f(x_heu)
                         if val < min_val
