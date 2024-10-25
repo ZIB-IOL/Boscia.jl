@@ -84,11 +84,41 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    # Sanity check
-    @assert isapprox(sum(active_set_left.weights), 1.0)
-    @assert sum(active_set_left.weights .< 0) == 0
-    @assert isapprox(sum(active_set_right.weights), 1.0)
-    @assert sum(active_set_right.weights .< 0) == 0
+    domain_right = !isempty(active_set_right)
+    domain_left = !isempty(active_set_left)
+
+    # Sanity check 
+    # With a non trivial domain oracle, one of them might be empty
+    if domain_left
+        @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
+        @assert sum(active_set_left.weights .< 0) == 0
+        for v in active_set_left.atoms
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+    end
+    if domain_right
+        @assert isapprox(sum(active_set_right.weights), 1.0) "sum weights right: $(sum(active_set_right.weights))"
+        @assert sum(active_set_right.weights .< 0) == 0
+        for v in active_set_right.atoms
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+    end
+   
+    for v in discarded_set_left.storage
+        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
+
+    for v in discarded_set_right.storage
+        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        end
+    end
 
     # add new bounds to the feasible region left and right
     # copy bounds from parent
@@ -107,28 +137,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
-
-    # Sanity check
-    for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-        end
-    end
-    for v in discarded_set_left.storage
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-        end
-    end
-    for v in active_set_right.atoms
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-        end
-    end
-    for v in discarded_set_right.storage
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-        end
-    end
 
     # update the LMO
     node_info_left = (
@@ -157,12 +165,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     )
 
     # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
-    x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
-    x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
-    domain_oracle = tree.root.options[:domain_oracle]
-
-    domain_right = domain_oracle(x_right)
-    domain_left = domain_oracle(x_left)
+    x_left = domain_left ? FrankWolfe.compute_active_set_iterate!(active_set_left) : nothing
+    x_right = domain_right ? FrankWolfe.compute_active_set_iterate!(active_set_right) : nothing
 
     nodes = if !prune_left && !prune_right && domain_right && domain_left
         [node_info_left, node_info_right]
