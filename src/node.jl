@@ -283,7 +283,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     elseif node.id == 1
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
-        @assert lower_bound <= tree.incumbent + node.fw_dual_gap_limit "lower_bound <= tree.incumbent + node.fw_dual_gap_limit : $(lower_bound) <= $(tree.incumbent + node.fw_dual_gap_limit)"
+        @assert lower_bound <= tree.incumbent + dual_gap "lower_bound <= tree.incumbent + dual_gap : $(lower_bound) <= $(tree.incumbent + dual_gap)"
     end
 
     # Call heuristic 
