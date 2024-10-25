@@ -97,7 +97,7 @@ Random.seed!(seed)
         custom_heuristics=[heu], 
         line_search=line_search,
     )
-@show X
+@show x
 @show x_s
     @test result_s[:dual_bound] <= g(x) + 1e-4
     @test result[:dual_bound] <= g(x_s) + 1e-4
