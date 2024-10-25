@@ -84,8 +84,6 @@ function split_vertices_set!(
         FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))
     # indices to remove later from the left active set
     left_del_indices = BitSet()
-    vertices_domain_infeasible_left = false # track if some vertices are domain infeasible
-    vertices_domain_infeasible_right = false
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
         if !is_bound_feasible(local_bounds, a)
@@ -96,20 +94,10 @@ function split_vertices_set!(
         # if variable set to 1 in the atom,
         # place in right branch, delete from left
         if a[var] >= ceil(x[var]) || isapprox(a[var], ceil(x[var]), atol=atol, rtol=rtol)
-            # only add the vertex if it is domain feasible
-            if tree.root.options[:domain_oracle](a)
-                push!(right_as, tup)
-            else
-                vertices_domain_infeasible_right = true
-            end
+            push!(right_as, tup)
             push!(left_del_indices, idx)
         elseif a[var] <= floor(x[var]) || isapprox(a[var], floor(x[var]), atol=atol, rtol=rtol)
             # keep in left, don't add to right
-            # Do delete it if it's not domain feasible
-            if !tree.root.options[:domain_oracle](a)
-                push!(left_del_indices, idx)
-                vertices_domain_infeasible_left = true
-            end
         else #floor(x[var]) < a[var] < ceil(x[var])
             # if you are in middle, delete from the left and do not add to the right!
             @warn "Attention! Vertex in the middle."
@@ -117,8 +105,8 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    @assert !isempty(active_set) || vertices_domain_infeasible_left
-    @assert !isempty(right_as) || vertices_domain_infeasible_right
+    @assert !isempty(active_set)
+    @assert !isempty(right_as) 
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
@@ -167,6 +155,33 @@ function split_vertices_set!(
     return (discarded_set, right_as)
 end
 
+"""
+Delete vertices from the active set if they are not domain feasible.
+"""
+function clean_active_set_by_domain_oracle(
+    active_set::FrankWolfe.ActiveSet{T,R},
+    tree;
+    atol=1e-5,
+    rtol=1e-5,
+) where {T,R}
+    del_indices = BitSet()
+    for (idx, tup) in enumerate(active_set)
+        (λ, a) = tup
+        if !tree.root.options[:domain_oracle](a)
+            push!(del_indices, idx)
+        end
+    end
+    deleteat!(active_set, del_indices)
+    if !isempty(active_set)
+        FrankWolfe.active_set_renormalize!(active_set)
+        FrankWolfe.compute_active_set_iterate!(active_set)
+    end
+    return active_set
+end
+
+"""
+Check if a given point v satisfies the given bounds.
+"""
 function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
     for (idx, set) in bounds.lower_bounds
         if v[idx] < set - atol
