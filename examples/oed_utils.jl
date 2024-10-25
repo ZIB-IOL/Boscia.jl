@@ -6,10 +6,8 @@ m    - number of experiments.
 fusion - boolean deiciding whether we build the fusion or standard problem.
 corr - boolean deciding whether we build the independent or correlated data.   
 """
-function build_data(m)
+function build_data(m, n)
     # set up
-    n = Int(floor(m/10))
-    
     B = rand(m,n)
     B = B'*B
     @assert isposdef(B)
@@ -22,7 +20,7 @@ function build_data(m)
     u = floor(N/3)
     ub = rand(1.0:u, m)
         
-    return A, n, N, ub 
+    return A, N, ub 
 end
 
 """
