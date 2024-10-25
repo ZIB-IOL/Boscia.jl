@@ -42,12 +42,15 @@ include("oed_utils.jl")
 
 
 m = 50
+n = Int(floor(m/10))
 verbose = true
+seed = 0xf87101b7b85e0fcc
+Random.seed!(seed)
 
 ## A-Optimal Design Problem
 @testset "A-Optimal Design" begin
 
-    Ex_mat, n, N, ub = build_data(m)
+    Ex_mat, N, ub = build_data(m, n)
 
     g, grad! = build_a_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
@@ -63,8 +66,10 @@ verbose = true
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
+    @show domain_oracle(x0), N
+    @show x0
     z = greedy_incumbent(Ex_mat, N, ub)
-    x, _, result = Boscia.solve(
+   x, _, result = Boscia.solve(
         g, 
         grad!, 
         blmo, 
@@ -74,7 +79,7 @@ verbose = true
         domain_oracle=domain_oracle, 
         custom_heuristics=[heu], 
         line_search=line_search,
-    )
+    ) 
     
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
@@ -92,7 +97,8 @@ verbose = true
         custom_heuristics=[heu], 
         line_search=line_search,
     )
-
+@show X
+@show x_s
     @test result_s[:dual_bound] <= g(x) + 1e-4
     @test result[:dual_bound] <= g(x_s) + 1e-4
     @test isapprox(g(x), g(x_s), atol=1e-3) 
@@ -100,7 +106,7 @@ end
 
 ## D-Optimal Design Problem
 @testset "D-optimal Design" begin
-    Ex_mat, n, N, ub = build_data(m)
+    Ex_mat, N, ub = build_data(m, n)
 
     g, grad! = build_d_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
