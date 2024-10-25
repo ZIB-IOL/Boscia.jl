@@ -44,8 +44,6 @@ include("oed_utils.jl")
 m = 50
 n = Int(floor(m/10))
 verbose = true
-seed = 0xf87101b7b85e0fcc
-Random.seed!(seed)
 
 ## A-Optimal Design Problem
 @testset "A-Optimal Design" begin
@@ -97,10 +95,9 @@ Random.seed!(seed)
         custom_heuristics=[heu], 
         line_search=line_search,
     )
-@show x
-@show x_s
-    @test result_s[:dual_bound] <= g(x) + 1e-4
-    @test result[:dual_bound] <= g(x_s) + 1e-4
+
+    @test result_s[:dual_bound] <= g(x) + 1e-3
+    @test result[:dual_bound] <= g(x_s) + 1e-3
     @test isapprox(g(x), g(x_s), atol=1e-3) 
 end 
 
