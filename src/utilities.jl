@@ -272,6 +272,42 @@ function sparse_min_via_enum(f, n, k, values=fill(0:1, n))
     return best_val, best_sol
 end
 
+function min_via_enum_simplex(f, n, N, values=fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        if sum(sol_vec) > N 
+            continue
+        end
+        val = f(sol_vec)
+        if best_val > val
+            best_val = val
+            best_sol = sol_vec
+        end
+    end
+    return best_val, best_sol
+end
+
+function min_via_enum_prob_simplex(f, n, N, values=fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        if sum(sol_vec) != N 
+            continue
+        end
+        val = f(sol_vec)
+        if best_val > val
+            best_val = val
+            best_sol = sol_vec
+        end
+    end
+    return best_val, best_sol
+end
+
 
 # utility function to print the values of the parameters
 _value_to_print(::Bonobo.BestFirstSearch) = "Move best bound"
