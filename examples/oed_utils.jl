@@ -172,7 +172,7 @@ function add_to_min(x, u)
     perm = sortperm(x)
     j = findfirst(x->x != 0, x[perm])
     
-    for i in j:length(x)
+    for i in j:length(y)
         if x[perm[i]] < u[perm[i]]
             x[perm[i]] += 1
             break
@@ -185,7 +185,7 @@ end
 
 function remove_from_max(x)
     perm = sortperm(x, rev = true)
-    j = findlast(x->x != 0, x[perm])
+    j = findlast(x->x[S] != 0, x[perm])
     
     for i in 1:j
         if x[perm[i]] > 1
@@ -233,6 +233,46 @@ function build_start_point(A, N, ub)
     active_set= FrankWolfe.ActiveSet(fill(1/a, a), V, x)
 
     return x, active_set, S
+end
+
+"""
+Build domain feasible for any node.
+"""
+function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, initial_ub)
+    return function domain_point(local_bounds)
+        lb = initial_lb
+        ub = initial_ub
+        for idx in int_vars
+            if iskey(idx, local_bounds.lower_bounds)
+                lb[idx] = max(initial_lb[idx], lower_bounds[idx])
+            end
+            if iskey(idx, local_bounds.upper_bounds)
+                ub[idx] = min(initial_ub[idx], upper_bounds[idx])
+            end
+        end
+        # Node itself infeasible
+        if sum(lb) > N 
+            return nothing
+        end
+        # No intersection between node and domain
+        if !domain_oracle(ub)
+            return nothing
+        end
+        x = lb
+        
+        S = linearly_independent_rows(A)
+        while sum(x) <= N
+            if sum(x) == N 
+                if domain_oracle(x)
+                    return x 
+                else 
+                    return nothing 
+                end 
+            end
+            y = add_to_min(x[S], ub[S])
+            x[S] = y
+        end
+    end
 end
 
 """
