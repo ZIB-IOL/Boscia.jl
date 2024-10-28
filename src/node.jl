@@ -133,10 +133,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
 
     if !tree.root.options[:domain_oracle](x_left)
-        active_set_left = build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left)
+        active_set_left = build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
     end
     if !tree.root.options[:domain_oracle](x_right)
-        active_set_right = build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right)
+        active_set_right = build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
     end
 
     # update the LMO

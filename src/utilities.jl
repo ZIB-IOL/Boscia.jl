@@ -166,7 +166,8 @@ where x* is a domain and bound feasible point provided by the user.
 function build_active_set_by_domain_oracle(
     active_set::FrankWolfe.ActiveSet{T,R},
     tree,
-    local_bounds::IntegerBounds;
+    local_bounds::IntegerBounds,
+    node;
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
@@ -179,12 +180,11 @@ function build_active_set_by_domain_oracle(
         end
     end
     # At least one vertex is domain feasible.
-    if size(del_indices) < size(active_set.weights)
+    if length(del_indices) < length(active_set.weights)
         deleteat!(active_set, del_indices)
-        if !isempty(active_set)
-            FrankWolfe.active_set_renormalize!(active_set)
-            FrankWolfe.compute_active_set_iterate!(active_set)
-        end
+        @assert !isempty(active_set)
+        FrankWolfe.active_set_renormalize!(active_set)
+        FrankWolfe.compute_active_set_iterate!(active_set)
     # No vertex is domain feasible
     else
         x_star = tree.root.options[:domain_point](local_bounds)
@@ -195,7 +195,7 @@ function build_active_set_by_domain_oracle(
             return active_set
         end
 
-        inner_f(x) = 1/2 * norm(x - x_star)^2
+        inner_f(x) = 1/2 * LinearAlgebra.norm(x - x_star)^2
 
         function inner_grad!(storage, x)
             storage .= x - x_star
@@ -210,8 +210,14 @@ function build_active_set_by_domain_oracle(
                 end
             end
         end
-
         inner_callback = build_inner_callback(tree)
+
+        build_LMO(
+            tree.root.problem.tlmo,
+            tree.root.problem.integer_variable_bounds,
+            local_bounds,
+            tree.root.problem.integer_variables,
+        )
 
         x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
             inner_f,
@@ -222,6 +228,13 @@ function build_active_set_by_domain_oracle(
             lazy=true,
         )
         @assert tree.root.options[:domain_oracle](x)
+
+        build_LMO(
+        tree.root.problem.tlmo,
+        tree.root.problem.integer_variable_bounds,
+        node.local_bounds,
+        tree.root.problem.integer_variables,
+    )
     end
     return active_set
 end
