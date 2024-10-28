@@ -8,6 +8,16 @@ Enum for the solving stage
     TIME_LIMIT_REACHED = 3
 end
 
+"""
+Trivial domain function.
+"""
+_trivial_domain(x) = true
+
+"""
+Trivial domain point function.
+"""
+_trivial_domain_point(x) = nothing
+
 abstract type AbstractSimpleOptimizationProblem end
 
 """
