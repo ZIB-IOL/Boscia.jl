@@ -283,7 +283,7 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
                     return nothing 
                 end 
             end
-            if sum(iszero(x[S]-ub[S])) < length(S)
+            if iszero(x[S]-ub[S])
                 y = add_to_min2(x[S], ub[S])
                 x[S] = y
             else
