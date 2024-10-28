@@ -151,7 +151,7 @@ function solve(
     global_bounds = build_global_bounds(blmo, integer_variables)
 
     if typeof(domain_oracle) != typeof(_trivial_domain) && typeof(domain_point) == typeof(_trivial_domain_point)
-        warning("For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge.")
+        @warn "For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge."
     end
 
     v = []
