@@ -16,7 +16,7 @@ _trivial_domain(x) = true
 """
 Trivial domain point function.
 """
-_trivial_domain_point(x) = nothing
+_trivial_domain_point(local_bounds::IntegerBounds) = nothing
 
 abstract type AbstractSimpleOptimizationProblem end
 

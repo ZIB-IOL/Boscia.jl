@@ -156,14 +156,21 @@ function split_vertices_set!(
 end
 
 """
-Delete vertices from the active set if they are not domain feasible.
+Build a new start point and active set in case the split active set
+does not lead to a domain feasible iterate.
+First, try filtering the active set by the domain oracle.
+If all vertices are domain infeasible, solve the projection problem
+1/2 * ||x - x*||_2^2 
+where x* is a domain and bound feasible point provided by the user.
 """
-function clean_active_set_by_domain_oracle(
+function build_active_set_by_domain_oracle(
     active_set::FrankWolfe.ActiveSet{T,R},
-    tree;
+    tree,
+    local_bounds::IntegerBounds;
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
+    # Filtering
     del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
         (λ, a) = tup
@@ -171,10 +178,50 @@ function clean_active_set_by_domain_oracle(
             push!(del_indices, idx)
         end
     end
-    deleteat!(active_set, del_indices)
-    if !isempty(active_set)
-        FrankWolfe.active_set_renormalize!(active_set)
-        FrankWolfe.compute_active_set_iterate!(active_set)
+    # At least one vertex is domain feasible.
+    if size(del_indices) < size(active_set.weights)
+        deleteat!(active_set, del_indices)
+        if !isempty(active_set)
+            FrankWolfe.active_set_renormalize!(active_set)
+            FrankWolfe.compute_active_set_iterate!(active_set)
+        end
+    # No vertex is domain feasible
+    else
+        x_star = tree.root.options[:domain_point](local_bounds)
+        # No domain feasible point can be build.
+        # Node can be pruned.
+        if x_star === nothing
+            deleteat!(active_set, del_indices)
+            return active_set
+        end
+
+        inner_f(x) = 1/2 * norm(x - x_star)^2
+
+        function inner_grad!(storage, x)
+            storage .= x - x_star
+            return storage
+        end
+
+        function build_inner_callback(tree)
+            return function inner_callback(state, active_set, kwargs...)
+                # stop as soon as we find a domain feasible point.
+                if tree.root.options[:domain_oracle](state.x)
+                    return false
+                end
+            end
+        end
+
+        inner_callback = build_inner_callback(tree)
+
+        x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            inner_f,
+            inner_grad!,
+            tree.root.problem.tlmo,
+            active_set,
+            callback=inner_callback,
+            lazy=true,
+        )
+        @assert tree.root.options[:domain_oracle](x)
     end
     return active_set
 end
