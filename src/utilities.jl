@@ -171,6 +171,24 @@ function build_active_set_by_domain_oracle(
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
+    # Check if node problem is even feasible
+    build_LMO(
+        tree.root.problem.tlmo,
+        tree.root.problem.integer_variable_bounds,
+        local_bounds,
+        tree.root.problem.integer_variables,
+    )
+    status = check_feasibility(tree.root.problem.tlmo)
+    if status == INFEASIBLE
+        build_LMO(
+            tree.root.problem.tlmo,
+            tree.root.problem.integer_variable_bounds,
+            node.local_bounds,
+            tree.root.problem.integer_variables,
+        )
+        active_set.empty!()
+        return active_set
+    end
     # Filtering
     del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
@@ -192,50 +210,41 @@ function build_active_set_by_domain_oracle(
         # Node can be pruned.
         if x_star === nothing
             deleteat!(active_set, del_indices)
-            return active_set
-        end
+        else
+            inner_f(x) = 1/2 * LinearAlgebra.norm(x - x_star)^2
 
-        inner_f(x) = 1/2 * LinearAlgebra.norm(x - x_star)^2
+            function inner_grad!(storage, x)
+                storage .= x - x_star
+                return storage
+            end
 
-        function inner_grad!(storage, x)
-            storage .= x - x_star
-            return storage
-        end
-
-        function build_inner_callback(tree)
-            return function inner_callback(state, active_set, kwargs...)
-                # stop as soon as we find a domain feasible point.
-                if tree.root.options[:domain_oracle](state.x)
-                    return false
+            function build_inner_callback(tree)
+                return function inner_callback(state, active_set, kwargs...)
+                    # stop as soon as we find a domain feasible point.
+                    if tree.root.options[:domain_oracle](state.x)
+                        return false
+                    end
                 end
             end
+            inner_callback = build_inner_callback(tree)
+
+            x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+                inner_f,
+                inner_grad!,
+                tree.root.problem.tlmo,
+                active_set,
+                callback=inner_callback,
+                lazy=true,
+            )
+            @assert tree.root.options[:domain_oracle](x)
         end
-        inner_callback = build_inner_callback(tree)
-
-        build_LMO(
-            tree.root.problem.tlmo,
-            tree.root.problem.integer_variable_bounds,
-            local_bounds,
-            tree.root.problem.integer_variables,
-        )
-
-        x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-            inner_f,
-            inner_grad!,
-            tree.root.problem.tlmo,
-            active_set,
-            callback=inner_callback,
-            lazy=true,
-        )
-        @assert tree.root.options[:domain_oracle](x)
-
-        build_LMO(
+    end
+    build_LMO(
         tree.root.problem.tlmo,
         tree.root.problem.integer_variable_bounds,
         node.local_bounds,
         tree.root.problem.integer_variables,
     )
-    end
     return active_set
 end
 
