@@ -172,7 +172,7 @@ function add_to_min(x, u)
     perm = sortperm(x)
     j = findfirst(x->x != 0, x[perm])
     
-    for i in j:length(y)
+    for i in j:length(x)
         if x[perm[i]] < u[perm[i]]
             x[perm[i]] += 1
             break
@@ -183,9 +183,23 @@ function add_to_min(x, u)
     return x
 end
 
+function add_to_min2(x,u)
+    perm = sortperm(x)
+    
+    for i in perm
+        if x[i] < u[i]
+            x[i] += 1
+            break
+        else
+            continue
+        end
+    end
+    return x
+end
+
 function remove_from_max(x)
     perm = sortperm(x, rev = true)
-    j = findlast(x->x[S] != 0, x[perm])
+    j = findlast(x->x != 0, x[perm])
     
     for i in 1:j
         if x[perm[i]] > 1
@@ -243,11 +257,11 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
         lb = initial_lb
         ub = initial_ub
         for idx in int_vars
-            if iskey(idx, local_bounds.lower_bounds)
-                lb[idx] = max(initial_lb[idx], lower_bounds[idx])
+            if haskey(local_bounds.lower_bounds, idx)
+                lb[idx] = max(initial_lb[idx], local_bounds.lower_bounds[idx])
             end
-            if iskey(idx, local_bounds.upper_bounds)
-                ub[idx] = min(initial_ub[idx], upper_bounds[idx])
+            if haskey(local_bounds.upper_bounds, idx)
+                ub[idx] = min(initial_ub[idx], local_bounds.upper_bounds[idx])
             end
         end
         # Node itself infeasible
@@ -269,8 +283,12 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
                     return nothing 
                 end 
             end
-            y = add_to_min(x[S], ub[S])
-            x[S] = y
+            if sum(iszero(x[S]-ub[S])) < length(S)
+                y = add_to_min2(x[S], ub[S])
+                x[S] = y
+            else
+                x = add_to_min2(x, ub)
+            end
         end
     end
 end

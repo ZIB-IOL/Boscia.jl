@@ -54,7 +54,7 @@ verbose = true
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
     domain_oracle = build_domain_oracle(Ex_mat, n)
-    domain_point = build_domain_point_function(domain_oracle, Ex_mat, N, colelct(1:m), fill(0.0, m), ub)
+    domain_point = build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
@@ -65,8 +65,6 @@ verbose = true
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
-    @show domain_oracle(x0), N
-    @show x0
     z = greedy_incumbent(Ex_mat, N, ub)
    x, _, result = Boscia.solve(
         g, 
@@ -112,6 +110,7 @@ end
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
     domain_oracle = build_domain_oracle(Ex_mat, n)
+    domain_point = build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
