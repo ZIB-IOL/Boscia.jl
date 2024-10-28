@@ -78,7 +78,7 @@ end
 
 function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
-    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m*sblmo.N
+    if sum(lb) ≤ sblmo.N ≤ sum(ub) + (m-length(int_vars))*sblmo.N
         return OPTIMAL
     else
         INFEASIBLE 
