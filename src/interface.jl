@@ -209,6 +209,7 @@ function solve(
             global_tightenings=IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :domain_oracle => domain_oracle,
+                :domain_point => domain_point,
                 :dual_gap => dual_gap,
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_tightening => dual_tightening,
