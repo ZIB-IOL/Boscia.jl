@@ -42,7 +42,7 @@ include("oed_utils.jl")
 
 
 m = 50
-n = Int(floor(m/10))
+n = Int(floor(m / 10))
 verbose = true
 
 ## A-Optimal Design Problem
