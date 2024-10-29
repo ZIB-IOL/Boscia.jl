@@ -183,6 +183,10 @@ function add_to_min(x, u)
     return x
 end
 
+"""
+We want to add to the smallest value of x while respecting the upper bounds u.
+In constrast to the function above, we do not require x to have zero entries.
+"""
 function add_to_min2(x,u)
     perm = sortperm(x)
     
