@@ -153,10 +153,13 @@ end
 """
 Find n linearly independent rows of A to build the starting point.
 """
-function linearly_independent_rows(A)
+function linearly_independent_rows(A; u=fill(1, size(A, 1)))
     S = []
     m, n = size(A)
     for i in 1:m
+        if iszero(u[i])
+            continue
+        end
         S_i= vcat(S, i)
         if rank(A[S_i,:])==length(S_i)
             S=S_i
@@ -274,7 +277,7 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
         end
         x = lb
         
-        S = linearly_independent_rows(A)
+        S = linearly_independent_rows(A, u=.!(iszero.(ub)))
         while sum(x) <= N
             if sum(x) == N 
                 if domain_oracle(x)
@@ -283,7 +286,7 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
                     return nothing 
                 end 
             end
-            if iszero(x[S]-ub[S])
+            if !iszero(x[S]-ub[S])
                 y = add_to_min2(x[S], ub[S])
                 x[S] = y
             else
