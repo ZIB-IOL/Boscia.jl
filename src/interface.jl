@@ -52,7 +52,7 @@ domain_oracle          - For a point x: returns true if x is in the domain of f,
                          In case of the non trivial domain oracle, the starting point has to be feasible for f. Additionally,
                          the user has to provide a function `domain_point`, see below. Also, depending 
                          on the Line Search method, you might have to provide the domain oracle to it, too.
-domain_point           - Given the current node bounds return a domain feasible point respecting the bounds.
+find_domain_point      - Given the current node bounds return a domain feasible point respecting the bounds.
                          If no such point can be found, return nothing.                       
 start_solution         - initial solution to start with an incumbent
 fw_verbose             - if true, FrankWolfe logs are printed
@@ -102,7 +102,7 @@ function solve(
     sharpness_constant = 0.0,
     sharpness_exponent = Inf,
     domain_oracle=_trivial_domain,
-    domain_point= _trivial_domain_point,
+    find_domain_point= _trivial_domain_point,
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
@@ -150,7 +150,7 @@ function solve(
 
     global_bounds = build_global_bounds(blmo, integer_variables)
 
-    if typeof(domain_oracle) != typeof(_trivial_domain) && typeof(domain_point) == typeof(_trivial_domain_point)
+    if typeof(domain_oracle) != typeof(_trivial_domain) && typeof(find_domain_point) == typeof(_trivial_domain_point)
         @warn "For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge."
     end
 
@@ -209,7 +209,7 @@ function solve(
             global_tightenings=IntegerBounds(),
             options=Dict{Symbol,Any}(
                 :domain_oracle => domain_oracle,
-                :domain_point => domain_point,
+                :find_domain_point => find_domain_point,
                 :dual_gap => dual_gap,
                 :dual_gap_decay_factor => dual_gap_decay_factor,
                 :dual_tightening => dual_tightening,

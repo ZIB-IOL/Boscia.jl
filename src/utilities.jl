@@ -205,7 +205,7 @@ function build_active_set_by_domain_oracle(
         FrankWolfe.compute_active_set_iterate!(active_set)
     # No vertex is domain feasible
     else
-        x_star = tree.root.options[:domain_point](local_bounds)
+        x_star = tree.root.options[:find_domain_point](local_bounds)
         # No domain feasible point can be build.
         # Node can be pruned.
         if x_star === nothing
