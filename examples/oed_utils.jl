@@ -176,8 +176,6 @@ function add_to_min(x, u)
         if x[perm[i]] < u[perm[i]]
             x[perm[i]] += 1
             break
-        else
-            continue
         end
     end
     return x
@@ -194,8 +192,6 @@ function add_to_min2(x,u)
         if x[i] < u[i]
             x[i] += 1
             break
-        else
-            continue
         end
     end
     return x
@@ -209,8 +205,6 @@ function remove_from_max(x)
         if x[perm[i]] > 1
             x[perm[i]] -= 1
             break
-        else
-            continue
         end
     end
     return x
