@@ -672,6 +672,7 @@ function solve(
         sharpness_constant=sharpness_constant,
         sharpness_exponent=sharpness_exponent,
         domain_oracle=domain_oracle,
+        domain_point=domain_point,
         start_solution=start_solution,
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
