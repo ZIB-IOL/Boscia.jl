@@ -186,7 +186,7 @@ end
 
 """
 We want to add to the smallest value of x while respecting the upper bounds u.
-In constrast to the function above, we do not require x to have zero entries.
+In constrast to the add_to_min function, we do not require x to have coordinates at zero.
 """
 function add_to_min2(x,u)
     perm = sortperm(x)
