@@ -106,7 +106,7 @@ function split_vertices_set!(
     end
     deleteat!(active_set, left_del_indices)
     @assert !isempty(active_set)
-    @assert !isempty(right_as) 
+    @assert !isempty(right_as)
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
