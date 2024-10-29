@@ -77,7 +77,7 @@ verbose = true
         domain_point=domain_point, 
         custom_heuristics=[heu], 
         line_search=line_search,
-    ) 
+    )
     
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
