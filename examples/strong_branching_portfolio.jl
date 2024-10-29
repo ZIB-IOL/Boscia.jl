@@ -2,7 +2,6 @@ using Boscia
 using FrankWolfe
 using Test
 using Random
-using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
@@ -28,7 +27,7 @@ const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
 
 function prepare_portfolio_lmo()
-    o = SCIP.Optimizer()
+    o = HiGHS.Optimizer()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
