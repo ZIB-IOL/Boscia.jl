@@ -116,7 +116,7 @@ end
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
-    x, _, _ = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, time_limit=10, verbose=false, domain_oracle=domain_oracle, domain_point=domain_point,  custom_heuristics=[heu], line_search=line_search)
+    x, _, _ = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, time_limit=10, verbose=false, domain_oracle=domain_oracle, domain_point=domain_point, custom_heuristics=[heu], line_search=line_search)
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
