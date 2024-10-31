@@ -384,6 +384,13 @@ function pseudocost_decision(
             branching.pseudos, 
             values
         )
+    elseif branching.decision_function == "minimum"
+        return best_minimum_decision(
+            branching_candidates,
+            branching.μ, 
+            branching.pseudos, 
+            values
+        )
     end
 end
 """
@@ -520,6 +527,38 @@ function weighted_sum_decision(
     return argmax(sparsevec(branching_candidates, branching_scores))
 end
 
+
+"""
+function best_minimum_decision(
+    branching_candidates::Vector{Int},
+    μ::Float64, 
+    pseudos::SparseMatrixCSC{Float64, Int64}, 
+    values::Vector{Float64}
+)   
+\nDescription: 
+\nMakes decision based on highest minimum of pseudocosts
+for branching candidates
+"""
+function best_minimum_decision(
+    branching_candidates::Vector{Int},
+    μ::Float64, 
+    pseudos::SparseMatrixCSC{Float64, Int64}, 
+    values::Vector{Float64}
+)   
+    branching_scores = map(
+        idx-> minimum(
+            unit_cost_pseudo_tuple(
+                pseudos[idx, 2], 
+                pseudos[idx, 1], 
+                values[idx]
+            ),
+            μ
+        ),
+        branching_candidates)
+
+    # return candidate with highest minimum 
+    return argmax(sparsevec(branching_candidates, branching_scores))
+end
 """
 function product_decision(
     branching_candidates::Vector{Int},
@@ -529,7 +568,7 @@ function product_decision(
 )   
 \nDescription: 
 \nMakes decision based on highest μ_product of pseudocosts
-for branching candidate
+for branching candidates
 """
 function product_decision(
     branching_candidates::Vector{Int},
