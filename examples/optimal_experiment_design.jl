@@ -66,7 +66,7 @@ verbose = true
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
-   x, _, result = Boscia.solve(
+    x, _, result = Boscia.solve(
         g, 
         grad!, 
         blmo, 
