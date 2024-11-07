@@ -161,7 +161,7 @@ does not lead to a domain feasible iterate.
 First, try filtering the active set by the domain oracle.
 If all vertices are domain infeasible, solve the projection problem
 1/2 * ||x - x*||_2^2 
-where x* is a domain and bound feasible point provided by the user.
+where x* is a domain- and bound-feasible point provided by the user.
 """
 function build_active_set_by_domain_oracle(
     active_set::FrankWolfe.ActiveSet{T,R},
