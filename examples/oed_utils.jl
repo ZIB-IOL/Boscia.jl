@@ -252,8 +252,8 @@ end
 
 """
 Build domain feasible point for any node.
-The point has to be domain feasible as well as respect the 
-node bounds. If no such point can be constructed, return nothing.
+The point has to be domain feasible as well as respect the node bounds.
+If no such point can be constructed, return nothing.
 """
 function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, initial_ub)
     return function domain_point(local_bounds)
