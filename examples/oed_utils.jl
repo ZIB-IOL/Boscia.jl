@@ -6,10 +6,8 @@ m    - number of experiments.
 fusion - boolean deiciding whether we build the fusion or standard problem.
 corr - boolean deciding whether we build the independent or correlated data.   
 """
-function build_data(m)
+function build_data(m, n)
     # set up
-    n = Int(floor(m/10))
-    
     B = rand(m,n)
     B = B'*B
     @assert isposdef(B)
@@ -22,7 +20,7 @@ function build_data(m)
     u = floor(N/3)
     ub = rand(1.0:u, m)
         
-    return A, n, N, ub 
+    return A, N, ub 
 end
 
 """
@@ -155,10 +153,13 @@ end
 """
 Find n linearly independent rows of A to build the starting point.
 """
-function linearly_independent_rows(A)
+function linearly_independent_rows(A; u=fill(1, size(A, 1)))
     S = []
     m, n = size(A)
     for i in 1:m
+        if iszero(u[i])
+            continue
+        end
         S_i= vcat(S, i)
         if rank(A[S_i,:])==length(S_i)
             S=S_i
@@ -178,8 +179,22 @@ function add_to_min(x, u)
         if x[perm[i]] < u[perm[i]]
             x[perm[i]] += 1
             break
-        else
-            continue
+        end
+    end
+    return x
+end
+
+"""
+We want to add to the smallest value of x while respecting the upper bounds u.
+In constrast to the add_to_min function, we do not require x to have coordinates at zero.
+"""
+function add_to_min2(x,u)
+    perm = sortperm(x)
+    
+    for i in perm
+        if x[i] < u[i]
+            x[i] += 1
+            break
         end
     end
     return x
@@ -193,8 +208,6 @@ function remove_from_max(x)
         if x[perm[i]] > 1
             x[perm[i]] -= 1
             break
-        else
-            continue
         end
     end
     return x
@@ -235,6 +248,52 @@ function build_start_point(A, N, ub)
     active_set= FrankWolfe.ActiveSet(fill(1/a, a), V, x)
 
     return x, active_set, S
+end
+
+"""
+Build domain feasible point for any node.
+The point has to be domain feasible as well as respect the node bounds.
+If no such point can be constructed, return nothing.
+"""
+function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, initial_ub)
+    return function domain_point(local_bounds)
+        lb = initial_lb
+        ub = initial_ub
+        for idx in int_vars
+            if haskey(local_bounds.lower_bounds, idx)
+                lb[idx] = max(initial_lb[idx], local_bounds.lower_bounds[idx])
+            end
+            if haskey(local_bounds.upper_bounds, idx)
+                ub[idx] = min(initial_ub[idx], local_bounds.upper_bounds[idx])
+            end
+        end
+        # Node itself infeasible
+        if sum(lb) > N 
+            return nothing
+        end
+        # No intersection between node and domain
+        if !domain_oracle(ub)
+            return nothing
+        end
+        x = lb
+        
+        S = linearly_independent_rows(A, u=.!(iszero.(ub)))
+        while sum(x) <= N
+            if sum(x) == N 
+                if domain_oracle(x)
+                    return x 
+                else 
+                    return nothing 
+                end 
+            end
+            if !iszero(x[S]-ub[S])
+                y = add_to_min2(x[S], ub[S])
+                x[S] = y
+            else
+                x = add_to_min2(x, ub)
+            end
+        end
+    end
 end
 
 """
