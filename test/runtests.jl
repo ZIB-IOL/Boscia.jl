@@ -45,6 +45,7 @@ include("sparse_regression.jl")
 include("poisson.jl")
 include("mean_risk.jl")
 include("time_limit.jl")
+include("strong_convexity_and_sharpness.jl")
 
 n = 10
 const diff1 = rand(Bool, n) * 0.8 .+ 1.1
