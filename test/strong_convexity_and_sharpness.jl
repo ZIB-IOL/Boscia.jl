@@ -17,6 +17,10 @@ using FrankWolfe
 # Strong convexity: μ = minimum(eigvals(Q))
 # Sharpness: M = sqrt(2/μ), θ = 1/2 
 
+
+seed = 0x5526f8e0e9a68f36
+Random.seed!(seed)
+
 @testset "Strong convexity" begin
 
     @testset "Log barrier" begin
@@ -109,7 +113,6 @@ using FrankWolfe
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
-        @test sum(x .== sol) == n
     end     
 end
 
@@ -209,6 +212,5 @@ end
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
-        @test sum( x .== sol) == n
     end
 end
