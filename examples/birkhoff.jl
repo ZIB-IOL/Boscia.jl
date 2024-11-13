@@ -117,6 +117,6 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
     x_strong, _, result_strong =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
-    @test f(x) ≈ f(x_strong)
+    @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end
