@@ -253,6 +253,16 @@ function pseudo_selection(
                 branching.μ
             ),
             candidates)
+    elseif branching.decision_function == "minimum"
+        branching_scores = map(
+            idx-> minimum(
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2], 
+                    branching.pseudos[idx, 1], 
+                    values[idx]
+                )
+            ),
+            candidates)
     end
     #pseudo_cutoff  = (mean(branching_scores) + maximum(branching_scores))/2
     pseudo_cutoff = 3/4 * maximum(branching_scores) + 1/4 * mean(branching_scores)
