@@ -105,6 +105,7 @@ using FrankWolfe
             n,
             strong_convexity=μ,
             verbose=true,
+            fw_epsilon=1e-3,
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
