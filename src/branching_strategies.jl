@@ -1,4 +1,4 @@
-using SparseArrays
+
 
 mutable struct PSEUDO_COST <: Bonobo.AbstractBranchStrategy
     iterations_until_stable::Int
