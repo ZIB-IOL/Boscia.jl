@@ -108,8 +108,9 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0,
-    clean_solutions=false, 
+    clean_solutions=false,
     max_clean_iter=10,
+    use_DICG_warm_start=false,
     kwargs...,
 )
     if verbose
@@ -128,6 +129,8 @@ function solve(
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
+
+    println("Boscia-version")
     n, _ = get_list_of_variables(blmo)
 
     integer_variables = Vector{Int}()
@@ -173,6 +176,8 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
+    pre_computed_set = use_DICG_warm_start ? [v] : nothing
+
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
         NodeInfo(1, f(v), f(v)),
@@ -186,6 +191,7 @@ function solve(
         0,
         0,
         0.0,
+        [v],
     )
 
     # Create standard heuristics
@@ -228,7 +234,7 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
-                :heuristics => heuristics, 
+                :heuristics => heuristics,
                 :heu_ncalls => 0,
                 :max_clean_iter => max_clean_iter,
                 :clean_solutions => clean_solutions,
@@ -252,6 +258,7 @@ function solve(
             local_tightenings=0,
             local_potential_tightenings=0,
             dual_gap=-Inf,
+            pre_computed_set=pre_computed_set,
         ),
     )
 
@@ -311,7 +318,16 @@ function solve(
         num_int,
     )
 
-    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations, time_ref, tree.root.options[:time_limit])
+    fw_callback = build_FW_callback(
+        tree, 
+        min_number_lower, 
+        true, 
+        fw_iterations, 
+        min_fw_iterations, 
+        time_ref, 
+        tree.root.options[:time_limit], 
+        use_DICG=tree.root.options[:variant] == DICG(),
+    )
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
