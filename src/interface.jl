@@ -317,7 +317,7 @@ function solve(
         min_fw_iterations, 
         time_ref, 
         tree.root.options[:time_limit], 
-        use_DICG=tree.root.options[:varinat] == DICG(),
+        use_DICG=tree.root.options[:variant] == DICG(),
     )
 
     tree.root.options[:callback] = fw_callback
