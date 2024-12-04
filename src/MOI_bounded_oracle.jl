@@ -641,12 +641,12 @@ function compute_inface_extreme_point(blmo::MathOptBLMO, direction, x; kwargs...
     return a
 end
 
-function dicg_maximum_step(blmo::MathOptBLMO, x, direction; kwargs...)
+function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
     return FrankWolfe.dicg_maximum_step(
         lmo,
-        x,
-        direction;
+        direcion,
+        x;
         kwargs...,
     )
 end
