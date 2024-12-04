@@ -44,8 +44,8 @@ function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=
     return a
 end
 
-function dicg_maximum_step(tlmo::TimeTrackingLMO, x, direction)
-    gamma_max = dicg_maximum_step(tlmo.blmo, x, direction)
+function dicg_maximum_step(tlmo::TimeTrackingLMO, direction, x)
+    gamma_max = dicg_maximum_step(tlmo.blmo, direction, x)
     return gamma_max
 end
 
