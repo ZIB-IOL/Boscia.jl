@@ -645,7 +645,7 @@ function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
     return FrankWolfe.dicg_maximum_step(
         lmo,
-        direcion,
+        direction,
         x;
         kwargs...,
     )
