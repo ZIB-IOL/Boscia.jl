@@ -129,7 +129,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
-  
+
     # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
     x_left = FrankWolfe.compute_active_set_iterate!(active_set_left) 
     x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
