@@ -133,26 +133,15 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
 
     if tree.root.options[:variant] != DICG()
-        # Sanity check
-        for v in active_set_left.atoms
-            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-                error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-            end
+        # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+        x_left = FrankWolfe.compute_active_set_iterate!(active_set_left) 
+        x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+
+        if !tree.root.options[:domain_oracle](x_left)
+            active_set_left = build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
         end
-        for v in discarded_set_left.storage
-            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-                error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-            end
-        end
-        for v in active_set_right.atoms
-            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-                error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-            end
-        end
-        for v in discarded_set_right.storage
-            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-                error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
-            end
+        if !tree.root.options[:domain_oracle](x_right)
+            active_set_right = build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
         end
     end
 
