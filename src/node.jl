@@ -106,29 +106,31 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    # Sanity check
-    @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
-    @assert sum(active_set_left.weights .< 0) == 0
-    for v in active_set_left.atoms
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+    if tree.root.options[:variant] != DICG()
+        # Sanity check
+        @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
+        @assert sum(active_set_left.weights .< 0) == 0
+        for v in active_set_left.atoms
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    @assert isapprox(sum(active_set_right.weights), 1.0) "sum weights right: $(sum(active_set_right.weights))"
-    @assert sum(active_set_right.weights .< 0) == 0
-    for v in active_set_right.atoms
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        @assert isapprox(sum(active_set_right.weights), 1.0) "sum weights right: $(sum(active_set_right.weights))"
+        @assert sum(active_set_right.weights .< 0) == 0
+        for v in active_set_right.atoms
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    for v in discarded_set_left.storage
-        if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
-            error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        for v in discarded_set_left.storage
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
-    end
-    for v in discarded_set_right.storage
-        if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
-            error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+        for v in discarded_set_right.storage
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
         end
     end
 
