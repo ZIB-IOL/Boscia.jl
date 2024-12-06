@@ -293,12 +293,12 @@ function largest_most_infeasible_gradient_decision(
 )
     nabla = similar(values)
     x_new = copy(values)
-    gradient_at_values = tree.root.problem.g(nabla,x_new)
+    tree.root.problem.g(nabla,x_new)
     max_score = 0.0
     best_idx = -1
     for i in branching_candidates
         value = values[i] 
-        value = abs(value - round(value)) * abs(gradient_at_values[i])
+        value = abs(value - round(value)) * abs(nabla[i])
         if value >= max_score
             best_idx = i
             max_score = value
@@ -351,11 +351,12 @@ function largest_gradient_decision(
     values::Vector{Float64}
 )   
     nabla = similar(values)
-    gradient_at_values = tree.root.problem.g(nabla, nabla)
+    x_new = copy(values)
+    tree.root.problem.g(nabla,x_new)
     best_idx = -1
     max_gradient = 0.0
     for idx in branching_candidates
-        if abs(gradient_at_values[idx]) >= max_gradient
+        if abs(nabla[idx]) >= max_gradient
             best_idx = idx
         end
     end
@@ -684,14 +685,15 @@ function Bonobo.get_branching_variable(
 ) 
     values = Bonobo.get_relaxed_values(tree, node)
     nabla = similar(values)
-    gradient_at_values = tree.root.problem.g(nabla, nabla)
+    x_new = copy(values)
+    tree.root.problem.g(nabla,x_new)
     best_idx = -1
     max_gradient = 0.0
     for i in tree.branching_indices
         value = values[i]
         # check if variable is branching candidate
         if !Bonobo.is_approx_feasible(tree, value)
-            if abs(gradient_at_values[i]) >= max_gradient
+            if abs(nabla[i]) >= max_gradient
                 best_idx = i
             end
         end
@@ -727,13 +729,14 @@ function Bonobo.get_branching_variable(
     values = Bonobo.get_relaxed_values(tree, node)
     best_idx = -1
     nabla = similar(values)
-    gradient_at_values = tree.root.problem.g(nabla,nabla)
+    x_new = copy(values)
+    tree.root.problem.g(nabla,x_new)
     max_score = 0.0
     for i in tree.branching_indices
         value = values[i]
         if !Bonobo.is_approx_feasible(tree, value)
             value = abs(value - round(value))
-            value *= abs(gradient_at_values[i])
+            value *= abs(nabla[i])
             if value >= max_score
                 best_idx = i
                 max_score = value
