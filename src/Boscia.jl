@@ -5,6 +5,7 @@ import FrankWolfe: compute_extreme_point
 export compute_extreme_point
 using Random
 using Statistics
+using LinearAlgebra
 import Bonobo
 using Printf
 using Dates
@@ -19,6 +20,7 @@ include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
 include("frank_wolfe_variants.jl")
 include("build_lmo.jl")
+include("tightenings.jl")
 include("node.jl")
 include("custom_bonobo.jl")
 include("callbacks.jl")

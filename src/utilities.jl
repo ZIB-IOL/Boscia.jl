@@ -155,6 +155,102 @@ function split_vertices_set!(
     return (discarded_set, right_as)
 end
 
+"""
+Build a new start point and active set in case the split active set
+does not lead to a domain feasible iterate.
+First, try filtering the active set by the domain oracle.
+If all vertices are domain infeasible, solve the projection problem
+1/2 * ||x - x*||_2^2 
+where x* is a domain- and bound-feasible point provided by the user.
+"""
+function build_active_set_by_domain_oracle(
+    active_set::FrankWolfe.ActiveSet{T,R},
+    tree,
+    local_bounds::IntegerBounds,
+    node;
+    atol=1e-5,
+    rtol=1e-5,
+) where {T,R}
+    # Check if node problem is even feasible
+    build_LMO(
+        tree.root.problem.tlmo,
+        tree.root.problem.integer_variable_bounds,
+        local_bounds,
+        tree.root.problem.integer_variables,
+    )
+    status = check_feasibility(tree.root.problem.tlmo)
+    if status == INFEASIBLE
+        build_LMO(
+            tree.root.problem.tlmo,
+            tree.root.problem.integer_variable_bounds,
+            node.local_bounds,
+            tree.root.problem.integer_variables,
+        )
+        active_set.empty!()
+        return active_set
+    end
+    # Filtering
+    del_indices = BitSet()
+    for (idx, tup) in enumerate(active_set)
+        (λ, a) = tup
+        if !tree.root.options[:domain_oracle](a)
+            push!(del_indices, idx)
+        end
+    end
+    # At least one vertex is domain feasible.
+    if length(del_indices) < length(active_set.weights)
+        deleteat!(active_set, del_indices)
+        @assert !isempty(active_set)
+        FrankWolfe.active_set_renormalize!(active_set)
+        FrankWolfe.compute_active_set_iterate!(active_set)
+    # No vertex is domain feasible
+    else
+        x_star = tree.root.options[:find_domain_point](local_bounds)
+        # No domain feasible point can be build.
+        # Node can be pruned.
+        if x_star === nothing
+            deleteat!(active_set, del_indices)
+        else
+            inner_f(x) = 1/2 * LinearAlgebra.norm(x - x_star)^2
+
+            function inner_grad!(storage, x)
+                storage .= x - x_star
+                return storage
+            end
+
+            function build_inner_callback(tree)
+                return function inner_callback(state, active_set, kwargs...)
+                    # stop as soon as we find a domain feasible point.
+                    if tree.root.options[:domain_oracle](state.x)
+                        return false
+                    end
+                end
+            end
+            inner_callback = build_inner_callback(tree)
+
+            x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+                inner_f,
+                inner_grad!,
+                tree.root.problem.tlmo,
+                active_set,
+                callback=inner_callback,
+                lazy=true,
+            )
+            @assert tree.root.options[:domain_oracle](x)
+        end
+    end
+    build_LMO(
+        tree.root.problem.tlmo,
+        tree.root.problem.integer_variable_bounds,
+        node.local_bounds,
+        tree.root.problem.integer_variables,
+    )
+    return active_set
+end
+
+"""
+Check if a given point v satisfies the given bounds.
+"""
 function is_bound_feasible(bounds::IntegerBounds, v; atol=1e-5)
     for (idx, set) in bounds.lower_bounds
         if v[idx] < set - atol
@@ -224,6 +320,42 @@ function sparse_min_via_enum(f, n, k, values=fill(0:1, n))
                 best_val = val
                 best_sol = sol_vec
             end
+        end
+    end
+    return best_val, best_sol
+end
+
+function min_via_enum_simplex(f, n, N, values=fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        if sum(sol_vec) > N 
+            continue
+        end
+        val = f(sol_vec)
+        if best_val > val
+            best_val = val
+            best_sol = sol_vec
+        end
+    end
+    return best_val, best_sol
+end
+
+function min_via_enum_prob_simplex(f, n, N, values=fill(0:1,n))
+    solutions = Iterators.product(values...)
+    best_val = Inf
+    best_sol = nothing
+    for sol in solutions
+        sol_vec = collect(sol)
+        if sum(sol_vec) != N 
+            continue
+        end
+        val = f(sol_vec)
+        if best_val > val
+            best_val = val
+            best_sol = sol_vec
         end
     end
     return best_val, best_sol

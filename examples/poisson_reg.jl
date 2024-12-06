@@ -11,12 +11,6 @@ const MOI = MathOptInterface
 
 # Poisson sparse regression
 
-# For bug hunting:
-seed = rand(UInt64)
-@show seed
-#seed = 0xfe03ee83ca373eab   
-Random.seed!(seed)
-
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
 # b ∈ [-N, N]

@@ -21,10 +21,6 @@ import Ipopt
 # ran14x18-disj-8     https://miplib.zib.de/instance_details_ran14x18-disj-8.html
 # timtab1             https://miplib.zib.de/instance_details_timtab1.html   (Takes LONG!)
 
-seed = rand(UInt64)
-@show seed
-Random.seed!(seed)
-
 # To see debug statements
 #ENV["JULIA_DEBUG"] = "Boscia"
 

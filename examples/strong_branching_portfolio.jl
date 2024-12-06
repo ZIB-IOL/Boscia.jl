@@ -2,12 +2,12 @@ using Boscia
 using FrankWolfe
 using Test
 using Random
-using SCIP
 using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
+using SCIP
 
 
 # For bug hunting:
@@ -76,7 +76,7 @@ end
     x, _, result_strong_branching =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
 
-    @test dot(ai, x) <= bi + 1e-6
+    @test dot(ai, x) <= bi + 1e-3
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 end
 

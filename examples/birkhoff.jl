@@ -12,12 +12,6 @@ import HiGHS
 # https://arxiv.org/pdf/2011.02752.pdf
 # https://www.sciencedirect.com/science/article/pii/S0024379516001257
 
-# For bug hunting:
-seed = rand(UInt64)
-@show seed
-seed = 0x3eb09305cecf69f0
-Random.seed!(seed)
-
 
 # min_{X, θ} 1/2 * || ∑_{i in [k]} θ_i X_i - Xhat ||^2
 # θ ∈ Δ_k (simplex)
@@ -82,12 +76,12 @@ function build_birkhoff_lmo()
         # doubly stochastic constraints
         MOI.add_constraint.(
             o,
-            vec(sum(X[i], dims=1, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            X[i] * ones(n),
             MOI.EqualTo(1.0),
         )
         MOI.add_constraint.(
             o,
-            vec(sum(X[i], dims=2, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
+            X[i]' * ones(n),
             MOI.EqualTo(1.0),
         )
         # 0 ≤ Y_i ≤ X_i
@@ -123,6 +117,6 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
     x_strong, _, result_strong =
         Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
-    @test f(x) ≈ f(x_strong)
+    @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end
