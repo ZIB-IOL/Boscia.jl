@@ -43,7 +43,34 @@ function Bonobo.optimize!(
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
-        if node.lb >= tree.incumbent
+        if node.lb >= tree.incumbent 
+            # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
+            if isa(tree.options.branch_strategy, Boscia.HIERARCHY_PSEUDO_COST) || isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) 
+                if !isinf(node.parent_lower_bound_base)
+                    idx = node.branched_on
+                    update = lb - node.parent_lower_bound_base
+                    update = update / node.distance_to_int
+                    if isinf(update)
+                        @debug "update is $(Inf)"
+                    end
+                    if node.branched_right
+                        tree.options.branch_strategy.pseudos[idx, 1] = update_avg(
+                            update, 
+                            tree.options.branch_strategy.pseudos[idx, 1], 
+                            tree.options.branch_strategy.branch_tracker[idx, 1]
+                            )
+                        tree.options.branch_strategy.branch_tracker[idx, 1] += 1
+                    else
+                        tree.options.branch_strategy.pseudos[idx, 2] = update_avg(
+                            update, 
+                            tree.options.branch_strategy.pseudos[idx, 2], 
+                            tree.options.branch_strategy.branch_tracker[idx, 2]
+                            )
+                        tree.options.branch_strategy.branch_tracker[idx, 2] += 1
+                    end 
+                end
+            end
+            
             Bonobo.close_node!(tree, node)
             callback(
                 tree,
