@@ -185,7 +185,7 @@ function solve(
         0,
         0,
         0,
-        0.0,
+        0.0
     )
 
     # Create standard heuristics
@@ -252,6 +252,10 @@ function solve(
             local_tightenings=0,
             local_potential_tightenings=0,
             dual_gap=-Inf,
+            parent_lower_bound_base=Inf,
+            branched_on=-1,
+            branched_right=false,
+            distance_to_int=0.0
         ),
     )
 
@@ -315,7 +319,7 @@ function solve(
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
-
+    
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = postsolve(tree, tree.root.result, time_ref, verbose, max_iteration_post)
