@@ -562,8 +562,7 @@ function best_minimum_decision(
                 pseudos[idx, 2], 
                 pseudos[idx, 1], 
                 values[idx]
-            ),
-            μ
+            )
         ),
         branching_candidates)
 
