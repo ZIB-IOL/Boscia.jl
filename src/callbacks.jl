@@ -201,6 +201,10 @@ function build_bnb_callback(
                 end
             end
 
+            if iteration > tree.root.options[:node_limit]
+                tree.root.problem.solving_stage = NODE_LIMIT_REACHED
+            end
+
             fw_time = Dates.value(node.fw_time)
             fw_iter = if !isempty(fw_iterations)
                 fw_iterations[end]

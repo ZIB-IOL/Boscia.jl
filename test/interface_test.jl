@@ -396,6 +396,12 @@ end
     @test sum(isapprox.(x_adaptive, x_monotonic, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_agnostic, x_monotonic, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_adaptive, x_agnostic, atol=1e-6, rtol=1e-3)) == n
+
+    x_monotonic, _, result_monotonic_node_limit =
+        Boscia.solve(f, grad!, lmo, verbose=true, line_search=line_search, node_limit=2, print_iter=1)
+
+    @test result_monotonic_node_limit[:list_ub] <= 3
+    @test result_monotonic_node_limit[:status] == "Node limit reached"
 end
 
 n = 20
