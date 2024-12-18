@@ -400,7 +400,7 @@ end
     x_monotonic, _, result_monotonic_node_limit =
         Boscia.solve(f, grad!, lmo, verbose=true, line_search=line_search, node_limit=2, print_iter=1)
 
-    @test result_monotonic_node_limit[:list_ub] <= 3
+    @test length(result_monotonic_node_limit[:list_ub]) <= 3
     @test result_monotonic_node_limit[:status] == "Node limit reached"
 end
 
