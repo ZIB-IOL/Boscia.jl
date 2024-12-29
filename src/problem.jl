@@ -6,6 +6,7 @@ Enum for the solving stage
     OPT_GAP_REACHED = 1
     OPT_TREE_EMPTY = 2
     TIME_LIMIT_REACHED = 3
+    NODE_LIMIT_REACHED = 4
 end
 
 """

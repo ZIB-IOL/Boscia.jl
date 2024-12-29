@@ -166,9 +166,9 @@ function Bonobo.get_solution(
 ) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     if isempty(tree.solutions)
         @warn "There is no solution in the tree. This behaviour can happen if you have supplied 
-        \na custom domain oracle. In that case, try to increase the time limit. If you have not specified a 
+        \na custom domain oracle. In that case, try to increase the time or node limit. If you have not specified a 
         \ndomain oracle, please report!"
-        @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+        @assert tree.root.problem.solving_stage in (TIME_LIMIT_REACHED, NODE_LIMIT_REACHED)
         return nothing
     end
     return tree.solutions[result].solution
