@@ -87,6 +87,7 @@ function solve(
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
     time_limit=Inf,
+    node_limit=Inf,
     print_iter=100,
     dual_gap_decay_factor=0.8,
     max_fw_iter=10000,
@@ -225,6 +226,7 @@ function solve(
                 :sharpness_constant => sharpness_constant,
                 :sharpness_exponent => sharpness_exponent,
                 :time_limit => time_limit,
+                :node_limit => node_limit,
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
@@ -365,6 +367,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         tree.root.problem.solving_stage = OPT_TREE_EMPTY
     elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
         status_string = "Time limit reached"
+    elseif tree.root.problem.solving_stage == NODE_LIMIT_REACHED
+        status_string = "Node limit reached"
     else
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
