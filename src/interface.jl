@@ -480,6 +480,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 sum(result[:local_potential_tightenings]),
             )
         end
+        if isa(tree.options.branch_strategy, Boscia.Hierarchy)
+            fraction_of_decisions = [(stage.decision_counter, stage.min_cutoff_counter) for stage in tree.options.branch_strategy.stages]
+            #fraction_of_decisions = fraction_of_decisions / sum(fraction_of_decisions)
+            println("\t Decisions made: ", fraction_of_decisions)
+        end
     end
 
     # Reset LMO
