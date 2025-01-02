@@ -572,7 +572,7 @@ function Bonobo.get_branching_variable(
             value = abs(value - round(value))
             value *= abs(nabla[i])
             if value >= max_score
-                best_idx = i
+                best_idx = idx
                 max_score = value
             end
         end
