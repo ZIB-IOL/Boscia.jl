@@ -27,10 +27,10 @@ function build_FW_callback(
 			)
 		end
 	else
-		return function (state, kwargs...)
+		return function (state, pre_computed_set, kwargs...)
 			return process_FW_callback_logic(
 				tree, state, vars, fw_iterations, ncalls, min_fw_iterations,
-				min_number_lower, time_ref, time_limit, use_DICG; kwargs,
+				min_number_lower, time_ref, time_limit, use_DICG; pre_computed_set = pre_computed_set, kwargs,
 			)
 		end
 	end
@@ -48,6 +48,7 @@ function process_FW_callback_logic(
 	time_limit,
 	use_DICG;
 	active_set = nothing,
+	pre_computed_set = nothing,
 	kwargs...,
 )
 
@@ -122,20 +123,18 @@ function process_FW_callback_logic(
 	if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
 		return false
 	end
-
-	pre_computed_set = get(kwargs, :pre_computed_set, nothing)
-
-	if pre_computed_set !== nothing
-
-		if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
-			idx = findfirst(x -> x == state.v, pre_computed_set)
-
-			if idx == nothing && length(pre_computed_set) < (length(state.v) + 1)
-				push!(pre_computed_set, state.v)
-			end
-
-		end
-	end
+        
+    if pre_computed_set !== nothing
+        if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
+            idx = findfirst(x -> x == state.v, pre_computed_set)
+            if idx == nothing
+                if length(pre_computed_set) > (length(state.v) + 1)
+                    deleteat!(pre_computed_set, 1)
+                end
+                push!(pre_computed_set, state.v)
+            end
+        end
+    end
 
 	return true
 
