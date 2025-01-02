@@ -120,32 +120,27 @@ function split_vertices_set!(
 end
 
 function split_pre_computed_set!(
-    x,
-    pre_computed_set::Vector,
-    tree,
-    var::Int,
+    x, 
+    pre_computed_set::Vector, 
+    tree, vidx::Int,
     local_bounds::IntegerBounds;
-    atol = 1e-6,
-    rtol = 1e-5)
+    atol = 1e-5, 
+    rtol = 1e-5, 
+    kwargs...
+)
     pre_computed_set_left = []
-    del_indices = []
-    for (idx, atom) in pairs(pre_computed_set)
+    pre_computed_set_right = []
+    for atom in pre_computed_set
         if !is_bound_feasible(local_bounds, atom)
-            push!(del_indices, idx)
             continue
         end
-
-        if atom[var] >= ceil(x[var]) || isapprox(atom[var], ceil(x[var]), atol = atol, rtol = rtol)
-            continue
-        elseif atom[var] <= floor(x[var]) || isapprox(atom[var], floor(x[var]), atol = atol, rtol = rtol)
-            push!(del_indices, idx)
+        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol = atol, rtol = rtol)
+            push!(pre_computed_set_right, atom)
+        elseif atom[vidx] <= floor(x[vidx]) || isapprox(atom[vidx], floor(x[vidx]), atol = atol, rtol = rtol)
             push!(pre_computed_set_left, atom)
         end
-
     end
-    deleteat!(pre_computed_set, del_indices)
-
-    return pre_computed_set_left, pre_computed_set
+    return pre_computed_set_left, pre_computed_set_right
 end
 
 function build_dicg_start_point(lmo::TimeTrackingLMO)
