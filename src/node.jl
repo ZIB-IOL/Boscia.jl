@@ -93,7 +93,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         if node.pre_computed_set !== nothing
             # Split pre_computed_set
             pre_computed_set_left, pre_computed_set_right =
-                split_pre_computed_set!(x, node.pre_computed_set, tree, vidx)
+                split_pre_computed_set!(x, node.pre_computed_set, tree, vidx, node.local_bounds)
         else
             pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
         end
@@ -294,8 +294,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.active_set = atoms_set
     else
         # update set of computed atoms and active set
-        node.pre_computed_set = atoms_set
-        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+		if isa(x, Vector)
+			node.pre_computed_set = atoms_set
+			node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+		else
+			return NaN, NaN
+		end
     end
     
     node.fw_time = Dates.now() - time_ref
