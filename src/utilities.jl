@@ -328,7 +328,7 @@ Checks if the branch and bound can be stopped.
 By default (in Bonobo) stops then the priority queue is empty. 
 """
 function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
-    if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+    if tree.root.problem.solving_stage in (TIME_LIMIT_REACHED, NODE_LIMIT_REACHED)
         return true
     end
     absgap = tree.incumbent - tree.lb
