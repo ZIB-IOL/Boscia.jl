@@ -123,19 +123,19 @@ function process_FW_callback_logic(
 	if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
 		return false
 	end
-        
-    if pre_computed_set !== nothing
-        if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
-            idx = findfirst(x -> x == state.v, pre_computed_set)
-            if idx == nothing
-                if length(pre_computed_set) > (length(state.v) + 1)
-                    deleteat!(pre_computed_set, 1)
-                end
-                push!(pre_computed_set, state.v)
-            end
-        end
-    end
 
+        if pre_computed_set !== nothing
+                if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
+                    idx = findfirst(x -> x == state.v, pre_computed_set)
+                    if idx == nothing
+                        if length(pre_computed_set) > (length(state.v) + 1)
+                            deleteat!(pre_computed_set, 1)
+                        end
+                        push!(pre_computed_set, state.v)
+                    end
+                end
+        end
+        
 	return true
 
 end
