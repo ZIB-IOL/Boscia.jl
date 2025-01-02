@@ -847,7 +847,6 @@ mutable struct Hierarchy <: Bonobo.AbstractBranchStrategy
         if isempty(stages)
             stages = default_hierarchy_strategies()
         end
-        println("Order of criteria in Hierarchy Branching: ", [stage.name for stage in stages])
         new(
             pseudos,
             branch_tracker,
