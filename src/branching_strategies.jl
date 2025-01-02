@@ -901,7 +901,7 @@ function default_hierarchy_strategies(
     alt_name::String = "most_infeasible",# second stage pseudocost with alternative defined by alt_name
     iterations_until_stable::Int64 = 1,
     decision_function::String = "product",
-)
+) 
     if name == "most_infeasible"
         # cutoffs for different stages 
         
@@ -914,6 +914,11 @@ function default_hierarchy_strategies(
             "most_infeasible", 
             cutoff_1
         )
+        if decision_function == "weighted_sum"
+            μ = 0.5
+        else 
+            μ = 1e-6
+        end
         func_2 = SelectionGenerator(
             "pseudocost", # 
             cutoff_2; # stable cutoff 
@@ -922,7 +927,8 @@ function default_hierarchy_strategies(
             decision_function = decision_function, # stable decision function for pseu#
             iterations_until_stable = iterations_until_stable,# number of iterations until a variable is deemed stable
             comparison_type = ">=",
-            alt_final_flag=true
+            alt_final_flag=true,
+            μ = μ
         )
         func_3 = SelectionGenerator(
             "largest_most_infeasible_gradient", 
