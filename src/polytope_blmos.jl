@@ -37,15 +37,11 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     return true
 end
 
+function is_simple_inface_feasible(sblmo::CubeSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
+	return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
+end
+
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
-    lbs = sblmo.lower_bounds
-    ubs = sblmo.upper_bounds
-    indicator = [0.0, 1.0]
-    distinct_lbs = unique(lbs)
-    distinct_ubs = unique(ubs)
-    if !issubset(distinct_lbs, indicator) || !issubset(distinct_ubs, indicator)
-        return false
-    end
     return true
 end
 
@@ -106,10 +102,11 @@ struct ProbabilitySimplexSimpleBLMO <: SimpleBoundableLMO
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
-    if !(sblmo.N == 1)
-        return false
-    end
     return true  
+end
+
+function is_simple_inface_feasible(sblmo::ProbabilitySimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
+	return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
 """
@@ -258,10 +255,14 @@ struct UnitSimplexSimpleBLMO <: SimpleBoundableLMO
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
-    if !(sblmo.N == 1)
+    return true  
+end
+
+function is_simple_inface_feasible(sblmo::UnitSimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
+    if isapprox(sum(x), N; atol = atol, rtol = rtol) && !isapprox(sum(a), N; atol = atol, rtol = rtol)
         return false
     end
-    return true  
+    return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
 """
@@ -377,4 +378,24 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
         end
     end
     return [z], true
+end
+
+function is_simple_inface_feasible_subroutine(sblmo::SimpleBoundableLMO, a, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-5, kwargs...)
+    for i in eachindex(x)
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if isapprox(x[idx], lb[idx]; atol = atol, rtol = rtol) && !isapprox(a[i], lb[idx]; atol = atol, rtol = rtol)
+                return false
+            elseif isapprox(x[idx], ub[idx]; atol = atol, rtol = rtol) && !isapprox(a[i], ub[idx]; atol = atol, rtol = rtol)
+                return false
+            end
+        else
+            if isapprox(x[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol) && !isapprox(a[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol)
+                return false
+            elseif isapprox(x[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol) && !isapprox(a[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol)
+                return false
+            end
+        end
+    end
+    return true
 end
