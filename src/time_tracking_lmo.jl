@@ -23,6 +23,10 @@ TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
 
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) = is_decomposition_invariant_oracle(tlmo.blmo)
 
+function is_inface_feasible(tlmo::TimeTrackingLMO, a, x)
+	return is_inface_feasible(tlmo.blmo, a, x)
+end
+
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)
