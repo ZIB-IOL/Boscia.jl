@@ -89,6 +89,11 @@ function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwa
     return a
 end
 
+# Check if the given point a is on the minimal face of x
+function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
+	return is_simple_inface_feasible(blmo.simple_lmo, a, x, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
+end
+
 #Provide FrankWolfe.dicg_maximum_step
 function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     return bounded_dicg_maximum_step(
