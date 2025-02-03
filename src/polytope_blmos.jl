@@ -45,8 +45,10 @@ function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
     return true
 end
 
-    
-# After splitting, split variable will be fixed to either 0 or 1.
+"""
+If the entry in x is at the boundary, choose the corresponding bound.
+Otherwise, if the entry in direction is positve, choose the lower bound. Else, choose the upper bound.
+"""
 function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
     n = length(x)
     v = copy(x)
@@ -76,12 +78,30 @@ function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, 
     return v       
 end
 
-# For DICG each variable can only be either fixed to 0.0 or 1.0, or with normal bound [0.0, 1.0].
-# Observe that the entries of direction corresponding to fixed variables will always be 0.0.
-# In such case, we can use normal ZeroOneHypercube to compute gamma_max.
-# Same as in the Probability and Unit Simplex.
-function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.ZeroOneHypercube(), x, direction)
+"""
+Compute the maximum step size for each entry and return the minium of all the possible step sizes.
+"""
+function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if idx in int_vars
+            i = findfirst(x -> x == idx, int_vars)
+            if di < 0
+                gamma_max = min(gamma_max, (ub[i] - x[idx]) / -di)
+            elseif di > 0
+                gamma_max = min(gamma_max, (x[idx] - lb[i]) / di)
+            end
+        else
+            if di < 0
+                gamma_max = min(gamma_max, (sblmo.upper_bounds[idx] - x[idx]) / -di)
+            elseif di > 0
+                gamma_max = min(gamma_max, (x[idx] - sblmo.lower_bounds[idx]) / di)
+            end
+        end
+
+    end
+    return gamma_max
 end
 
 function dicg_split_vertices_set_simple(sblmo::CubeSimpleBLMO, x, vidx)
@@ -151,8 +171,31 @@ function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLM
     return a
 end
 
-function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.ProbabilitySimplexOracle{Float64}(), x, direction)
+function bounded_dicg_maximum_step(
+    sblmo::ProbabilitySimplexSimpleBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol = 1e-6,
+    kwargs...,
+)
+    # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if di > tol
+            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+        elseif di < -tol
+            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+        end
+
+        if gamma_max == 0.0
+            return 0.0
+        end
+    end
+    return gamma_max
 end
 
 function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
@@ -320,13 +363,41 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, dire
         return zeros(length(x))
     end
     a = zeros(length(x))
-    a[min_idx] = 1.0
+    a[min_idx] = sblmo.N
     return a
 end
 
 
-function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, x, direction, lb, ub, int_vars; kwargs...)
-    return FrankWolfe.dicg_maximum_step(FrankWolfe.UnitSimplexOracle{Float64}(), x, direction)
+function Boscia.bounded_dicg_maximum_step(
+    sblmo::UnitSimplexSimpleBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol = 1e-6,
+    kwargs...,
+)
+    # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1.
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if di > tol
+            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+        elseif di < -tol
+            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+        end
+		
+        if gamma_max == 0.0
+            return 0.0
+        end
+    end
+
+	# the sum of entries should be smaller than N.
+	if sum(direction) < 0.0
+		gamma_max = min(gamma_max, (sum(x)-sblmo.N) / sum(direction))
+	end
+    return gamma_max
 end
 
 function dicg_split_vertices_set_simple(sblmo::UnitSimplexSimpleBLMO, x, vidx)
