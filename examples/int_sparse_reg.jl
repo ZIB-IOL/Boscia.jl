@@ -31,12 +31,6 @@ const MOI = MathOptInterface
 # r - controls how often we have to maximal split on a index.
 # k - is the sparsity parameter. We only want a few non zero entries.
 
-# For bug hunting:
-seed = rand(UInt64)
-@show seed
-#seed = 0xeadb922ca734998b  
-Random.seed!(seed)
-
 n = 10
 m = 30
 l = 5
