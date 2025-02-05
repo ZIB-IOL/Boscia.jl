@@ -127,6 +127,13 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         optimality = ["OPTIMAL", "optimal", "Optimal", "Optimal (tolerance reached)", "tree.lb>primal-dual_gap", "primal>=tree.incumbent", "Optimal (tree empty)", "ALMOST_LOCALLY_SOLVED", "LOCALLY_SOLVED"]
         termination = [row in optimality ? 1 : 0 for row in df[!,:termination]]
 
+        if solver == "shot"
+            timed_out_idx = findall(x -> x >= 1800.0, time)
+            if !isempty(timed_out_idx)
+                termination[timed_out_idx] .= 0
+            end
+        end
+
         # All the problems are feasible.
         # If a solver returns that it isn't, it counts as non-solved.
         infeas_idx = findall(x->x=="INFEASIBLE", df[!,:termination])

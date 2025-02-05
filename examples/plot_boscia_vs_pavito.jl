@@ -70,14 +70,15 @@ function plot_boscia_vs_pavito(example; use_shot=true)
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{libertine}
-    \usepackage{libertinust1math}
     """)
+    #\usepackage{libertinust1math}
     ax = fig.add_subplot(111)
 
     #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_boscia"], label="BO (ours)", color=colors[1], marker=markers[1])
     #ax.scatter(df_temp[!,"dimension"], df_temp[!,"time_scip"], label="SCIP", color=colors[3], marker=markers[2])
 
     if boscia 
+        println("Plot Boscia")
         df_boscia = deepcopy(df)
         filter!(row -> !(row.terminationBoscia == 0),  df_boscia)
         #filter!(row -> !(row.optimal_boscia == 0),  df_boscia)
@@ -90,6 +91,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
     end
 
     if scip_oa     
+        println("Plot SCIP")
         df_scip = deepcopy(df)
         filter!(row -> !(row.terminationScipOA == 0),  df_scip)
         #filter!(row -> !(row.optimal_scip == 0),  df_scip)
@@ -99,9 +101,10 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         if !isempty(df_scip)
             ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
         end
-    end
+    end 
 
     if ipopt
+        println("Plot Ipopt")
         df_ipopt = deepcopy(df)
         filter!(row -> !(row.terminationIpopt == 0),  df_ipopt)
         #filter!(row -> !(row.optimal_ipopt == 0),  df_ipopt)
@@ -111,9 +114,10 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         if !isempty(df_ipopt)
             ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
         end
-    end
+    end 
 
     if pavito
+        println("Plot Pavito")
         df_pavito = deepcopy(df)
         filter!(row -> !ismissing(row.terminationPavito),  df_pavito)
         filter!(row -> !(row.terminationPavito == 0),  df_pavito)
@@ -128,9 +132,10 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         if !isempty(df_pavito)
             ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
         end
-    end
+    end 
 
     if shot
+        println("Plot Shot")
         df_shot = deepcopy(df)
         filter!(row -> !(row.terminationShot == 0),  df_shot)
         #filter!(row -> !(row.optimal_shot == 0),  df_shot)
@@ -140,13 +145,15 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         if !isempty(df_shot)
             ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)
         end
-    end
-
+    end 
+println("Set up labels and title")
     ylabel("Solved instances")
     #locator_params(axis="y", nbins=4)
     xlabel("Time (s)")
     ax.set_xscale("log")
     ax.grid()
+    ncol = shot ? 3 : 4
+
     if example == "portfolio_integer"
         title("Pure-Integer Portfolio Problem", loc="center")
     elseif example == "poisson_reg"
@@ -171,11 +178,10 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         title("MIP LIB ran14x18-disj-8", loc="center")
     end
 
-    ncol = shot ? 3 : 4
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.3), fontsize=12,
-        fancybox=true, shadow=false, ncol=ncol)
+    fancybox=true, shadow=false, ncol=ncol)
 
-    fig.tight_layout()
+fig.tight_layout()
 
     if pavito && !scip_oa
         file = "plots/" * example * "_boscia_pavito.pdf"
@@ -191,5 +197,5 @@ examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-di
 for example in examples
     @show example
     plot_boscia_vs_pavito(example)
-    plot_boscia_vs_pavito(example, use_shot=false)
-end
+    #plot_boscia_vs_pavito(example, use_shot=false)
+end 
