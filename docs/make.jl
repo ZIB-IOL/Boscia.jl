@@ -11,11 +11,8 @@ function copy_readme_to_index()
     write(index_path, readme_content)
 end
 
-
-
 # Call the functions to update index.md and 1_algorithms.md
 copy_readme_to_index()
-
 
 # Generate documentation
 makedocs(
@@ -25,18 +22,16 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "How does it work?" => "basics.md",
-       
         "API Reference" => [
             "reference/0_reference.md",
             "reference/1_algorithms.md", 
-            "reference/2_blmo_build.md" , 
-            "reference/custom.md" ,
-            "reference/fw_variant.md" ,
-            "reference/utilities.md"
-
-        ]
+            "reference/2_blmo_build.md",
+            "reference/custom.md",
+            "reference/fw_variant.md",
+            "reference/utilities.md",
+        ],
     ],
-    warnonly = true
+    warnonly = true,
 )
 
 # Deploy documentation
@@ -47,5 +42,5 @@ deploydocs(
     target = "build",
     branch = "gh-pages",
     versions = ["stable" => "v^", "v#.#"],
-    push_preview = true
+    push_preview = true,
 )
