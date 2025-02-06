@@ -127,10 +127,15 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         optimality = ["OPTIMAL", "optimal", "Optimal", "Optimal (tolerance reached)", "tree.lb>primal-dual_gap", "primal>=tree.incumbent", "Optimal (tree empty)", "ALMOST_LOCALLY_SOLVED", "LOCALLY_SOLVED"]
         termination = [row in optimality ? 1 : 0 for row in df[!,:termination]]
 
+        @show sum(termination)
+        @show solver
+
         if solver == "shot"
             timed_out_idx = findall(x -> x >= 1800.0, time)
+            @show length(timed_out_idx)
             if !isempty(timed_out_idx)
                 termination[timed_out_idx] .= 0
+                @show sum(termination)            
             end
         end
 
@@ -250,7 +255,7 @@ function build_non_grouped_csv(option::String; example = "sparse_reg")
         else
             solver1 = lowercase(solver)
         end
-
+@show solver1
         df, minimumTime = combine_data(df, example, solver, solver1, minimumTime)
     end
 
@@ -448,7 +453,7 @@ end
 
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
-examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
+#examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "portfolio_mixed", "portfolio_integer", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 
 for example in examples
 
@@ -457,10 +462,10 @@ for example in examples
     build_summary_by_difficulty("comparison", example=example)
 
     # settings 
-    build_non_grouped_csv("settings", example=example)
-    build_summary_by_difficulty("settings", example=example)
+    #build_non_grouped_csv("settings", example=example)
+    #build_summary_by_difficulty("settings", example=example)
 
     # branching
-    build_non_grouped_csv("branching", example=example)
-    build_summary_by_difficulty("branching", example=example)
+    #build_non_grouped_csv("branching", example=example)
+    #build_summary_by_difficulty("branching", example=example)
 end
