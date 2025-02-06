@@ -1,31 +1,27 @@
-docs:
-    name: Documentation
+name: Documentation
+on:
+  push:
+    branches: [main]
+    tags: '*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      actions: write # needed to allow julia-actions/cache to proactively delete old caches that it has created
-      contents: write
-      statuses: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
         with:
-          version: '1'
-      - uses: julia-actions/cache@v1
-      - name: Configure doc environment
-        shell: julia --project=docs --color=yes {0}
+          # Build documentation on Julia 1.6
+          version: '1.10'
+      - name: Install dependencies
+        shell: julia --project=docs {0}
         run: |
           using Pkg
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-docdeploy@v1
+      - name: Build and deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-      - name: Run doctests
-        shell: julia --project=docs --color=yes {0}
-        run: |
-          using Documenter: DocMeta, doctest
-          using Boscia
-          DocMeta.setdocmeta!(Boscia, :DocTestSetup, :(using Boscia); recursive=true)
-          doctest(Boscia)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
+        run: julia --project=docs/ docs/make.jl
