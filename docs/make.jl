@@ -36,7 +36,7 @@ makedocs(
 
 # Deploy documentation
 deploydocs(
-    repo = "https://github.com/saurabhintoml/Boscia.jl.git",
+    repo = "https://github.com/ZIB-IOL/Boscia.jl.git",
     devbranch = "main",
     devurl = "dev",
     target = "build",
