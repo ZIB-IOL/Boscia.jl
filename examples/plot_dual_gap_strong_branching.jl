@@ -43,8 +43,8 @@ function dual_gap_plot(example, seed, dim, mode)
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{libertine}
-    \usepackage{libertinust1math}
     """)
+    #    \usepackage{libertinust1math}
     ax = fig.add_subplot(111)
 
     number_of_nodes = [i for i in 1:len]
@@ -69,9 +69,9 @@ function dual_gap_plot(example, seed, dim, mode)
         end =#
 
     elseif mode == "time"
-        ax.plot(df1[1:len1,"time"], df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
-        ax.plot(df2[1:len2,"time"], df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
-        ax.plot(df3[1:len3,"time"], df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
+        ax.plot(df1[1:len1,"time"]./ 1000, df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
+        ax.plot(df2[1:len2,"time"]./ 1000, df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
+        ax.plot(df3[1:len3,"time"]./ 1000, df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
         ax.set(xlabel="Time (s)", ylabel="Lower bound")
 
         ymin = minimum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
