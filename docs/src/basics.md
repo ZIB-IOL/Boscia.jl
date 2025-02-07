@@ -29,33 +29,10 @@ Additionally, we exploit both general properties of the FW methods as well as th
 
 ## Frank-Wolfe variants
 
-First, we introduce the standard Frank-Wolfe algorithm, referred to as *Vanilla*, and the other variants available in `Boscia.jl`. 
-
-### Vanilla Frank-Wolfe
-
-Given an initial start point $x_0 \in C$, the Vanilla variant uses the gradient at the current iterate to solve a linear minimization problem.
-The solution of the linear problem is used as the next descend direction and iterate is updated after a line search step.
-The algorithm is very simple and able to handle large scale problems. 
-Also, it often produces sparse solutions and has the advantages of naturally presenting the solution as a convex combination of extreme points of the feasible region, the so-called **active set**. 
-
-### Away-Frank-Wolfe (AFW)
-
-The Away-Frank-Wolfe (AFW) algorithm is an enhancement of the Vanilla method, designed to improve convergence, particularly in cases where the solution lies at a vertex or along the boundary of the feasible region. 
-In addition to the standard Frank-Wolfe steps, AFW introduces an "away step" that allows the algorithm to move away from previously chosen vertices of the feasible set. 
-This helps in reducing the zigzagging behavior often observed in Vanilla FW and accelerates convergence, particularly towards solutions on the boundary of the feasible region. 
-AFW maintains the simplicity of the original algorithm while achieving faster convergence in many cases.
-
-### Blended Conditional Gradient (BCG)
-
-TODO
-
-### Blended Pairwise Conditional Gradient (BPCG)
-
-The classic FW algorithm's reliance on an LMO is inefficient for polytopes due to expensive calls. 
-The Blended Pairwise Conditional Gradient (BPCG) algorithm improves efficiency by combining FW steps with pairwise steps that avoid LMO calls. 
-BPCG maintains a smaller active set of vertices, enhancing performance. 
-We use a modified lazified BPCG from FrankWolfe.jl.
-
+The Frank-Wolfe algorithms used in `Boscia.jl` are implemented in [FrankWolfe.jl](https://github.com/ZIB-IOL/FrankWolfe.jl). 
+The variants currently available in `Boscia.jl` are Vanilla Frank-Wolfe, Away-Frank-Wolfe (AFW), Blended Conditional Gradient (BCG)
+and Blended Pairwise Conditional Gradient (BPCG).
+The latter is set as the default variant.
 
 
 ## Branch-and-Bound techniques 
@@ -71,14 +48,29 @@ This flexibility contrasts with other nonlinear solvers, enabling more efficient
 
 ### Tree state-dependent termination and evolving error 
 
-We implement termination criteria in node processing to reduce iterations, prioritizing nodes with promising lower bounds. 
-An adaptive Frank-Wolfe gap criterion increases precision with depth in the branch-and-bound tree. 
-Frank Wolfe's convex combinations of integer extreme points ensure valid dual bound, even with reduced precision runs. 
-This approach balances efficiency and accuracy in solving optimization problems.we have Hybrid branching which couples strong branching and most infeasible branching. 
-Strong branching is very expensive to do for the whole tree and it's usually more beneficial to utilize strong branching only up to a certain depth.
+We implement different termination criteria in the node processing to reduce iterations, prioritizing nodes with promising lower bounds. 
+The dual bound provided by Frank-Wolfe is always valid, even if the dual gap is large.
+Thus, we solve nodes high in the tree, like the root node, with a coarse precision 
+and increase the precision with which a node is solved depending on its depth in the tree. 
+This approach balances efficiency and accuracy in solving optimization problems.
 
 ### Warm-starting via the active set
 
+Many Frank-Wolfe variants provide a so-called active set, the convex combination of vertices representing the solution. 
+This can be used to warm start the children nodes by partitioning the active set of the parent.
+
+### Branching
+
+As default, we use most-infeasible branching which has shown good performance for many problems.
+Also, implemented are strong branching and the so-called hybrid branching which performs strong branching until a specific depth and afterwards switches to most-infeasible.
+It should be noted that strong branching is only adviseable for problems with very cheap LMO. 
+Otherwise, most-infeasible or hybrid branching with a shallow depth is to be preferred.
+
+### Dual fixing and tightening 
+
+In subproblems where variables are at bounds, our approach utilizes convexity and primal solutions to tighten dual bounds effectively. 
+Drawing from methods pioneered by Dantzig and extended in various contexts, we leverage Frank-Wolfe methods and FW gaps, adaptable to scenarios without explicit dual solutions, such as those involving MIP-based LMOs.
+We can also exploit strong convexity and sharpness to tighten the lowerbound of the tree.
 
 
 ## The Bounded Linear Minimization Oracles (BLMO)
@@ -95,26 +87,8 @@ In `mps-example.jl`, the feasible region is encoded in an MPS file.
 
 ### Customized BLMO's
 
-Point to the tutorial
-
-
-
-## Strong branching and tightenings 
-
-In tackling large discrete optimization problems, our method utilizes Frank-Wolfe algorithms to approximate lower bound improvements efficiently. 
-By relaxing strong branching to continuous LPs for the Linear Minimization Oracle and controlling FW iterations or gap tolerances, we balance computational cost with accuracy. 
-This approach optimizes variable selection in branch-and-bound algorithms, enhancing scalability and efficiency in solving complex discrete optimization challenges.
-
-### Dual fixing and tightening 
-
-In subproblems where variables are at bounds, our approach utilizes convexity and primal solutions to tighten dual bounds effectively. 
-Drawing from methods pioneered by Dantzig and extended in various contexts, we leverage Frank-Wolfe methods and FW gaps, adaptable to scenarios without explicit dual solutions, such as those involving MIP-based LMOs.
-
-
-
-
-
-
-
+In addition, we have implemented some specific BLMOs like the hypercube, the probability and unit simplex.
+For examples, see `approx_planted_point.jl'. 
+In `cube_blmo.jl`, there is an example on how to implement Boscia's BLMO interface from scratch.
 
 
