@@ -86,7 +86,7 @@ function build_optimizer(o, p, k, M)
     return lmo, x
 end
 
-function sparse_reg_boscia(seed=1, n=5; full_callback=false, bo_mode="default", depth=1, write=true, dual_gap_decay_factor=0.0, fw_epsilon=0.0)
+function sparse_reg_boscia(;seed=1, n=5, full_callback=false, bo_mode="default", depth=1, write=true, dual_gap_decay_factor=0.0, fw_epsilon=0.0)
     limit = 1800
 
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
@@ -219,7 +219,7 @@ function build_pavito_model(n, p, k, M, A, y, lambda_0, lambda_2; time_limit = 1
     return m, m[:x]
 end
 
-function sparse_reg_pavito(seed=1, n=5; time_limit=1800)
+function sparse_reg_pavito(;seed=1, n=5, time_limit=1800)
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
     # @show f
     m, x = build_pavito_model(n, p, k, M, A, y, lambda_0, lambda_2; time_limit=time_limit)
@@ -278,7 +278,7 @@ function build_shot_model(n, p, k, M, A, y, lambda_0, lambda_2; time_limit = 180
     return m, m[:x]
 end
 
-function sparse_reg_shot(seed=1, n=5; time_limit=1800)
+function sparse_reg_shot(;seed=1, n=5, time_limit=1800)
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
     # @show f
     m, x = build_shot_model(n, p, k, M, A, y, lambda_0, lambda_2; time_limit=time_limit)
@@ -328,7 +328,7 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     return lmo, epigraph_ch, x, lmo_check
 end
 
-function sparse_reg_scip(seed=1, n=5; tol=1e-6)
+function sparse_reg_scip(;seed=1, n=5, tol=1e-6)
     limit = 1800
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
 
@@ -388,7 +388,7 @@ function build_bnb_ipopt_model(n, p, k, M, A, y, lambda_0, lambda_2)
     return bnb_model, expr
 end
 
-function sparse_reg_ipopt(seed=1, n=5; full_callback=false)
+function sparse_reg_ipopt(;seed=1, n=5, full_callback=false)
     f, grad!, p, k, M, A, y, lambda_0, lambda_2 = build_function(seed, n)
     # build tree
     bnb_model, expr = build_bnb_ipopt_model(n, p, k, M, A, y, lambda_0, lambda_2)

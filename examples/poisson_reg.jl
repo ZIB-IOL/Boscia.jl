@@ -132,7 +132,7 @@ function build_optimizer(o, p, k, Ns)
     return lmo, (w,z,b)
 end
 
-function poisson_reg_boscia(seed=1, n=20, Ns=0.1, full_callback=false; bo_mode="default", depth=1, limit=1800)
+function poisson_reg_boscia(;seed=1, n=20, Ns=0.1, full_callback=false, bo_mode="default", depth=1, limit=1800)
     #limit = 1800
 use_scale = false
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; Ns=Ns)
@@ -269,7 +269,7 @@ function build_pavito_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=1800)
     return m, m[:x]
 end
 
-function poisson_reg_pavito(seed=1, n=20, Ns=0.1; print_models=false, time_limit=1800)
+function poisson_reg_pavito(;seed=1, n=20, Ns=0.1, print_models=false, time_limit=1800)
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
     # @show f
@@ -341,7 +341,7 @@ function build_shot_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit=1800)
     return m, m[:x]
 end
 
-function poisson_reg_shot(seed=1, n=20, Ns=0.1; time_limit=1800)
+function poisson_reg_shot(;seed=1, n=20, Ns=0.1, time_limit=1800)
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
     # @show f
@@ -395,7 +395,7 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     return lmo, epigraph_ch, vcat(w,z,b), lmo_check
 end
 
-function poisson_reg_scip(seed=1, n=20, Ns=0.1)
+function poisson_reg_scip(;seed=1, n=20, Ns=0.1)
     limit = 1800
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n, Ns=Ns)
     k = n/2
@@ -474,7 +474,7 @@ function build_bnb_ipopt_model(n, Ns, p, k, α, bs, Xs, ys, ws; time_limit)
     return bnb_model, expr, p, k
 end
 
-function poisson_reg_ipopt(seed=1, n=20, Ns=0.1; time_limit=1800)
+function poisson_reg_ipopt(;seed=1, n=20, Ns=0.1, time_limit=1800)
     # build tree
     f, grad!, p, α, bs, Xs, ys, ws = build_function(seed, n; Ns=Ns)
     k = n/2

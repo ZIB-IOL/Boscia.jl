@@ -105,7 +105,7 @@ function build_twotailed_optimizer(o, τ, M)
     return lmo, (x, z, s)
 end
 
-function tailed_cardinality_sparse_log_reg_boscia(seed=1, dimension=10, M=1.0, var_A=1; bo_mode="default", depth = 1, full_callback=false) 
+function tailed_cardinality_sparse_log_reg_boscia(;seed=1, dimension=10, M=1.0, var_A=1, bo_mode="default", depth = 1, full_callback=false) 
     limit = 1800
     f, grad!, τ = build_function(seed, dimension, var_A)
     o = SCIP.Optimizer()
@@ -204,7 +204,7 @@ function build_scip_optimizer(τ, M, limit, f, grad!)
     return lmo, epigraph_ch, (x, z, s), lmo_check
 end
 
-function tailed_cardinality_sparse_log_reg_scip(seed=1, dimension=10, M=1.0, var_A=1)
+function tailed_cardinality_sparse_log_reg_scip(;seed=1, dimension=10, M=1.0, var_A=1)
     limit = 1800
     f, grad!, τ = build_function(seed, dimension, var_A)
     lmo, epigraph_ch, (x, z, s), lmo_check = build_scip_optimizer(τ, M, limit, f, grad!)

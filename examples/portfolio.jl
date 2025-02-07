@@ -76,7 +76,7 @@ function build_optimizer(o, mode, n, ai, bi)
     return lmo, x
 end
 
-function portfolio_boscia(seed=1, dimension=5, mode; full_callback=false, bo_mode="default", depth=1, write=true)
+function portfolio_boscia(;seed=1, dimension=5, mode="integer", full_callback=false, bo_mode="default", depth=1, write=true)
     limit = 1800
 
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
@@ -207,7 +207,7 @@ function build_pavito_model(n, ri, Ωi, Ai, Mi, ai, bi; mode="mixed", time_limit
     return m, x
 end
 
-function portfolio_pavito(seed=1, dimension=5; mode, time_limit=1800)
+function portfolio_pavito(;seed=1, dimension=5, mode="integer", time_limit=1800)
     @show seed, dimension, mode
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
@@ -269,7 +269,7 @@ function build_shot_model(seed, n, ri, Ωi, Ai, Mi, ai, bi; mode="mixed", time_l
     return m, x
 end
 
-function portfolio_shot(seed=1, dimension=5; mode, time_limit=1800)
+function portfolio_shot(;seed=1, dimension=5, mode="integer", time_limit=1800)
     @show seed, dimension, mode
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
@@ -316,7 +316,7 @@ function build_scip_optimizer(mode, limit, n, f, grad!, ai, bi)
     return lmo, epigraph_ch, x, lmo_check
 end
 
-function portfolio_scip(seed=1, dimension=5; mode, limit=1800)
+function portfolio_scip(;seed=1, dimension=5, mode="integer", limit=1800)
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
     lmo, epigraph_ch, x, lmo_check = build_scip_optimizer(mode, limit, n, f, grad!, ai, bi)
@@ -377,7 +377,7 @@ function build_bnb_ipopt_model(n, ai, bi, Mi, ri, Ωi; mode="mixed")
     return bnb_model, expr
 end
 
-function portfolio_ipopt(seed=1, dimension=5; mode="mixed")
+function portfolio_ipopt(;seed=1, dimension=5, mode="mixed")
     f, grad!, n, ri, Ωi, Ai, Mi, ai, bi = build_function(seed, dimension)
 
     # build tree

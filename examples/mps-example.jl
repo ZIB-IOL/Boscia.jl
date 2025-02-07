@@ -371,15 +371,28 @@ function build_bnb_ipopt_model(example, vs, b_mps, max_norm; time_limit=1800)
     end
 
     consVal_list = MOI.get(o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Interval{Float64}}())
-    for idx in consVal_list
-        cons_val = MOI.get(o, MOI.ConstraintSet(), idx)
-        lbs[idx.value] = cons_val.lower
-        ubs[idx.value] = cons_val.upper
-    end
-    MOI.delete.(o, consVal_list)
-    for idx in 1:n
-        MOI.add_constraint(o, MOI.VariableIndex(idx), MOI.GreaterThan(lbs[idx]))
-        MOI.add_constraint(o, MOI.VariableIndex(idx), MOI.LessThan(ubs[idx]))
+    if !isempty(consVal_list)
+        for idx in consVal_list
+            cons_val = MOI.get(o, MOI.ConstraintSet(), idx)
+            lbs[idx.value] = cons_val.lower
+            ubs[idx.value] = cons_val.upper
+        end
+        MOI.delete.(o, consVal_list)
+        for idx in 1:n
+            MOI.add_constraint(o, MOI.VariableIndex(idx), MOI.GreaterThan(lbs[idx]))
+            MOI.add_constraint(o, MOI.VariableIndex(idx), MOI.LessThan(ubs[idx]))
+        end
+    else
+        consVal_list = MOI.get(o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
+        for idx in consVal_list
+            cons_val = MOI.get(o, MOI.ConstraintSet(), idx)
+            ubs[idx.value] = cons_val.upper
+        end
+        consVal_list = MOI.get(o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}())
+        for idx in consVal_list
+            cons_val = MOI.get(o, MOI.ConstraintSet(), idx)
+            lbs[idx.value] = cons_val.lower
+        end
     end
 
     # Relaxed version

@@ -113,7 +113,7 @@ function build_optimizer(o, p, k, M)
     return lmo, x
 end
 
-function sparse_log_reg_boscia(seed=1, dimension=5, M=3, k=5.0, var_A=1.0, full_callback = false; bo_mode="default", depth=1) 
+function sparse_log_reg_boscia(;seed=1, dimension=5, M=3, k=5.0, var_A=1.0, full_callback = false, bo_mode="default", depth=1) 
     limit = 1800
 
     f, grad!, p, A, y, mu = build_function(seed, dimension, var_A)
@@ -248,7 +248,7 @@ function build_pavito_model(n, k, var_A, M, p, A, y, mu; time_limit=1800)
     return m, m[:x]
 end
 
-function sparse_log_reg_pavito(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; print_models=false, time_limit=1800)
+function sparse_log_reg_pavito(;seed=1, dimension=10, M=3, k=5.0, var_A=1.0, print_models=false, time_limit=1800)
     f, grad!, p, A, y, mu = build_function(seed, dimension, var_A)
     # @show f
     m, x = build_pavito_model(dimension, k, var_A, M, p, A, y, mu; time_limit=time_limit)
@@ -320,7 +320,7 @@ function build_shot_model(seed, n, k, var_A, M, p, A, y, mu; time_limit=1800)
     return m, m[:x]
 end
 
-function sparse_log_reg_shot(seed=1, dimension=10, M=3, k=5.0, var_A=1.0; time_limit=1800)
+function sparse_log_reg_shot(;seed=1, dimension=10, M=3, k=5.0, var_A=1.0, time_limit=1800)
     f, grad!, p, A, y, mu = build_function(seed, dimension, var_A)
     # @show f
     m, x = build_shot_model(seed, dimension, k, var_A, M, p, A, y, mu; time_limit=time_limit)
@@ -367,7 +367,7 @@ function build_scip_optimizer(p, k, M, limit, f, grad!)
     return lmo, epigraph_ch, x, lmo_check
 end
 
-function sparse_log_reg_scip(seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
+function sparse_log_reg_scip(;seed=1, dimension=10, M=3, k=5.0, var_A=0.5)
     limit = 1800
     f, grad!, p, A, y, mu  = build_function(seed, dimension, var_A)
     lmo, epigraph_ch, x, lmo_check = build_scip_optimizer(p, k, M, limit, f, grad!)
@@ -444,7 +444,7 @@ function build_bnb_ipopt_model(n, M, k, var_A, p, A, y, mu; time_limit)
 end
 
 # BnB tree with Ipopt
-function sparse_log_reg_ipopt(seed=1, n=10, M=3, k=5.0, var_A=1.0; time_limit=1800)
+function sparse_log_reg_ipopt(;seed=1, n=10, M=3, k=5.0, var_A=1.0, time_limit=1800)
     f, grad!, p, A, y, mu = build_function(seed, n, var_A)
 
     # build tree
