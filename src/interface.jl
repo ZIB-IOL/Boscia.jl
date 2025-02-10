@@ -1,81 +1,58 @@
 # Interface.jl
 
 """
-    solve
-   
-f                      - objective function oracle. 
-g                      - oracle for the gradient of the objective. 
-blmo                    - a MIP solver instance (e.g., SCIP) encoding the feasible region. Has to be of type `BoundedLinearMinimizationOracle` (see `lmo_wrapper.jl`).    
-traverse_strategy      - encodes how to choose the next node for evaluation. 
-                        By default the node with the best lower bound is picked.
-branching_strategy     - by default we branch on the entry which is the farthest 
-                        away from being an integer.
-variant                - variant of FrankWolfe to be used to solve the node problem.
-                         Options: FW   -- Vanilla FrankWolfe
-                                 AFW  -- Away FrankWolfe
-                                 BPCG -- Blended Pairwise Conditional Gradient  
-line_search            - specifies the Line Search method used in the FrankWolfe variant.
-                         Default is the Adaptive Line Search. For other types, check the FrankWolfe.jl package. 
-active_set             - can be used to specify a starting point, e.g. if the feasible region is not completely
-                         contained in the domain of the objective. By default, the direction (1,..,n) where n is 
-                         the size of the problem is used to find a start vertex. Beware that the active set may 
-                         only contain actual vertices of the feasible region.   
-lazy                   - specifies whether the lazification shoud be used. Per default true. 
-                         Beware that it has no effect with Vanilla Frank-Wolfe. 
-lazy_tolerance         - decides how much progress is deemed enough to not have to call the LMO.                                                             
-fw_epsilon             - the tolerance for FrankWolfe in the root node.
-verbose                - if true, a log and solution statistics are printed.
-dual_gap               - if this absolute dual gap is reached, the algorithm stops.
-rel_dual_gap           - if this relative dual gap is reached, the algorithm stops.
-time_limit             - algorithm will stop if the time limit is reached. Depending on the problem
-                        it is possible that no feasible solution has been found yet.     
-print_iter             - encodes after how many proccessed nodes the current node and solution status 
-                        is printed. Will always print if a new integral solution has been found. 
-dual_gap_decay_factor  - the FrankWolfe tolerance at a given level i in the tree is given by 
-                        fw_epsilon * dual_gap_decay_factor^i until we reach the min_node_fw_epsilon.
-max_fw_iter            - maximum number of iterations in a FrankWolfe run.
-min_number_lower       - If not Inf, evaluation of a node is stopped if at least min_number_lower nodes have a better 
-                        lower bound.
-min_node_fw_epsilon    - smallest fw epsilon possible, see dual_gap_decay_factor.
-use_postsolve          - Runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e.
-                        it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables. 
-min_fw_iterations      - the minimum number of FrankWolfe iterations in the node evaluation. 
-max_iteration_post     - maximum number of iterations in a FrankWolfe run during postsolve
-dual_tightening        - whether to use dual tightening techniques (make sure your function is convex!)
-global_dual_tightening - dual tightening maintained globally valid (when new solutions are found)
-bnb_callback           - an optional callback called at every node of the tree, for example for heuristics
-strong_convexity       - strong convexity of the function, used for tighter dual bound at every node
-sharpness_constant     - the constant M > 0 for (θ, M)-sharpness.
-                         f is (θ, M)-sharpness: f satisfies
-                         min_{x* ∈ X*} || x - x* || ≤ M (f(x) - f*)
-                         where X* is the set minimizer of f. 
-sharpness_exponent     - the exponent θ ∈ [0, 1/2] for (θ, M)-sharpness.
-domain_oracle          - For a point x: returns true if x is in the domain of f, else false. Per default is true.
-                         In case of the non trivial domain oracle, the starting point has to be feasible for f. Additionally,
-                         the user has to provide a function `domain_point`, see below. Also, depending 
-                         on the Line Search method, you might have to provide the domain oracle to it, too.
-find_domain_point      - Given the current node bounds return a domain feasible point respecting the bounds.
-                         If no such point can be found, return nothing.                       
-start_solution         - initial solution to start with an incumbent
-fw_verbose             - if true, FrankWolfe logs are printed
-use_shadow_set         - The shadow set is the set of discarded vertices which is inherited by the children nodes.
-                        It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO,
-                        performance might improve by disabling this option. 
-custom_heuristics      - List of  custom heuristic from the user.    
-prob_rounding          - The probability for calling the rounding heuristics. Since the feasibility has to be checked, it might
-                        expensive to do this for every node. 
-clean_solutions        - Flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
-max_clean_iter         - Maximum number of iteration in the Frank-Wolfe call for polishing new solutions.
-                            
+    solve(f, g, blmo::BoundedLinearMinimizationOracle; ...)
+
+Requires
+
+- `f` oracle of the objective function.
+- `g` oracle of the gradient of the objective
+- `blmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `BoundedLinearMinimizationOracle` (see `blmo_interface.jl`).
+
 Returns
 
-- x - the solution.
-- tlmo - the blmo wrapped in a TimeTrackingLMO instance.
-- result - dictionary containg the statistics and information for plotting progress plots.
+- `x` the best solution found.
+- `tlmo` the BLMO wrapped in a TimeTrackingLMO instance.
+- `result` a dictionary containg the statistics like number of nodes, total solving etc. It also contains information for plotting progress plots like the lower and upper bound progress.
+
+Optional settings
+
+- `traverse_strategy` encodes how to choose the next node for evaluation. By default the node with the best lower bound is picked.
+- `branching_strategy` fixes the branching strategy. By default, weuse `MOST_INFEASIBLE`, i.e. we branch on the entry which is the farthest away from being an integer.
+- `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `Blended`, `BPCG` and `VanillaFrankWolfe`.
+- `line_search` specifies the line search method used in the FrankWolfe variant. Default is the `Adaptive` line search. For other available types, check the FrankWolfe.jl package.
+- `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
+- `lazy` flag specifies whether the lazification of the Frank-Wolfe variant should be used. Per default `true`. Note that it has no effect on Vanilla Frank-Wolfe.
+- `lazy_tolerance` decides how much progress is deemed enough to not have to call the LMO. Only used if the `lazy` flag is activated.
+- `fw_epsilon` the solving precision of Frank-Wolfe at the root node.
+- `verbose` if `true`, logs and solution statistics are printed.
+- `dual_gap` absolute dual gap. If  reached, the algorithm stops.
+- `rel_dual_gap` relative dual gap. If reached, the algorithm stops.
+- `time_limit` algorithm will stop if the time limit is reached. Depending on the problem it is possible that no feasible solution has been found yet. On default, there is no time limit.
+- `print_iter` encodes after how many processed nodes the current node and solution status is printed. The logs are always printed if a new integral solution has been found.
+- `dual_gap_decay_factor` the FrankWolfe tolerance at a given level `i` in the tree is given by `fw_epsilon * dual_gap_decay_factor^i` until we reach the `min_node_fw_epsilon`.
+- `max_fw_iter` maximum number of iterations in a Frank-Wolfe run.
+- `min_number_lower` if not `Inf`, evaluation of a node is stopped if at least `min_number_lower` open nodes have a better lower bound.
+- `min_node_fw_epsilon` smallest fw epsilon tolerance, see also `dual_gap_decay_factor`.
+- `use_postsolve` if `true`, runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e. it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables.
+- `min_fw_iterations` the minimum number of Frank-Wolfe iterations performed in the node evaluation.
+- `max_iteration_post` maximum number of iterations in the Frank-Wolfe run during postsolve.
+- `dual_tightening` flag to decide  whether to use dual tightening techniques at node level. Note that this only porvides valid tightenings if your function is convex!
+- `global_dual_tightening` flag to decide whether to generate dual tightenings from new solutions that are gloablly valid.
+- `bnb_callback` an optional callback called after every node evaluation.
+- `strong_convexity` strong convexity parameter of the objective `f`, used for tightening the dual bound at every node.
+- `sharpness_constant` - the constant `M > 0` for `(θ, M)`-sharpness. `f` is `(θ, M)`-sharpness: `f` satisfies `min_{x^* ∈ X^*} || x - x^* || ≤ M (f(x) - f^(x^*))^θ` where `X^*` is the set of minimizer of `f`. Note that tightenings using sharpness are only valid if the problem has a unique minimizer, i.e. `f` is stricly convex!
+- `sharpness_exponent` - the exponent `θ ∈ [0, 1/2]` for `(θ, M)`-sharpness.
+- `domain_oracle` given a point `x`: returns `true` if `x` is in the domain of `f`, else false. Per default, it always returns `true`. In case of the non-trivial domain oracle, the starting point has to be domain feasible for `f`. Additionally, the user has to provide a function `domain_point`, see below. Also, depending on the line search method, you might have to provide the domain oracle to it, too.
+- `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`.
+- `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
+- `fw_verbose` if `true`, the Frank-Wolfe logs are printed at each node. Mostly meant for debugging.
+- `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the BLMO is expensive. In case of a cheap BLMO, performance might improve by disabling this option.
+- `custom_heuristics` list of custom heuristics from the user. 
+- `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
+- `clean_solutions` flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
+- `max_clean_iter` maximum number of iterations in the Frank-Wolfe call for polishing new solutions.
 """
-
-
-
 function solve(
     f,
     grad!,
@@ -352,11 +329,11 @@ function solve(
 end
 
 """
-    postsolve(tree, result, time_ref, verbose)
+    postsolve(tree, result, time_ref, verbose, max_iteration_post)
 
-Runs the post solve both for a cleaner solutiona and to optimize 
-for the continuous variables if present.
-Prints solution statistics if verbose is true.        
+Runs the post solve to optimize for the continuous variables if present.
+Is called if `use_post_solve` is enabled in the `solve` function.
+Prints solution statistics if verbose is set to `true`.        
 """
 function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)

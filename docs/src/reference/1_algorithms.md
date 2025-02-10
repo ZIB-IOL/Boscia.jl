@@ -6,7 +6,7 @@ This section contains information about interface.jl
 
 ```@autodocs
 Modules = [Boscia]
-Pages = ["interface.jl"]
+Pages = ["src/interface.jl"]
 ```
 
 
