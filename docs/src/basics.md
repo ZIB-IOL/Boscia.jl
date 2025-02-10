@@ -88,7 +88,7 @@ In `mps-example.jl`, the feasible region is encoded in an MPS file.
 ### Customized BLMO's
 
 In addition, we have implemented some specific BLMOs like the hypercube, the probability and unit simplex.
-For examples, see `approx_planted_point.jl'. 
+For examples, see `approx_planted_point.jl`. 
 In `cube_blmo.jl`, there is an example on how to implement Boscia's BLMO interface from scratch.
 
 
