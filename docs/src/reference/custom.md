@@ -1,6 +1,6 @@
 # Branch and Bound Tree functionality
 
-Thwe functionality of the Branch-and-Bound implementation extended from Bonobo.jl and some extended features like strong branching and the callbacks.
+The functionality of the Branch-and-Bound implementation extended from Bonobo.jl and some extended features like strong branching and the callbacks.
 
 ## Problem 
 The main problem structure as stored in the Branch-and-Bound tree.
