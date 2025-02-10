@@ -1,8 +1,7 @@
-# Algorithm
+# Algorithm Interface
 
-This section contains information about interface.jl
-
-## Interface
+Boscia's `solve` function only requires the oracles of the objective function `f` and its gradient `g` as well as the BLMO encoding the feasible region.
+The source code can be found in `src/interface.jl`.
 
 ```@autodocs
 Modules = [Boscia]
