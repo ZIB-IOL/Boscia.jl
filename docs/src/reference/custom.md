@@ -9,13 +9,6 @@ Modules = [Boscia]
 Pages = ["custom_bonobo.jl"]
 ```
 
-## Integer Bounds 
-
-```@autodocs
-Modules = [Boscia]
-Pages = ["integer_bounds.jl"]
-```
-
 ## Problem 
 
 ```@autodocs

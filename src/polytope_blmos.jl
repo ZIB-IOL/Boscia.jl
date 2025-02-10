@@ -10,6 +10,8 @@ struct CubeSimpleBLMO <: SimpleBoundableLMO
 end
 
 """
+     bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+
 If the entry is positve, choose the lower bound. Else, choose the upper bound.
 """
 function bounded_compute_extreme_point(sblmo::CubeSimpleBLMO, d, lb, ub, int_vars; kwargs...)
@@ -40,13 +42,15 @@ end
 """
     ProbablitySimplexSimpleBLMO(N)
 
-Scaled Probability Simplex: ∑ x = N.
+The scaled probability simplex with `∑ x = N`.
 """
 struct ProbabilitySimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
 end
 
 """
+    bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
 function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
@@ -86,6 +90,8 @@ function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars
 end
 
 """
+     rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}}, x) 
+
 Hyperplane-aware rounding for the probability simplex.
 """
 function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}}, x) 
@@ -150,13 +156,15 @@ end
 """
     UnitSimplexSimpleBLMO(N)
 
-Scaled Unit Simplex: ∑ x ≤ N.
+The scaled unit simplex with `∑ x ≤ N`.
 """
 struct UnitSimplexSimpleBLMO <: SimpleBoundableLMO
     N::Float64
 end
 
 """
+    bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
@@ -199,6 +207,8 @@ function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub, int_vars, n)
 end
 
 """
+    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}}, x) 
+    
 Hyperplane-aware rounding for the unit simplex.
 """
 function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}}, x) 
