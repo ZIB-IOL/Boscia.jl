@@ -248,18 +248,18 @@ function solve_frank_wolfe(
         extra_vertex_storage=pre_computed_set,
     )
 
-	if pre_computed_set != nothing
-		if DICG_parameter.use_strong_warm_start
-			indices_to_delete = []
-			for idx in eachindex(pre_computed_set)
-				atom = pre_computed_set[idx]
-				if !is_inface_feasible(lmo, atom, x)
-					push!(indices_to_delete, idx)
-				end
-			end
-			deleteat!(pre_computed_set, indices_to_delete)
-		end
-	end
+    if pre_computed_set != nothing
+        if DICG_parameter.use_strong_warm_start
+            indices_to_delete = []
+            for idx in eachindex(pre_computed_set)
+                atom = pre_computed_set[idx]
+                if !is_inface_feasible(lmo, atom, x)
+                    push!(indices_to_delete, idx)
+                end
+            end
+            deleteat!(pre_computed_set, indices_to_delete)
+        end
+    end
 
     return x, primal, dual_gap, pre_computed_set
 end
