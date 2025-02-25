@@ -27,10 +27,8 @@ import HiGHS
 # The variables are ordered (Y, X, theta) in the MOI model
 # the objective only uses the last n^2 variables
 # Small dimensions since the size of the problem grows quickly (2 k n^2 + k variables)
-
-Random.seed!(5)
-n = 4
-k = 3
+n = 3
+k = 2
 
 # generate random doubly stochastic matrix
 const Xstar = rand(n, n)
