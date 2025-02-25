@@ -290,7 +290,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         verbose=tree.root.options[:fwVerbose],
         pre_computed_set=node.pre_computed_set,
 	domain_oracle = domain_oracle,
-        DICG_parameter = tree.root.options[:DICG_parameter],
+        use_strong_lazy = tree.root.options[:use_strong_lazy],
+        use_strong_warm_start = tree.root.options[:use_strong_warm_start],
+        build_dicg_start_point = tree.root.options[:build_dicg_start_point],
     )
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
