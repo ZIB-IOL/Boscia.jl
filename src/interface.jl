@@ -64,6 +64,10 @@ prob_rounding          - The probability for calling the rounding heuristics. Si
                         expensive to do this for every node. 
 clean_solutions        - Flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
 max_clean_iter         - Maximum number of iteration in the Frank-Wolfe call for polishing new solutions.
+DICG_parameter         - Specify the DICG specific parameters. By default, DICG_parameter(false, false, false, build_dicg_start_point):
+                         the first arg specifies the use of strong lazificatoin, the second arg the use of warm-start technique,
+                         the third arg the use of strong warm-start technique, the last one a function for computing initial feasible point.
+                         By default, the starting point is a random vertex. Users should provide their own build_dicg_start_point function if necessary.
                             
 Returns
 
@@ -175,7 +179,7 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    pre_computed_set = use_DICG_warm_start ? [v] : nothing
+    pre_computed_set = DICG_parameter.use_warm_start ? [v] : nothing
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
@@ -238,6 +242,7 @@ function solve(
                 :heu_ncalls => 0,
                 :max_clean_iter => max_clean_iter,
                 :clean_solutions => clean_solutions,
+                :DICG_parameter => DICG_parameter,
             ),
             result=Dict{Symbol,Any}(),
         ),
