@@ -103,7 +103,6 @@ struct DICG_parameter{F}
     use_warm_start :: Bool
     use_strong_warm_start :: Bool
     build_dicg_start_point :: F
-
 end
 
 """
