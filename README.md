@@ -18,7 +18,7 @@ We also implemented simple polytopes like the hypercube, the unit simplex and th
 
 The paper presenting the package with mathematical explanations and numerous examples can be found here:
 
-> Convex integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
+> Convex mixed-integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
 
 `Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems, [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree, and oracles optimizing linear functions over the feasible set, for instance calling [SCIP](https://scipopt.org) or any MOI-compatible solver to solve MIP subproblems.
 
