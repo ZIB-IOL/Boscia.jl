@@ -1,8 +1,8 @@
 """
-    TimeTrackingLMO  <: FW.LMO
+    TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <: FrankWolfe.LinearMinimizationOracle
 
-An LMO wrapping another one tracking the time, number of nodes and number of calls.
-
+A wrapper for the BLMO tracking the solving time, number of calls etc.
+Is created in Boscia itself.
 """
 mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <:
                FrankWolfe.LinearMinimizationOracle
@@ -14,13 +14,26 @@ mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <:
     int_vars::Vector{Int}
 end
 
+"""
+    TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle)
+
+Constructor with just the blmo.
+"""
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, Int[])
 
+"""
+    TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars)
+
+Constructor with just the blmo.
+"""
 TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
     TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
 
-# if we want to reset the info between nodes in Bonobo
+"""
+    reset!(tlmo::TimeTrackingLMO)
+If we want to reset the info between nodes in the Branch-and-Bound tree.
+"""
 function reset!(tlmo::TimeTrackingLMO)
     empty!(tlmo.optimizing_times)
     empty!(tlmo.optimizing_nodes)
@@ -28,6 +41,11 @@ function reset!(tlmo::TimeTrackingLMO)
     return tlmo.ncalls = 0
 end
 
+"""
+    FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
+
+Compute the extreme point and collect statistics.
+"""
 function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)

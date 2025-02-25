@@ -4,8 +4,8 @@
 
 Keeps track of the bounds of the integer (binary) variables.
 
-`lower_bounds` dictionary of Float64, index is the key.
-`upper_bounds` dictionary of Float64, index is the key.
+- `lower_bounds` dictionary of Float64, index is the key.
+- `upper_bounds` dictionary of Float64, index is the key.
 """
 mutable struct IntegerBounds
     lower_bounds::Dict{Int,Float64}

@@ -1,5 +1,7 @@
 """
-    BoundedLinearMinimizationOracle for solvers supporting MathOptInterface.
+    MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
+
+BoundedLinearMinimizationOracle for solvers supporting MathOptInterface.
 """
 struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
     o::OT
@@ -11,14 +13,16 @@ struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
 end
 
 """
-Build MathOptBLMO from FrankWolfe.MathOptLMO.
+    MathOptBLMO(lmo::FrankWolfe.MathOptLMO)
+
+Build an instance of `MathOptBLMO` from a `FrankWolfe.MathOptLMO`.
 """
 function MathOptBLMO(lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modfify)
 end
 
 """
-Convert object of Type MathOptLMO into MathOptBLMO and viceversa.
+Convert object of Type `FrankWolfe.MathOptLMO` into `Boscia.MathOptBLMO` and viceversa.
 """
 function Base.convert(::Type{MathOptBLMO}, lmo::FrankWolfe.MathOptLMO)
     return MathOptBLMO(lmo.o, lmo.use_modify)
@@ -30,7 +34,7 @@ end
 
 ################## Necessary to implement ####################
 """
-    compute_extreme_point
+    compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
 
 Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
@@ -42,6 +46,8 @@ function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
 end
 
 """
+    get_list_of_variables(blmo::MathOptBLMO)
+
 Get list of variables indices and the total number of variables. 
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
@@ -55,11 +61,19 @@ function get_list_of_variables(blmo::MathOptBLMO)
 end
 
 """
-Get list of binary and integer variables, respectively.
+    get_binary_variables(blmo::MathOptBLMO)
+
+Get list of binary variables.
 """
 function get_binary_variables(blmo::MathOptBLMO)
     return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
 end
+
+"""
+     get_integer_variables(blmo::MathOptBLMO)
+
+Get list of integer variables.
+"""
 function get_integer_variables(blmo::MathOptBLMO)
     bin_var = get_binary_variables(blmo)
     int_var = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
@@ -67,6 +81,8 @@ function get_integer_variables(blmo::MathOptBLMO)
 end
 
 """
+     get_int_var(blmo::MathOptBLMO, c_idx)
+
 Get the index of the integer variable the bound is working on.
 """
 function get_int_var(blmo::MathOptBLMO, c_idx)
@@ -74,6 +90,8 @@ function get_int_var(blmo::MathOptBLMO, c_idx)
 end
 
 """
+    get_lower_bound_list(blmo::MathOptBLMO)
+
 Get the list of lower bounds.
 """
 function get_lower_bound_list(blmo::MathOptBLMO)
@@ -84,6 +102,8 @@ function get_lower_bound_list(blmo::MathOptBLMO)
 end
 
 """
+    get_upper_bound_list(blmo::MathOptBLMO)
+
 Get the list of upper bounds.
 """
 function get_upper_bound_list(blmo::MathOptBLMO)
@@ -91,6 +111,8 @@ function get_upper_bound_list(blmo::MathOptBLMO)
 end
 
 """
+    set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol)
+
 Change the value of the bound c_idx.
 """
 function set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol)
@@ -104,6 +126,8 @@ function set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol)
 end
 
 """
+    get_bound(blmo::MathOptBLMO, c_idx, sense::Symbol)
+
 Read bound value for c_idx.
 """
 function get_bound(blmo::MathOptBLMO, c_idx, sense::Symbol)
@@ -111,6 +135,8 @@ function get_bound(blmo::MathOptBLMO, c_idx, sense::Symbol)
 end
 
 """
+    is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars)
+
 Check if the subject of the bound c_idx is an integer variable (recorded in int_vars).
 """
 function is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars)
@@ -118,6 +144,8 @@ function is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars)
 end
 
 """
+    is_bound_in(blmo::MathOptBLMO, c_idx, bounds)
+
 To check if there is bound for the variable in the global or node bounds.
 """
 function is_bound_in(blmo::MathOptBLMO, c_idx, bounds)
@@ -125,6 +153,8 @@ function is_bound_in(blmo::MathOptBLMO, c_idx, bounds)
 end
 
 """
+    delete_bounds!(blmo::MathOptBLMO, cons_delete)
+
 Delete bounds.
 """
 function delete_bounds!(blmo::MathOptBLMO, cons_delete)
@@ -134,6 +164,8 @@ function delete_bounds!(blmo::MathOptBLMO, cons_delete)
 end
 
 """
+    add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
+
 Add bound constraint.
 """
 function add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
@@ -145,6 +177,8 @@ function add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
 end
 
 """
+    has_binary_constraint(blmo::MathOptBLMO, idx::Int)
+
 Has variable a binary constraint?
 """
 function has_binary_constraint(blmo::MathOptBLMO, idx::Int)
@@ -158,6 +192,8 @@ function has_binary_constraint(blmo::MathOptBLMO, idx::Int)
 end
 
 """
+    has_integer_constraint(blmo::MathOptBLMO, idx::Int)
+
 Does the variable have an integer constraint?
 """
 function has_integer_constraint(blmo::MathOptBLMO, idx::Int)
@@ -171,6 +207,8 @@ function has_integer_constraint(blmo::MathOptBLMO, idx::Int)
 end
 
 """
+    is_linear_feasible(blmo::MathOptBLMO, v::AbstractVector)
+
 Is a given point v linear feasible for the model?
 """
 function is_linear_feasible(blmo::MathOptBLMO, v::AbstractVector)
@@ -210,6 +248,8 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
 end
 
 """
+    explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds)
+
 Add explicit bounds for binary variables.
 """
 function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds)
@@ -231,6 +271,8 @@ function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBou
 end
 
 """
+    build_global_bounds(blmo::MathOptBLMO, integer_variables)
+
 Read global bounds from the problem
 """
 function build_global_bounds(blmo::MathOptBLMO, integer_variables)
@@ -268,6 +310,8 @@ end
 ##################### Optional to implement ################
 
 """
+    build_LMO_correct(blmo, node_bounds)
+
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
@@ -288,6 +332,8 @@ function build_LMO_correct(blmo, node_bounds)
 end
 
 """
+     free_model(blmo::MathOptBLMO)
+
 Free model data from previous solve (if necessary).
 """
 function free_model(blmo::MathOptBLMO)
@@ -300,6 +346,8 @@ function free_model(o::MOI.AbstractOptimizer)
 end
 
 """
+    check_feasibility(blmo::MathOptBLMO)
+    
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::MathOptBLMO)
@@ -314,6 +362,8 @@ function check_feasibility(blmo::MathOptBLMO)
 end
 
 """
+    is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
+
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
@@ -339,6 +389,8 @@ function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
 end
 
 """
+    get_BLMO_solve_data(blmo::MathOptBLMO)
+
 Get solve time, number of nodes and number of simplex iterations.
 """
 function get_BLMO_solve_data(blmo::MathOptBLMO)
@@ -349,6 +401,8 @@ function get_BLMO_solve_data(blmo::MathOptBLMO)
 end
 
 """
+    is_indicator_feasible(blmo::MathOptBLMO, v; atol=1e-6, rtol=1e-6)
+
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
 function is_indicator_feasible(blmo::MathOptBLMO, v; atol=1e-6, rtol=1e-6)
@@ -377,6 +431,8 @@ function is_indicator_feasible(o, x; atol=1e-6, rtol=1e-6)
 end
 
 """
+    indicator_present(blmo::MathOptBLMO) 
+
 Are indicator constraints present?
 """
 function indicator_present(blmo::MathOptBLMO)
@@ -389,6 +445,8 @@ function indicator_present(blmo::MathOptBLMO)
 end
 
 """
+     get_tol(blmo::MathOptBLMO)
+
 Get solving tolerance for the BLMO.
 """
 function get_tol(blmo::MathOptBLMO)
@@ -399,6 +457,8 @@ function get_tol(o::MOI.AbstractOptimizer)
 end
 
 """
+    find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
+
 Find best solution from the solving process.
 """
 function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
@@ -406,6 +466,8 @@ function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
 end
 
 """
+     function find_best_solution(f::Function, o::MOI.AbstractOptimizer, vars::Vector{MOI.VariableIndex}, domain_oracle,)
+
 Finds the best solution in the Optimizer's solution storage, based on the objective function `f`.
 Returns the solution vector and the corresponding best value.
 """
@@ -433,8 +495,9 @@ function find_best_solution(
 end
 
 """
-List of all variable pointers. Depends on how you save your variables internally.
+     get_variables_pointers(blmo::MathOptBLMO, tree)
 
+List of all variable pointers. Depends on how you save your variables internally.
 Is used in `find_best_solution`.
 """
 function get_variables_pointers(blmo::MathOptBLMO, tree)
@@ -442,6 +505,8 @@ function get_variables_pointers(blmo::MathOptBLMO, tree)
 end
 
 """
+     check_infeasible_vertex(blmo::MathOptBLMO, tree)
+
 Deal with infeasible vertex if necessary, e.g. check what caused it etc.
 """
 function check_infeasible_vertex(blmo::MathOptBLMO, tree)
@@ -462,7 +527,10 @@ function check_infeasible_vertex(blmo::MathOptBLMO, tree)
 end
 
 """
-Behavior for strong branching.
+    Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialStrongBranching{MathOptBLMO{OT}}, node::Bonobo.AbstractNode,) where {OT<:MOI.AbstractOptimizer}
+
+Behavior for strong branching. 
+Note that in constrast to the `ManagedBLMO` type, we filter out the integer and binary constraints as solving general MIP in strong branching would be very expensive.
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
@@ -600,8 +668,8 @@ function Bonobo.get_branching_variable(
 end
 
 """
-Solve function in case of MathOptLMO. 
-Converts the lmo into a MathOptBLMO and calls the solve function below.
+The 'solve'  function in case of `FrankWolfe.MathOptLMO`. 
+Converts the lmo into an instance of `Boscia.MathOptBLMO` and calls the main `solve` function.
 """
 function solve(
     f,

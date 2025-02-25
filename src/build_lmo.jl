@@ -3,10 +3,10 @@
 Build node LMO from global LMO
 
 Four action can be taken:
-KEEP   - constraint is as saved in the global bounds
-CHANGE - lower/upper bound is changed to the node specific one
-DELETE - custom bound from the previous node that is invalid at current node and has to be deleted
-ADD    - bound has to be added for this node because it does not exist in the global bounds (e.g. variable bound is a half open interval globally) 
+- KEEP   constraint is as saved in the global bounds
+- CHANGE lower/upper bound is changed to the node specific one
+- DELETE custom bound from the previous node that is invalid at current node and has to be deleted
+- ADD    bound has to be added for this node because it does not exist in the global bounds (e.g. variable bound is a half open interval globally) 
 """
 function build_LMO(
     blmo::BoundedLinearMinimizationOracle,
