@@ -200,9 +200,10 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
-	domain_oracle = _trivial_domain,
-	DICG_parameter = DICG_parameter,
-	kwargs...,
+    use_strong_lazy = false,
+    use_strong_warm_start = false,
+    build_dicg_start_point = trivial_build_dicg_start_point,
+    kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
     function make_callback(pre_computed_set)
@@ -218,7 +219,7 @@ function solve_frank_wolfe(
 		lmo, 
 		active_set, 
 		pre_computed_set, 
-		DICG_parameter.build_dicg_start_point; 
+		build_dicg_start_point; 
 		domain_oracle = domain_oracle,
 	)
 	
@@ -241,7 +242,7 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
-		use_strong_lazy = DICG_parameter.use_strong_lazy,
+	use_strong_lazy = use_strong_lazy,
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
         callback=DICG_callback,
@@ -249,7 +250,7 @@ function solve_frank_wolfe(
     )
 
     if pre_computed_set != nothing
-        if DICG_parameter.use_strong_warm_start
+        if use_strong_warm_start
             indices_to_delete = []
             for idx in eachindex(pre_computed_set)
                 atom = pre_computed_set[idx]
