@@ -143,6 +143,16 @@ function split_pre_computed_set!(
     return pre_computed_set_left, pre_computed_set_right
 end
 
+"""
+Default starting point function which generates a random vertex
+"""
+function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
+    n, _ = get_list_of_variables(blmo)
+    d = ones(n)
+    x0 = FrankWolfe.compute_extreme_point(blmo, d)
+    return x0
+end
+
 function dicg_start_point_initialize(
     lmo::TimeTrackingLMO, 
     active_set::FrankWolfe.ActiveSet{T, R},
