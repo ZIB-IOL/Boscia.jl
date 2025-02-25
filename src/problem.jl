@@ -90,29 +90,3 @@ Are indicator constraints present
 """
 indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.blmo)
 indicator_present(tree::Bonobo.BnBTree) = indicator_present(tree.root.problem.tlmo.blmo)
-
-"""
-Store DICG-specific parameters:
-    lazification_technique: strong or weak;
-    warm-start_technique: strong or weak;
-    build starting point function: 
-        given the current node bounds return a domain feasible point respecting the bounds.
-"""
-struct DICG_parameter{F}
-    use_strong_lazy :: Bool
-    use_warm_start :: Bool
-    use_strong_warm_start :: Bool
-    build_dicg_start_point :: F
-end
-
-"""
-Default starting point function which generates a random vertex
-"""
-function build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
-    n, _ = get_list_of_variables(blmo)
-    d = ones(n)
-    x0 = FrankWolfe.compute_extreme_point(blmo, d)
-    return x0
-end
-
-DICG_parameter() = DICG_parameter(false, true, false, build_dicg_start_point)
