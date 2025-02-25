@@ -207,7 +207,7 @@ function solve_frank_wolfe(
 )
     # We keep track of computed extreme points by creating logging callback.
     function make_callback(pre_computed_set)
-	return function DICG_callback(state)
+	return function DICG_callback(state, kwargs...)
 		if !callback(state, pre_computed_set)
 			return false
 		end
