@@ -53,7 +53,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
-    pre_computed_set=nothing,
+    kwargs...,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
@@ -102,7 +102,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
-    pre_computed_set=nothing,
+    kwargs...,
 )
     x, _, primal, dual_gap, _, active_set = blended_conditional_gradient(
         f,
@@ -149,7 +149,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
-    pre_computed_set=nothing,
+    kwargs...,
 )
     x, _, primal, dual_gap, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
         f,
@@ -200,6 +200,9 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
+	domain_oracle = _trivial_domain,
+	DICG_parameter = DICG_parameter,
+	kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
     function make_callback(pre_computed_set)
@@ -211,9 +214,15 @@ function solve_frank_wolfe(
 	end
     end
     
-    x0 = dicg_start_point_initialize(lmo, active_set, pre_computed_set)
+   x0 = dicg_start_point_initialize(
+		lmo, 
+		active_set, 
+		pre_computed_set, 
+		DICG_parameter.build_dicg_start_point; 
+		domain_oracle = domain_oracle,
+	)
 	
-    if x0 == nothing
+    if x0 == nothing || !domain_oracle(x0)
 	return NaN, Inf, Inf, pre_computed_set
     else
 	@assert is_linear_feasible(lmo, x0)
@@ -232,11 +241,25 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
+		use_strong_lazy = DICG_parameter.use_strong_lazy,
         linesearch_workspace=workspace,
         lazy_tolerance=lazy_tolerance,
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
     )
+
+	if pre_computed_set != nothing
+		if DICG_parameter.use_strong_warm_start
+			indices_to_delete = []
+			for idx in eachindex(pre_computed_set)
+				atom = pre_computed_set[idx]
+				if !is_inface_feasible(lmo, atom, x)
+					push!(indices_to_delete, idx)
+				end
+			end
+			deleteat!(pre_computed_set, indices_to_delete)
+		end
+	end
 
     return x, primal, dual_gap, pre_computed_set
 end
@@ -267,7 +290,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
-    pre_computed_set=nothing,
+    kwargs...,
 )
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
