@@ -64,10 +64,11 @@ prob_rounding          - The probability for calling the rounding heuristics. Si
                         expensive to do this for every node. 
 clean_solutions        - Flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
 max_clean_iter         - Maximum number of iteration in the Frank-Wolfe call for polishing new solutions.
-DICG_parameter         - Specify the DICG specific parameters. By default, DICG_parameter(false, false, false, build_dicg_start_point):
-                         the first arg specifies the use of strong lazificatoin, the second arg the use of warm-start technique,
-                         the third arg the use of strong warm-start technique, the last one a function for computing initial feasible point.
-                         By default, the starting point is a random vertex. Users should provide their own build_dicg_start_point function if necessary.
+use_strong_lazy        - Specify strong lazification in DICG. Otherwise, weak version.
+use_DICG_warm_start    - If true, enable DICG-specific warm-start strategy.
+use_strong_warm_start  - If true, additional in-face check for vertices is performed.
+build_dicg_start_point - Default generates random feasible vertex. 
+                         Given node bounds, user can provide custom function for generating specific initial point at each node.   
                             
 Returns
 
@@ -115,7 +116,10 @@ function solve(
     rounding_prob=1.0,
     clean_solutions=false,
     max_clean_iter=10,
+    use_strong_lazy=false,
     use_DICG_warm_start=false,
+    use_strong_warm_start=false,
+    build_dicg_start_point = trivial_build_dicg_start_point,
     kwargs...,
 )
     if verbose
@@ -179,7 +183,7 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    pre_computed_set = DICG_parameter.use_warm_start ? [v] : nothing
+    pre_computed_set = use_DICG_warm_start ? [v] : nothing
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
@@ -242,7 +246,10 @@ function solve(
                 :heu_ncalls => 0,
                 :max_clean_iter => max_clean_iter,
                 :clean_solutions => clean_solutions,
-                :DICG_parameter => DICG_parameter,
+                :use_strong_lazy => use_strong_lazy,
+                :use_strong_warm_start => use_strong_warm_start,
+                :use_strong_lazy => use_strong_lazy,
+                :build_dicg_start_point => build_dicg_start_point,
             ),
             result=Dict{Symbol,Any}(),
         ),
