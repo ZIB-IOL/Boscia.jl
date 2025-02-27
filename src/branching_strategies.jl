@@ -847,6 +847,7 @@ mutable struct Hierarchy <: Bonobo.AbstractBranchStrategy
         if isempty(stages)
             stages = default_hierarchy_strategies()
         end
+        println("Order of criteria in Hierarchy Branching: ", [stage.name for stage in stages])
         new(
             pseudos,
             branch_tracker,
@@ -941,4 +942,37 @@ function default_hierarchy_strategies(
 
         return [stage1, stage2, stage3]
     end
+end
+
+"""
+function create_binary_stage(
+    bounded_lmo
+)
+   Creates a Stage for Hierarchy Branching where non binary variables are 
+    filtered out when binary variables exist.
+"""
+function create_binary_stage(
+    bounded_lmo
+)
+    binary_vars = Set{Int64}(getproperty.(get_binary_variables(bounded_lmo), :value))
+    function select_binary_vars(
+        tree::Bonobo.BnBTree, 
+        branching::Bonobo.AbstractBranchStrategy, 
+        values::Vector{Float64}, 
+        candidates::Vector{Int64}
+        )
+        remaining_candidates = Int64[]
+        for idx in candidates
+            if idx in binary_vars
+                push!(remaining_candidates, idx)
+            end
+        end
+        if !isempty(remaining_candidates)
+            return remaining_candidates
+        else
+            return candidates
+        end
+    end
+
+    return Boscia.Stage("binary", select_binary_vars)
 end
