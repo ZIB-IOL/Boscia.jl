@@ -49,33 +49,29 @@ end
 If the entry in x is at the boundary, choose the corresponding bound.
 Otherwise, if the entry in direction is positve, choose the lower bound. Else, choose the upper bound.
 """
-function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    n = length(x)
-    v = copy(x)
-    non_fixed_int = findall(lb .!= ub)
-    non_fixed_int_idx = int_vars[non_fixed_int]
-
-    idx = collect(1:n)
-    non_int_idx = setdiff(idx, int_vars)
-    non_fixed_idx = vcat(non_fixed_int_idx, non_int_idx)
-
-     # For non_fixed coordinates, zero-sum means that they are all fixed to origin.
-    sx = sum(x[non_fixed_idx])
-    if sx <= 0
-        return v
-    end
-    # Fix the point to the same face.
-    # Zero will be return only if d_i is greater than zero.
-    for idx in non_fixed_idx
-        if x[idx] > 0 
-            if x[idx] ≈ 1
-                v[idx] = 1
+function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+    a = zeros(length(d))
+    for i in eachindex(d)
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+                a[i] = ub[idx]
+            elseif isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+                a[i] = lb[idx]
             else
-                v[idx] = direction[idx] >  0 ? 0 : 1
+                a[i] = d[i] > 0 ? lb[idx] : ub[idx]
+            end
+        else
+            if isapprox(x[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol)
+                a[i] = sblmo.upper_bounds[i]
+            elseif isapprox(x[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol)
+                a[i] = sblmo.lower_bounds[i]
+            else
+                a[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
             end
         end
     end
-    return v       
+    return a
 end
 
 """
@@ -151,36 +147,65 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     return v
 end
 
-function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    a = zeros(length(x))
-    if sblmo.N in lb
-        idx = findfirst(x->x==sblmo.N, lb)
-        a[idx] = sblmo.N
-        return a
-    end
-    min_val = Inf
-    min_idx = -1
-    for idx in eachindex(direction)
-        val = direction[idx]
-        if val < min_val && x[idx] > 0
-            min_val = val
-            min_idx = idx
+"""
+Fix the corresponding entries to the boudary based on the given x.
+Assign the largest possible values to the unfixed entries corresponding to the smallest entries of d.
+"""
+function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+    indices = collect(1:length(d))
+    a = zeros(length(d))
+    a[int_vars] = lb
+    fixed_vars = []
+
+    for i in indices
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+            elseif isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+                a[i] = ub[idx]
+            end
+        else
+            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+            end
+            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+                a[i] = sblmo.N
+            end
         end
     end
-    a[min_idx] = 1.0
+
+    if sum(a) == sblmo.N
+        return a
+    end
+
+    non_fixed_idx = setdiff(indices, fixed_vars)
+
+    d_updated = d[non_fixed_idx]
+    perm = sortperm(d_updated)
+    sorted = non_fixed_idx[perm]
+
+    for i in sorted
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+        else
+            a[i] += sblmo.N - sum(a)
+        end
+        if sum(a) == sblmo.N
+            return a
+        end
+    end
+
     return a
 end
 
-function bounded_dicg_maximum_step(
-    sblmo::ProbabilitySimplexSimpleBLMO,
-    direction,
-    x,
-    lb,
-    ub,
-    int_vars;
-    tol = 1e-6,
-    kwargs...,
-)
+"""
+Compute the maximum step size for each entry and return the minium of all the possible step sizes.
+"""
+function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; tol = 1e-6, kwargs...)
     # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
@@ -334,50 +359,70 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     return v
 end
 
-function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; kwargs...)
-    if sblmo.N in lb
-        idx = findfirst(x->x==sblmo.N, lb)
-        a = zeros(length(x))
-        a[idx] = sblmo.N
-        return a
-    end
-        
-     # For non_fixed dimensions, zero-vector x means fixing to all coordinate faces, return zero-vector
-    sx = sum(x)
-    if sx <= 0
-        return zeros(length(x))
-    end
-    
-    min_val = Inf
-    min_idx = -1
+"""
+For boundary entries of x, assign the corresponding boudary.
+For all positive entries of d, assign the corresponding lower bound.
+For non-positive entries, assign largest possible value in increasing order.
+"""
+function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+    indices = collect(1:length(d))
+    a = zeros(length(d))
 
-    for idx in eachindex(direction)
-        val = direction[idx]
-        if val < min_val && x[idx] > 0
-            min_val = val
-            min_idx = idx
+    a[int_vars] = lb
+
+    fixed_vars = []
+
+    for i in indices
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+            elseif isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+                a[i] = ub[idx]
+            end
+        else
+            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+            end
+            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+                push!(fixed_vars, i)
+                a[i] = sblmo.N
+            end
         end
     end
-        
-    if sx ≉ sblmo.N && min_val > 0
-        return zeros(length(x))
+
+    if sum(a) == sblmo.N
+        return a
     end
-    a = zeros(length(x))
-    a[min_idx] = sblmo.N
+
+    non_fixed_idx = setdiff(indices, fixed_vars)
+    d_updated = d[non_fixed_idx]
+    idx_neg = findall(x-> x <= 0, d_updated)
+    perm = sortperm(d_updated[idx_neg])
+    sorted_neg = idx_neg[perm]
+    sorted = non_fixed_idx[sorted_neg]
+
+    for i in sorted
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+        else
+            a[i] += sblmo.N - sum(a)
+        end
+        if sum(a) == sblmo.N
+            return a
+        end
+    end
+
     return a
 end
 
-
-function Boscia.bounded_dicg_maximum_step(
-    sblmo::UnitSimplexSimpleBLMO,
-    direction,
-    x,
-    lb,
-    ub,
-    int_vars;
-    tol = 1e-6,
-    kwargs...,
-)
+"""
+Compute the maximum step size for each entry and the sum of entries should satisfy inequality constraint.
+Return the minium of all the possible step sizes.
+"""
+function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; tol = 1e-6, kwargs...)
     # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1.
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
@@ -393,10 +438,11 @@ function Boscia.bounded_dicg_maximum_step(
         end
     end
 
-	# the sum of entries should be smaller than N.
-	if sum(direction) < 0.0
-		gamma_max = min(gamma_max, (sum(x)-sblmo.N) / sum(direction))
-	end
+    # the sum of entries should be smaller than N.
+    if sum(direction) < 0.0
+        gamma_max = min(gamma_max, (sum(x) - sblmo.N) / sum(direction))
+    end
+	
     return gamma_max
 end
 
