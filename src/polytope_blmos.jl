@@ -344,7 +344,7 @@ For boundary entries of x, assign the corresponding boudary.
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
-function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
     indices = collect(1:length(d))
     a = zeros(length(d))
 
