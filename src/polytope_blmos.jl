@@ -100,14 +100,6 @@ function bounded_dicg_maximum_step(sblmo::CubeSimpleBLMO, direction, x, lb, ub, 
     return gamma_max
 end
 
-function dicg_split_vertices_set_simple(sblmo::CubeSimpleBLMO, x, vidx)
-    x0_left = copy(x)
-    x0_right = copy(x)
-    x0_left[vidx] = floor(x[vidx])
-    x0_right[vidx] = ceil(x[vidx])
-    return x0_left, x0_right
-end
-
 """
     ProbablitySimplexSimpleBLMO(N)
 
@@ -182,7 +174,6 @@ function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLM
     end
 
     non_fixed_idx = setdiff(indices, fixed_vars)
-
     d_updated = d[non_fixed_idx]
     perm = sortperm(d_updated)
     sorted = non_fixed_idx[perm]
@@ -221,17 +212,6 @@ function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, directio
         end
     end
     return gamma_max
-end
-
-function dicg_split_vertices_set_simple(sblmo::ProbabilitySimplexSimpleBLMO, x, vidx)
-    n = length(x)
-    x0_left = copy(x)
-    sum_val = sum(x) - x[vidx]
-    x0_left .+= (n-1) / sum_val
-    x0_left[vidx] = floor(x[vidx])
-    x0_right = zeros(length(x))
-    x0_right[vidx] = 1.0
-    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
@@ -444,14 +424,6 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, direction, x, l
     end
 	
     return gamma_max
-end
-
-function dicg_split_vertices_set_simple(sblmo::UnitSimplexSimpleBLMO, x, vidx)
-    x0_left = copy(x)
-    x0_left[vidx] = floor(x[vidx])
-    x0_right = zeros(length(x))
-    x0_right[vidx] = 1.0
-    return x0_left, x0_right
 end
 
 function is_simple_linear_feasible(sblmo::UnitSimplexSimpleBLMO, v)
