@@ -124,17 +124,18 @@ function process_FW_callback_logic(
         return false
     end
 
-        if pre_computed_set !== nothing
-                if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
-                    idx = findfirst(x -> x == state.v, pre_computed_set)
-                    if idx == nothing
-                        if length(pre_computed_set) > (length(state.v) + 1)
-                            deleteat!(pre_computed_set, 1)
-                        end
-                        push!(pre_computed_set, state.v)
-                    end
+    # push FW vertex into pre_computed_set for DICG
+    if pre_computed_set != nothing
+        if state.step_type != FrankWolfe.last || state.step_type != FrankWolfe.pp
+            idx = findfirst(x -> x == state.v, pre_computed_set)
+            if idx == nothing
+                if length(pre_computed_set) > (length(state.v) + 1)
+                    deleteat!(pre_computed_set, 1)
                 end
+                push!(pre_computed_set, state.v)
+            end
         end
+    end
         
     return true
 
