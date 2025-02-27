@@ -651,18 +651,6 @@ function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
     )
 end
 
-# Provide specific active_set split method for MathOptBLMO in DICG.
-function dicg_split_vertices_set!(blmo::MathOptBLMO, active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int;kwargs...)where {T,R}
-    x = FrankWolfe.get_active_set_iterate(active_set)
-    x0_left = copy(x)
-    x0_right = copy(x)
-    x0_left[vidx] = floor(x[vidx])
-    x0_right[vidx] = ceil(x[vidx])
-    as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
-    as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
-    return as_left, as_right
-end
-
 """
 Solve function in case of MathOptLMO. 
 Converts the lmo into a MathOptBLMO and calls the solve function below.
