@@ -97,10 +97,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         else
             pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
         end
-        # Only support SBLMO polytope.
-        # User should implement specific dicg_split_vertices_set!() for different polytopes.
-        active_set_left, active_set_right =
-            dicg_split_vertices_set!(tree.root.problem.tlmo.blmo, node.active_set, tree, vidx)
+        active_set_left, active_set_right = node.active_set, node.active_set
     end
 
     discarded_set_left, discarded_set_right =
@@ -152,11 +149,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
-    x_left = FrankWolfe.compute_active_set_iterate!(active_set_left) 
-    x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
-
     if tree.root.options[:variant] != DICG()
+	# in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+   	x_left = FrankWolfe.compute_active_set_iterate!(active_set_left) 
+    	x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+		
         if !tree.root.options[:domain_oracle](x_left)
             active_set_left = build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
         end
