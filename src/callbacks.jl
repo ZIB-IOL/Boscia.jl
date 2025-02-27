@@ -37,92 +37,92 @@ function build_FW_callback(
 end
 
 function process_FW_callback_logic(
-	tree,
-	state,
-	vars,
-	fw_iterations,
-	ncalls,
-	min_fw_iterations,
-	min_number_lower,
-	time_ref,
-	time_limit,
-	use_DICG;
-	active_set = nothing,
-	pre_computed_set = nothing,
-	kwargs...,
+    tree,
+    state,
+    vars,
+    fw_iterations,
+    ncalls,
+    min_fw_iterations,
+    min_number_lower,
+    time_ref,
+    time_limit,
+    use_DICG;
+    active_set = nothing,
+    pre_computed_set = nothing,
+    kwargs...,
 )
 
-	if !use_DICG
-		@assert isapprox(sum(active_set.weights), 1.0)
-		@assert sum(active_set.weights .< 0) == 0
-	end
+    if !use_DICG
+        @assert isapprox(sum(active_set.weights), 1.0)
+        @assert sum(active_set.weights .< 0) == 0
+    end
 
-	# TODO deal with vertices becoming infeasible with conflicts
-	@debug begin
-		if !is_linear_feasible(tree.root.problem.tlmo, state.v)
-			@info "$(state.v)"
-			check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
-			@assert is_linear_feasible(tree.root.problem.tlmo, state.v)
-		end
-		if state.step_type != FrankWolfe.ST_SIMPLEXDESCENT && !is_integer_feasible(tree, state.v)
-			@info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
-			@assert is_integer_feasible(tree, state.v)
-		end
-	end
-	push!(fw_iterations, state.t)
+    # TODO deal with vertices becoming infeasible with conflicts
+    @debug begin
+        if !is_linear_feasible(tree.root.problem.tlmo, state.v)
+            @info "$(state.v)"
+            check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
+            @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
+        end
+        if state.step_type != FrankWolfe.ST_SIMPLEXDESCENT && !is_integer_feasible(tree, state.v)
+            @info "Vertex not integer feasible! Here are the integer variables: $(state.v[tree.root.problem.integer_variables])"
+            @assert is_integer_feasible(tree, state.v)
+        end
+    end
+    push!(fw_iterations, state.t)
 
-	if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
-		if ncalls != state.lmo.ncalls
-			ncalls = state.lmo.ncalls
-			(best_v, best_val) = find_best_solution(
-				tree.root.problem.f,
-				tree.root.problem.tlmo.blmo,
-				vars,
-				tree.root.options[:domain_oracle],
-			)
-			if best_val < tree.incumbent
-				node = tree.nodes[tree.root.current_node_id[]]
-				add_new_solution!(tree, node, best_val, best_v, :Solver)
-				Bonobo.bound!(tree, node.id)
-			end
-		end
-	end
+    if state.lmo !== nothing  # can happen with using Blended Conditional Gradient
+        if ncalls != state.lmo.ncalls
+            ncalls = state.lmo.ncalls
+            (best_v, best_val) = find_best_solution(
+                tree.root.problem.f,
+                tree.root.problem.tlmo.blmo,
+                vars,
+                tree.root.options[:domain_oracle],
+            )
+            if best_val < tree.incumbent
+                node = tree.nodes[tree.root.current_node_id[]]
+                add_new_solution!(tree, node, best_val, best_v, :Solver)
+                Bonobo.bound!(tree, node.id)
+            end
+        end
+    end
 
-	if (state.primal - state.dual_gap > tree.incumbent + 1e-2) &&
-	   tree.num_nodes != 1 &&
-	   state.t > min_fw_iterations
-		return false
-	end
+    if (state.primal - state.dual_gap > tree.incumbent + 1e-2) &&
+       tree.num_nodes != 1 &&
+       state.t > min_fw_iterations
+        return false
+    end
 
-	if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
-		val = tree.root.problem.f(state.v)
-		if val < tree.incumbent
-			#TODO: update solution without adding node
-			node = tree.nodes[tree.root.current_node_id[]]
-			add_new_solution!(tree, node, val, copy(state.v), :vertex)
-			Bonobo.bound!(tree, node.id)
-		end
-	end
+    if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
+        val = tree.root.problem.f(state.v)
+        if val < tree.incumbent
+            #TODO: update solution without adding node
+            node = tree.nodes[tree.root.current_node_id[]]
+            add_new_solution!(tree, node, val, copy(state.v), :vertex)
+            Bonobo.bound!(tree, node.id)
+        end
+    end
 
-	node = tree.nodes[tree.root.current_node_id[]]
-	if length(node.active_set) > 1 &&
-	   !isempty(tree.nodes) &&
-	   min_number_lower <= length(values(tree.nodes))
-		counter = 0
-		for n in values(tree.nodes)
-			if n.lb < val
-				counter += 1
-			end
-			if counter > min_number_lower
-				return false
-			end
-		end
-	end
+    node = tree.nodes[tree.root.current_node_id[]]
+    if length(node.active_set) > 1 &&
+       !isempty(tree.nodes) &&
+       min_number_lower <= length(values(tree.nodes))
+        counter = 0
+        for n in values(tree.nodes)
+            if n.lb < val
+                counter += 1
+            end
+            if counter > min_number_lower
+                return false
+            end
+        end
+    end
 
-	# check for time limit
-	if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
-		return false
-	end
+    # check for time limit
+    if isfinite(time_limit) && Dates.now() >= time_ref + Dates.Second(time_limit)
+        return false
+    end
 
         if pre_computed_set !== nothing
                 if state.step_type !== FrankWolfe.last || state.step_type !== FrankWolfe.pp
@@ -136,7 +136,7 @@ function process_FW_callback_logic(
                 end
         end
         
-	return true
+    return true
 
 end
 
