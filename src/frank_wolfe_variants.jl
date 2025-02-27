@@ -200,6 +200,7 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
+    domain_oracle = _trivial_domain,
     use_strong_lazy = false,
     use_strong_warm_start = false,
     build_dicg_start_point = trivial_build_dicg_start_point,
