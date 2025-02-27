@@ -106,16 +106,6 @@ function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
                 )
 end
 
-# Provide specific active_set split method for simple_lmo in DICG.
-function dicg_split_vertices_set!(blmo::ManagedBoundedLMO, active_set::FrankWolfe.ActiveSet{T,R}, tree, vidx::Int;kwargs...)where {T,R}
-    x = FrankWolfe.get_active_set_iterate(active_set)
-    x0_left, x0_right = dicg_split_vertices_set_simple(blmo.simple_lmo, x, vidx)
-    as_left = FrankWolfe.ActiveSet([(1.0, x0_left)])
-    as_right = FrankWolfe.ActiveSet([(1.0, x0_right)])
-    return as_left, as_right
-end
-
-
 # Read global bounds from the problem.
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()
