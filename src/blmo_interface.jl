@@ -103,6 +103,37 @@ Has variable an integer constraint?
 """
 function has_integer_constraint end
 
+## These DICG-specific functions are essential for Boscia to run with DICG.
+"""
+Implement `FrankWolfe.is_decomposition_invariant_oracle`
+
+Check if necessary DICG-specific orcales are implemented.
+"""
+function is_decomposition_invariant_oracle end
+
+"""
+Is a given point a on the minimal face containing the given x?
+"""
+function is_inface_feasible end
+
+"""
+Implement `FrankWolfe.compute_inface_extreme_point`
+
+Given a direction d and feasible point x solves the problem
+    min_a d^T a
+where a has to be an integer feasible point and on the minimal face containing x
+"""
+function compute_inface_extreme_point end
+
+"""
+Implement `FrankWolfe.dicg_maximum_step`
+
+Given a direction d and feasible point x solves the problem
+    argmax_γ (x - γ * d) ∈ P
+where P is feasible set
+"""
+function dicg_maximum_step end
+
 
 
 #################### Optional to implement ####################
