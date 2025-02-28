@@ -122,6 +122,12 @@ function solve(
     build_dicg_start_point = trivial_build_dicg_start_point,
     kwargs...,
 )
+    if variant == DICG()
+        if !is_decomposition_invariant_oracle(blmo)
+            error("DICG within Boscia is not implemented for $(typeof(blmo).")
+        end
+    end
+    
     if verbose
         println("\nBoscia Algorithm.\n")
         println("Parameter settings.")
