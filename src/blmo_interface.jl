@@ -220,7 +220,7 @@ Given a direction d and feasible point x solves the problem
 where a has to be an integer feasible point and on the minimal face containing x
 """
 function compute_inface_extreme_point(blmo::BoundedLinearMinimizationOracle, d, x)
-    error("To use DICG within Boscia, this function has to be implemented for $(typeof(blmo).")
+    error("To use DICG within Boscia, this function has to be implemented for $(typeof(blmo)).")
 end
 
 """
@@ -231,5 +231,5 @@ Given a direction d and feasible point x solves the problem
 where P is feasible set
 """
 function dicg_maximum_step(blmo::BoundedLinearMinimizationOracle, d, x)
-    error("To use DICG within Boscia, this function has to be implemented for $(typeof(blmo).")
+    error("To use DICG within Boscia, this function has to be implemented for $(typeof(blmo)).")
 end
