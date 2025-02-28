@@ -80,7 +80,7 @@ Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 
 
 """
-	Blended Conditional Gradient
+    Blended Conditional Gradient
 """
 struct Blended <: FrankWolfeVariant end
 
