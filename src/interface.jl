@@ -386,6 +386,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             fix_bounds,
             tree.root.problem.integer_variables,
         )
+        # previous solution rounded to account for 0.99999.. or 1.00000000002 types of values
+        prev_x_rounded = copy(x)
+        prev_x_rounded[tree.root.problem.integer_variables] .= round.(prev_x_rounded[tree.root.problem.integer_variables])
+        prev_x_rounded = is_linear_feasible(tree.root.problem.tlmo, prev_x_rounded) ? prev_x_rounded : x
+
         # Postprocessing
         direction = ones(length(x))
         v = compute_extreme_point(tree.root.problem.tlmo, direction)
@@ -416,8 +421,9 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             else
                 @info "primal >= tree.incumbent"
                 @assert primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) "primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2): primal=$(primal) and tree.incumbent=$(tree.incumbent)"
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) ||
+                        primal <= tree.root.problem.f(prev_x_rounded) "primal <= tree.incumbent + 1e-3 ||
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) || primal <= tree.root.problem.f(prev_x_rounded) : primal=$(primal) and tree.incumbent=$(tree.incumbent) and previous solution rounded $(tree.root.problem.f(prev_x_rounded))"
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective
