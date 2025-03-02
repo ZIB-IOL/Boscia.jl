@@ -45,7 +45,7 @@ function Bonobo.optimize!(
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent 
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
-            if isa(tree.options.branch_strategy, Boscia.PSEUDO_COST) || isa(tree.options.branch_strategy, Boscia.Hierarchy)
+            if isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
                 if !isinf(node.parent_lower_bound_base)
                     idx = node.branched_on
                     update = lb - node.parent_lower_bound_base

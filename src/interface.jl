@@ -118,6 +118,7 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
+        isa(branching_strategy, Boscia.Hierarchy) && println("\t Order of criteria in Hierarchy Branching: ", [stage.name for stage in branching_strategy.stages])
         println("\t FrankWolfe variant: $(variant)")
         println("\t Line Search Method: $(line_search)")
         println("\t Lazification: $(lazy)")
@@ -486,8 +487,12 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         end
         if isa(tree.options.branch_strategy, Boscia.Hierarchy)
             fraction_of_decisions = [(stage.decision_counter, stage.min_cutoff_counter) for stage in tree.options.branch_strategy.stages]
-            #fraction_of_decisions = fraction_of_decisions / sum(fraction_of_decisions)
             println("\t Decisions made: ", fraction_of_decisions)
+        end
+        if isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+            println("\t Number of alternative decisions: ", tree.options.branch_strategy.alt_decision_number)
+            println("\t Number of stable decisions: ", tree.options.branch_strategy.stable_decision_number)
+            println("\t Minimum number of branchings per variable: ", minimum(tree.options.branch_strategy.branch_tracker)-1)
         end
     end
 
