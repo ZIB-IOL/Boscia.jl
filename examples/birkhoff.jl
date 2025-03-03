@@ -95,6 +95,7 @@ end
 
 lmo = build_birkhoff_lmo()
 x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
+x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.DICG())
 
 
 # TODO the below needs to be fixed

@@ -119,6 +119,68 @@ function split_vertices_set!(
     return (active_set, right_as)
 end
 
+function split_pre_computed_set!(
+    x, 
+    pre_computed_set::Vector, 
+    tree, vidx::Int,
+    local_bounds::IntegerBounds;
+    atol = 1e-5, 
+    rtol = 1e-5, 
+    kwargs...
+)
+    pre_computed_set_left = []
+    pre_computed_set_right = []
+    for atom in pre_computed_set
+        if !is_bound_feasible(local_bounds, atom)
+            continue
+        end
+        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol = atol, rtol = rtol)
+            push!(pre_computed_set_right, atom)
+        elseif atom[vidx] <= floor(x[vidx]) || isapprox(atom[vidx], floor(x[vidx]), atol = atol, rtol = rtol)
+            push!(pre_computed_set_left, atom)
+        end
+    end
+    return pre_computed_set_left, pre_computed_set_right
+end
+
+"""
+Default starting point function which generates a random vertex
+"""
+function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
+    n, _ = get_list_of_variables(blmo)
+    d = ones(n)
+    x0 = FrankWolfe.compute_extreme_point(blmo, d)
+    return x0
+end
+
+function dicg_start_point_initialize(
+    lmo::TimeTrackingLMO, 
+    active_set::FrankWolfe.ActiveSet{T, R},
+    pre_computed_set,
+    build_dicg_start_point; 
+    domain_oracle = _trivial_domain
+ ) where {T,R}
+    if lmo.ncalls == 0
+        return FrankWolfe.get_active_set_iterate(active_set)
+    end
+    if pre_computed_set === nothing
+        x0 = build_dicg_start_point(lmo.blmo)
+    else
+        if !isempty(pre_computed_set)
+            # We pick a point by averaging the pre_computed_atoms as warm-start.  
+            num_pre_computed_set = length(pre_computed_set)
+            x0 = sum(pre_computed_set) / num_pre_computed_set
+            if !domain_oracle(x0)
+                x0 = build_dicg_start_point(lmo.blmo)
+            end
+        else
+            # We pick a random point.
+            x0 = build_dicg_start_point(lmo.blmo)
+        end
+    end
+    return x0
+end
+
 """
 Split a discarded vertices set between left and right children.
 """
