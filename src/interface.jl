@@ -52,6 +52,10 @@ Optional settings
 - `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
 - `clean_solutions` flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
 - `max_clean_iter` maximum number of iterations in the Frank-Wolfe call for polishing new solutions.
+- `use_strong_lazy` specifies strong lazification in DICG. Otherwise, weak version is used.
+- `use_DICG_warm_start` if `true`, enables DICG-specific warm-start strategy.
+- `use_strong_warm_start` if `true`, performs additional in-face check for vertices.
+- `build_dicg_start_point` default generates a random feasible vertex.
 """
 function solve(
     f,
@@ -91,10 +95,20 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     rounding_prob=1.0,
-    clean_solutions=false, 
+    clean_solutions=false,
     max_clean_iter=10,
+    use_strong_lazy=false,
+    use_DICG_warm_start=false,
+    use_strong_warm_start=false,
+    build_dicg_start_point = trivial_build_dicg_start_point,
     kwargs...,
 )
+    if variant == DICG()
+        if !is_decomposition_invariant_oracle(blmo)
+            error("DICG within Boscia is not implemented for $(typeof(blmo)).")
+        end
+    end
+    
     if verbose
         println("\nBoscia Algorithm.\n")
         println("Parameter settings.")
@@ -156,6 +170,8 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
+    pre_computed_set = use_DICG_warm_start ? [v] : nothing
+
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
         NodeInfo(1, f(v), f(v)),
@@ -169,6 +185,7 @@ function solve(
         0,
         0,
         0.0,
+        [v],
     )
 
     # Create standard heuristics
@@ -212,10 +229,14 @@ function solve(
                 :usePostsolve => use_postsolve,
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
-                :heuristics => heuristics, 
+                :heuristics => heuristics,
                 :heu_ncalls => 0,
                 :max_clean_iter => max_clean_iter,
                 :clean_solutions => clean_solutions,
+                :use_strong_lazy => use_strong_lazy,
+                :use_strong_warm_start => use_strong_warm_start,
+                :use_strong_lazy => use_strong_lazy,
+                :build_dicg_start_point => build_dicg_start_point,
             ),
             result=Dict{Symbol,Any}(),
         ),
@@ -236,6 +257,7 @@ function solve(
             local_tightenings=0,
             local_potential_tightenings=0,
             dual_gap=-Inf,
+            pre_computed_set=pre_computed_set,
         ),
     )
 
@@ -295,7 +317,16 @@ function solve(
         num_int,
     )
 
-    fw_callback = build_FW_callback(tree, min_number_lower, true, fw_iterations, min_fw_iterations, time_ref, tree.root.options[:time_limit])
+    fw_callback = build_FW_callback(
+        tree, 
+        min_number_lower, 
+        true, 
+        fw_iterations, 
+        min_fw_iterations, 
+        time_ref, 
+        tree.root.options[:time_limit], 
+        use_DICG=tree.root.options[:variant] == DICG(),
+    )
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
@@ -368,6 +399,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             fix_bounds,
             tree.root.problem.integer_variables,
         )
+        # previous solution rounded to account for 0.99999.. or 1.00000000002 types of values
+        prev_x_rounded = copy(x)
+        prev_x_rounded[tree.root.problem.integer_variables] .= round.(prev_x_rounded[tree.root.problem.integer_variables])
+        prev_x_rounded = is_linear_feasible(tree.root.problem.tlmo, prev_x_rounded) ? prev_x_rounded : x
+
         # Postprocessing
         direction = ones(length(x))
         v = compute_extreme_point(tree.root.problem.tlmo, direction)
@@ -398,8 +434,9 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             else
                 @info "primal >= tree.incumbent"
                 @assert primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) "primal <= tree.incumbent + 1e-3 ||
-                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2): primal=$(primal) and tree.incumbent=$(tree.incumbent)"
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) ||
+                        primal <= tree.root.problem.f(prev_x_rounded) "primal <= tree.incumbent + 1e-3 ||
+                        isapprox(primal, tree.incumbent, atol=1e-6, rtol=1e-2) || primal <= tree.root.problem.f(prev_x_rounded) : primal=$(primal) and tree.incumbent=$(tree.incumbent) and previous solution rounded $(tree.root.problem.f(prev_x_rounded))"
             end
             @info "postsolve did not improve the solution"
             primal = tree.incumbent_solution.objective = tree.solutions[1].objective

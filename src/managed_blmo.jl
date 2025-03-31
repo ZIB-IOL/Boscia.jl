@@ -73,6 +73,43 @@ function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
     return v
 end
 
+function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
+    return is_decomposition_invariant_oracle_simple(blmo.simple_lmo)
+end
+
+# Provide FrankWolfe.compute_inface_extreme_point
+function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
+    time_ref = Dates.now()
+    a = bounded_compute_inface_extreme_point(
+                blmo.simple_lmo,
+                direction,
+                x,
+                blmo.lower_bounds,
+                blmo.upper_bounds,
+                blmo.int_vars,
+                )
+    
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
+end
+
+# Check if the given point a is on the minimal face of x
+function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
+	return is_simple_inface_feasible(blmo.simple_lmo, a, x, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
+end
+
+#Provide FrankWolfe.dicg_maximum_step
+function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+    return bounded_dicg_maximum_step(
+                blmo.simple_lmo,
+                x,
+                direction,
+                blmo.lower_bounds, 
+                blmo.upper_bounds, 
+                blmo.int_vars,
+                )
+end
+
 # Read global bounds from the problem.
 function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()

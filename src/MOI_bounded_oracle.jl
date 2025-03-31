@@ -3,12 +3,25 @@
 
 BoundedLinearMinimizationOracle for solvers supporting MathOptInterface.
 """
+
+# Store extra information of solving inface extrem points.
+# The keys of MOI_attribute should correspond to specific MOI_attribute names.
+mutable struct Inface_point_solve_data
+    MOI_attribute::Dict
+    function Inface_point_solve_data()
+        MOI_attribute = Dict()
+        return new(MOI_attribute)
+    end
+end
+
 struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
     o::OT
     use_modify::Bool
+    inface_point_solve_data::Inface_point_solve_data
     function MathOptBLMO(o, use_modify=true)
         MOI.set(o, MOI.ObjectiveSense(), MOI.MIN_SENSE)
-        return new{typeof(o)}(o, use_modify)
+        inface_point_solve_data = Inface_point_solve_data()
+        return new{typeof(o)}(o, use_modify, inface_point_solve_data)
     end
 end
 
@@ -394,9 +407,16 @@ end
 Get solve time, number of nodes and number of simplex iterations.
 """
 function get_BLMO_solve_data(blmo::MathOptBLMO)
-    opt_times = MOI.get(blmo.o, MOI.SolveTimeSec())
-    numberofnodes = MOI.get(blmo.o, MOI.NodeCount())
-    simplex_iterations = MOI.get(blmo.o, MOI.SimplexIterations())
+    if !isempty(blmo.inface_point_solve_data.MOI_attribute)
+        opt_times = blmo.inface_point_solve_data.MOI_attribute[MOI.SolveTimeSec()]
+        numberofnodes = blmo.inface_point_solve_data.MOI_attribute[MOI.NodeCount()]
+        simplex_iterations = blmo.inface_point_solve_data.MOI_attribute[MOI.SimplexIterations()]
+        empty!(blmo.inface_point_solve_data.MOI_attribute)
+    else
+        opt_times = MOI.get(blmo.o, MOI.SolveTimeSec())
+        numberofnodes = MOI.get(blmo.o, MOI.NodeCount())
+        simplex_iterations = MOI.get(blmo.o, MOI.SimplexIterations())
+    end
     return opt_times, numberofnodes, simplex_iterations
 end
 
@@ -665,6 +685,38 @@ function Bonobo.get_branching_variable(
         max_idx = -1
     end
     return max_idx
+end
+
+
+function is_decomposition_invariant_oracle(blmo::MathOptBLMO)
+    true
+end
+
+function compute_inface_extreme_point(blmo::MathOptBLMO, direction, x; kwargs...)
+    MOI_attribute = Dict()
+    MOI_attribute[MOI.SolveTimeSec()] = 0.0
+    MOI_attribute[MOI.NodeCount()] = 0.0
+    MOI_attribute[MOI.SimplexIterations()] = 0.0
+    blmo.inface_point_solve_data.MOI_attribute = MOI_attribute
+    lmo = convert(FrankWolfe.MathOptLMO, blmo)
+    a = FrankWolfe.compute_inface_extreme_point(lmo,
+        direction,
+        x;
+        solve_data=blmo.inface_point_solve_data.MOI_attribute,
+        kwargs,
+    )
+    @assert blmo isa MathOptBLMO
+    return a
+end
+
+function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
+    lmo = convert(FrankWolfe.MathOptLMO, blmo)
+    return FrankWolfe.dicg_maximum_step(
+        lmo,
+        direction,
+        x;
+        kwargs...,
+    )
 end
 
 """
