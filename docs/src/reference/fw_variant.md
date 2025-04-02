@@ -1,4 +1,4 @@
-# Frank Wolfe Variant
+# Frank-Wolfe Variants
 Here is the list with the currently supported Frank-Wolfe variants.
 
 

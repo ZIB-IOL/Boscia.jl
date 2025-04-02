@@ -23,7 +23,7 @@ makedocs(
         "Home" => "index.md",
         "How does it work?" => "basics.md",
         "API Reference" => [
-            "reference/0_reference.md",
+            #"reference/0_reference.md",
             "reference/1_algorithms.md", 
             "reference/2_blmo_build.md",
             "reference/custom.md",

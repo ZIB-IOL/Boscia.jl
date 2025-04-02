@@ -1,4 +1,4 @@
-# Branch and Bound Tree functionality
+# Branch-and-Bound tree functionality
 
 The functionality of the Branch-and-Bound implementation extended from Bonobo.jl and some extended features like strong branching and the callbacks.
 
