@@ -1,34 +1,38 @@
 """
     SimpleBoundableLinearMinimizationOracle
 
-A simple LMO that computes the extreme point given the node specific bounds on the integer variables.
-Can be stateless since all of the bound management is done by the ManagedBoundedLMO.   
+A "simple" BLMO that computes the extreme point given a linear objective and the node specific bounds on the integer variables.
+Can be stateless since all of the bound management is done by the `ManagedBoundedLMO`.   
 """
 abstract type SimpleBoundableLMO <: FrankWolfe.LinearMinimizationOracle end
 
 """
-Computes the extreme point given an direction d, the current lower and upper bounds on the integer variables, and the set of integer variables.
+    bounded_compute_extreme_point
+
+Computes the extreme point given an direction `d`, the current lower and upper bounds on the integer variables, and the set of indices of integer variables.
 """
 function bounded_compute_extreme_point end
 
 """
-Checks whether a given point v is satisfying the constraints on the problem.
+    is_simple_linear_feasible
+
+Checks whether a given point `v` is satisfying the constraints on the problem.
 Note that the bounds on the integer variables are being checked by the ManagedBoundedLMO and do not have to be check here. 
 """
 function is_simple_linear_feasible end
 
 
 """
-    ManagedBoundedLinearMinimizationOracle
+    ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
 
 A Bounded Linear Minimization Oracle that manages the bounds.
 
-simple_lmo   - An LMO of type Simple Boundable LMO (see above).  
-lower_bounds - List of lower bounds for the integer variables recorded in int_vars. If there is no specific lower bound, set corresponding entry to `-Inf`.
-upper_bounds - List of upper bounds for the integer variables recorded in int_vars. If there is no specific upper bound, set corresponding entry to `Inf`.
-n            - Total number of variables.
-int_vars     - List of indices of the integer variables.
-solving_time - The time evaluate `compute_extreme_point`.
+- `simple_lmo` an LMO of type Simple Boundable LMO.  
+- `lower_bounds` list of lower bounds for the integer variables recorded in `int_vars`. If there is no specific lower bound, set corresponding entry to `-Inf`.
+- `upper_bounds` list of upper bounds for the integer variables recorded in `int_vars`. If there is no specific upper bound, set corresponding entry to `Inf`.
+- `n` total number of variables.
+- `int_vars` list of indices of the integer variables.
+- `solving_time` the time to evaluate `compute_extreme_point`.
 """
 mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
     simple_lmo::SBLMO
@@ -67,6 +71,43 @@ function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
     )
     blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return v
+end
+
+function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
+    return is_decomposition_invariant_oracle_simple(blmo.simple_lmo)
+end
+
+# Provide FrankWolfe.compute_inface_extreme_point
+function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
+    time_ref = Dates.now()
+    a = bounded_compute_inface_extreme_point(
+                blmo.simple_lmo,
+                direction,
+                x,
+                blmo.lower_bounds,
+                blmo.upper_bounds,
+                blmo.int_vars,
+                )
+    
+    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    return a
+end
+
+# Check if the given point a is on the minimal face of x
+function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
+	return is_simple_inface_feasible(blmo.simple_lmo, a, x, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
+end
+
+#Provide FrankWolfe.dicg_maximum_step
+function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+    return bounded_dicg_maximum_step(
+                blmo.simple_lmo,
+                x,
+                direction,
+                blmo.lower_bounds, 
+                blmo.upper_bounds, 
+                blmo.int_vars,
+                )
 end
 
 # Read global bounds from the problem.
