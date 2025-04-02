@@ -720,7 +720,7 @@ function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
 end
 
 """
-The 'solve'  function in case of `FrankWolfe.MathOptLMO`. 
+The `solve`  function receiving a `FrankWolfe.MathOptLMO`. 
 Converts the lmo into an instance of `Boscia.MathOptBLMO` and calls the main `solve` function.
 """
 function solve(
