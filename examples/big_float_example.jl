@@ -1,4 +1,3 @@
-using Random
 using Boscia
 using Test
 using DoubleFloats

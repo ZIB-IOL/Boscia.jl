@@ -1,12 +1,11 @@
 """
-    BLMO
-
-Supertype for the Bounded Linear Minimization Oracles
+Supertype for the Bounded Linear Minimization Oracles (BLMO).
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end
 
 """
 Enum encoding the status of the Bounded Linear Minimization Oracle.
+Currently available: `OPTIMAL`, `INFEASIBLE` and `UNBOUNDED`.
 """
 @enum BLMOStatus begin
     OPTIMAL = 0
@@ -20,7 +19,7 @@ end
 Implement `FrankWolfe.compute_extreme_point`
 
 Given a direction d solves the problem
-    min_x d^T x
+    `min_x d^T x`
 where x has to be an integer feasible point
 """
 function compute_extreme_point end
@@ -113,6 +112,8 @@ function has_integer_constraint end
 
 ## Safety Functions
 """
+    build_LMO_correct(blmo::BoundedLinearMinimizationOracle, node_bounds)
+
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
@@ -121,6 +122,8 @@ function build_LMO_correct(blmo::BoundedLinearMinimizationOracle, node_bounds)
 end
 
 """
+    check_feasibility(blmo::BoundedLinearMinimizationOracle)
+
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
 function check_feasibility(blmo::BoundedLinearMinimizationOracle)
@@ -128,6 +131,8 @@ function check_feasibility(blmo::BoundedLinearMinimizationOracle)
 end
 
 """
+    is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, vidx::Int)
+
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, vidx::Int)
@@ -135,6 +140,8 @@ function is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOra
 end
 
 """
+    is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
+
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
 function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
@@ -142,6 +149,8 @@ function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e
 end
 
 """
+    indicator_present(blmo::BoundedLinearMinimizationOracle)
+
 Are indicator constraints present?
 """
 function indicator_present(blmo::BoundedLinearMinimizationOracle)
@@ -149,6 +158,8 @@ function indicator_present(blmo::BoundedLinearMinimizationOracle)
 end
 
 """
+    check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree)
+
 Deal with infeasible vertex if necessary, e.g. check what caused it etc.
 """
 function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree) end
@@ -156,6 +167,8 @@ function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree) en
 
 ## Utility
 """
+    free_model(blmo::BoundedLinearMinimizationOracle)
+
 Free model data from previous solve (if necessary).
 """
 function free_model(blmo::BoundedLinearMinimizationOracle)
@@ -163,6 +176,8 @@ function free_model(blmo::BoundedLinearMinimizationOracle)
 end
 
 """
+    get_tol(blmo::BoundedLinearMinimizationOracle)
+
 Get solving tolerance for the BLMO.
 """
 function get_tol(blmo::BoundedLinearMinimizationOracle)
@@ -170,6 +185,8 @@ function get_tol(blmo::BoundedLinearMinimizationOracle)
 end
 
 """
+    find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
+
 Find best solution from the solving process.
 """
 function find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
@@ -177,8 +194,9 @@ function find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, 
 end
 
 """
-List of all variable pointers. Depends on how you save your variables internally. In the easy case, this is simply `collect(1:N)`.
+    get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
 
+List of all variable pointers. Depends on how you save your variables internally. In the easy case, this is simply `collect(1:N)`.
 Is used in `find_best_solution`.
 """
 function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
@@ -189,6 +207,8 @@ end
 
 ## Logs
 """
+    get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)
+
 Get solve time, number of nodes and number of iterations, if applicable.
 """
 function get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)

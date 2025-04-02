@@ -1,4 +1,3 @@
-using Statistics
 using Boscia
 using FrankWolfe
 using Random
