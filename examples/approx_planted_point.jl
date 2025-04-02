@@ -1,10 +1,3 @@
-
-# This script tests different methods for solving optimization problems involving approximate planted points
-# with integer and mixed integer constraints. The optimization methods used are SCIP, Cube LMO, and Cube Simple LMO.
-# The script defines a function f(x) representing the objective function and its gradient. 
-
-# We first import the necessary packages, including SCIP and LinearAlgebra to visualize the feasible set.
-
 using Boscia
 using FrankWolfe
 using Test
