@@ -330,7 +330,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     lmo = build_model()
     x_blended, _, result_blended =
-        Boscia.solve(f, grad!, lmo, verbose=true, variant=Boscia.Blended(), print_iter=1, fw_verbose=true)
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
 
     lmo = build_model()
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
