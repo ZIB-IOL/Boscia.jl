@@ -281,10 +281,16 @@ function build_active_set_by_domain_oracle(
             end
 
             function build_inner_callback(tree)
+                # Count the iteration after entering the domain
+                domain_counter = 0
                 return function inner_callback(state, active_set, kwargs...)
-                    # stop as soon as we find a domain feasible point.
+                    # Once we find a domain feasible point, we count the iteration
+                    # and stop if we have not found a feasible point after 5 iterations..
                     if tree.root.options[:domain_oracle](state.x)
-                        return false
+                        if domain_counter > 5
+                            return false
+                        end
+                        domain_counter += 1
                     end
                 end
             end
