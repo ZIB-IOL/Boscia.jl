@@ -53,7 +53,7 @@ function process_FW_callback_logic(
 )
 
     if !use_DICG
-        @assert isapprox(sum(active_set.weights), 1.0)
+        @assert isapprox(sum(active_set.weights), 1.0) "sum(active_set.weights) = $(sum(active_set.weights))"
         @assert sum(active_set.weights .< 0) == 0
     end
 
