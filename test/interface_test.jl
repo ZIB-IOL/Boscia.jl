@@ -301,6 +301,8 @@ end
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
+@show diffi
+
 @testset "Different FW variants" begin
 
     function build_model()
