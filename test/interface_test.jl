@@ -301,6 +301,8 @@ end
 n = 20
 diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
+diffi = [0.3, 0.8999999999999999, 0.8999999999999999, 0.8999999999999999, 0.3, 0.3, 0.8999999999999999, 0.3, 0.8999999999999999, 0.3, 0.3, 0.8999999999999999, 0.8999999999999999, 0.8999999999999999, 0.8999999999999999, 0.3, 0.3, 0.8999999999999999, 0.8999999999999999, 0.3]
+
 @testset "Different FW variants" begin
 
     function build_model()
@@ -330,7 +332,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     lmo = build_model()
     x_blended, _, result_blended =
-        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.Blended())
+        Boscia.solve(f, grad!, lmo, verbose=true, variant=Boscia.Blended(), print_iter=1, fw_verbose=true)
 
     lmo = build_model()
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
