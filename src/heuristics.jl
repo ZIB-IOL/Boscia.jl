@@ -143,7 +143,7 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         # reset LMO to node state
         build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
         # just return the point
-        return [x], false
+        return [x], true
     end
 
     v = compute_extreme_point(tlmo, rand(length(x)))
@@ -169,5 +169,5 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
     
-    return [x_rounded], true
+    return [x_rounded], false
 end
