@@ -45,7 +45,6 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
     heuristic_lmo = TimeTrackingLMO(inner_lmo, tree.root.problem.integer_variables)
 
     for heuristic in heuristic_list
-        @show heuristic.identifer
         if flip_coin(heuristic.prob, rng)
             list_x_heu, check_feasibility = heuristic.run_heuristic(tree, heuristic_lmo, x)
 
