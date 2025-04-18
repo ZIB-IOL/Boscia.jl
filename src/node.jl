@@ -40,6 +40,13 @@ A node in the branch-and-bound tree storing information for a Frank-Wolfe subpro
     All other integer bounds are stored in the root.
 'level' stores the level in the tree
 'fw_dual_gap_limit' set the tolerance for the dual gap in the FW algorithms
+'parent_lower_bound_base' contains lower bound value of the parent node.  Needed
+    for updating pseudocosts.
+'branched_on' contains the index of the parent. Required for updating pseudocosts.
+'branched_right' Boolean value specifying if node resulted from a left or right branch. Needed
+    for updating pseudocosts.
+'distance_to_int' Stores information on the rounding amount at branching. Required
+    for correct scaling of pseudocosts.
 """
 mutable struct FrankWolfeNode{
     AT<:FrankWolfe.ActiveSet,

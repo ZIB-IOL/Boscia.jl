@@ -51,11 +51,7 @@ function build_examples(o, n,  seed)
 end
    
 
-
-
-
 @testset "Simple Branching Strategies" begin
-
     dimension = 20
     seed = 1
     o = SCIP.Optimizer()
@@ -73,7 +69,6 @@ end
 
     @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-
     end
 
     @testset "Largest Most-Infeasible Gradient Branching" begin
@@ -85,7 +80,6 @@ end
         
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
      end
 
     @testset "Random Branching" begin
@@ -97,7 +91,6 @@ end
         
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
 
     @testset "Largest Index" begin
@@ -109,15 +102,11 @@ end
         
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
-
 end
 
 
-
 @testset "Pseudocost Branching Strategies" begin
-
     dimension = 30
     seed = 1
     o = SCIP.Optimizer()
@@ -141,7 +130,6 @@ end
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-
     end
 
     @testset "Pseudocost with Largest Most-Infeasible Gradient alternative and product decision function" begin
@@ -159,7 +147,6 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
 
     @testset "Pseudocost with LargestGradient alternative and minimum decision function" begin
@@ -177,7 +164,6 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
 
     @testset "Pseudocost with Most-Infeasible alternative and product decision function and 5 visit stability criterion" begin
@@ -195,13 +181,8 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
-
 end
-
-
-
 
 
 function int_sparse_regression(o, n, m, l, k, seed)
@@ -248,17 +229,14 @@ function int_sparse_regression(o, n, m, l, k, seed)
 end
 
 @testset "Hierarchy Branching Strategies" begin
-
     dimension = 30
     seed = 1
-
     o = SCIP.Optimizer()
     n = dimension
     m = 3* dimension
     l = ceil(dimension/ 2)
     k = l - 1
     #lmo, f, grad! = int_sparse_regression(o, n, m, l, k, seed)
-
 
     f, grad!, lmo = build_examples(o, dimension,  seed)
     time_limit = 600
@@ -281,7 +259,6 @@ end
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-
     end
 
     @testset "Hierarchy Branching with Largest Gradient pseudocost alternative and product decision function" begin
@@ -300,7 +277,6 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
 
     @testset "Hierarchy with Largest Most-Infeasible Gradient pseudocost alternative and minimum decision function" begin
@@ -319,7 +295,6 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
 
     @testset "Hierarchy with Most-Infeasible pseudocost alternative and product decision function + branch binary first " begin
@@ -340,7 +315,5 @@ end
     
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    
     end
-
 end

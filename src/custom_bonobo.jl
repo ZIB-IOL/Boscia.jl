@@ -45,7 +45,7 @@ function Bonobo.optimize!(
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if node.lb >= tree.incumbent 
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
-            if isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+            if isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
                 if !isinf(node.parent_lower_bound_base)
                     idx = node.branched_on
                     update = lb - node.parent_lower_bound_base
@@ -53,21 +53,13 @@ function Bonobo.optimize!(
                     if isinf(update)
                         @debug "update is $(Inf)"
                     end
-                    if node.branched_right
-                        tree.options.branch_strategy.pseudos[idx, 1] = update_avg(
-                            update, 
-                            tree.options.branch_strategy.pseudos[idx, 1], 
-                            tree.options.branch_strategy.branch_tracker[idx, 1]
-                            )
-                        tree.options.branch_strategy.branch_tracker[idx, 1] += 1
-                    else
-                        tree.options.branch_strategy.pseudos[idx, 2] = update_avg(
-                            update, 
-                            tree.options.branch_strategy.pseudos[idx, 2], 
-                            tree.options.branch_strategy.branch_tracker[idx, 2]
-                            )
-                        tree.options.branch_strategy.branch_tracker[idx, 2] += 1
-                    end 
+                    r_idx = node.branched_right ? 1 : 2
+                    tree.options.branch_strategy.pseudos[idx, r_idx] = update_avg(
+                        update, 
+                        tree.options.branch_strategy.pseudos[idx, r_idx], 
+                        tree.options.branch_strategy.branch_tracker[idx, r_idx]
+                        )
+                    tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
                 end
             end
             
