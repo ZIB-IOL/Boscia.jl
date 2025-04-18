@@ -4,13 +4,13 @@ using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
 using Random
-using Statistics
 using LinearAlgebra
 import Bonobo
 using Printf
 using Dates
 using MathOptInterface
-using SparseArrays
+import SparseArrays: SparseMatrixCSC, sparse
+import Statistics: mean
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
