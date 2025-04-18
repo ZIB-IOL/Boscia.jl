@@ -336,17 +336,22 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
+    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
+
+    lmo = build_model()
     x_vfw, _, result_vfw =
         Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.VanillaFrankWolfe())
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_bpcg), f(result_bpcg[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_dicg), f(result_dicg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_vfw), f(result_vfw[:raw_solution]), atol=1e-6, rtol=1e-3)
 
     @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_blended, x_bpcg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_dicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
 end
 
@@ -444,4 +449,101 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
     @test isapprox(f(x_mid), f(result_mid[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_lazy, x_mid, atol=1e-6, rtol=1e-2)) == n
+end
+
+@testset "DICG - Lazification" begin
+
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    # testing for weak lazification
+    lmo = build_model()
+    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
+
+    lmo = build_model()
+    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, lazy=false, variant=Boscia.DICG())
+
+    lmo = build_model()
+    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, lazy=true, lazy_tolerance=1.5, variant=Boscia.DICG())
+
+    @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_warm_start), f(result_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_lazy, x_warm_start, atol=1e-6, rtol=1e-2)) == n
+
+    # testing for strong lazification
+    lmo = build_model()
+    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, verbose=false, use_strong_lazy = true, variant=Boscia.DICG())
+
+    lmo = build_model()
+    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, lazy=false, use_strong_lazy = true, variant=Boscia.DICG())
+
+    lmo = build_model()
+    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, lazy=true, lazy_tolerance=1.5, use_strong_lazy = true, variant=Boscia.DICG())
+
+    @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_warm_start), f(result_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_lazy, x_warm_start, atol=1e-6, rtol=1e-2)) == n
+end
+
+@testset "DICG - warm_start" begin
+
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    
+    lmo = build_model()
+    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
+
+    # testing for weak warm-start
+    lmo = build_model()
+    x_weak_warm_start, _, result_weak_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, use_dicg_warm_start=true, variant=Boscia.DICG())
+
+    # testing for strong warm_start
+    x_strong_warm_start, _, result_strong_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, use_dicg_warm_start=true, use_strong_warm_start=true, variant=Boscia.DICG())
+
+    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_weak_warm_start), f(result_weak_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_strong_warm_start), f(result_strong_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test sum(isapprox.(x_no, x_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_no, x_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
 end

@@ -73,9 +73,15 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     x, _, result =
         Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
+    
+    # testing for cube inface oracles
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, variant = Boscia.DICG())
 
     @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol = 1e-6, rtol = 1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-3)
 end
 
 @testset "BLMO - Strong Branching" begin
@@ -140,9 +146,15 @@ diffi = x_sol + 0.3 * dir
 
     x, _, result =
         Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0*N, n), collect(1:n), n)
+    
+    # testing for Probability simplex inface oracles
+    x_dicg, _, result_dicg =
+    Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n, variant = Boscia.DICG())
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol = 1e-6, rtol = 1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-3)
 end
 
 n = 20
@@ -162,7 +174,13 @@ diffi = x_sol + 0.3*rand([-1,1], n)
 
     x, _, result =
         Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
+    
+    # testing for Unit simplex inface oracles
+    x_dicg, _, result_dicg =
+    Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n, variant = Boscia.DICG())
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol = 1e-6, rtol = 1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol = 1e-6, rtol = 1e-3)
 end

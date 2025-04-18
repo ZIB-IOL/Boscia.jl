@@ -109,6 +109,7 @@ function Bonobo.optimize!(
             0,
             0,
             0.0,
+            [],
         )
         callback(tree, dummy_node, node_infeasible=true)
     end
