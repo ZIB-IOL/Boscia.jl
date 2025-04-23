@@ -53,7 +53,7 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                 min_val = Inf
                 min_idx = -1
                 for (i, x_heu) in enumerate(list_x_heu)
-                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) && tree.root.options[:domain_oracle](x_heu) : true
+                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) && tree.root.options[:domain_oracle](x_heu) : tree.root.options[:domain_oracle](x_heu)
                     if feasible
                         val = tree.root.problem.f(x_heu)
                         if val < min_val
@@ -142,7 +142,7 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         # reset LMO to node state
         build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
         # just return the point
-        return [x], false
+        return [x], true
     end
 
     v = compute_extreme_point(tlmo, rand(length(x)))
@@ -168,5 +168,5 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
     
-    return [x_rounded], true
+    return [x_rounded], false
 end
