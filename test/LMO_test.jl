@@ -10,6 +10,11 @@ using Printf
 using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 @testset "Integer bounds" begin
     n = 10
@@ -55,7 +60,7 @@ const MOIU = MOI.Utilities
 end
 
 n = 20
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Cube LMO" begin
     function f(x)
@@ -129,7 +134,7 @@ end
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n/4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 N = sum(x_sol)
 dir = vcat(fill(1, floor(Int, n/2)), fill(-1, floor(Int, n/2)), fill(0, mod(n,2)))
 diffi = x_sol + 0.3 * dir
@@ -158,8 +163,8 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n/4), n)
-diffi = x_sol + 0.3*rand([-1,1], n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
+diffi = x_sol + 0.3*rand(rng, [-1,1], n)
 
 @testset "Unit Simplex LMO" begin
     function f(x)

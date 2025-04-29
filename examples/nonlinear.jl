@@ -7,6 +7,11 @@ using Bonobo
 import Bonobo
 using Printf
 using Dates
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # using SCIP
 # const MOI = MathOptInterface
@@ -40,13 +45,13 @@ sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
 const A = let
-    A = randn(n, n)
+    A = randn(rng, n, n)
     A' * A
 end
 
 @assert isposdef(A) == true
 
-const y = Random.rand(Bool, n) * 0.6 .+ 0.3
+const y = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 function f(x)
     d = x - y

@@ -6,13 +6,18 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 n = 30
-const ri = rand(n)
-const ai = rand(n)
-const Ωi = rand(Float64)
+const ri = rand(rng, n)
+const ai = rand(rng, n)
+const Ωi = rand(rng, Float64)
 const bi = sum(ai)
-Ai = randn(n, n)
+Ai = randn(rng, n, n)
 Ai = Ai' * Ai
 const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)
@@ -23,7 +28,7 @@ const Mi = (Ai + Ai') / 2
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
-    I = collect(1:n) #rand(1:n0, Int64(floor(n0/2)))
+    I = collect(1:n) #rand(rng, 1:n0, Int64(floor(n0/2)))
     for i in 1:n
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I

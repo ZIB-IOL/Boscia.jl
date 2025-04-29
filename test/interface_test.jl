@@ -8,11 +8,16 @@ const MOI = MathOptInterface
 import Boscia
 import FrankWolfe
 using Test
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Testing of the interface function solve
 
 n = 20
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Norm hyperbox" begin
     function f(x)
@@ -299,7 +304,7 @@ Ns = 0.1
 end
 
 n = 20
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Different FW variants" begin
 
@@ -410,7 +415,7 @@ end
 end
 
 n = 20
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Lazification" begin
 

@@ -8,6 +8,11 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Poisson sparse regression
 
@@ -31,16 +36,16 @@ n = 20
 p = n
 
 # underlying true weights
-const ws = rand(Float64, p)
+const ws = rand(rng, Float64, p)
 # set 50 entries to 0
 for _ in 1:20
-    ws[rand(1:p)] = 0
+    ws[rand(rng, 1:p)] = 0
 end
-const bs = rand(Float64)
-const Xs = randn(Float64, n, p)
+const bs = rand(rng, Float64)
+const Xs = randn(rng, Float64, n, p)
 const ys = map(1:n) do idx
     a = dot(Xs[idx, :], ws) + bs
-    return rand(Distributions.Poisson(exp(a)))
+    return rand(rng, Distributions.Poisson(exp(a)))
 end
 Ns = 0.10
 

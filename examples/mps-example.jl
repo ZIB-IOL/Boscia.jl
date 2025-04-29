@@ -6,6 +6,11 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 
 # A MIPLIB instance: 22433
@@ -26,7 +31,7 @@ n = MOI.get(o, MOI.NumberOfVariables())
 lmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(n)) for _ in 1:20]
+const vs = [FrankWolfe.compute_extreme_point(lmo, randn(rng, n)) for _ in 1:20]
 # done to avoid one vertex being systematically selected
 unique!(vs)
 filter!(vs) do v
@@ -34,7 +39,7 @@ filter!(vs) do v
 end
 
 @assert !isempty(vs)
-const b_mps = randn(n)
+const b_mps = randn(rng, n)
 
 function f(x)
     r = dot(b_mps, x)
