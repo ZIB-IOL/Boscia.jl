@@ -11,17 +11,23 @@ import Bonobo
 using FrankWolfe
 using Dates
 using Test
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
+
 # min h(sqrt(y' * M * y)) - r' * y
 # s.t. a' * y <= b 
 #           y >= 0
 #           y_i in Z for i in I
 
 n0 = 30
-const r = 10 * rand(n0)
-const a = rand(n0)
-const Ω = 3 * rand(Float64)
+const r = 10 * rand(rng, n0)
+const a = rand(rng, n0)
+const Ω = 3 * rand(rng, Float64)
 const b = sum(a)
-A1 = randn(n0, n0)
+A1 = randn(rng, n0, n0)
 A1 = A1' * A1
 const M1 = (A1 + A1') / 2
 @assert isposdef(M1)
@@ -32,7 +38,7 @@ const M1 = (A1 + A1') / 2
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n0)
-    I = collect(1:n0) #rand(1:n0, Int64(floor(n0/2)))
+    I = collect(1:n0) #rand(rng, 1:n0, Int64(floor(n0/2)))
     for i in 1:n0
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         if i in I

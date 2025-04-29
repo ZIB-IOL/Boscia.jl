@@ -2,6 +2,7 @@ using Boscia
 using Test
 using FrankWolfe
 using Random
+using StableRNGs
 using SCIP
 using Statistics
 import Bonobo
@@ -9,10 +10,6 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 using Dates
-
-seed = rand(UInt64)
-@show seed
-Random.seed!(seed)
 
 include("interface_test.jl")
 
@@ -47,8 +44,12 @@ include("mean_risk.jl")
 include("time_limit.jl")
 include("strong_convexity_and_sharpness.jl")
 
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
+
 n = 10
-const diff1 = rand(Bool, n) * 0.8 .+ 1.1
+const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
 @testset "Strong branching" begin
     function f(x)
         return sum((x .- diff1) .^ 2)

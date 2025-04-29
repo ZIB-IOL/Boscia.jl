@@ -8,6 +8,11 @@ const MOI = MathOptInterface
 using Test
 using Bonobo
 using FrankWolfe
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Constant parameters for the sparse regression
 # min norm(y-A β)² + λ_0 ∑ z_i + λ_2 ||β||²
@@ -18,10 +23,10 @@ using FrankWolfe
 n0 = 10;
 p = 5 * n0;
 k = ceil(n0 / 5);
-const lambda_0 = rand(Float64);
-const lambda_2 = 10.0 * rand(Float64);
-const A = rand(Float64, n0, p)
-const y = rand(Float64, n0)
+const lambda_0 = rand(rng, Float64);
+const lambda_2 = 10.0 * rand(rng, Float64);
+const A = rand(rng, Float64, n0, p)
+const y = rand(rng, Float64, n0)
 const M = 2 * var(A)
 
 @testset "Sparse Regression" begin
@@ -75,10 +80,10 @@ n0 = 10;
 p = 5 * n0;
 k = ceil(n0 / 5);
 group_size = convert(Int64, floor(p / k));
-const lambda_0_g = rand(Float64);
-const lambda_2_g = 10.0 * rand(Float64);
-const A_g = rand(Float64, n0, p)
-const y_g = rand(Float64, n0)
+const lambda_0_g = rand(rng, Float64);
+const lambda_2_g = 10.0 * rand(rng, Float64);
+const A_g = rand(rng, Float64, n0, p)
+const y_g = rand(rng, Float64, n0)
 const M_g = 2 * var(A_g)
 const groups = []
 

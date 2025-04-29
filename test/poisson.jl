@@ -11,6 +11,12 @@ import Bonobo
 using FrankWolfe
 using Dates
 using Test
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
+
 # Sparse Poisson regression
 # min_{w, b, z} ∑_i exp(w x_i + b) - y_i (w x_i + b) + α norm(w)^2
 # s.t. -N z_i <= w_i <= N z_i
@@ -22,13 +28,13 @@ n0 = 30
 p = n0
 
 # underlying true weights
-const w0 = rand(Float64, p)
+const w0 = rand(rng, Float64, p)
 # set 50 entries to 0
 for _ in 1:20
-    w0[rand(1:p)] = 0
+    w0[rand(rng, 1:p)] = 0
 end
-const b0 = rand(Float64)
-const X0 = rand(Float64, n0, p)
+const b0 = rand(rng, Float64)
+const X0 = rand(rng, Float64, n0, p)
 const y0 = map(1:n0) do idx
     a = dot(X0[idx, :], w0) + b0
     return rand(Distributions.Poisson(exp(a)))
@@ -168,13 +174,13 @@ n0g = 20
 pg = n0g
 
 # underlying true weights
-const w0g = 2 * rand(Float64, pg) .- 1
+const w0g = 2 * rand(rng, Float64, pg) .- 1
 # set 50 entries to 0
 for _ in 1:15
-    w0g[rand(1:pg)] = 0
+    w0g[rand(rng, 1:pg)] = 0
 end
-const b0g = 2 * rand(Float64) - 1
-const X0g = 2 * rand(Float64, n0g, pg) .- 1
+const b0g = 2 * rand(rng, Float64) - 1
+const X0g = 2 * rand(rng, Float64, n0g, pg) .- 1
 const y0g = map(1:n0g) do idx
     a = dot(X0g[idx, :], w0g) + b0g
     return rand(Distributions.Poisson(exp(a)))
