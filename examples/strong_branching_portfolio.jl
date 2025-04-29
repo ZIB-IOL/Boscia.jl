@@ -8,7 +8,11 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 using SCIP
+using StableRNGs
 
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # For bug hunting:
 #seed = rand(UInt64)
@@ -18,11 +22,11 @@ using SCIP
 # TROUBLESOME SEED seed = 0x8750860d6fd5025f -> NEEDS TO BE CHECK AGAIN!
 
 n = 20
-const ri = rand(n)
-const ai = rand(n)
-const Ωi = rand(Float64)
+const ri = rand(rng, n)
+const ai = rand(rng, n)
+const Ωi = rand(rng, Float64)
 const bi = sum(ai)
-Ai = randn(n, n)
+Ai = randn(rng, n, n)
 Ai = Ai' * Ai
 const Mi = (Ai + Ai') / 2
 @assert isposdef(Mi)

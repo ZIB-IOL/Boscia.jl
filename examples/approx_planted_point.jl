@@ -8,11 +8,16 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs    
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 include("cube_blmo.jl")
 
 n = 20
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Approximate planted point - Integer" begin
 

@@ -6,6 +6,11 @@ import Bonobo
 using Test
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Integer sparse regression
 
@@ -25,9 +30,9 @@ m = 30
 l = 5
 k = 4
 
-sol_x = rand(1:l, n)
+sol_x = rand(rng, 1:l, n)
 for _ in 1:(n-k)
-    sol_x[rand(1:n)] = 0
+    sol_x[rand(rng, 1:n)] = 0
 end
 
 #=k=0 # correct k
@@ -38,7 +43,7 @@ for i in 1:n
 end
 k = n-k =#
 
-const D = rand(m, n)
+const D = rand(rng, m, n)
 const y_d = D * sol_x
 
 @testset "Integer sparse regression" begin

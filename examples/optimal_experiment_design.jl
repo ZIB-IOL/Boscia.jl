@@ -5,6 +5,11 @@ using LinearAlgebra
 using FrankWolfe
 using Statistics
 using Test 
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # The function building the problem data and other structures is in a separate file.
 include("oed_utils.jl")
@@ -48,7 +53,7 @@ verbose = true
 ## A-Optimal Design Problem
 @testset "A-Optimal Design" begin
 
-    Ex_mat, N, ub = build_data(m, n)
+    Ex_mat, N, ub = build_data(rng, m, n)
 
     g, grad! = build_a_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
@@ -104,7 +109,7 @@ end
 
 ## D-Optimal Design Problem
 @testset "D-optimal Design" begin
-    Ex_mat, N, ub = build_data(m, n)
+    Ex_mat, N, ub = build_data(rng, m, n)
 
     g, grad! = build_d_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)

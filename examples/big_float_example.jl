@@ -1,9 +1,14 @@
 using Boscia
 using Test
 using DoubleFloats
+using StableRNGs 
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 n = 200
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Using BigFloat" begin
     function f(x)
