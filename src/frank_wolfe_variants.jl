@@ -118,7 +118,7 @@ function solve_frank_wolfe(
         callback=callback,
         timeout=timeout,
         verbose=verbose,
-        lazy_tolerance=lazy_tolerance,
+        sparsity_control=lazy_tolerance,
     )
 
     return x, primal, dual_gap, active_set
@@ -164,7 +164,7 @@ function solve_frank_wolfe(
         extra_vertex_storage=extra_vertex_storage,
         callback=callback,
         lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
+        sparsity_control=lazy_tolerance,
         timeout=timeout,
         verbose=verbose,
     )
@@ -245,7 +245,7 @@ function solve_frank_wolfe(
         lazy=lazy,
 	use_strong_lazy = use_strong_lazy,
         linesearch_workspace=workspace,
-        lazy_tolerance=lazy_tolerance,
+        sparsity_control=lazy_tolerance,
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
     )
