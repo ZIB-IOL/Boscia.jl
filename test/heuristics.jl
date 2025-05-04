@@ -10,9 +10,14 @@ using Printf
 using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 n = 20
-x_sol = rand(1:floor(Int, n/4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 N = sum(x_sol)
 dir = vcat(fill(1, floor(Int, n/2)), fill(-1, floor(Int, n/2)), fill(0, mod(n,2)))
 diffi = x_sol + 0.3 * dir
@@ -36,8 +41,8 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n/4), n)
-diffi = x_sol + 0.3*rand([-1,1], n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
+diffi = x_sol + 0.3*rand(rng, [-1,1], n)
 
 @testset "Hyperplane Aware Rounding - Unit Simplex" begin
     function f(x)
@@ -109,7 +114,7 @@ end
 end
 
 n = 30
-diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
+diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
 @testset "Probability Rounding - Unit Cube" begin
 
@@ -122,7 +127,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 
     lbs = zeros(n)
     ubs = ones(n)
-    int_vars = unique!(rand(1:n, floor(Int, n/2)))
+    int_vars = unique!(rand(rng, 1:n, floor(Int, n/2)))
     x_sol = copy(diffi)
     x_sol[int_vars] = round.(x_sol[int_vars])
    
@@ -137,7 +142,7 @@ diffi = Random.rand(Bool, n) * 0.6 .+ 0.3
 end
 
 n = 20
-x_sol = round.(rand(n))
+x_sol = round.(rand(rng, n))
 N = sum(x_sol)
 dir = sign.(iszero.(x_sol) .- 0.5)
 diffi = x_sol + 0.3 * dir
@@ -150,7 +155,7 @@ diffi = x_sol + 0.3 * dir
         @. storage = x - diffi
     end
 
-    int_vars = unique!(rand(1:n, floor(Int, n/2)))
+    int_vars = unique!(rand(rng, 1:n, floor(Int, n/2)))
     m = length(int_vars)
     cont_vars = setdiff(collect(1:n), int_vars)
     x_sol[cont_vars] = diffi[cont_vars]

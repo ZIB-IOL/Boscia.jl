@@ -7,6 +7,11 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
@@ -32,7 +37,7 @@ const MOI = MathOptInterface
 n = 10
 
 @testset "Interface - 2-norm over hypercube -- α = $alpha" for alpha in (0.0, 0.05)
-    diff_point = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
+    diff_point = 0.5 * ones(n) + rand(rng, n) * alpha * 1 / n
 
     # SCIP variant of the LMO
     # o = SCIP.Optimizer()

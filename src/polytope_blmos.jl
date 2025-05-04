@@ -247,7 +247,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     end
 
     if count(!iszero, z[tree.branching_indices]) == 0
-        return [z], false
+        return [z], true
     end
 
     N = tlmo.blmo.simple_lmo.N
@@ -256,7 +256,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
     if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N || cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
         @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.blmo.upperbounds[non_zero_int])), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
-        return [z], false
+        return [z], true
     end
 
     if sum(z) < N
@@ -268,7 +268,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
             z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
         end
     end
-    return [z], true
+    return [z], false
 end
 function add_to_min(x, ub, int_vars)
     perm = sortperm(x)
@@ -467,7 +467,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
     if cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
         @debug "No heuristics improvement possible, bounds already reached, N=$(N), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
-        return [z], false
+        return [z], true
     end
 
 
@@ -476,7 +476,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
             z = remove_from_max(z, tlmo.blmo.lower_bounds, tree.branching_indices)
         end
     end
-    return [z], true
+    return [z], false
 end
 
 function is_simple_inface_feasible_subroutine(sblmo::SimpleBoundableLMO, a, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-5, kwargs...)

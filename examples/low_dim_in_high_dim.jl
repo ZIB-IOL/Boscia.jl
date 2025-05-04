@@ -8,6 +8,11 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # The example from  "Optimizing a low-dimensional convex function over a high-dimensional cube"
 # by Christoph Hunkenschröder, Sebastian Pokutta, Robert Weismantel
@@ -17,8 +22,8 @@ m = 500 # larger dimension
 n = 12 # small dimension
 
 alpha = 0.00
-const refpoint = 0.5 * ones(n) + Random.rand(n) * alpha * 1 / n
-W = rand(m, n)
+const refpoint = 0.5 * ones(n) + rand(rng, n) * alpha * 1 / n
+W = rand(rng, m, n)
 const Ws = transpose(W) * W
 
 function f(x)

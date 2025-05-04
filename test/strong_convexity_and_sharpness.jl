@@ -3,6 +3,7 @@ using Test
 using Random
 using LinearAlgebra
 using FrankWolfe
+using StableRNGs
 
 ## Log barrier
 # min_x - ∑ log(xi + ϵ) - log(N - ∑ xi + ϵ)
@@ -18,8 +19,9 @@ using FrankWolfe
 # Sharpness: M = sqrt(2/μ), θ = 1/2 
 
 
-seed = 0x5526f8e0e9a68f36
-Random.seed!(seed)
+seed = rand(UInt64)
+@show seed  
+rng = StableRNG(seed)
 
 @testset "Strong convexity" begin
 
@@ -79,11 +81,11 @@ Random.seed!(seed)
     @testset "General convex quadratic" begin
         n = 20
         N = Int(floor(n/2))
-        Q = rand(n, n)
+        Q = rand(rng, n, n)
         Q = Q' * Q 
         @assert isposdef(Q)
 
-        b = rand(n)
+        b = rand(rng, n)
 
         function f(x)
             return 1/2 * x' * Q * x - b' * x
@@ -177,11 +179,11 @@ end
     @testset "General convex quadratic" begin
         n = 20
         N = Int(floor(n/2))
-        Q = rand(n, n)
+        Q = rand(rng, n, n)
         Q = Q' * Q 
         @assert isposdef(Q)
 
-        b = rand(n)
+        b = rand(rng, n)
 
         function f(x)
             return 1/2 * x' * Q * x - b' * x

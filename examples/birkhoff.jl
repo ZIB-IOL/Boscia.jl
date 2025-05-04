@@ -7,6 +7,11 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Example on the Birkhoff polytope but using permutation matrices directly
 # https://arxiv.org/pdf/2011.02752.pdf
@@ -31,7 +36,7 @@ n = 3
 k = 2
 
 # generate random doubly stochastic matrix
-const Xstar = rand(n, n)
+const Xstar = rand(rng, n, n)
 while norm(sum(Xstar, dims=1) .- 1) > 1e-6 || norm(sum(Xstar, dims=2) .- 1) > 1e-6
     Xstar ./= sum(Xstar, dims=1)
     Xstar ./= sum(Xstar, dims=2)

@@ -10,6 +10,11 @@ import MathOptInterface
 const MOI = MathOptInterface
 using Dates
 using Printf
+using StableRNGs
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 # Lasso
 
@@ -27,13 +32,13 @@ M_g = 5.0
 
 const lambda_0_g = 0.0
 const lambda_2_g = 0.0
-const A_g = rand(Float64, n, p)
-β_sol = rand(Distributions.Uniform(-M_g, M_g), p)
+const A_g = rand(rng, Float64, n, p)
+β_sol = rand(rng, Distributions.Uniform(-M_g, M_g), p)
 k_int = convert(Int64, k)
 
 for i in 1:k_int
     for _ in 1:group_size-1
-        β_sol[rand(((i-1)*group_size+1):(i*group_size))] = 0
+        β_sol[rand(rng, ((i-1)*group_size+1):(i*group_size))] = 0
     end
 end
 const y_g = A_g * β_sol

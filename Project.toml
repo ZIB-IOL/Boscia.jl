@@ -1,7 +1,7 @@
 name = "Boscia"
 uuid = "36b166db-dac5-4d05-b36a-e6c4cef071c9"
 authors = ["ZIB IOL"]
-version = "0.1.34"
+version = "0.1.35"
 
 [deps]
 Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
@@ -30,7 +30,7 @@ DataStructures = "0.18"
 Dates = "1.6"
 Distributions = "0.25"
 DoubleFloats = "1"
-FrankWolfe = "0.4"
+FrankWolfe = "0.5"
 HiGHS = "1"
 LinearAlgebra = "1.6"
 MathOptInterface = "1"
@@ -47,6 +47,7 @@ DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 
 [targets]
-test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats"]
+test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats", "StableRNGs"]
