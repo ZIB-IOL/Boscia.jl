@@ -25,6 +25,10 @@ function solve_frank_wolfe end
 build_frank_wolfe_workspace(::FrankWolfeVariant, x) = nothing
 
 
+function Base.convert(::Type{V1}, v2::V2) where {V1<:FrankWolfeVariant, V2<:FrankWolfeVariant}
+    return V1()
+end
+
 """
 	Away-Frank-Wolfe
 
@@ -271,6 +275,9 @@ Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 """
 	Vanilla-Frank-Wolfe
 
+The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing ∇f * (x-v) is computed. 
+
+Lazification cannot be used in this setting.
 """
 struct VanillaFrankWolfe <: FrankWolfeVariant end
 
@@ -294,24 +301,23 @@ function solve_frank_wolfe(
     workspace=nothing,
     kwargs...,
 )
+    # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
         grad!,
         lmo,
         active_set,
+        away_steps=false,
         epsilon=epsilon,
         max_iteration=max_iteration,
         line_search=line_search,
         callback=callback,
-        lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
         timeout=timeout,
         add_dropped_vertices=add_dropped_vertices,
         use_extra_vertex_storage=use_extra_vertex_storage,
         extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
-        away_steps=false,
     )
 	return x, primal, dual_gap, active_set
 end
