@@ -1,5 +1,7 @@
 """
-Supertype for the Bounded Linear Minimization Oracles (BLMO).
+    BLMO
+
+Supertype for the Bounded Linear Minimization Oracles
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end
 
@@ -101,7 +103,6 @@ function is_linear_feasible end
 Has variable an integer constraint?
 """
 function has_integer_constraint end
-
 
 
 
