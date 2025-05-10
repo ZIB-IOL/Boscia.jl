@@ -6,9 +6,8 @@ using Random
 using SCIP
 using HiGHS
 using LinearAlgebra
-using Distributions
-using CSV
-using DataFrames
+# using Distributions
+
 import MathOptInterface
 const MOI = MathOptInterface
 
