@@ -481,8 +481,8 @@ end
 
 Find best solution from the solving process.
 """
-function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
-    return find_best_solution(f, blmo.o, vars, domain_oracle)
+function find_best_solution(tree::Bonobo.BnBTree, f::Function, blmo::MathOptBLMO, vars, domain_oracle)
+    return find_best_solution(tree, f, blmo.o, vars, domain_oracle)
 end
 
 """
@@ -492,6 +492,7 @@ Finds the best solution in the Optimizer's solution storage, based on the object
 Returns the solution vector and the corresponding best value.
 """
 function find_best_solution(
+    tree::Bonobo.BnBTree,
     f::Function,
     o::MOI.AbstractOptimizer,
     vars::Vector{MOI.VariableIndex},
@@ -505,6 +506,10 @@ function find_best_solution(
         xv = [MOI.get(o, MOI.VariablePrimal(sol_idx), xi) for xi in vars]
         if domain_oracle(xv)
             val = f(xv)
+            if tree.root.options[:add_all_solutions]
+                node = tree.nodes[tree.root.current_node_id[]]
+                add_new_solution!(tree, node, val, xv, :MIPSolver)
+            end
             if val < best_val
                 best_val = val
                 best_v = xv
@@ -515,7 +520,7 @@ function find_best_solution(
 end
 
 """
-     get_variables_pointers(blmo::MathOptBLMO, tree)
+    get_variables_pointers(blmo, tree)
 
 List of all variable pointers. Depends on how you save your variables internally.
 Is used in `find_best_solution`.
@@ -737,9 +742,11 @@ function solve(
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
     time_limit=Inf,
+    node_limit=Inf,
     print_iter=100,
     dual_gap_decay_factor=0.8,
     max_fw_iter=10000,
+    fw_timeout=Inf,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
     use_postsolve=true,
@@ -757,9 +764,14 @@ function solve(
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
+    post_heuristics_callback=nothing,
     rounding_prob=1.0, 
     clean_solutions=false, 
     max_clean_iter=10,
+    no_pruning=false,
+    ignore_lower_bound=false,
+    add_all_solutions=false,
+    propagate_bounds=nothing,
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
@@ -777,9 +789,11 @@ function solve(
         dual_gap=dual_gap,
         rel_dual_gap=rel_dual_gap,
         time_limit=time_limit,
+        node_limit=node_limit,
         print_iter=print_iter,
         dual_gap_decay_factor=dual_gap_decay_factor,
         max_fw_iter=max_fw_iter,
+        fw_timeout=fw_timeout,
         min_number_lower=min_number_lower,
         min_node_fw_epsilon=min_node_fw_epsilon,
         use_postsolve=use_postsolve,
@@ -797,9 +811,14 @@ function solve(
         fw_verbose=fw_verbose,
         use_shadow_set=use_shadow_set,
         custom_heuristics=custom_heuristics,
+        post_heuristics_callback=post_heuristics_callback,
         rounding_prob=rounding_prob,
         clean_solutions=clean_solutions,
         max_clean_iter=max_clean_iter,
+        no_pruning=no_pruning,
+        ignore_lower_bound=ignore_lower_bound,
+        add_all_solutions=add_all_solutions,
+        propagate_bounds=propagate_bounds,
         kwargs...,
     )
 end
