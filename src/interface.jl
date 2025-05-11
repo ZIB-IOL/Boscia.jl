@@ -77,6 +77,7 @@ function solve(
     print_iter=100,
     dual_gap_decay_factor=0.8,
     max_fw_iter=10000,
+    fw_timeout=Inf,
     min_number_lower=Inf,
     min_node_fw_epsilon=1e-6,
     use_postsolve=true,
@@ -94,21 +95,27 @@ function solve(
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
+    post_heuristics_callback=nothing,
     rounding_prob=1.0,
     clean_solutions=false,
     max_clean_iter=10,
+    no_pruning=false,
+    ignore_lower_bound=false,
+    add_all_solutions=false,
+    propagate_bounds=nothing,
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
     build_dicg_start_point = trivial_build_dicg_start_point,
     kwargs...,
 )
+    time_ref = Dates.now()
+
     if variant == DICG()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
         end
     end
-    
     if verbose
         println("\nBoscia Algorithm.\n")
         println("Parameter settings.")
@@ -134,10 +141,10 @@ function solve(
         push!(integer_variables, c_idx)
         num_int += 1
     end
-    time_lmo = TimeTrackingLMO(blmo, integer_variables)
+    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, time_limit)
 
     if num_int == 0
-        error("No integer variables detected! Please use an MIP solver!")
+        @warn("No integer variables detected! Please use an MIP solver!")
     end
 
     if verbose
@@ -191,6 +198,12 @@ function solve(
     # Create standard heuristics
     heuristics = vcat([Heuristic(rounding_heuristic, rounding_prob, :rounding)], custom_heuristics)
 
+    # If we cannot trust the lower bound, we also shouldn't do any tighening.
+    if ignore_lower_bound
+        dual_tightening=false
+        global_dual_tightening=false
+    end
+
     Node = typeof(nodeEx)
     Value = Vector{Float64}
     tree = Bonobo.initialize(;
@@ -220,6 +233,7 @@ function solve(
                 :lineSearch => line_search,
                 :min_node_fw_epsilon => min_node_fw_epsilon,
                 :max_fw_iter => max_fw_iter,
+                :fw_timeout => fw_timeout,
                 :print_iter => print_iter,
                 :strong_convexity => strong_convexity,
                 :sharpness_constant => sharpness_constant,
@@ -230,9 +244,14 @@ function solve(
                 :variant => variant,
                 :use_shadow_set => use_shadow_set,
                 :heuristics => heuristics,
+                :post_heuristics_callback => post_heuristics_callback,
                 :heu_ncalls => 0,
                 :max_clean_iter => max_clean_iter,
                 :clean_solutions => clean_solutions,
+                :no_pruning => no_pruning,
+                :ignore_lower_bound => ignore_lower_bound,
+                :add_all_solutions => add_all_solutions,
+                :propagate_bounds => propagate_bounds,
                 :use_strong_lazy => use_strong_lazy,
                 :use_strong_warm_start => use_strong_warm_start,
                 :use_strong_lazy => use_strong_lazy,
@@ -287,7 +306,6 @@ function solve(
     lmo_calls_per_layer = Vector{Vector{Int}}()
     active_set_size_per_layer = Vector{Vector{Int}}()
     discarded_set_size_per_layer = Vector{Vector{Int}}()
-    time_ref = Dates.now()
     global_tightenings = Int[]
     local_tightenings = Int[]
     local_potential_tightenings = Int[]
