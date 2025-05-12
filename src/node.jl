@@ -268,6 +268,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
+    end
 
     if tree.root.options[:propagate_bounds] !== nothing
         tree.root.options[:propagate_bounds](tree, node)
