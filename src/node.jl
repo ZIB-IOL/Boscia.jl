@@ -302,13 +302,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         # update active set of the node
         node.active_set = atoms_set
     else
-	# update set of computed atoms and active set
-        if isa(x, Vector)
-            node.pre_computed_set = atoms_set
-            node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
-        else
-            return NaN, NaN
-        end
+        node.pre_computed_set = atoms_set
+        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
     end
     
     node.fw_time = Dates.now() - time_ref
