@@ -141,7 +141,7 @@ function solve(
         push!(integer_variables, c_idx)
         num_int += 1
     end
-    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, time_limit)
+    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, Float64(time_limit))
 
     if num_int == 0
         @warn("No integer variables detected! Please use an MIP solver!")
