@@ -4,6 +4,7 @@ mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value,T<:Real} <:
     solution::Value
     node::Node
     source::Symbol
+    time::Float64
 end
 
 """
@@ -20,7 +21,7 @@ mutable struct NodeInfo{T<:Real}
     ub::T
 end
 
-function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
+function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where T<:Real
     return NodeInfo(std.id, T(std.lb), T(std.ub))
 end
 
@@ -61,6 +62,7 @@ mutable struct FrankWolfeNode{
     dual_gap::Float64
     pre_computed_set::Any
 end
+
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
@@ -76,7 +78,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     @assert isfinite(lower_bound_base)
 
     # In case of strong convexity, check if a child can be pruned
-    prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
+    prune_left, prune_right = if !tree.root.options[:no_pruning]
+        prune_children(tree, node, lower_bound_base, x, vidx)
+    else
+        false, false
+    end
 
     #different ways to split active set
     if tree.root.options[:variant] != DICG()
@@ -89,7 +95,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set_left, active_set_right =
             split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     else
-
         if node.pre_computed_set !== nothing
             # Split pre_computed_set
             pre_computed_set_left, pre_computed_set_right =
@@ -285,6 +290,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
         verbose=tree.root.options[:fwVerbose],
+        timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
 	domain_oracle = domain_oracle,
         use_strong_lazy = tree.root.options[:use_strong_lazy],
@@ -319,6 +325,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # improvement of the lower bound using strong convexity
     lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
 
+    # Call heuristic 
+    run_heuristics(tree, x, tree.root.options[:heuristics])
+
     # Found an upper bound
     if is_integer_feasible(tree, x)
         node.ub = primal
@@ -326,14 +335,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return lower_bound, primal
         # Sanity check: If the incumbent is better than the lower bound of the root node
         # and the root node is not integer feasible, something is off!
-    elseif node.id == 1
+    elseif node.id == 1 && !tree.root.options[:ignore_lower_bound]
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + dual_gap "lower_bound <= tree.incumbent + dual_gap : $(lower_bound) <= $(tree.incumbent + dual_gap)"
     end
 
-    # Call heuristic 
-    run_heuristics(tree, x, tree.root.options[:heuristics])
+
+    if tree.root.options[:ignore_lower_bound]
+        return -Inf, NaN
+    end
 
     return lower_bound, NaN
 end
