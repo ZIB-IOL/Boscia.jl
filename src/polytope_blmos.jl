@@ -29,7 +29,7 @@ end
 
 function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
     for i in setdiff(eachindex(v), sblmo.int_vars)
-        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6) || !(v[i] - 1e-6 ≤ sblmo.upper_bounds[i])
+        if !(sblmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ blmo.upper_bounds[i]))
             @debug(
                 "Vertex entry: $(v[i]) Lower bound: $(blmo.bounds[i, :greaterthan]) Upper bound: $(blmo.bounds[i, :lessthan]))"
             )
@@ -247,7 +247,7 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     end
 
     if count(!iszero, z[tree.branching_indices]) == 0
-        return [z], true
+        return [z], false
     end
 
     N = tlmo.blmo.simple_lmo.N
@@ -497,4 +497,94 @@ function is_simple_inface_feasible_subroutine(sblmo::SimpleBoundableLMO, a, x, l
         end
     end
     return true
+end
+
+"""
+    ReverseKnapsackBLMO(N, upper_bounds)
+
+BLMO denotes the reverse Knapsack constraint: ∑ x ≥ N.
+We assume x ≥ 0. 
+Explicit upper bounds are needed, otherwise the feasible region is unbounded.
+"""
+struct ReverseKnapsackBLMO <: SimpleBoundableLMO
+    N::Float64
+    upper_bounds::Vector{Float64}
+end
+
+# Have the same upper bounds for all variables
+function ReverseKnapsackBLMO(size; N=1.0, upper=1.0) 
+    return ReverseKnapsackBLMO(N, fill(upper, size))
+end
+
+"""
+Entries corresponding to non positive entries in d, are assigned their upper bound.
+"""
+function bounded_compute_extreme_point(sblmo::ReverseKnapsackBLMO, d, lb, ub, int_vars; kwargs...)
+    v = copy(sblmo.upper_bounds)
+    v[int_vars] = min.(v[int_vars], ub)
+    
+    idx_pos = findall(x -> x > 0, d)
+    #v[idx_pos] = 0.0
+    #v[intersect(idx_pos, int_vars)] = lb
+
+    perm = sortperm(d[idx_pos], rev=true)
+    for i in idx_pos[perm]
+        if i in int_vars
+            v[i] += max(sblmo.N - sum(v), lb[i] - ub[i], -v[i]) 
+        else
+            v[i] += max(N - sum(v), -v[i])
+        end
+    end
+    return v
+end
+
+function is_simple_linear_feasible(sblmo::ReverseKnapsackBLMO, v)
+    if sum(v .≥ 0) < length(v)
+        @debug "v has negative entries: $(v)"
+        return false
+    end
+    if sum(v .<= sblmo.upper_bounds) < length(v)
+        @debug begin
+            idxs = findall(x -> x == 0, v .<= sblmo.upper_bounds)
+            @info "vertex violates the upper bounds at indices $(idxs), upper bounds: $(sblmo.upper_bounds[idxs]), v: $(v[idxs])"
+        end
+    end
+    return sum(v) ≥ sblmo.N - 1e-4
+end
+
+function check_feasibility(sblmo::ReverseKnapsackBLMO, lb, ub, int_vars, n)
+    u = copy(sblmo.upper_bounds)
+    u[int_vars] = min.(u[int_vars], ub)
+
+    if sum(u) ≥ sblmo.N
+        return OPTIMAL
+    else
+        return INFEASIBLE
+    end
+end
+
+"""
+Hyperplane-aware rounding for the reverse knapsack constraint.
+"""
+function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ReverseKnapsackBLMO}}, x)
+    z = copy(x)
+    for idx in tree.branching_indices
+        z[idx] = round(x[idx])
+    end
+    
+    N = tlmo.blmo.simple_lmo.N
+
+    non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
+    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N
+        @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
+        return [z], true
+    end
+
+    if sum(z) < N
+        while sum(z) < N
+            z = add_to_min(z, tlmo.blmo.upper_bounds, tree.branching_indices)
+        end
+    end
+    return [z], false
 end
