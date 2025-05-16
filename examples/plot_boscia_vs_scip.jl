@@ -58,8 +58,7 @@ function plot_boscia_vs_scip(example)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
-    \usepackage{libertine}
-    \usepackage{libertinust1math}
+    \usepackage{newtxtext}
     """)
     ax = fig.add_subplot(111)
 

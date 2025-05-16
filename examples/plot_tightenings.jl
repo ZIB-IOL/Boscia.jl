@@ -65,8 +65,7 @@ function plot(example, setup)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
-    \usepackage{libertine}
-    \usepackage{libertinust1math}
+    \usepackage{newtxtext}
     """)
 
     if example != "sc_neos5" && example != "sc_ran14x18" && example != "ss"

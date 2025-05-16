@@ -226,8 +226,7 @@ if compare_mode == "adaptive_gap"
     PyPlot.matplotlib[:rc]("font", size=10, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=10)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
-    \usepackage{libertine}
-    \usepackage{libertinust1math}
+    \usepackage{newtxtext}
     """)
     ax = fig.add_subplot(111)
     ax.plot(1:length(df[!,"num_nodes"]), df_2[!,"time"]./1000, label="0.001", color=colors[1], marker=markers[1])

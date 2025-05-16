@@ -69,7 +69,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
     PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
-    \usepackage{libertine}
+    \usepackage{newtxtext}
     """)
     #\usepackage{libertinust1math}
     ax = fig.add_subplot(111)
