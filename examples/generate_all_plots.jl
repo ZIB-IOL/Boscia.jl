@@ -89,7 +89,7 @@ println("\nGenerating appendix figures...")
 println("Generating Figures 14-22...")
 # Figures 14-22 - Comparison plots for all examples
 for example in ["portfolio_integer", "portfolio_mixed", "poisson_reg", "sparse_reg", "sparse_log_reg", 
-                "tailed_cardinality", "tailed_cardinality_sparse_log_reg", "miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8"]
+                "tailed_cardinality", "tailed_cardinality_sparse_log_reg", "miplib_22433", "miplib_neos5"]
     println("Generating comparison plots for $example...")
     plot_boscia_vs_pavito(example, use_shot=true)
     plot_boscia_vs_scip(example)
