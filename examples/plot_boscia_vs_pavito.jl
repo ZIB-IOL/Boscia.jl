@@ -86,7 +86,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         time_boscia = sort(df_boscia[!,"timeBoscia"])
         push!(time_boscia, 1.1 * time_limit)
         if !isempty(df_boscia)
-            ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=colors[1], marker=markers[1], markevery=0.1)
+            ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Boscia", color=cb_green_lime, marker=markers[1], markevery=0.05)
         end
     end
 
@@ -99,7 +99,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         time_scip = sort(df_scip[!,"timeScipOA"])
         push!(time_scip, 1.1 * time_limit)
         if !isempty(df_scip)
-            ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=colors[end], marker=markers[2], markevery=0.1)
+            ax.plot(time_scip, [1:nrow(df_scip); nrow(df_scip)], label="SCIP+OA", color=cb_clay, marker=markers[2], markevery=0.05)
         end
     end 
 
@@ -112,7 +112,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         time_ipopt = sort(df_ipopt[!,"timeIpopt"])
         push!(time_ipopt, 1.1 * time_limit)
         if !isempty(df_ipopt)
-            ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=colors[2], marker=markers[3], markevery=0.1)
+            ax.plot(time_ipopt, [1:nrow(df_ipopt); nrow(df_ipopt)], label="BnB Ipopt", color=cb_blue, marker=markers[3], markevery=0.05)
         end
     end 
 
@@ -130,7 +130,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         time_pavito = sort(df_pavito[!,"timePavito"])
         push!(time_pavito, 1.1 * time_limit)
         if !isempty(df_pavito)
-            ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=colors[3], marker=markers[4], markevery=0.1)
+            ax.plot(time_pavito, [1:nrow(df_pavito); nrow(df_pavito)], label="Pavito", color=cb_lilac, marker=markers[4], markevery=0.05)
         end
     end 
 
@@ -143,7 +143,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
         time_shot = sort(df_shot[!,"timeShot"])
         push!(time_shot, 1.1 * time_limit)
         if !isempty(df_shot)
-            ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=colors[4], marker=markers[5], markevery=0.1)
+            ax.plot(time_shot, [1:nrow(df_shot); nrow(df_shot)], label="SHOT", color=cb_brown, marker=markers[5], markevery=0.05)
         end
     end 
 println("Set up labels and title")

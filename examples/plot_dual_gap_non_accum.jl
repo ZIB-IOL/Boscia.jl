@@ -78,8 +78,8 @@ PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
 """)
 
 ax = fig.add_subplot(111)
-lns1 = ax.plot(1:len, df[!,"upperBound"], label="Incumbent", color=colors[end], marker=markers[2], markevery=0.05)
-lns2 = ax.plot(1:len, df[!,"lowerBound"], label="Lower bound", color=colors[4], marker=markers[3], markevery=0.05)
+lns1 = ax.plot(1:len, df[!,"upperBound"], label="Incumbent", color=cb_green_sea, marker=markers[2], markevery=0.05)
+lns2 = ax.plot(1:len, df[!,"lowerBound"], label="Lower bound", color=cb_clay, marker=markers[3], markevery=0.05)
 #ax.plot(1:length(df2[!,"ub"]), df2[!,"lb"], label="Lower bound, adaptive gap = 0.65", color=colors[4], linestyle="dashed")
 xlabel("Number of nodes")
 #xticks(range(1, len, step=50))
@@ -93,9 +93,9 @@ total_lmo_calls = df[!, "LMOcalls"]
 previous_lmo_calls = [0]
 append!(previous_lmo_calls, total_lmo_calls[1:end-1])
 lmo_calls_non_accum = total_lmo_calls - previous_lmo_calls
-ax2.plot(1:len, lmo_calls_non_accum, label="BLMO calls", color=colors[1], marker=markers[1], markevery=0.05, alpha=0.5)
-ylabel("BLMO calls", Dict("color"=>colors[1]))
-setp(ax2.get_yticklabels(),color=colors[1])
+ax2.plot(1:len, lmo_calls_non_accum, label="BLMO calls", color=cb_lilac, marker=markers[1], markevery=0.05, alpha=0.5)
+ylabel("BLMO calls", Dict("color"=>cb_lilac))
+setp(ax2.get_yticklabels(),color=cb_lilac)
 
 #PyPlot.title(title)
 ax.grid()

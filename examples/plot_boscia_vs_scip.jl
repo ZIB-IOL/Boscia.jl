@@ -75,7 +75,7 @@ function plot_boscia_vs_scip(example)
         #end
         time_boscia = sort(df_boscia[!,"timeBoscia"])
         push!(time_boscia, 1.1 * time_limit)
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Default", color=colors[1], marker=markers[1], markevery=0.1)
+        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Default", color=cb_burgundy, marker=markers[1], markevery=0.05)
     end
 
     if afw 
@@ -83,7 +83,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_Afw == 0),  df_afw)
         time_afw = sort(df_afw[!,"timeBoscia_Afw"])
         push!(time_afw, 1.1 * time_limit)
-        ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=colors[4], marker=markers[3], markevery=0.1)
+        ax.plot(time_afw, [1:nrow(df_afw); nrow(df_afw)], label="AFW", color=cb_salmon_pink, marker=markers[3], markevery=0.05)
     end
 
     if ss 
@@ -91,7 +91,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_Ss == 0), df_ss)
         time_ss = sort(df_ss[!,"timeBoscia_No_Ss"])
         push!(time_ss, 1.1 * time_limit)
-        ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=colors[5], marker=markers[4], markevery=0.1)
+        ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=cb_green_lime, marker=markers[4], markevery=0.05)
     end
 
     if as 
@@ -99,7 +99,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_As == 0), df_as)
         time_as = sort(df_as[!,"timeBoscia_No_As"])
         push!(time_as, 1.1 * time_limit)
-        ax.plot(time_as, [1:nrow(df_as); nrow(df_as)], label="no warm start", color=colors[6], marker=markers[5], markevery=0.1)
+        ax.plot(time_as, [1:nrow(df_as); nrow(df_as)], label="no warm start", color=cb_blue_green, marker=markers[5], markevery=0.05)
     end
 
     if as_ss 
@@ -107,7 +107,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_As_No_Ss == 0), df_as_ss)
         time_as_ss = sort(df_as_ss[!,"timeBoscia_No_As_No_Ss"])
         push!(time_as_ss, 1.1 * time_limit)
-        ax.plot(time_as_ss, [1:nrow(df_as_ss); nrow(df_as_ss)], label="no warm start \nand no shadow set", color=colors[7], marker=markers[6], markevery=0.1)
+        ax.plot(time_as_ss, [1:nrow(df_as_ss); nrow(df_as_ss)], label="no warm start \nand no shadow set", color=cb_lilac, marker=markers[6], markevery=0.05)
     end
 
     ylabel("Solved instances")

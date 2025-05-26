@@ -50,15 +50,15 @@ function dual_gap_plot(example, seed, dim, mode)
     number_of_nodes = [i for i in 1:len]
 
     if mode == "nodes"
-        ax.plot(1:len1, df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
-        ax.plot(1:len2, df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
-        ax.plot(1:len3, df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
+        ax.plot(1:len1, df1[1:len1,"lowerBound"], label="Hybrid", color=cb_clay, marker=markers[1], markevery=0.05) 
+        ax.plot(1:len2, df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=cb_lilac, marker=markers[2], markevery=0.05)
+        ax.plot(1:len3, df3[1:len3,"lowerBound"], label="Strong", color=cb_blue, marker=markers[3], markevery=0.05)
         ax.set(xlabel="Number of nodes", ylabel="Lower bound")
 
         ymin = minimum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
         ymax = maximum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
 
-        ax.vlines(x=switch, ymin=ymin, ymax=ymax,  label = "Switch", color=colors[7], linestyle = :dotted)
+        ax.vlines(x=switch, ymin=ymin, ymax=ymax,  label = "Switch", color=cb_black, linestyle = :dotted)
 
        #= if example == "int_sparse_reg" 
             ax.vlines(x=switch, ymin=1620, ymax=1720,  label = "Switch", color=colors[7], linestyle = :dotted)
@@ -69,9 +69,9 @@ function dual_gap_plot(example, seed, dim, mode)
         end =#
 
     elseif mode == "time"
-        ax.plot(df1[1:len1,"time"]./ 1000, df1[1:len1,"lowerBound"], label="Hybrid", color=colors[1], marker=markers[1], markevery=0.05) 
-        ax.plot(df2[1:len2,"time"]./ 1000, df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=colors[end], marker=markers[2], markevery=0.05)
-        ax.plot(df3[1:len3,"time"]./ 1000, df3[1:len3,"lowerBound"], label="Strong", color=colors[4], marker=markers[3], markevery=0.05)
+        ax.plot(df1[1:len1,"time"]./ 1000, df1[1:len1,"lowerBound"], label="Hybrid", color=cb_clay, marker=markers[1], markevery=0.05) 
+        ax.plot(df2[1:len2,"time"]./ 1000, df2[1:len2,"lowerBound"], label="Most \ninfeasible", color=cb_lilac, marker=markers[2], markevery=0.05)
+        ax.plot(df3[1:len3,"time"]./ 1000, df3[1:len3,"lowerBound"], label="Strong", color=cb_blue, marker=markers[3], markevery=0.05)
         ax.set(xlabel="Time (s)", ylabel="Lower bound")
 
         ymin = minimum(vcat(df1[!,:lowerBound], df2[!,:lowerBound], df3[!,:lowerBound])) 
