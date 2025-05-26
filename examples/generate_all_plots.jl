@@ -123,10 +123,10 @@ dual_gap_plot(file, mode)
 file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(15) * "_" * string(7) * "_sparse_reg.csv")
 plot_progress_lmo(file, mode)
 
-file = joinpath(@__DIR__, "csv/" * mode * "_" * string(20) * "_" * string(9) * "_mixed_portfolio.csv")
+file = joinpath(@__DIR__, "csv/" * mode * "_" * string(55) * "_" * string(4) * "_mixed_portfolio.csv")
 plot_progress_lmo(file, mode)
 
-file = joinpath(@__DIR__, "csv/" * mode * "_" * string(55) * "_" * string(4) * "_integer_portfolio.csv")
+file = joinpath(@__DIR__, "csv/" * mode * "_" * string(20) * "_" * string(9) * "_integer_portfolio.csv")
 plot_progress_lmo(file, mode)
 
 var_A = 5
