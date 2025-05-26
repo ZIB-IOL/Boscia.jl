@@ -111,29 +111,29 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     ub_ipopt_int = findfirst(isfinite, df_ipopt[!,"upperBound"])
 
     if example == "22433" || example == "pg5_34"
-        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Default LB", color=colors[1], marker=markers[1], linestyle="dashed", linewidth=1.0)
-        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Default UB", color=colors[1], linestyle="dashdot", linewidth=3.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Default LB", color=cb_rose, marker=markers[1], linestyle="dashed", linewidth=1.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Default UB", color=cb_rose, linestyle="dashdot", linewidth=3.0)
     else
-        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Default LB", color=colors[1], marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
-        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Default UB", color=colors[1], linestyle="dashdot", markevery=0.05, linewidth=2.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"lowerBound"], label="Default LB", color=cb_rose, marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
+        axs[1].plot(df_boscia[!,"time"], df_boscia[!,"upperBound"], label="Default UB", color=cb_rose, linestyle="dashdot", markevery=0.05, linewidth=2.0)
     end
-    axs[1].plot(df_ipopt[1:end-1,"time"], df_ipopt[1:end-1,"lowerBound"], label="Strong convexity LB", color=colors[2], marker=markers[2], markevery=0.05, linewidth=1.0)
+    axs[1].plot(df_ipopt[1:end-1,"time"], df_ipopt[1:end-1,"lowerBound"], label="Strong convexity LB", color=cb_green_sea, marker=markers[2], markevery=0.05, linewidth=1.0)
     if ub_ipopt_int !== nothing
-        axs[1].plot(df_ipopt[ub_ipopt_int:end-1,"time"], df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="Strong convexity UB", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
+        axs[1].plot(df_ipopt[ub_ipopt_int:end-1,"time"], df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="Strong convexity UB", color=cb_green_sea, linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
     axs[1].set(xlabel="Time (s)", ylabel ="Objective value")
     axs[1].grid()
 
     if example == "22433" || example == "pg5_34"
-        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=colors[1], marker=markers[1], linestyle="dashed", linewidth=1.0)
-        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=colors[1], linestyle="dashdot", linewidth=3.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=cb_rose, marker=markers[1], linestyle="dashed", linewidth=1.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=cb_rose, linestyle="dashdot", linewidth=3.0)
     else
-        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=colors[1], marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
-        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=colors[1], linestyle="dashdot", markevery=0.05, linewidth=2.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"lowerBound"], label="", color=cb_rose, marker=markers[1], linestyle="dashed", markevery=0.05, linewidth=1.0)
+        axs[2].plot(1:len_boscia, df_boscia[!,"upperBound"], label="", color=cb_rose, linestyle="dashdot", markevery=0.05, linewidth=2.0)
     end
-    axs[2].plot(1:len_ipopt-1, df_ipopt[1:end-1,"lowerBound"], label="", color=colors[2], marker=markers[2], markevery=0.05, linewidth=1.0)
+    axs[2].plot(1:len_ipopt-1, df_ipopt[1:end-1,"lowerBound"], label="", color=cb_green_sea, marker=markers[2], markevery=0.05, linewidth=1.0)
     if ub_ipopt_int !== nothing
-        axs[2].plot(ub_ipopt_int:len_ipopt-1, df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="", color=colors[2], linestyle="dotted", markevery=0.05, linewidth=2.0)
+        axs[2].plot(ub_ipopt_int:len_ipopt-1, df_ipopt[ub_ipopt_int:end-1,"upperBound"], label="", color=cb_green_sea, linestyle="dotted", markevery=0.05, linewidth=2.0)
     end
     axs[2].set(xlabel="Numder of nodes", ylabel ="Objective value")
     axs[2].grid()
