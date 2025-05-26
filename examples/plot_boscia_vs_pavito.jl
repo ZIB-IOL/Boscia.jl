@@ -67,7 +67,7 @@ function plot_boscia_vs_pavito(example; use_shot=true)
     fig = plt.figure(figsize=(7.3, 5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
-    PyPlot.matplotlib[:rc]("axes", labelsize=14)
+    PyPlot.matplotlib[:rc]("axes", labelsize=12)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{newtxtext}
     """)

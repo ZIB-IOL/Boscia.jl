@@ -28,7 +28,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     fig, axs = plt.subplots(2, sharex=false)
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
-    PyPlot.matplotlib[:rc]("axes", labelsize=14)
+    PyPlot.matplotlib[:rc]("axes", labelsize=12)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
         \usepackage{newtxtext}
     """)
@@ -70,7 +70,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     axs[2].set(xlabel="Number of nodes", ylabel ="Objective value")
     axs[2].grid()
 
-    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=11,   # bbox_to_anchor=(0.5, 0.05)
+    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=12,   # bbox_to_anchor=(0.5, 0.05)
             fancybox=true, shadow=false, ncol=6)
     
     fig.tight_layout()
@@ -96,7 +96,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     fig, axs = plt.subplots(2, sharex=false)
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
-    PyPlot.matplotlib[:rc]("axes", labelsize=14)
+    PyPlot.matplotlib[:rc]("axes", labelsize=12)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{newtxtext}
     """)
@@ -138,7 +138,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     axs[2].set(xlabel="Numder of nodes", ylabel ="Objective value")
     axs[2].grid()
 
-    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=11,   # bbox_to_anchor=(0.5, 0.05)
+    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=12,   # bbox_to_anchor=(0.5, 0.05)
             fancybox=true, shadow=false, ncol=6)
     
     fig.tight_layout()

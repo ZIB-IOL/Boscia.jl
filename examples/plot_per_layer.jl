@@ -91,7 +91,7 @@ function per_layer_plot(file_name, mode)
     fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
     PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
-    PyPlot.matplotlib[:rc]("axes", labelsize=14)
+    PyPlot.matplotlib[:rc]("axes", labelsize=12)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{newtxtext}
     """)
