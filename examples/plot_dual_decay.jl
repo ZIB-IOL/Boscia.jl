@@ -68,7 +68,7 @@ catch e
     return
 end
 end
-plot_dual_decay(27, 1)
+#plot_dual_decay(27, 1)
 
 #for dim in 15:30
 #    for seed in 1:3

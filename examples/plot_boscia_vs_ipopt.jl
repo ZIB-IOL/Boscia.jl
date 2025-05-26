@@ -145,10 +145,10 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
 
     savefig(file_name,  bbox_extra_artists=(lgd,), bbox_inches="tight")
 end
-plot_boscia_vs_ipopt("neos5", seed=1, num_v=6)
-plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=5)
-plot_boscia_vs_ipopt("neos5", seed=3, num_v=8)
-plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=8)
+#plot_boscia_vs_ipopt("neos5", seed=1, num_v=6)
+#plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=5)
+#plot_boscia_vs_ipopt("neos5", seed=3, num_v=8)
+#plot_boscia_vs_strong_convexity("neos5", seed=3, num_v=8)
 
 #for seed in 1:3
     #for num_v in 5:8

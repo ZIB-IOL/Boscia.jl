@@ -152,7 +152,7 @@ catch e
     println(e)
 end
 end 
-
+#=
 ## sparse regression
 modes = ["default"] # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
 
@@ -184,3 +184,4 @@ for mode in modes
         end
     end
 end 
+=#

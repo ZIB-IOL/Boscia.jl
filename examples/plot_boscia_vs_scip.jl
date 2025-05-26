@@ -156,9 +156,10 @@ function plot_boscia_vs_scip(example)
     end
     savefig(file)
 end
-
+#=
 examples = ["miplib_22433", "miplib_neos5", "miplib_pg5_34", "miplib_ran14x18-disj-8", "poisson_reg", "portfolio_integer", "portfolio_mixed", "sparse_log_reg", "sparse_reg", "tailed_cardinality", "tailed_cardinality_sparse_log_reg"]
 for example in examples
     @show example
     plot_boscia_vs_scip(example)
 end
+=#

@@ -109,7 +109,7 @@ catch e
     println(e)
 end
 end
-
+#=
 ## sparse regression
 # "no_tightening", "local_tigtening", "global_tightening", hybrid_branching_20", "strong_branching"
 example = "sparse_reg"
@@ -143,3 +143,4 @@ for mode in modes
         end
     end
 end
+=#
