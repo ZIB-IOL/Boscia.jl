@@ -54,7 +54,7 @@ plot_boscia_vs_ipopt("neos5", seed = 3, num_v = 8)
 
 println("Generating Figure 8...")
 # Figure 8 - Portfolio dual gap
-file_name = "csv/boscia_default_portfolio_10_35.csv"
+file_name = joinpath(@__DIR__, "csv/default_35_10_integer_portfolio.csv")
 dual_gap_plot(file_name, "default")
 
 println("Generating Figure 9...")
@@ -121,22 +121,22 @@ dual_gap_plot(file, mode)
 
 # Figures 23-27b - Non-accumulated dual gap plots
 file = joinpath(@__DIR__, "csv/boscia_" * mode * "_" * string(15) * "_" * string(7) * "_sparse_reg.csv")
-dual_gap_plot(file, mode)
+plot_progress_lmo(file, mode)
 
 file = joinpath(@__DIR__, "csv/" * mode * "_" * string(20) * "_" * string(9) * "_mixed_portfolio.csv")
-dual_gap_plot(file, mode)
+plot_progress_lmo(file, mode)
 
 file = joinpath(@__DIR__, "csv/" * mode * "_" * string(55) * "_" * string(4) * "_integer_portfolio.csv")
-dual_gap_plot(file, mode)
+plot_progress_lmo(file, mode)
 
 var_A = 5
 M = 0.1
 file = joinpath(@__DIR__, "csv/" * mode * "_" * "sparse_log_regression_" * string(5) * "_" * string(M) * "-" * string(var_A) * "_" * string(9) * ".csv")
-dual_gap_plot(file, mode)
+plot_progress_lmo(file, mode)
 
 ns = 10.0
 file = joinpath(@__DIR__, "csv/" * mode * "_" * "poisson_" * string(70) * "_" * string(ns) * "-" * string(70) * "_" * string(floor(70/2)) * "_" * string(1) * ".csv")
-dual_gap_plot(file, mode)
+plot_progress_lmo(file, mode)
 
 
 println("Generating Figures 28-30...")
@@ -164,7 +164,7 @@ println("Generating Figures 33-34...")
 # Figures 33-34 - Strong branching comparison
 for (example, seed, dim) in [
     ("sparse_reg", 9, 22),
-    ("mixed_portfolio", 2, 120)
+    ("integer_portfolio", 2, 120)
 ]
     dual_gap_plot("$(example)", seed, dim, "nodes")
     dual_gap_plot("$(example)", seed, dim, "time")
