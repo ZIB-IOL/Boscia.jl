@@ -71,7 +71,7 @@ function plot_boscia_vs_ipopt(example; seed = 1, num_v = 4)
     axs[2].grid()
 
     lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=12,   # bbox_to_anchor=(0.5, 0.05)
-            fancybox=true, shadow=false, ncol=6)
+            fancybox=true, shadow=false, ncol=2)
     
     fig.tight_layout()
 
@@ -139,7 +139,7 @@ function plot_boscia_vs_strong_convexity(example; seed = 1, num_v = 4)
     axs[2].grid()
 
     lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=12,   # bbox_to_anchor=(0.5, 0.05)
-            fancybox=true, shadow=false, ncol=6)
+            fancybox=true, shadow=false, ncol=2)
     
     fig.tight_layout()
 
