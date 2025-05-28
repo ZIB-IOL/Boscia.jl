@@ -75,7 +75,7 @@ function plot_boscia_vs_scip(example)
         #end
         time_boscia = sort(df_boscia[!,"timeBoscia"])
         push!(time_boscia, 1.1 * time_limit)
-        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Default", color=cb_burgundy, marker=markers[1], markevery=0.05)
+        ax.plot(time_boscia, [1:nrow(df_boscia); nrow(df_boscia)], label="Default", color=cb_green_lime, marker=markers[1], markevery=0.05)
     end
 
     if afw 
@@ -91,7 +91,7 @@ function plot_boscia_vs_scip(example)
         filter!(row -> !(row.terminationBoscia_No_Ss == 0), df_ss)
         time_ss = sort(df_ss[!,"timeBoscia_No_Ss"])
         push!(time_ss, 1.1 * time_limit)
-        ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=cb_green_lime, marker=markers[4], markevery=0.05)
+        ax.plot(time_ss, [1:nrow(df_ss); nrow(df_ss)], label="no shadow set", color=cb_burgundy, marker=markers[4], markevery=0.05)
     end
 
     if as 
