@@ -64,8 +64,8 @@ function dual_gap_plot(file_name, mode)
 
     fig = plt.figure(figsize=(6.5,3.5))
     PyPlot.matplotlib[:rc]("text", usetex=true)
-    PyPlot.matplotlib[:rc]("font", size=12, family="cursive")
-    PyPlot.matplotlib[:rc]("axes", labelsize=12)
+    PyPlot.matplotlib[:rc]("font", size=14, family="cursive")
+    PyPlot.matplotlib[:rc]("axes", labelsize=14)
     PyPlot.matplotlib[:rc]("text.latex", preamble=raw"""
     \usepackage{newtxtext}
     """)
@@ -89,7 +89,7 @@ function dual_gap_plot(file_name, mode)
     #PyPlot.title(title)
     ax.grid()
     #fig.legend(loc=7, fontsize=12)
-    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=12,
+    lgd = fig.legend(loc="upper center", bbox_to_anchor=(0.5, 0.05), fontsize=14,
             fancybox=true, shadow=false, ncol=3)
     fig.tight_layout()
     #fig.subplots_adjust(right=0.6) 
