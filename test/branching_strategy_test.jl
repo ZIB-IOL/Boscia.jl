@@ -316,3 +316,90 @@ end
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 end
+
+n = 10
+const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
+@testset "Strong branching" begin
+    function f(x)
+        return sum((x .- diff1) .^ 2)
+    end
+    function grad!(storage, x)
+        @. storage = 2 * (x - diff1)
+    end
+
+    lb = min(sum(round.(diff1)), sum(diff1)) - 0.1
+    ub = max(sum(round.(diff1)), sum(diff1)) + 0.1
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, n)
+    for xi in x
+        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, xi, MOI.LessThan(4.0))
+        MOI.add_constraint(o, xi, MOI.Integer()) # or MOI.Integer()
+    end
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.LessThan(ub),
+    )
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.GreaterThan(lb),
+    )
+    lmo = FrankWolfe.MathOptLMO(o)
+
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
+    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+
+    x, _, result_strong_branching =
+        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+
+    @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
+end
+
+@testset "Hybrid branching" begin
+    function f(x)
+        return sum((x .- diff1) .^ 2)
+    end
+    function grad!(storage, x)
+        @. storage = 2 * (x - diff1)
+    end
+
+    lb = min(sum(round.(diff1)), sum(diff1)) - 0.1
+    ub = max(sum(round.(diff1)), sum(diff1)) + 0.1
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, n)
+    for xi in x
+        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, xi, MOI.LessThan(4.0))
+        MOI.add_constraint(o, xi, MOI.Integer()) # or MOI.Integer()
+    end
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.LessThan(ub),
+    )
+    MOI.add_constraint(
+        o,
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
+        MOI.GreaterThan(lb),
+    )
+    lmo = FrankWolfe.MathOptLMO(o)
+
+
+    function perform_strong_branch(tree, node)
+        return node.level <= length(tree.root.problem.integer_variables) / 3
+    end
+    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
+    MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
+
+    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+
+    @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
+end
