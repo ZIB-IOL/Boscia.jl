@@ -43,6 +43,8 @@ include("poisson.jl")
 include("mean_risk.jl")
 include("time_limit.jl")
 include("strong_convexity_and_sharpness.jl")
+include("branching_strategy_test.jl")
+
 
 seed = rand(UInt64)
 @show seed

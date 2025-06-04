@@ -114,6 +114,7 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
+        isa(branching_strategy, Boscia.Hierarchy) && println("\t Order of criteria in Hierarchy Branching: ", [stage.name for stage in branching_strategy.stages])
         println("\t FrankWolfe variant: $(variant)")
         println("\t Line Search Method: $(line_search)")
         println("\t Lazification: $(lazy)")
@@ -258,6 +259,10 @@ function solve(
             local_potential_tightenings=0,
             dual_gap=-Inf,
             pre_computed_set=pre_computed_set,
+            parent_lower_bound_base=Inf,
+            branched_on=-1,
+            branched_right=false,
+            distance_to_int=0.0,
         ),
     )
 
@@ -330,7 +335,7 @@ function solve(
 
     tree.root.options[:callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
-
+    
     Bonobo.optimize!(tree; callback=bnb_callback)
 
     x = postsolve(tree, tree.root.result, time_ref, verbose, max_iteration_post)
@@ -498,6 +503,15 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 "\t Total number of potential local tightenings: ",
                 sum(result[:local_potential_tightenings]),
             )
+        end
+        if isa(tree.options.branch_strategy, Boscia.Hierarchy)
+            fraction_of_decisions = [(stage.decision_counter, stage.min_cutoff_counter) for stage in tree.options.branch_strategy.stages]
+            println("\t Decisions made: ", fraction_of_decisions)
+        end
+        if isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+            println("\t Number of alternative decisions: ", tree.options.branch_strategy.alt_decision_number)
+            println("\t Number of stable decisions: ", tree.options.branch_strategy.stable_decision_number)
+            println("\t Minimum number of branchings per variable: ", minimum(tree.options.branch_strategy.branch_tracker)-1)
         end
     end
 
