@@ -31,7 +31,6 @@ function dual_tightening(tree, node, x, dual_gap)
                     continue
                 end
                 gj = grad[j]
-           
                 if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                     if !isapprox(gj, 0, atol=1e-5)
                         num_potential_tightenings += 1
