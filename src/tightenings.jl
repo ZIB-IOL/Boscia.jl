@@ -41,7 +41,7 @@ function dual_tightening(tree, node, x, dual_gap)
                         end
                     end
                     if bound_tightened
-                        new_bound = max(lb + Mlb - 1, tree.root.problem.integer_variable_bounds[j, :greaterthan])
+                            new_bound = lb + Mlb - 1
                         @debug "found UB tightening $ub -> $new_bound"
                         node.local_bounds[j, :lessthan] = new_bound
                         num_tightenings += 1
@@ -67,7 +67,7 @@ function dual_tightening(tree, node, x, dual_gap)
                         end
                     end
                     if bound_tightened
-                        new_bound = min(ub - Mub + 1, tree.root.problem.integer_variable_bounds[j, :lessthan])
+                            new_bound = ub - Mub + 1
                         @debug "found LB tightening $lb -> $new_bound"
                         node.local_bounds[j, :greaterthan] = new_bound
                         num_tightenings += 1
