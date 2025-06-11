@@ -135,7 +135,7 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     for i in indices[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx]-lb[idx], floor(sblmo.N - sum(v)))
         else
             v[i] += sblmo.N - sum(v)
         end
@@ -185,7 +185,7 @@ function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLM
     for i in sorted
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            a[i] += min(ub[idx] - lb[idx], floor(sblmo.N - sum(a)))
         else
             a[i] += sblmo.N - sum(a)
         end
@@ -339,9 +339,9 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     for i in idx_neg[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx]-lb[idx], floor(sblmo.N - sum(v)))
         else
-            v[i] += N - sum(v)
+            v[i] += sblmo.N - sum(v)
         end
     end
     return v
@@ -394,7 +394,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, x
     for i in sorted
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            a[i] += min(ub[idx] - lb[idx], floor(sblmo.N - sum(a)))
         else
             a[i] += sblmo.N - sum(a)
         end
