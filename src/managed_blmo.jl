@@ -49,6 +49,11 @@ function ManagedBoundedLMO(simple_lmo, lb, ub, int_vars::Vector{Int}, n::Int)
             "Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!",
         )
     end
+    if typeof(simple_lmo) <: ProbabilitySimplexSimpleBLMO
+        if n == length(int_vars)
+            @assert isinteger(simple_lmo.N)
+        end
+    end
     # Check that we have integer bounds
     for (i, _) in enumerate(int_vars)
         @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
