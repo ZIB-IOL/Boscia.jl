@@ -10,6 +10,7 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 using Dates
+using Aqua
 
 @testset verbose=true failfast=false "Boscia Test Suite" begin
 
@@ -33,4 +34,6 @@ using Dates
             include(file)
         end
     end
+
+    Aqua.test_all(Boscia)
 end
