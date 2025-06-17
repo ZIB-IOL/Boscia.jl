@@ -11,7 +11,7 @@ const MOI = MathOptInterface
 import HiGHS
 using Dates
 
-@testset verbose=true failfast=true "Boscia Test Suite" begin
+@testset verbose=true failfast=false "Boscia Test Suite" begin
 
     include("interface_test.jl")
     include("LMO_test.jl")
