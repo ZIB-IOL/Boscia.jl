@@ -128,7 +128,7 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
 
     bounds = IntegerBounds()
     for (i,x_i) in zip(tlmo.blmo.int_vars, x[tlmo.blmo.int_vars])
-        x_rounded = flip_coin(x_i, rng) ? ceil(x_i) : floor(x_i)
+        x_rounded = flip_coin(x_i, rng) ? min(1.0, ceil(x_i)) : max(0.0, floor(x_i))
         push!(bounds, (i, x_rounded), :lessthan)
         push!(bounds, (i, x_rounded), :greaterthan)
     end
