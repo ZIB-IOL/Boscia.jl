@@ -1,4 +1,6 @@
 using Aqua
+using Test
+using Boscia
 
 @testset "Aqua.jl" begin
     Aqua.test_all(
