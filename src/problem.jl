@@ -46,11 +46,22 @@ SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds) =
 """
 Returns the indices of the discrete variables for the branching in `Bonobo.BnBTree`
 """
-function Bonobo.get_branching_indices(problem::SimpleOptimizationProblem)
+function Bonobo.get_branching_indices(problem::SimpleOptimizationProblem{<:Any,<:Any,<:TimeTrackingLMO,<:IntegerBounds})
     return problem.integer_variables
 end
 
-Bonobo.get_branching_indices(root::NamedTuple) = Bonobo.get_branching_indices(root.problem)
+# Type alias for our specific root NamedTuple structure
+const BosciaRoot = NamedTuple{
+    (:problem, :current_node_id, :updated_incumbent, :global_tightening_rhs, 
+     :global_tightening_root_info, :global_tightenings, :options, :result),
+    <:Tuple{<:SimpleOptimizationProblem, Ref{Int}, Ref{Bool}, Ref{Float64}, 
+            <:NamedTuple, <:IntegerBounds, <:Dict, <:Dict}
+}
+
+# Method for our specific root NamedTuple type
+function Bonobo.get_branching_indices(root::BosciaRoot)
+    return Bonobo.get_branching_indices(root.problem)
+end
 
 """
 Checks if a given vector is valid integral solution. Specifically for mixed problems.
