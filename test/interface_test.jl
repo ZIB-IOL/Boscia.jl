@@ -341,7 +341,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
-    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
+    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=true, variant=Boscia.DICG(), fw_verbose=true)
 
     lmo = build_model()
     x_vfw, _, result_vfw =
@@ -551,4 +551,21 @@ end
     @test isapprox(f(x_strong_warm_start), f(result_strong_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test sum(isapprox.(x_no, x_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_no, x_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
+end
+
+@testset "Linear feasible" begin
+    n = 10
+    o = SCIP.Optimizer()
+    MOI.set(o, MOI.Silent(), true)
+    MOI.empty!(o)
+    x = MOI.add_variables(o, n)
+    for xi in x
+        MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+        MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+    end
+    MOI.add_constraint(o, 1.0x[1] + 1.0x[2], MOI.LessThan(1.5))
+    @test Boscia.is_linear_feasible(o, 2 * ones(n)) == false
+    @test Boscia.is_linear_feasible(o, vcat([1.0, 0.5], ones(n - 2)))
+    @test Boscia.is_linear_feasible(o, vcat([0.5, 0.5], ones(n - 2)))
+    @test Boscia.is_linear_feasible(o, vcat([0.0, 0.0], ones(n - 2)))
 end

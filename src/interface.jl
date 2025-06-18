@@ -138,7 +138,7 @@ function solve(
     time_lmo = TimeTrackingLMO(blmo, integer_variables)
 
     if num_int == 0
-        error("No integer variables detected! Please use an MIP solver!")
+        error("No integer variables detected! Please use a MIP solver!")
     end
 
     if verbose
