@@ -36,5 +36,5 @@ using Aqua
     end
 
     # Quality control of the code
-    Aqua.test_all(Boscia)
+    include("aqua.jl")
 end
