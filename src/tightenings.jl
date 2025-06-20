@@ -8,6 +8,17 @@ function dual_tightening(tree, node, x, dual_gap)
         num_tightenings = 0
         num_potential_tightenings = 0
         μ = tree.root.options[:strong_convexity]
+        safety_tolerance = 2.0
+        rhs =
+            tree.incumbent - tree.root.problem.f(x) +
+            safety_tolerance * dual_gap +
+            sqrt(eps(tree.incumbent))
+        # If rhs is negative, we are either very close to the incumbent
+        # or f(x) is actually larger than the incumbent.
+        if rhs < 0
+            @debug "Skipping tightening because rhs is negative: $rhs"
+            return
+        end
         for j in tree.root.problem.integer_variables
             lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), -Inf)
             ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), Inf)
@@ -20,11 +31,6 @@ function dual_tightening(tree, node, x, dual_gap)
                 continue
             end
             gj = grad[j]
-            safety_tolerance = 2.0
-            rhs =
-                tree.incumbent - tree.root.problem.f(x) +
-                safety_tolerance * dual_gap +
-                sqrt(eps(tree.incumbent))
             if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                 if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
@@ -41,7 +47,7 @@ function dual_tightening(tree, node, x, dual_gap)
                         end
                     end
                     if bound_tightened
-                        new_bound = max(lb + Mlb - 1, tree.root.problem.integer_variable_bounds[j, :greaterthan])
+                        new_bound = lb + Mlb - 1
                         @debug "found UB tightening $ub -> $new_bound"
                         node.local_bounds[j, :lessthan] = new_bound
                         num_tightenings += 1
@@ -67,7 +73,7 @@ function dual_tightening(tree, node, x, dual_gap)
                         end
                     end
                     if bound_tightened
-                        new_bound = min(ub - Mub + 1, tree.root.problem.integer_variable_bounds[j, :lessthan])
+                        new_bound = ub - Mub + 1
                         @debug "found LB tightening $lb -> $new_bound"
                         node.local_bounds[j, :greaterthan] = new_bound
                         num_tightenings += 1
