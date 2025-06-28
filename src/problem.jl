@@ -7,6 +7,7 @@ Enum for the solving stage
     OPT_TREE_EMPTY = 2
     TIME_LIMIT_REACHED = 3
     NODE_LIMIT_REACHED = 4
+    USER_STOP = 5
 end
 
 """
