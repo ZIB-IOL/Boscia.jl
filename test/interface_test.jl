@@ -341,7 +341,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
-    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=true, variant=Boscia.DICG(), fw_verbose=true)
+    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), fw_verbose=false)
 
     lmo = build_model()
     x_vfw, _, result_vfw =
@@ -408,7 +408,7 @@ end
     @test sum(isapprox.(x_adaptive, x_agnostic, atol=1e-6, rtol=1e-3)) == n
 
     x_monotonic, _, result_monotonic_node_limit =
-        Boscia.solve(f, grad!, lmo, verbose=true, line_search=line_search, node_limit=2, print_iter=1)
+        Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, node_limit=2, print_iter=1)
 
     @test length(result_monotonic_node_limit[:list_ub]) <= 3
     @test result_monotonic_node_limit[:status] == "Node limit reached"
@@ -551,6 +551,41 @@ end
     @test isapprox(f(x_strong_warm_start), f(result_strong_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test sum(isapprox.(x_no, x_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_no, x_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
+end
+
+@testset "User stop" begin
+    function build_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
+        end
+        lmo = FrankWolfe.MathOptLMO(o)
+        return lmo
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update=false)
+        if node.id == 2
+            tree.root.problem.solving_stage = Boscia.USER_STOP
+        end
+    end
+    
+    lmo = build_model()
+    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), bnb_callback=callback)
+
+    @test result_no[:status] == "User defined stop"
+    @test result_no[:solving_stage] == Boscia.USER_STOP
 end
 
 @testset "Linear feasible" begin

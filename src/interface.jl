@@ -383,6 +383,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         status_string = "Time limit reached"
     elseif tree.root.problem.solving_stage == NODE_LIMIT_REACHED
         status_string = "Node limit reached"
+    elseif tree.root.problem.solving_stage == USER_STOP
+        status_string = "User defined stop"
     else
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
@@ -457,6 +459,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
     result[:status] = status_string
+    result[:solving_stage] = tree.root.problem.solving_stage
 
     if verbose
         println()
