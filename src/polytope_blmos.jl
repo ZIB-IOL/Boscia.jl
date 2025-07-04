@@ -498,3 +498,322 @@ function is_simple_inface_feasible_subroutine(sblmo::SimpleBoundableLMO, a, x, l
     end
     return true
 end
+
+"""
+    BirkhoffBLMO
+
+A simple LMO that computes the extreme point given the node specific bounds on the integer variables.
+Can be stateless since all of the bound management is done by the ManagedBoundedLMO.   
+"""
+struct BirkhoffBLMO <: Boscia.SimpleBoundableLMO
+    append_by_column::Bool
+    dim::Int
+    int_vars::Vector{Int}
+    atol::Float64
+    rtol::Float64
+end
+
+BirkhoffBLMO(dim, int_vars; append_by_column = true)= BirkhoffBLMO(append_by_column, dim, int_vars, 1e-6, 1e-3)
+
+"""
+Computes the extreme point given an direction d, the current lower and upper bounds on the integer variables, and the set of integer variables.
+"""
+function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, int_vars; kwargs...) 
+    n = sblmo.dim
+
+    if size(d,2) == 1
+        d = sblmo.append_by_column ? reshape(d, (n,n)) : transpose(reshape(d, (n,n)))
+    end
+
+    # Use BitSets for faster membership testing
+    fixed_to_one_rows = BitSet()
+    fixed_to_one_cols = BitSet()
+    delete_ub = Set{Int}()
+
+    # Helper function to add constraints efficiently
+    function add_fixed_constraint!(i::Int, j::Int)
+        push!(fixed_to_one_rows, i)
+        push!(fixed_to_one_cols, j)
+        if sblmo.append_by_column
+            union!(delete_ub, (j-1)*n+1:j*n)
+            union!(delete_ub, i:n:n^2)
+        else
+            union!(delete_ub, (i-1)*n+1:i*n)
+            union!(delete_ub, j:n:n^2)
+        end
+    end
+
+    # Process integer variables that are fixed to 1
+    for idx in eachindex(int_vars)
+        if lb[idx] >= 1 - eps()
+            var_idx = int_vars[idx]
+            if sblmo.append_by_column
+                j = ceil(Int, var_idx / n)
+                i = Int(var_idx - n * (j - 1))
+            else
+                i = ceil(Int, var_idx / n)  # Fixed: was 'int'
+                j = Int(var_idx - n * (i - 1))  # Fixed: was (j - 1)
+            end
+            add_fixed_constraint!(i, j)
+        end
+    end
+
+    # Convert delete_ub to sorted vector for efficient operations
+    delete_ub_vec = sort!(collect(delete_ub))
+    nfixed = length(fixed_to_one_cols)
+    nreduced = n - nfixed
+    reducedub = copy(ub)
+    deleteat!(reducedub, delete_ub_vec)
+
+    # Pre-allocate index maps with correct size
+    index_map_rows = Vector{Int}(undef, nreduced)
+    index_map_cols = Vector{Int}(undef, nreduced)
+    
+    # Build index maps more efficiently
+    idx_row = 1
+    idx_col = 1
+    for orig_idx in 1:n
+        if orig_idx ∉ fixed_to_one_rows
+            index_map_rows[idx_row] = orig_idx
+            idx_row += 1
+        end
+        if orig_idx ∉ fixed_to_one_cols
+            index_map_cols[idx_col] = orig_idx
+            idx_col += 1
+        end
+    end
+    
+    # Pre-allocate d2 matrix
+    element_type = typeof(d[1,1])
+    d2 = Matrix{Union{element_type, Missing}}(undef, nreduced, nreduced)
+    
+    # Fill d2 matrix more efficiently
+    @inbounds for j in 1:nreduced, i in 1:nreduced
+        # Check if this element should be interdicted (fixed to zero)
+        linear_idx = (j-1)*nreduced + i
+        if linear_idx <= length(reducedub) && reducedub[linear_idx] <= eps()
+            d2[sblmo.append_by_column ? i : j, sblmo.append_by_column ? j : i] = missing
+        else
+            orig_i = index_map_rows[i]
+            orig_j = index_map_cols[j]
+            d2[sblmo.append_by_column ? i : j, sblmo.append_by_column ? j : i] = d[orig_i, orig_j]
+        end
+    end
+    
+    # Initialize result matrix
+    m = SparseArrays.spzeros(n, n)
+    
+    # Set fixed positions
+    for (i, j) in zip(fixed_to_one_rows, fixed_to_one_cols)
+        m[i, j] = 1
+    end
+    
+    # Solve assignment problem
+    res_mat = Hungarian.munkres(d2)
+    (rows, cols, vals) = SparseArrays.findnz(res_mat)
+    
+    # Set assignment results
+    @inbounds for i in eachindex(cols)
+        if vals[i] == 2  # Hungarian algorithm uses 2 for assignments
+            orig_row = index_map_rows[rows[i]]
+            orig_col = index_map_cols[cols[i]]
+            m[orig_row, orig_col] = 1
+        end
+    end
+
+    # Convert to vector format
+    return sblmo.append_by_column ? vec(Matrix(m)) : vec(transpose(Matrix(m)))
+end
+
+"""
+Computes the inface extreme point given an direction d, x, the current lower and upper bounds on the integer variables, and the set of integer variables.
+"""
+function Boscia.bounded_compute_inface_extreme_point(
+	sblmo::BirkhoffBLMO,
+	direction,
+	x,
+	lb,
+	ub,
+	int_vars;
+	kwargs...,
+)
+	n = sblmo.dim
+
+	if size(direction, 2) == 1
+		direction =
+			sblmo.append_by_column ? reshape(direction, (n, n)) :
+			transpose(reshape(direction, (n, n)))
+	end
+
+	if size(x, 2) == 1
+		x = sblmo.append_by_column ? reshape(x, (n, n)) : transpose(reshape(x, (n, n)))
+	end
+	fixed_to_one_rows = BitSet()
+	fixed_to_one_cols = BitSet()
+	delete_ub = Int[]
+
+	# Helper function to add constraints and update delete_ub efficiently
+	function add_fixed_constraint!(i::Int, j::Int)
+		push!(fixed_to_one_rows, i)
+		push!(fixed_to_one_cols, j)
+		if sblmo.append_by_column
+			append!(delete_ub, (j-1)*n+1:j*n)
+			append!(delete_ub, i:n:n^2)
+		else
+			append!(delete_ub, (i-1)*n+1:i*n)
+			append!(delete_ub, j:n:n^2)
+		end
+	end
+
+	# Process integer variables that are fixed to 1
+	for idx in eachindex(int_vars)
+		if lb[idx] >= 1 - eps()
+			var_idx = int_vars[idx]
+			if sblmo.append_by_column
+				j = ceil(Int, var_idx / n)
+				i = Int(var_idx - n * (j - 1))
+			else
+				i = ceil(Int, var_idx / n)  # Fixed: was 'int'
+				j = Int(var_idx - n * (i - 1))  # Fixed: was (j - 1)
+			end
+			add_fixed_constraint!(i, j)
+		end
+	end
+
+	# Process matrix elements that are close to 1 - single loop with early exit
+	for j in 1:n, i in 1:n
+		if j ∉ fixed_to_one_cols && i ∉ fixed_to_one_rows && x[i, j] >= 1 - eps()
+			add_fixed_constraint!(i, j)
+		end
+	end
+
+	# Clean up delete_ub (BitSets are already unique)
+	sort!(delete_ub)
+	unique!(delete_ub)
+	nfixed = length(fixed_to_one_cols)
+	nreduced = n - nfixed
+	reducedub = copy(ub)
+	reducedintvars = copy(int_vars)
+	delete_ub_idx = findall(x -> x in delete_ub, int_vars)
+	deleteat!(reducedub, delete_ub_idx)
+	deleteat!(reducedintvars, delete_ub_idx)
+	# stores the indices of the original matrix that are still in the reduced matrix
+	index_map_rows = fill(1, nreduced)
+	index_map_cols = fill(1, nreduced)
+	idx_in_map_row = 1
+	idx_in_map_col = 1
+	for orig_idx in 1:n
+		if orig_idx ∉ fixed_to_one_rows
+			index_map_rows[idx_in_map_row] = orig_idx
+			idx_in_map_row += 1
+		end
+		if orig_idx ∉ fixed_to_one_cols
+			index_map_cols[idx_in_map_col] = orig_idx
+			idx_in_map_col += 1
+		end
+	end
+	type = typeof(direction[1, 1])
+	d2 = ones(Union{type, Missing}, nreduced, nreduced)
+
+	for j in 1:nreduced
+		for i in 1:nreduced
+			idx = (index_map_cols[j] - 1) * n + index_map_rows[i]
+            if sblmo.append_by_column
+                if x[index_map_rows[i], index_map_cols[j]] <= eps()
+                    d2[i, j] = missing
+                else
+                    d2[i, j] = direction[index_map_rows[i], index_map_cols[j]]
+                end
+            else
+                if x[index_map_rows[i], index_map_cols[j]] <= eps()
+                    d2[j, i] = missing
+                else
+                    d2[j, i] = direction[index_map_rows[j], index_map_cols[i]]
+                end
+            end
+			# interdict arc when fixed to zero
+			if idx in reducedintvars
+				reducedub_idx = findfirst(x -> x == idx, reducedintvars)
+				if reducedub[reducedub_idx] <= eps()
+					if sblmo.append_by_column
+						d2[i, j] = missing
+					else
+						d2[j, i] = missing
+					end
+                end
+            end
+		end
+	end
+
+	m = SparseArrays.spzeros(n, n)
+	for (i, j) in zip(fixed_to_one_rows, fixed_to_one_cols)
+		m[i, j] = 1
+	end
+	res_mat = Hungarian.munkres(d2)
+	(rows, cols, vals) = SparseArrays.findnz(res_mat)
+	@inbounds for i in eachindex(cols)
+		m[index_map_rows[rows[i]], index_map_cols[cols[i]]] = (vals[i] == 2)
+	end
+
+
+	m = if sblmo.append_by_column
+		reduce(vcat, Matrix(m))
+	else
+		reduce(vcat, LinearAlgebra.transpose(Matrix(m)))
+	end
+
+	return m
+end
+
+"""
+LMO-like operation which computes a vertex minimizing in `direction` on the face defined by the current fixings.
+Fixings are maintained by the oracle (or deduced from `x` itself).
+"""
+function Boscia.bounded_dicg_maximum_step(
+    sblmo::BirkhoffBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
+    n = sblmo.dim
+
+    direction =
+        sblmo.append_by_column ? reshape(direction, (n, n)) :
+        transpose(reshape(direction, (n, n)))
+    x = sblmo.append_by_column ? reshape(x, (n, n)) : transpose(reshape(x, (n, n)))
+    return FrankWolfe.dicg_maximum_step(FrankWolfe.BirkhoffPolytopeLMO(), direction, x)
+end
+
+function Boscia.is_decomposition_invariant_oracle_simple(sblmo::BirkhoffBLMO)
+    return true
+end
+
+function Boscia.dicg_split_vertices_set_simple(sblmo::BirkhoffBLMO, x, vidx)
+    x0_left = copy(x)
+    x0_right = copy(x)
+    return x0_left, x0_right
+end
+        
+"""
+The sum of each row and column has to be equal to 1.
+"""
+function Boscia.is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector) 
+    n = sblmo.dim
+    for i in 1:n
+        # append by column ? column sum : row sum 
+        if !isapprox(sum(v[((i-1)*n+1):(i*n)]), 1.0, atol=1e-6, rtol=1e-3) 
+            @debug "Column sum not 1: $(sum(v[((i-1)*n+1):(i*n)]))"
+            return false
+        end
+        # append by column ? row sum : column sum
+        if !isapprox(sum(v[i:n:n^2]), 1.0, atol=1e-6, rtol=1e-3)
+            @debug "Row sum not 1: $(sum(v[i:n:n^2]))"
+            return false
+        end
+    end
+    return true
+end 
+
