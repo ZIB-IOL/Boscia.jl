@@ -18,13 +18,13 @@ using StableRNGs
 
 seed = rand(UInt64)
 @show seed
-rng = StableRNG(seed)   
+rng = StableRNG(seed)
 
 
 n = 15
 const ri = rand(rng, n)
 const ai = rand(rng, n)
-const Ωi = rand(rng, Float64)    
+const Ωi = rand(rng, Float64)
 const bi = sum(ai)
 Ai = randn(rng, n, n)
 Ai = Ai' * Ai

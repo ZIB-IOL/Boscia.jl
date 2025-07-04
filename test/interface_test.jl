@@ -101,8 +101,7 @@ end
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
+        x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -114,8 +113,16 @@ end
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, use_shadow_set=false)
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            sblmo,
+            lbs[int_vars],
+            ubs[int_vars],
+            int_vars,
+            n,
+            use_shadow_set=false,
+        )
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -138,8 +145,16 @@ end
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
         μ = 1.0
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, strong_convexity=μ)
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            sblmo,
+            lbs[int_vars],
+            ubs[int_vars],
+            int_vars,
+            n,
+            strong_convexity=μ,
+        )
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -151,11 +166,20 @@ end
         ubs = ones(n)
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-        θ = 1/2
+        θ = 1 / 2
         M = 2.0
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, sharpness_constant=M, sharpness_exponent=θ)
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            sblmo,
+            lbs[int_vars],
+            ubs[int_vars],
+            int_vars,
+            n,
+            sharpness_constant=M,
+            sharpness_exponent=θ,
+        )
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -168,11 +192,21 @@ end
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
         μ = 1.0
-        θ = 1/2
+        θ = 1 / 2
         M = 2.0
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, strong_convexity=μ, sharpness_constant=M, sharpness_exponent=θ)
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            sblmo,
+            lbs[int_vars],
+            ubs[int_vars],
+            int_vars,
+            n,
+            strong_convexity=μ,
+            sharpness_constant=M,
+            sharpness_exponent=θ,
+        )
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -193,11 +227,20 @@ end
     ubs = ones(n)
 
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-    direction =rand(n)
+    direction = rand(n)
     v = Boscia.bounded_compute_extreme_point(sblmo, direction, lbs, ubs, int_vars)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
 
-    x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, active_set=active_set)
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        lbs[int_vars],
+        ubs[int_vars],
+        int_vars,
+        n,
+        active_set=active_set,
+    )
 
     @test x == round.(diffi)
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -341,7 +384,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.BPCG())
 
     lmo = build_model()
-    x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), fw_verbose=false)
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), fw_verbose=false)
 
     lmo = build_model()
     x_vfw, _, result_vfw =
@@ -407,8 +451,15 @@ end
     @test sum(isapprox.(x_agnostic, x_monotonic, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_adaptive, x_agnostic, atol=1e-6, rtol=1e-3)) == n
 
-    x_monotonic, _, result_monotonic_node_limit =
-        Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search, node_limit=2, print_iter=1)
+    x_monotonic, _, result_monotonic_node_limit = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=false,
+        line_search=line_search,
+        node_limit=2,
+        print_iter=1,
+    )
 
     @test length(result_monotonic_node_limit[:list_ub]) <= 3
     @test result_monotonic_node_limit[:status] == "Node limit reached"
@@ -484,10 +535,19 @@ end
     x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
 
     lmo = build_model()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, lazy=false, variant=Boscia.DICG())
+    x_no, _, result_no =
+        Boscia.solve(f, grad!, lmo, verbose=false, lazy=false, variant=Boscia.DICG())
 
     lmo = build_model()
-    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, lazy=true, lazy_tolerance=1.5, variant=Boscia.DICG())
+    x_warm_start, _, result_warm_start = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=false,
+        lazy=true,
+        lazy_tolerance=1.5,
+        variant=Boscia.DICG(),
+    )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -497,13 +557,31 @@ end
 
     # testing for strong lazification
     lmo = build_model()
-    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, verbose=false, use_strong_lazy = true, variant=Boscia.DICG())
+    x_lazy, _, result_lazy =
+        Boscia.solve(f, grad!, lmo, verbose=false, use_strong_lazy=true, variant=Boscia.DICG())
 
     lmo = build_model()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, lazy=false, use_strong_lazy = true, variant=Boscia.DICG())
+    x_no, _, result_no = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=false,
+        lazy=false,
+        use_strong_lazy=true,
+        variant=Boscia.DICG(),
+    )
 
     lmo = build_model()
-    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, lazy=true, lazy_tolerance=1.5, use_strong_lazy = true, variant=Boscia.DICG())
+    x_warm_start, _, result_warm_start = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=false,
+        lazy=true,
+        lazy_tolerance=1.5,
+        use_strong_lazy=true,
+        variant=Boscia.DICG(),
+    )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -535,20 +613,39 @@ end
         @. storage = x - diffi
     end
 
-    
+
     lmo = build_model()
     x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG())
 
     # testing for weak warm-start
     lmo = build_model()
-    x_weak_warm_start, _, result_weak_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, use_dicg_warm_start=true, variant=Boscia.DICG())
+    x_weak_warm_start, _, result_weak_warm_start =
+        Boscia.solve(f, grad!, lmo, verbose=false, use_dicg_warm_start=true, variant=Boscia.DICG())
 
     # testing for strong warm_start
-    x_strong_warm_start, _, result_strong_warm_start = Boscia.solve(f, grad!, lmo, verbose=false, use_dicg_warm_start=true, use_strong_warm_start=true, variant=Boscia.DICG())
+    x_strong_warm_start, _, result_strong_warm_start = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=false,
+        use_dicg_warm_start=true,
+        use_strong_warm_start=true,
+        variant=Boscia.DICG(),
+    )
 
     @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_weak_warm_start), f(result_weak_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_strong_warm_start), f(result_strong_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(
+        f(x_weak_warm_start),
+        f(result_weak_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_strong_warm_start),
+        f(result_strong_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
     @test sum(isapprox.(x_no, x_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_no, x_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
 end
@@ -575,14 +672,21 @@ end
         @. storage = x - diffi
     end
 
-    function callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update=false)
+    function callback(
+        tree,
+        node;
+        worse_than_incumbent=false,
+        node_infeasible=false,
+        lb_update=false,
+    )
         if node.id == 2
             tree.root.problem.solving_stage = Boscia.USER_STOP
         end
     end
-    
+
     lmo = build_model()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), bnb_callback=callback)
+    x_no, _, result_no =
+        Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), bnb_callback=callback)
 
     @test result_no[:status] == "User defined stop"
     @test result_no[:solving_stage] == Boscia.USER_STOP

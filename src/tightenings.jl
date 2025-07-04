@@ -211,11 +211,11 @@ function tightening_lowerbound(tree, node, x, lower_bound)
         sharpness_bound = -Inf
 
         # strong convexity
-        if μ > 0 
+        if μ > 0
             @debug "Using strong convexity $μ"
             strong_convexity_bound += μ / 2 * bound_improvement
             @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-            @assert num_fractional == 0 || strong_convexity_bound > lower_bound 
+            @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         end
 
         # sharpness
@@ -229,7 +229,9 @@ function tightening_lowerbound(tree, node, x, lower_bound)
                 node.dual_gap = 0.0
             end
 
-            sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            sharpness_bound =
+                M^(-1 / θ) * 1 / 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) +
+                fx - node.dual_gap
 
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound >= lower_bound "$(num_fractional) == 0 || $(sharpness_bound) > $(lower_bound)"
@@ -279,13 +281,17 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             @assert !(
                 (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
                 (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
-            ) 
-        # sharpness
+            )
+            # sharpness
         elseif M > 0 && θ != Inf
             fx = tree.root.problem.f(x)
 
-            new_bound_left = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_left) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
-            new_bound_right = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_right) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            new_bound_left =
+                M^(-1 / θ) * 1 / 2 * (sqrt(new_bound_left) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx -
+                node.dual_gap
+            new_bound_right =
+                M^(-1 / θ) * 1 / 2 * (sqrt(new_bound_right) - M / 2 * node.dual_gap^θ)^(1 / θ) +
+                fx - node.dual_gap
 
             if new_bound_left > tree.incumbent
                 @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
@@ -297,7 +303,7 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             end
         end
     end
-   
+
     # If both nodes are pruned, when one of them has to be equal to the incumbent.
     # Thus, we have proof of optimality by strong convexity.
     if prune_left && prune_right

@@ -8,7 +8,7 @@ using LinearAlgebra
 using Distributions
 import MathOptInterface
 const MOI = MathOptInterface
-using StableRNGs    
+using StableRNGs
 
 seed = rand(UInt64)
 @show seed
