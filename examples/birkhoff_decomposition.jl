@@ -113,7 +113,7 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.D
 #     end
 # end
 
-@testset "Birkhoff" begin
+@testset "Birkhoff decomposition" begin
     lmo = build_birkhoff_lmo()
     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
