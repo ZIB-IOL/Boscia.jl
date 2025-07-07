@@ -77,6 +77,7 @@ end
         @test Boscia.is_simple_linear_feasible(sblmo, x)
     end
 
+    x_dicg = zeros(n,n)
     @testset "Birkhoff BLMO (DICG)" begin
         sblmo = Boscia.BirkhoffBLMO(n, collect(1:n^2))
 
@@ -99,6 +100,8 @@ end
 
     @show x
     @show x_mip
-    @show f(x), f(x_mip)
+    @show x_dicg
+    @show f(x), f(x_mip), f(x_dicg)
     @test isapprox(f(x_mip), f(x), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_dicg), f(x), atol=1e-6, rtol=1e-2)
 end 
