@@ -11,4 +11,4 @@ using Boscia
         # deps_compat=(ignore=[:SomeOtherPackage],),
         # piracies=false,
     )
-end 
+end

@@ -5,10 +5,7 @@ function get_gradient_info_for_branching(
 )   
 Returns the gradient vector for values in the tree.
 """
-function get_gradient_info_for_branching(
-    tree::Bonobo.BnBTree, 
-    values::Vector{Float64},
-)   
+function get_gradient_info_for_branching(tree::Bonobo.BnBTree, values::Vector{Float64})
     nabla = similar(values)
     tree.root.problem.g(nabla, values)
     return nabla
@@ -25,11 +22,11 @@ function comparison_routine(
 Subroutine that finds the best candidate as per the comp_f function.
 """
 function comparison_routine(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     values::Vector{Float64},
     nabla::Vector{Float64},
-    comp_f::Function
-)   
+    comp_f::Function,
+)
     best_idx = -1
     max_score = 0.0
     for idx in tree.branching_indices
@@ -64,14 +61,14 @@ struct LargestGradient <: Bonobo.AbstractBranchStrategy end
 Get branching variable which has the largest absolute value in the gradient
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::LargestGradient,
     node::Bonobo.AbstractNode,
-) 
+)
     values = Bonobo.get_relaxed_values(tree, node)
-    nabla = get_gradient_info_for_branching(tree, values)  
+    nabla = get_gradient_info_for_branching(tree, values)
     # return the index with largest absolute entry in nabla among branching candidates
-    return comparison_routine(tree, values, nabla, (val1, val2) -> abs(val2))   
+    return comparison_routine(tree, values, nabla, (val1, val2) -> abs(val2))
 end
 
 
@@ -93,15 +90,20 @@ struct LargestMostInfeasibleGradient <: Bonobo.AbstractBranchStrategy end
 Get branching variable using LARGEST_MOST_INFEASIBLE_GRADIENT branching 
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::LargestMostInfeasibleGradient,
     node::Bonobo.AbstractNode,
-)   
+)
     values = Bonobo.get_relaxed_values(tree, node)
-    nabla = get_gradient_info_for_branching(tree, values)  
+    nabla = get_gradient_info_for_branching(tree, values)
     # return the index with largest absolute entry in nabla multiplied by its corresponding distance to 0.5 
     # among branching candidates.
-    return comparison_routine(tree, values, nabla, (val1, val2) -> abs(val1 - round(val1)) * abs(val2)) 
+    return comparison_routine(
+        tree,
+        values,
+        nabla,
+        (val1, val2) -> abs(val1 - round(val1)) * abs(val2),
+    )
 end
 
 
@@ -110,7 +112,7 @@ end
 
 Always returns the largest index
 """
-struct LargestIndex	 <: Bonobo.AbstractBranchStrategy end
+struct LargestIndex <: Bonobo.AbstractBranchStrategy end
 
 
 """
@@ -122,10 +124,10 @@ function Bonobo.get_branching_variable(
 Return the branching candidate with the highest index.
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::LargestIndex,
     node::Bonobo.AbstractNode,
-) 
+)
     values = Bonobo.get_relaxed_values(tree, node)
     best_idx = -1
     # tree.branching_indices is sorted 
@@ -152,10 +154,10 @@ struct RandomBranching <: Bonobo.AbstractBranchStrategy end
 Randomly returns the index of a branching candidate.
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::RandomBranching,
     node::Bonobo.AbstractNode,
-) 
+)
     values = Bonobo.get_relaxed_values(tree, node)
     # tree.branching_indices is sorted 
     branching_candidates = Int64[]
@@ -182,12 +184,12 @@ end
     avg is the current average shifted by 1
     new_val is the value that the current average has to be updated with
 """
-    function update_avg(new_val::Float64, avg::Float64, N::Int)
+function update_avg(new_val::Float64, avg::Float64, N::Int)
     if N > 1
-        return 1/(N+1) * (N * (avg - 1) + new_val) + 1  #        
+        return 1 / (N + 1) * (N * (avg - 1) + new_val) + 1  #        
     else
         # note that we initialize the pseudo costs with 1 as such we need to shift pseudocosts correspondingly
-        return new_val + avg 
+        return new_val + avg
     end
 end
 
@@ -204,11 +206,11 @@ Subroutine that finds the best candidate as per the comp_f function given a sele
 """
 function candidate_comparison_routine(
     tree::Bonobo.BnBTree,
-    branching_candidates::Vector{Int}, 
+    branching_candidates::Vector{Int},
     values::Vector{Float64},
     nabla::Vector{Float64},
-    comp_f::Function
-)   
+    comp_f::Function,
+)
     best_idx = -1
     max_score = 0.0
     for idx in branching_candidates
@@ -235,16 +237,16 @@ among candidates in branching_candidates
 function largest_most_infeasible_gradient_decision(
     tree::Bonobo.BnBTree,
     branching_candidates::Vector{Int},
-    values::Vector{Float64}
+    values::Vector{Float64},
 )
-    nabla = get_gradient_info_for_branching(tree, values)  
+    nabla = get_gradient_info_for_branching(tree, values)
     return candidate_comparison_routine(
         tree,
         branching_candidates,
-        values, 
-        nabla, 
-        (val1, val2) -> abs(val1 - round(val1)) * abs(val2) 
-        ) 
+        values,
+        nabla,
+        (val1, val2) -> abs(val1 - round(val1)) * abs(val2),
+    )
 end
 
 
@@ -261,17 +263,17 @@ among the candidates in branching_candidates
 function most_infeasible_decision(
     tree::Bonobo.BnBTree,
     branching_candidates::Vector{Int},
-    values::Vector{Float64}
-)   
+    values::Vector{Float64},
+)
     # Nabla only required for function call and is not used for calculations.
     nabla = similar(values)
     return candidate_comparison_routine(
         tree,
         branching_candidates,
-        values, 
-        nabla, 
-        (val1, val2) -> abs(val1 - round(val1))
-        ) 
+        values,
+        nabla,
+        (val1, val2) -> abs(val1 - round(val1)),
+    )
 end
 
 
@@ -287,16 +289,16 @@ largest_gradient_decision(
 function largest_gradient_decision(
     tree::Bonobo.BnBTree,
     branching_candidates::Vector{Int},
-    values::Vector{Float64}
-)   
-    nabla = get_gradient_info_for_branching(tree, values)  
+    values::Vector{Float64},
+)
+    nabla = get_gradient_info_for_branching(tree, values)
     return candidate_comparison_routine(
         tree,
         branching_candidates,
-        values, 
-        nabla, 
-        (val1, val2) -> abs(val2) 
-        ) 
+        values,
+        nabla,
+        (val1, val2) -> abs(val2),
+    )
 end
 
 
@@ -317,7 +319,7 @@ function update_pseudocost!(
     tree::Bonobo.BnBTree,
     node::FrankWolfeNode,
     branching::Bonobo.AbstractBranchStrategy,
-    values::Vector{Float64}
+    values::Vector{Float64},
 )
     if !isinf(node.parent_lower_bound_base)
         idx = node.branched_on
@@ -327,10 +329,12 @@ function update_pseudocost!(
             @debug "update is $(Inf)"
         end
         if node.branched_right
-            branching.pseudos[idx, 1] = update_avg(update, branching.pseudos[idx, 1], branching.branch_tracker[idx, 1])
+            branching.pseudos[idx, 1] =
+                update_avg(update, branching.pseudos[idx, 1], branching.branch_tracker[idx, 1])
             branching.branch_tracker[idx, 1] += 1
         else
-            branching.pseudos[idx, 2] = update_avg(update, branching.pseudos[idx, 2], branching.branch_tracker[idx, 2])
+            branching.pseudos[idx, 2] =
+                update_avg(update, branching.pseudos[idx, 2], branching.branch_tracker[idx, 2])
             branching.branch_tracker[idx, 2] += 1
         end
     end
@@ -347,10 +351,10 @@ get_branching_candidates(
 \n finds all possible branching candidates at the current node
 """
 function get_branching_candidates(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     node::FrankWolfeNode,
-    values::Vector{Float64}
-)   
+    values::Vector{Float64},
+)
     branching_candidates = Int[]
     for idx in tree.branching_indices
         value = values[idx]
@@ -369,10 +373,7 @@ pseudocost_convex_combination(
     )
 Description: Calculates a convex combination of elements contained in the tuple pseudocost_tuple
 """
-function pseudocost_convex_combination(
-    pseudocost_tuple::Tuple{Float64,Float64},  
-    μ::Float64
-    )
+function pseudocost_convex_combination(pseudocost_tuple::Tuple{Float64,Float64}, μ::Float64)
     return (1 - μ) * minimum(pseudocost_tuple) + μ * maximum(pseudocost_tuple)
 end
 
@@ -391,13 +392,8 @@ next integer solution.
 The -1 is a result of pseudocosts being intitalized as 1.
 \nReturns: tuple containing the two unit cost scaled pseudocosts.
 """
-function unit_cost_pseudo_tuple(
-    left_pseudo::Float64, 
-    right_pseudo::Float64, 
-    value::Float64
-)
-    return ((left_pseudo - 1) * (value - floor(value)), 
-            (right_pseudo - 1) * (ceil(value) - value))
+function unit_cost_pseudo_tuple(left_pseudo::Float64, right_pseudo::Float64, value::Float64)
+    return ((left_pseudo - 1) * (value - floor(value)), (right_pseudo - 1) * (ceil(value) - value))
 end
 
 
@@ -410,11 +406,8 @@ end
 \nMultiplies elements of tuple while replacing elements 
 smaller than μ by μ in the product  
 """
-function μ_product(
-    pseudocost_tuple::Tuple{Float64, Float64},
-    μ::Float64
-)
-    return max(pseudocost_tuple[1], μ) * max(pseudocost_tuple[2], μ) 
+function μ_product(pseudocost_tuple::Tuple{Float64,Float64}, μ::Float64)
+    return max(pseudocost_tuple[1], μ) * max(pseudocost_tuple[2], μ)
 end
 
 
@@ -435,9 +428,12 @@ function (gen::CutoffFunctionGenerator)(scores::Vector{Float64})
     if gen.cutoff_type == 1.0
         return max(maximum(scores), gen.min_cutoff)
     elseif gen.cutoff_type == 0.0
-        return  max(mean(scores), gen.min_cutoff)
+        return max(mean(scores), gen.min_cutoff)
     else
-        return max(gen.cutoff_type * maximum(scores) + (1 - gen.cutoff_type) * mean(scores), gen.min_cutoff)
+        return max(
+            gen.cutoff_type * maximum(scores) + (1 - gen.cutoff_type) * mean(scores),
+            gen.min_cutoff,
+        )
     end
 end
 
@@ -460,25 +456,35 @@ primary criterion (`name` and `cutoff_f`) and potentially an alternative criteri
 """
 struct SelectionGenerator
     name::String
-    cutoff_f::Union{Function, CutoffFunctionGenerator}
-    alt_name::Union{String, Missing}
-    alt_cutoff_f::Union{Function, CutoffFunctionGenerator, Missing}
-    decision_function::Union{String, Missing}
+    cutoff_f::Union{Function,CutoffFunctionGenerator}
+    alt_name::Union{String,Missing}
+    alt_cutoff_f::Union{Function,CutoffFunctionGenerator,Missing}
+    decision_function::Union{String,Missing}
     iterations_until_stable::Int64
-    μ:: Float64
+    μ::Float64
     comparison_type::String
     alt_final_flag::Bool
     SelectionGenerator(
         name::String,
-        cutoff_f::Union{Function, CutoffFunctionGenerator};
-        alt_name::Union{String, Missing} = missing,
-        alt_cutoff_f::Union{Function, CutoffFunctionGenerator, Missing} = missing,
-        decision_function::Union{String, Missing} = missing,
-        iterations_until_stable::Int64 = 1,
-        μ::Float64 = 1e-6,
-        comparison_type::String = ">",
-        alt_final_flag::Bool = false,
-    ) = new(name, cutoff_f, alt_name, alt_cutoff_f, decision_function, iterations_until_stable + 1, μ, comparison_type, alt_final_flag)
+        cutoff_f::Union{Function,CutoffFunctionGenerator};
+        alt_name::Union{String,Missing}=missing,
+        alt_cutoff_f::Union{Function,CutoffFunctionGenerator,Missing}=missing,
+        decision_function::Union{String,Missing}=missing,
+        iterations_until_stable::Int64=1,
+        μ::Float64=1e-6,
+        comparison_type::String=">",
+        alt_final_flag::Bool=false,
+    ) = new(
+        name,
+        cutoff_f,
+        alt_name,
+        alt_cutoff_f,
+        decision_function,
+        iterations_until_stable + 1,
+        μ,
+        comparison_type,
+        alt_final_flag,
+    )
 end
 
 
@@ -494,18 +500,21 @@ This generated function calculates scores for each candidate based on the specif
 cutoff to select a subset of candidates.
 """
 function (gen::SelectionGenerator)(
-    tree::Bonobo.BnBTree, 
-    branching::Bonobo.AbstractBranchStrategy, 
-    values::Vector{Float64}, 
-    candidates::Vector{Int64}
-    )
+    tree::Bonobo.BnBTree,
+    branching::Bonobo.AbstractBranchStrategy,
+    values::Vector{Float64},
+    candidates::Vector{Int64},
+)
     if gen.name == "largest_gradient"
-        nabla = get_gradient_info_for_branching(tree, values) 
+        nabla = get_gradient_info_for_branching(tree, values)
         scores = Float64[abs(nabla[idx]) for idx in candidates]
         cutoff = gen.cutoff_f(scores)
     elseif gen.name == "largest_most_infeasible_gradient"
-        nabla = get_gradient_info_for_branching(tree, values) 
-        scores = Float64[Bonobo.get_distance_to_feasible(tree, values[idx]) * abs(nabla[idx]) for idx in candidates]
+        nabla = get_gradient_info_for_branching(tree, values)
+        scores = Float64[
+            Bonobo.get_distance_to_feasible(tree, values[idx]) * abs(nabla[idx]) for
+            idx in candidates
+        ]
         cutoff = gen.cutoff_f(scores)
     elseif gen.name == "most_infeasible"
         scores = Float64[Bonobo.get_distance_to_feasible(tree, values[idx]) for idx in candidates]
@@ -514,7 +523,8 @@ function (gen::SelectionGenerator)(
         all_stable = true
         for idx in candidates
             # check if pseudocost is stable for this candidate
-            if branching.branch_tracker[idx, 1] < gen.iterations_until_stable || branching.branch_tracker[idx, 2] < gen.iterations_until_stable 
+            if branching.branch_tracker[idx, 1] < gen.iterations_until_stable ||
+               branching.branch_tracker[idx, 2] < gen.iterations_until_stable
                 all_stable = false
                 break
             end
@@ -522,36 +532,39 @@ function (gen::SelectionGenerator)(
         if all_stable
             if gen.decision_function == "product"
                 scores = map(
-                    idx-> μ_product(
+                    idx -> μ_product(
                         unit_cost_pseudo_tuple(
-                            branching.pseudos[idx, 2], 
-                            branching.pseudos[idx, 1], 
-                            values[idx]
+                            branching.pseudos[idx, 2],
+                            branching.pseudos[idx, 1],
+                            values[idx],
                         ),
-                        gen.μ
+                        gen.μ,
                     ),
-                    candidates)
+                    candidates,
+                )
             elseif gen.decision_function == "weighted_sum"
                 scores = map(
-                    idx-> pseudocost_convex_combination(
+                    idx -> pseudocost_convex_combination(
                         unit_cost_pseudo_tuple(
-                            branching.pseudos[idx, 2], 
-                            branching.pseudos[idx, 1], 
-                            values[idx]
+                            branching.pseudos[idx, 2],
+                            branching.pseudos[idx, 1],
+                            values[idx],
                         ),
-                        gen.μ
+                        gen.μ,
                     ),
-                    candidates)
+                    candidates,
+                )
             elseif gen.decision_function == "minimum"
                 scores = map(
-                    idx-> minimum(
+                    idx -> minimum(
                         unit_cost_pseudo_tuple(
-                            branching.pseudos[idx, 2], 
-                            branching.pseudos[idx, 1], 
-                            values[idx]
-                        )
+                            branching.pseudos[idx, 2],
+                            branching.pseudos[idx, 1],
+                            values[idx],
+                        ),
                     ),
-                    candidates)
+                    candidates,
+                )
             end
             # Compute cutoff based on pseudocost scores
             cutoff = gen.cutoff_f(scores)
@@ -560,21 +573,30 @@ function (gen::SelectionGenerator)(
                 if gen.alt_name == "largest_gradient"
                     return Int64[largest_gradient_decision(tree, candidates, values)]
                 elseif gen.alt_name == "largest_most_infeasible_gradient"
-                    return Int64[largest_most_infeasible_gradient_decision(tree, candidates, values)]
+                    return Int64[largest_most_infeasible_gradient_decision(
+                        tree,
+                        candidates,
+                        values,
+                    )]
                 elseif gen.alt_name == "most_infeasible"
                     return Int64[most_infeasible_decision(tree, candidates, values)]
                 end
-            else 
+            else
                 if gen.alt_name == "largest_gradient"
-                    nabla = get_gradient_info_for_branching(tree, values) 
+                    nabla = get_gradient_info_for_branching(tree, values)
                     scores = Float64[abs(nabla[idx]) for idx in candidates]
-            
+
                 elseif gen.alt_name == "largest_most_infeasible_gradient"
-                    nabla = get_gradient_info_for_branching(tree, values) 
-                    scores = Float64[Bonobo.get_distance_to_feasible(tree, values[idx]) * abs(nabla[idx]) for idx in candidates]
-                    
+                    nabla = get_gradient_info_for_branching(tree, values)
+                    scores = Float64[
+                        Bonobo.get_distance_to_feasible(tree, values[idx]) * abs(nabla[idx]) for
+                        idx in candidates
+                    ]
+
                 elseif gen.alt_name == "most_infeasible"
-                    scores = Float64[Bonobo.get_distance_to_feasible(tree, values[idx]) for idx in candidates]
+                    scores = Float64[
+                        Bonobo.get_distance_to_feasible(tree, values[idx]) for idx in candidates
+                    ]
                 end
                 # Compute cutoff based on alternative criteria scores
                 cutoff = gen.alt_cutoff_f(scores)
@@ -584,8 +606,8 @@ function (gen::SelectionGenerator)(
     end
     # Calculate which candidates are good enough as per the cutoff 
     if gen.comparison_type == ">"
-        return  [idx for (i, idx) in enumerate(candidates) if scores[i] > cutoff]
-    else 
+        return [idx for (i, idx) in enumerate(candidates) if scores[i] > cutoff]
+    else
         return [idx for (i, idx) in enumerate(candidates) if scores[i] >= cutoff]
     end
 end
@@ -603,16 +625,13 @@ The last two parameters provide information on how the criterium contributed to 
 """
 mutable struct Stage
     name::String
-    selection_criterion::Union{Function, SelectionGenerator}
+    selection_criterion::Union{Function,SelectionGenerator}
     decision_counter::Int64
     min_cutoff_counter::Int64
-    function Stage(
-        name, 
-        selection_f
-    )
-        new(name, selection_f, 0, 0)
-    end 
-end 
+    function Stage(name, selection_f)
+        return new(name, selection_f, 0, 0)
+    end
+end
 ########################################################################################
 #                Hierarchy Branching 
 ########################################################################################
@@ -626,37 +645,31 @@ Defines the structure used in Hierarchy Branching. The order of Stage instances 
 defines the hierarchy among branching strategies. 
 """
 mutable struct Hierarchy <: Bonobo.AbstractBranchStrategy
-    pseudos::SparseMatrixCSC{Float64, Int64}
-    branch_tracker::SparseMatrixCSC{Int64, Int64}
+    pseudos::SparseMatrixCSC{Float64,Int64}
+    branch_tracker::SparseMatrixCSC{Int64,Int64}
     stages::Vector{Stage}
-    function Hierarchy(
-        bounded_lmo;
-        stages = []
-    ) 
+    function Hierarchy(bounded_lmo; stages=[])
         int_vars = Boscia.get_integer_variables(bounded_lmo)
         int_var_number = length(int_vars)
         # create sparse array for pseudocosts
         pseudos = sparse(
             repeat(int_vars, 2),
-            vcat(ones(int_var_number), 2*ones(int_var_number)), 
-            ones(2 * int_var_number)
-            )
+            vcat(ones(int_var_number), 2 * ones(int_var_number)),
+            ones(2 * int_var_number),
+        )
         # create sparse array for keeping track of how often a pseudocost has been updated
         branch_tracker = sparse(
             repeat(int_vars, 2),
-            vcat(ones(int_var_number), 2*ones(int_var_number)), 
-            ones(Int64, 2 * int_var_number)
-            )   
+            vcat(ones(int_var_number), 2 * ones(int_var_number)),
+            ones(Int64, 2 * int_var_number),
+        )
 
         # If Stages == [] we set the stages by default 
         # stages determine order of criteria 
         if isempty(stages)
             stages = default_hierarchy_strategies()
         end
-        new(
-            pseudos,
-            branch_tracker,
-            stages)
+        return new(pseudos, branch_tracker, stages)
     end
 end
 
@@ -670,10 +683,10 @@ function Bonobo.get_branching_variable(
 Returns the best branching candidate as per the defined Hierarchy Branching strategy
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::Hierarchy,
     node::Bonobo.AbstractNode,
-) 
+)
     # indices of branching candidates
     values = Bonobo.get_relaxed_values(tree, node)
     branching_candidates = get_branching_candidates(tree, node, values)
@@ -683,15 +696,16 @@ function Bonobo.get_branching_variable(
         return -1
     end
     for (i, stage) in enumerate(branching.stages)
-        
+
         # As per criterium defined in the decision function of the stage
         # find the candidates which are "good" enough
-        remaining_candidates = stage.selection_criterion(tree, branching, values, branching_candidates)
+        remaining_candidates =
+            stage.selection_criterion(tree, branching, values, branching_candidates)
         if isempty(remaining_candidates)
             # If a minimum cutoff value > 0 is set then no candidate might be left 
             # We in this case select a random candidate
             stage.min_cutoff_counter += 1
-            return rand(branching_candidates)   
+            return rand(branching_candidates)
 
         elseif length(remaining_candidates) == 1
             # Final candidate was chosen at this stage 
@@ -703,7 +717,7 @@ function Bonobo.get_branching_variable(
     end
     # just in case that after the last criterium there is more than one candidate left
     # we choose at random from the final selection 
-    return rand(branching_candidates) 
+    return rand(branching_candidates)
 end
 ############################################################################ #############################################################################
 #                                      Default Stages/Setting for Hierarchy Branching                                                                        #
@@ -719,44 +733,38 @@ Returns a vector of Stage instances defining a Hierarchy Branching strategy. Thi
 for conveniency and gives an intuition on how to define custom Hierarchy Branching strategies.
 """
 function default_hierarchy_strategies(
-    name::String = "most_infeasible",# first stage criterium
-    alt_name::String = "most_infeasible",# second stage pseudocost with alternative defined by alt_name
-    iterations_until_stable::Int64 = 1,
-    decision_function::String = "product",
-) 
+    name::String="most_infeasible",# first stage criterium
+    alt_name::String="most_infeasible",# second stage pseudocost with alternative defined by alt_name
+    iterations_until_stable::Int64=1,
+    decision_function::String="product",
+)
     if name == "most_infeasible"
         # cutoffs for different stages 
-        
+
         cutoff_1 = CutoffFunctionGenerator(0.5, 1e-3)
         cutoff_2 = CutoffFunctionGenerator(0.75, 0.0)
         cutoff_alt = CutoffFunctionGenerator(1.0, 0.0)
 
         # Selection criteria for different stages 
-        func_1 = SelectionGenerator(
-            "most_infeasible", 
-            cutoff_1
-        )
+        func_1 = SelectionGenerator("most_infeasible", cutoff_1)
         if decision_function == "weighted_sum"
             μ = 0.5
-        else 
+        else
             μ = 1e-6
         end
         func_2 = SelectionGenerator(
             "pseudocost", # 
             cutoff_2; # stable cutoff 
-            alt_name = alt_name,# alternative decision function
-            alt_cutoff_f = cutoff_alt, # cutoff for alternative
-            decision_function = decision_function, # stable decision function for pseu#
-            iterations_until_stable = iterations_until_stable,# number of iterations until a variable is deemed stable
-            comparison_type = ">=",
+            alt_name=alt_name,# alternative decision function
+            alt_cutoff_f=cutoff_alt, # cutoff for alternative
+            decision_function=decision_function, # stable decision function for pseu#
+            iterations_until_stable=iterations_until_stable,# number of iterations until a variable is deemed stable
+            comparison_type=">=",
             alt_final_flag=true,
-            μ = μ
+            μ=μ,
         )
-        func_3 = SelectionGenerator(
-            "largest_most_infeasible_gradient", 
-            cutoff_alt,
-            comparison_type=">="
-        )
+        func_3 =
+            SelectionGenerator("largest_most_infeasible_gradient", cutoff_alt, comparison_type=">=")
         # Actual stages 
         stage1 = Stage("most_infeasible", func_1)
         stage2 = Stage("pseudocost", func_2)
@@ -774,16 +782,14 @@ function create_binary_stage(
    Creates a Stage for Hierarchy Branching where non binary variables are 
    filtered out when binary variables exist.
 """
-function create_binary_stage(
-    bounded_lmo
-)
+function create_binary_stage(bounded_lmo)
     binary_vars = Set{Int64}(getproperty.(get_binary_variables(bounded_lmo), :value))
     function select_binary_vars(
-        tree::Bonobo.BnBTree, 
-        branching::Bonobo.AbstractBranchStrategy, 
-        values::Vector{Float64}, 
-        candidates::Vector{Int64}
-        )
+        tree::Bonobo.BnBTree,
+        branching::Bonobo.AbstractBranchStrategy,
+        values::Vector{Float64},
+        candidates::Vector{Int64},
+    )
         remaining_candidates = Int64[]
         for idx in candidates
             if idx in binary_vars
@@ -811,9 +817,7 @@ based on the number of times they have been updated.
 """
 struct StableChecker
     iterations_until_stable::Int64
-    StableChecker(
-    iterations_until_stable = 1
-    ) = new(iterations_until_stable)
+    StableChecker(iterations_until_stable=1) = new(iterations_until_stable)
 end
 
 
@@ -824,14 +828,15 @@ function (gen::StableChecker)(
     )
 end
 A generated function determining if pseudocosts are stable for the given branching candidates.
-""" 
+"""
 function (gen::StableChecker)(
-    branch_tracker::SparseMatrixCSC{Int64, Int64}, 
-    branching_candidates::Vector{Int64}
-    )
+    branch_tracker::SparseMatrixCSC{Int64,Int64},
+    branching_candidates::Vector{Int64},
+)
     all_stable = true
     for idx in branching_candidates
-        if branch_tracker[idx, 1] < gen.iterations_until_stable || branch_tracker[idx, 2] < gen.iterations_until_stable 
+        if branch_tracker[idx, 1] < gen.iterations_until_stable ||
+           branch_tracker[idx, 2] < gen.iterations_until_stable
             all_stable = false
             break
         end
@@ -844,12 +849,10 @@ end
 `PseudocostStableSelectionGenerator` generates decision function for stable pseudocost branching 
 """
 struct PseudocostStableSelectionGenerator
-    decision_function::Union{String, Missing}
-    μ:: Float64
-    PseudocostStableSelectionGenerator(
-        decision_function = "product",
-        μ::Float64 = 1e-6
-    ) = new(decision_function, μ)
+    decision_function::Union{String,Missing}
+    μ::Float64
+    PseudocostStableSelectionGenerator(decision_function="product", μ::Float64=1e-6) =
+        new(decision_function, μ)
 end
 
 
@@ -864,40 +867,40 @@ end
 Calculates the Candidate Selection based on pseudocost decision function.
 """
 function (gen::PseudocostStableSelectionGenerator)(
-    tree::Bonobo.BnBTree, 
-    branching::Bonobo.AbstractBranchStrategy, 
-    values::Vector{Float64}, 
-    candidates::Vector{Int64}
-    )
+    tree::Bonobo.BnBTree,
+    branching::Bonobo.AbstractBranchStrategy,
+    values::Vector{Float64},
+    candidates::Vector{Int64},
+)
     best_idx = -1
     best_score = 0
     for idx in candidates
         if gen.decision_function == "product"
             score = μ_product(
-                    unit_cost_pseudo_tuple(
-                        branching.pseudos[idx, 2], 
-                        branching.pseudos[idx, 1], 
-                        values[idx]
-                    ),
-                    gen.μ
-                ) 
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2],
+                    branching.pseudos[idx, 1],
+                    values[idx],
+                ),
+                gen.μ,
+            )
         elseif gen.decision_function == "weighted_sum"
             score = pseudocost_convex_combination(
-                    unit_cost_pseudo_tuple(
-                        branching.pseudos[idx, 2], 
-                        branching.pseudos[idx, 1], 
-                        values[idx]
-                    ),
-                    gen.μ
-                )
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2],
+                    branching.pseudos[idx, 1],
+                    values[idx],
+                ),
+                gen.μ,
+            )
         elseif gen.decision_function == "minimum"
             score = minimum(
-                    unit_cost_pseudo_tuple(
-                        branching.pseudos[idx, 2], 
-                        branching.pseudos[idx, 1], 
-                        values[idx]
-                    )
-                )
+                unit_cost_pseudo_tuple(
+                    branching.pseudos[idx, 2],
+                    branching.pseudos[idx, 1],
+                    values[idx],
+                ),
+            )
         end
         if score >= best_score
             best_score = score
@@ -921,44 +924,37 @@ end
 Description: This structure defines a pseudocost branching strategy.
 """
 mutable struct PseudocostBranching <: Bonobo.AbstractBranchStrategy
-    pseudos::SparseMatrixCSC{Float64, Int64}
-    branch_tracker::SparseMatrixCSC{Int64, Int64}
+    pseudos::SparseMatrixCSC{Float64,Int64}
+    branch_tracker::SparseMatrixCSC{Int64,Int64}
     alt_f::Function
-    stable_f:: Union{Function, PseudocostStableSelectionGenerator}
+    stable_f::Union{Function,PseudocostStableSelectionGenerator}
     stable_checker::StableChecker
     alt_decision_number::Int64# Contains information on how often the alternative strategy decided
     stable_decision_number::Int64# How many pseudocost branching decisions were made
     function PseudocostBranching(
         bounded_lmo;
-        alt_f = most_infeasible_decision,
-        stable_f = PseudocostStableSelectionGenerator("product", 1e-6),
-        iterations_until_stable = 1
-    ) 
+        alt_f=most_infeasible_decision,
+        stable_f=PseudocostStableSelectionGenerator("product", 1e-6),
+        iterations_until_stable=1,
+    )
         int_vars = Boscia.get_integer_variables(bounded_lmo)
         int_var_number = length(int_vars)
         # create sparse array for pseudocosts
         pseudos = sparse(
             repeat(int_vars, 2),
-            vcat(ones(int_var_number), 2*ones(int_var_number)), 
-            ones(2 * int_var_number)
-            )
+            vcat(ones(int_var_number), 2 * ones(int_var_number)),
+            ones(2 * int_var_number),
+        )
         # create sparse array for keeping track of how often a pseudocost has been updated
         branch_tracker = sparse(
             repeat(int_vars, 2),
-            vcat(ones(int_var_number), 2*ones(int_var_number)), 
-            ones(Int64, 2 * int_var_number)
-            )   
+            vcat(ones(int_var_number), 2 * ones(int_var_number)),
+            ones(Int64, 2 * int_var_number),
+        )
         # get function that checks if pseudocosts are stable. +1 because of init of branch_tracker
         stable_checker = StableChecker(iterations_until_stable + 1)
 
-        new(
-            pseudos,
-            branch_tracker,
-            alt_f,
-            stable_f,
-            stable_checker,
-            0,
-            0)
+        return new(pseudos, branch_tracker, alt_f, stable_f, stable_checker, 0, 0)
     end
 end
 
@@ -974,10 +970,10 @@ pseudocosts are stable and otherwise returns the candidate with the highest scor
 the chosen alternative branching strategy.
 """
 function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree, 
+    tree::Bonobo.BnBTree,
     branching::PseudocostBranching,
     node::Bonobo.AbstractNode,
-) 
+)
     values = Bonobo.get_relaxed_values(tree, node)
     #indices of branching candidates
     branching_candidates = get_branching_candidates(tree, node, values)
@@ -991,7 +987,7 @@ function Bonobo.get_branching_variable(
         branching.stable_decision_number += 1
         return branching.stable_f(tree, branching, values, branching_candidates)
 
-    else 
+    else
         branching.alt_decision_number += 1
         return branching.alt_f(tree, branching_candidates, values)
     end

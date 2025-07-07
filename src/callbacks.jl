@@ -7,33 +7,53 @@ Time limit is checked.
 If the vertex is providing a better incumbent, it is added as solution.
 """
 function build_FW_callback(
-	tree,
-	min_number_lower,
-	check_rounding_value::Bool,
-	fw_iterations,
-	min_fw_iterations,
-	time_ref,
-	time_limit;
-	use_DICG = false,
+    tree,
+    min_number_lower,
+    check_rounding_value::Bool,
+    fw_iterations,
+    min_fw_iterations,
+    time_ref,
+    time_limit;
+    use_DICG=false,
 )
-	vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
-	# variable to only fetch heuristics when the counter increases
-	ncalls = -1
-	if !use_DICG
-		return function (state, active_set, kwargs...)
-			return process_FW_callback_logic(
-				tree, state, vars, fw_iterations, ncalls, min_fw_iterations,
-				min_number_lower, time_ref, time_limit, use_DICG; active_set = active_set, kwargs,
-			)
-		end
-	else
-		return function (state, pre_computed_set, kwargs...)
-			return process_FW_callback_logic(
-				tree, state, vars, fw_iterations, ncalls, min_fw_iterations,
-				min_number_lower, time_ref, time_limit, use_DICG; pre_computed_set = pre_computed_set, kwargs,
-			)
-		end
-	end
+    vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
+    # variable to only fetch heuristics when the counter increases
+    ncalls = -1
+    if !use_DICG
+        return function (state, active_set, kwargs...)
+            return process_FW_callback_logic(
+                tree,
+                state,
+                vars,
+                fw_iterations,
+                ncalls,
+                min_fw_iterations,
+                min_number_lower,
+                time_ref,
+                time_limit,
+                use_DICG;
+                active_set=active_set,
+                kwargs,
+            )
+        end
+    else
+        return function (state, pre_computed_set, kwargs...)
+            return process_FW_callback_logic(
+                tree,
+                state,
+                vars,
+                fw_iterations,
+                ncalls,
+                min_fw_iterations,
+                min_number_lower,
+                time_ref,
+                time_limit,
+                use_DICG;
+                pre_computed_set=pre_computed_set,
+                kwargs,
+            )
+        end
+    end
 end
 
 function process_FW_callback_logic(
@@ -47,8 +67,8 @@ function process_FW_callback_logic(
     time_ref,
     time_limit,
     use_DICG;
-    active_set = nothing,
-    pre_computed_set = nothing,
+    active_set=nothing,
+    pre_computed_set=nothing,
     kwargs...,
 )
 
@@ -136,7 +156,7 @@ function process_FW_callback_logic(
             end
         end
     end
-        
+
     return true
 
 end

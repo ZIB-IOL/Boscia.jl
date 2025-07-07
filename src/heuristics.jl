@@ -32,7 +32,7 @@ Add a new solution found from the heuristic to the tree.
 function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
     node = tree.nodes[tree.root.current_node_id[]]
     add_new_solution!(tree, node, val, x, heuristic_name)
-    Bonobo.bound!(tree, node.id)
+    return Bonobo.bound!(tree, node.id)
 end
 
 # TO DO: We might want to change the probability depending on the depth of the tree
@@ -53,18 +53,23 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                 min_val = Inf
                 min_idx = -1
                 for (i, x_heu) in enumerate(list_x_heu)
-                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) && tree.root.options[:domain_oracle](x_heu) : tree.root.options[:domain_oracle](x_heu)
+                    feasible =
+                        check_feasibility ?
+                        is_linear_feasible(tree.root.problem.tlmo, x_heu) &&
+                        is_integer_feasible(tree, x_heu) &&
+                        tree.root.options[:domain_oracle](x_heu) :
+                        tree.root.options[:domain_oracle](x_heu)
                     if feasible
                         val = tree.root.problem.f(x_heu)
                         if val < min_val
                             min_val = val
-                            min_idx = i 
+                            min_idx = i
                         end
                     end
                 end
 
                 if min_val < tree.incumbent # Inf < Inf = false
-                    add_heuristic_solution(tree, list_x_heu[min_idx],min_val, heuristic.identifer)
+                    add_heuristic_solution(tree, list_x_heu[min_idx], min_val, heuristic.identifer)
                 end
             end
         end
@@ -96,7 +101,7 @@ function follow_gradient_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTracki
     x_new = copy(x)
     sols = []
     for i in 1:k
-        tree.root.problem.g(nabla,x_new)
+        tree.root.problem.g(nabla, x_new)
         x_new = Boscia.compute_extreme_point(tlmo, nabla)
         push!(sols, x_new)
     end
@@ -110,7 +115,7 @@ Advanced lmo-aware rounding for binary vars. Rounding respecting the hidden feas
 function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
     nabla = zeros(length(x))
     for idx in tree.branching_indices
-        nabla[idx] = 1 - 2*round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
+        nabla[idx] = 1 - 2 * round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
     end
     x_rounded = Boscia.compute_extreme_point(tlmo, nabla)
     return [x_rounded], false
@@ -121,13 +126,18 @@ Probability rounding for 0/1 problems.
 It decides based on the fractional value whether to ceil or floor the variable value. 
 Afterward, one call to Frank-Wolfe is performed to optimize the continuous variables.    
 """
-function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rng=Random.GLOBAL_RNG)
+function probability_rounding(
+    tree::Bonobo.BnBTree,
+    tlmo::Boscia.TimeTrackingLMO,
+    x;
+    rng=Random.GLOBAL_RNG,
+)
     # save original bounds
     node = tree.nodes[tree.root.current_node_id[]]
     original_bounds = copy(node.local_bounds)
 
     bounds = IntegerBounds()
-    for (i,x_i) in zip(tlmo.blmo.int_vars, x[tlmo.blmo.int_vars])
+    for (i, x_i) in zip(tlmo.blmo.int_vars, x[tlmo.blmo.int_vars])
         x_rounded = flip_coin(x_i, rng) ? min(1.0, ceil(x_i)) : max(0.0, floor(x_i))
         push!(bounds, (i, x_rounded), :lessthan)
         push!(bounds, (i, x_rounded), :greaterthan)
@@ -140,7 +150,12 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
     if status == INFEASIBLE || status == UNBOUNDED
         @debug "LMO state in the probability rounding heuristic: $(status)"
         # reset LMO to node state
-        build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
+        build_LMO(
+            tlmo,
+            tree.root.problem.integer_variable_bounds,
+            original_bounds,
+            tlmo.blmo.int_vars,
+        )
         # just return the point
         return [x], true
     end
@@ -163,10 +178,11 @@ function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO
         verbose=tree.root.options[:fwVerbose],
     )
 
-    @assert sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars]))) == length(tlmo.blmo.int_vars) "$(sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars])))) == $(length(tlmo.blmo.int_vars)) $(x_rounded[tlmo.blmo.int_vars])"
+    @assert sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars]))) ==
+            length(tlmo.blmo.int_vars) "$(sum(isapprox.(x_rounded[tlmo.blmo.int_vars], round.(x_rounded[tlmo.blmo.int_vars])))) == $(length(tlmo.blmo.int_vars)) $(x_rounded[tlmo.blmo.int_vars])"
 
     # reset LMO to node state
     build_LMO(tlmo, tree.root.problem.integer_variable_bounds, original_bounds, tlmo.blmo.int_vars)
-    
+
     return [x_rounded], false
 end

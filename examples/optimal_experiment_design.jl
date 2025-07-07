@@ -4,7 +4,7 @@ using Distributions
 using LinearAlgebra
 using FrankWolfe
 using Statistics
-using Test 
+using Test
 using StableRNGs
 
 seed = rand(UInt64)
@@ -59,53 +59,66 @@ verbose = true
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
     domain_oracle = build_domain_oracle(Ex_mat, n)
-    domain_point = build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
+    domain_point =
+        build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
-    x, _, _ = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, time_limit=10, verbose=false, domain_oracle=domain_oracle, find_domain_point=domain_point, custom_heuristics=[heu], line_search=line_search)
+    x, _, _ = Boscia.solve(
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        time_limit=10,
+        verbose=false,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
+        line_search=line_search,
+    )
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     x, _, result = Boscia.solve(
-        g, 
-        grad!, 
-        blmo, 
-        active_set=active_set, 
-        start_solution=z, 
-        verbose=verbose, 
-        domain_oracle=domain_oracle, 
-        find_domain_point=domain_point, 
-        custom_heuristics=[heu], 
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        verbose=verbose,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
         line_search=line_search,
     )
-    
+
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
 
     x_s, _, result_s = Boscia.solve(
-        g, 
-        grad!, 
-        blmo, 
-        active_set=active_set, 
-        start_solution=z, 
-        verbose=verbose, 
-        domain_oracle=domain_oracle, 
-        find_domain_point=domain_point, 
-        custom_heuristics=[heu], 
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        verbose=verbose,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
         line_search=line_search,
     )
 
     @test result_s[:dual_bound] <= g(x) + 1e-3
     @test result[:dual_bound] <= g(x_s) + 1e-3
-    @test isapprox(g(x), g(x_s), atol=1e-3) 
-end 
+    @test isapprox(g(x), g(x_s), atol=1e-3)
+end
 
 ## D-Optimal Design Problem
 @testset "D-optimal Design" begin
@@ -115,51 +128,63 @@ end
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
     domain_oracle = build_domain_oracle(Ex_mat, n)
-    domain_point = build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
+    domain_point =
+        build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
-    x, _, _ = Boscia.solve(g, grad!, blmo, active_set=active_set, start_solution=z, time_limit=10, verbose=false, domain_oracle=domain_oracle, find_domain_point=domain_point, custom_heuristics=[heu], line_search=line_search)
+    x, _, _ = Boscia.solve(
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        time_limit=10,
+        verbose=false,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
+        line_search=line_search,
+    )
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     x, _, result = Boscia.solve(
-        g, 
-        grad!, 
-        blmo, 
-        active_set=active_set, 
-        start_solution=z, 
-        verbose=verbose, 
-        domain_oracle=domain_oracle, 
-        find_domain_point=domain_point, 
-        custom_heuristics=[heu], 
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        verbose=verbose,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
         line_search=line_search,
     )
-    
+
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
 
     x_s, _, result_s = Boscia.solve(
-        g, 
-        grad!, 
-        blmo, 
-        active_set=active_set, 
-        start_solution=z, 
-        verbose=verbose, 
-        domain_oracle=domain_oracle, 
-        find_domain_point=domain_point, 
-        custom_heuristics=[heu], 
+        g,
+        grad!,
+        blmo,
+        active_set=active_set,
+        start_solution=z,
+        verbose=verbose,
+        domain_oracle=domain_oracle,
+        find_domain_point=domain_point,
+        custom_heuristics=[heu],
         line_search=line_search,
     )
 
     @test result_s[:dual_bound] <= g(x)
     @test result[:dual_bound] <= g(x_s)
-    @test isapprox(g(x), g(x_s), rtol=1e-2) 
+    @test isapprox(g(x), g(x_s), rtol=1e-2)
 end
-

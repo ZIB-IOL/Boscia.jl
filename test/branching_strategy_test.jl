@@ -14,17 +14,17 @@ const MOI = MathOptInterface
 verbose = true
 
 
-function build_examples(o, n,  seed)
+function build_examples(o, n, seed)
     Random.seed!(seed)
     A = let
         A = randn(n, n)
         A' * A
     end
-    
+
     @assert isposdef(A) == true
-    
+
     y = Random.rand(Bool, n) * 0.6 .+ 0.3
-    
+
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, n)
@@ -48,46 +48,74 @@ function build_examples(o, n,  seed)
     end
     return f, grad!, lmo
 end
-   
+
 
 @testset "Simple Branching Strategies" begin
     dimension = 20
     seed = 1
     o = SCIP.Optimizer()
-    f, grad!, lmo = build_examples(o, dimension,  seed)
+    f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 180
 
-    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = Bonobo.MOST_INFEASIBLE())
+    x_mi, _, result_mi = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=verbose,
+        time_limit=time_limit,
+        branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    )
 
     @testset "Largest Gradient Branching" begin
-    branching_strategy = Boscia.LargestGradient()
-    o = SCIP.Optimizer()
-    f, grad!, lmo = build_examples(o, dimension,  seed)
-    
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
+        branching_strategy = Boscia.LargestGradient()
+        o = SCIP.Optimizer()
+        f, grad!, lmo = build_examples(o, dimension, seed)
 
-    @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
-    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
+        @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Largest Most-Infeasible Gradient Branching" begin
         branching_strategy = Boscia.LargestMostInfeasibleGradient()
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-        
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-     end
+    end
 
     @testset "Random Branching" begin
         branching_strategy = Boscia.RandomBranching()
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-        
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
@@ -95,10 +123,17 @@ end
     @testset "Largest Index" begin
         branching_strategy = Boscia.LargestIndex()
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-        
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
@@ -109,23 +144,37 @@ end
     dimension = 30
     seed = 1
     o = SCIP.Optimizer()
-    f, grad!, lmo = build_examples(o, dimension,  seed)
+    f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 600
 
-    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = Bonobo.MOST_INFEASIBLE())
+    x_mi, _, result_mi = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=verbose,
+        time_limit=time_limit,
+        branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    )
 
     @testset "Pseudocost with Most-Infeasible alternative and weighted_sum decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
+        f, grad!, lmo = build_examples(o, dimension, seed)
 
         branching_strategy = Boscia.PseudocostBranching(
             lmo;
-            alt_f = Boscia.most_infeasible_decision,
-            stable_f = Boscia.PseudocostStableSelectionGenerator("weighted_sum", 0.5),
-            iterations_until_stable = 1
-        ) 
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
+            alt_f=Boscia.most_infeasible_decision,
+            stable_f=Boscia.PseudocostStableSelectionGenerator("weighted_sum", 0.5),
+            iterations_until_stable=1,
+        )
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -133,51 +182,72 @@ end
 
     @testset "Pseudocost with Largest Most-Infeasible Gradient alternative and product decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-    
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
         branching_strategy = Boscia.PseudocostBranching(
             lmo;
-            alt_f = Boscia.largest_most_infeasible_gradient_decision,
-            stable_f = Boscia.PseudocostStableSelectionGenerator("product", 1e-6),
-            iterations_until_stable = 1
-        ) 
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+            alt_f=Boscia.largest_most_infeasible_gradient_decision,
+            stable_f=Boscia.PseudocostStableSelectionGenerator("product", 1e-6),
+            iterations_until_stable=1,
+        )
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Pseudocost with LargestGradient alternative and minimum decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-    
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
         branching_strategy = Boscia.PseudocostBranching(
             lmo;
-            alt_f = Boscia.largest_gradient_decision,
-            stable_f = Boscia.PseudocostStableSelectionGenerator("minimum", 1e-6),
-            iterations_until_stable = 1
-        ) 
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+            alt_f=Boscia.largest_gradient_decision,
+            stable_f=Boscia.PseudocostStableSelectionGenerator("minimum", 1e-6),
+            iterations_until_stable=1,
+        )
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Pseudocost with Most-Infeasible alternative and product decision function and 5 visit stability criterion" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-    
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
         branching_strategy = Boscia.PseudocostBranching(
             lmo;
-            alt_f = Boscia.most_infeasible_decision,
-            stable_f = Boscia.PseudocostStableSelectionGenerator("product", 1e-6),
-            iterations_until_stable = 5
-        ) 
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+            alt_f=Boscia.most_infeasible_decision,
+            stable_f=Boscia.PseudocostStableSelectionGenerator("product", 1e-6),
+            iterations_until_stable=5,
+        )
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
@@ -232,29 +302,43 @@ end
     seed = 1
     o = SCIP.Optimizer()
     n = dimension
-    m = 3* dimension
-    l = ceil(dimension/ 2)
+    m = 3 * dimension
+    l = ceil(dimension / 2)
     k = l - 1
     #lmo, f, grad! = int_sparse_regression(o, n, m, l, k, seed)
 
-    f, grad!, lmo = build_examples(o, dimension,  seed)
+    f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 600
 
-    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = Bonobo.MOST_INFEASIBLE())
+    x_mi, _, result_mi = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        verbose=verbose,
+        time_limit=time_limit,
+        branching_strategy=Bonobo.MOST_INFEASIBLE(),
+    )
 
     @testset "Hierarchy with Most-Infeasible pseudocost alternative and weighted_sum decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
+        f, grad!, lmo = build_examples(o, dimension, seed)
 
         stages = Boscia.default_hierarchy_strategies(
             "most_infeasible",
             "most_infeasible",
             1,
-            "weighted_sum"
+            "weighted_sum",
         )
         branching_strategy = Boscia.Hierarchy(lmo; stages)
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -262,56 +346,69 @@ end
 
     @testset "Hierarchy Branching with Largest Gradient pseudocost alternative and product decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-    
-        stages = Boscia.default_hierarchy_strategies(
-            "most_infeasible",
-            "largest_gradient",
-            1,
-            "product"
-        )
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
+        stages =
+            Boscia.default_hierarchy_strategies("most_infeasible", "largest_gradient", 1, "product")
         branching_strategy = Boscia.Hierarchy(lmo; stages)
-        
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Hierarchy with Largest Most-Infeasible Gradient pseudocost alternative and minimum decision function" begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
-    
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
         stages = Boscia.default_hierarchy_strategies(
             "most_infeasible",
             "largest_most_infeasible_gradient",
             1,
-            "minimum"
+            "minimum",
         )
         branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
     @testset "Hierarchy with Most-Infeasible pseudocost alternative and product decision function + branch binary first " begin
         o = SCIP.Optimizer()
-        f, grad!, lmo = build_examples(o, dimension,  seed)
+        f, grad!, lmo = build_examples(o, dimension, seed)
 
-        stages = Boscia.default_hierarchy_strategies(
-            "most_infeasible",
-            "most_infeasible",
-            1,
-            "product"
-        )
+        stages =
+            Boscia.default_hierarchy_strategies("most_infeasible", "most_infeasible", 1, "product")
         stages = insert!(stages, 1, Boscia.create_binary_stage(lmo))
 
-        branching_strategy = Boscia.Hierarchy(lmo;stages)
+        branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=verbose, time_limit=time_limit, branching_strategy = branching_strategy)
-    
+        x, _, result = Boscia.solve(
+            f,
+            grad!,
+            lmo,
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=branching_strategy,
+        )
+
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
