@@ -194,7 +194,6 @@ function solve(
 
     Node = typeof(nodeEx)
     Value = typeof(active_set.atoms[1])
-    @show typeof(active_set)
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
