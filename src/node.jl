@@ -336,10 +336,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.active_set = atoms_set
     else
 	# update set of computed atoms and active set
-        if isa(x, Vector)
+        if isa(x, AbstractVector)
             node.pre_computed_set = atoms_set
             node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
         else
+            @debug "x is not a vector, returning NaN, x: $x"
             return NaN, NaN
         end
     end
