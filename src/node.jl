@@ -106,7 +106,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     right_distance = ceil(x[vidx]) - x[vidx]
 
     if tree.root.options[:branch_callback] !== nothing
-        if !tree.root.options[:branch_callback](tree, node, x, vidx)
+        if !tree.root.options[:branch_callback](tree, node, vidx)
             return Vector{typeof(node_info_left)}()
         end
     end
