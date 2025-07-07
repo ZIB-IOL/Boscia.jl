@@ -20,22 +20,22 @@ using StableRNGs
 
 
 seed = rand(UInt64)
-@show seed  
+@show seed
 rng = StableRNG(seed)
 
 @testset "Strong convexity" begin
 
     @testset "Log barrier" begin
         n = 50
-        N = Int(floor(3/4 * n))
+        N = Int(floor(3 / 4 * n))
         ϵ = 1e-3
 
         function f(x)
-            return - sum(log(xi + ϵ) for xi in x) - log(N - sum(x) + ϵ) 
+            return -sum(log(xi + ϵ) for xi in x) - log(N - sum(x) + ϵ)
         end
 
         function grad!(storage, x)
-            storage .= - 1 ./ (x .+ ϵ) .- 1/sum(N - sum(x) + ϵ) 
+            storage .= -1 ./ (x .+ ϵ) .- 1 / sum(N - sum(x) + ϵ)
             return storage
 
         end
@@ -49,7 +49,7 @@ rng = StableRNG(seed)
             grad!,
             sblmo,
             fill(0.0, n),
-            fill(floor(N/2), n),
+            fill(floor(N / 2), n),
             int_vars,
             n,
             verbose=true,
@@ -58,13 +58,13 @@ rng = StableRNG(seed)
             print_iter=1000,
         )
 
-        μ = 1/(1 + ϵ)^(2*n)
+        μ = 1 / (1 + ϵ)^(2 * n)
         x_sc, _, result_sc = Boscia.solve(
             f,
             grad!,
             sblmo,
             fill(0.0, n),
-            fill(floor(N/2), n),
+            fill(floor(N / 2), n),
             int_vars,
             n,
             verbose=true,
@@ -80,19 +80,19 @@ rng = StableRNG(seed)
 
     @testset "General convex quadratic" begin
         n = 20
-        N = Int(floor(n/2))
+        N = Int(floor(n / 2))
         Q = rand(rng, n, n)
-        Q = Q' * Q 
+        Q = Q' * Q
         @assert isposdef(Q)
 
         b = rand(rng, n)
 
         function f(x)
-            return 1/2 * x' * Q * x - b' * x
+            return 1 / 2 * x' * Q * x - b' * x
         end
 
         function grad!(storage, x)
-            storage .= Q * x - b 
+            storage .= Q * x - b
             return storage
         end
 
@@ -115,22 +115,22 @@ rng = StableRNG(seed)
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
-    end     
+    end
 end
 
 @testset "Sharpness" begin
 
-    @testset "Log barrier" begin 
+    @testset "Log barrier" begin
         n = 50
-        N = Int(floor(3/4 * n))
+        N = Int(floor(3 / 4 * n))
         ϵ = 1e-3
 
         function f(x)
-            return - sum(log(xi + ϵ) for xi in x) - log(N - sum(x) + ϵ) 
+            return -sum(log(xi + ϵ) for xi in x) - log(N - sum(x) + ϵ)
         end
 
         function grad!(storage, x)
-            storage .= - 1 ./ (x .+ ϵ) .- 1/sum(N - sum(x) + ϵ) 
+            storage .= -1 ./ (x .+ ϵ) .- 1 / sum(N - sum(x) + ϵ)
             return storage
 
         end
@@ -144,7 +144,7 @@ end
             grad!,
             sblmo,
             fill(0.0, n),
-            fill(floor(N/2), n),
+            fill(floor(N / 2), n),
             int_vars,
             n,
             verbose=true,
@@ -153,15 +153,15 @@ end
             print_iter=1000,
         )
 
-        μ = 1/(1 + ϵ)^(2*n)
-        θ = 1/2
-        M = sqrt(2/μ)
+        μ = 1 / (1 + ϵ)^(2 * n)
+        θ = 1 / 2
+        M = sqrt(2 / μ)
         x_sc, _, result_sc = Boscia.solve(
             f,
             grad!,
             sblmo,
             fill(0.0, n),
-            fill(floor(N/2), n),
+            fill(floor(N / 2), n),
             int_vars,
             n,
             verbose=true,
@@ -178,27 +178,27 @@ end
 
     @testset "General convex quadratic" begin
         n = 20
-        N = Int(floor(n/2))
+        N = Int(floor(n / 2))
         Q = rand(rng, n, n)
-        Q = Q' * Q 
+        Q = Q' * Q
         @assert isposdef(Q)
 
         b = rand(rng, n)
 
         function f(x)
-            return 1/2 * x' * Q * x - b' * x
+            return 1 / 2 * x' * Q * x - b' * x
         end
 
         function grad!(storage, x)
-            storage .= Q * x - b 
+            storage .= Q * x - b
             return storage
         end
         val, sol = Boscia.min_via_enum_prob_simplex(f, n, N)
 
         blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
         μ = minimum(eigvals(Q))
-        θ = 1/2
-        M = sqrt(2/μ)
+        θ = 1 / 2
+        M = sqrt(2 / μ)
 
         x, _, _ = Boscia.solve(
             f,

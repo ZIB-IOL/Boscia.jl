@@ -43,9 +43,10 @@ function Bonobo.optimize!(
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
-        if node.lb >= tree.incumbent 
+        if node.lb >= tree.incumbent
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
-            if isa(tree.options.branch_strategy, Boscia.Hierarchy) || isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+            if isa(tree.options.branch_strategy, Boscia.Hierarchy) ||
+               isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
                 if !isinf(node.parent_lower_bound_base)
                     idx = node.branched_on
                     update = lb - node.parent_lower_bound_base
@@ -55,14 +56,14 @@ function Bonobo.optimize!(
                     end
                     r_idx = node.branched_right ? 1 : 2
                     tree.options.branch_strategy.pseudos[idx, r_idx] = update_avg(
-                        update, 
-                        tree.options.branch_strategy.pseudos[idx, r_idx], 
-                        tree.options.branch_strategy.branch_tracker[idx, r_idx]
-                        )
+                        update,
+                        tree.options.branch_strategy.pseudos[idx, r_idx],
+                        tree.options.branch_strategy.branch_tracker[idx, r_idx],
+                    )
                     tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
                 end
             end
-            
+
             Bonobo.close_node!(tree, node)
             callback(
                 tree,
@@ -131,7 +132,7 @@ function Bonobo.add_new_solution!(
     tree::Bonobo.BnBTree{N,R,V,S},
     node::Bonobo.AbstractNode,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V}}
-    add_new_solution!(tree, node, node.ub, Bonobo.get_relaxed_values(tree, node), :iterate)
+    return add_new_solution!(tree, node, node.ub, Bonobo.get_relaxed_values(tree, node), :iterate)
 end
 
 function add_new_solution!(
@@ -166,4 +167,3 @@ function Bonobo.get_solution(
     end
     return tree.solutions[result].solution
 end
-

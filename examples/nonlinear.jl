@@ -108,12 +108,24 @@ FrankWolfe.benchmark_oracles(f, grad!, () -> rand(n), lmo; k=100)
 
 
 depth = 5
-heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, depth), 0.8, :follow_gradient)
+heu = Boscia.Heuristic(
+    (tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree, blmo, x, depth),
+    0.8,
+    :follow_gradient,
+)
 heu2 = Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.8, :lmo_rounding)
 
 heuristics = [heu, heu2]
 # heuristics = []
 
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, print_iter=500, custom_heuristics=heuristics, time_limit=300)
+x, _, _ = Boscia.solve(
+    f,
+    grad!,
+    lmo,
+    verbose=true,
+    print_iter=500,
+    custom_heuristics=heuristics,
+    time_limit=300,
+)
 
 @show x

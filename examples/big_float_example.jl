@@ -1,7 +1,7 @@
 using Boscia
 using Test
 using DoubleFloats
-using StableRNGs 
+using StableRNGs
 
 seed = rand(UInt64)
 @show seed
@@ -26,11 +26,23 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     ubs = ones(n)
 
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-    custom_heuristics= [Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
-    Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding)]
+    custom_heuristics = [
+        Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
+        Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
+    ]
 
-    x, _, result =
-        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true, time_limit=120, custom_heuristics = custom_heuristics)
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        lbs[int_vars],
+        ubs[int_vars],
+        int_vars,
+        n,
+        verbose=true,
+        time_limit=120,
+        custom_heuristics=custom_heuristics,
+    )
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)
@@ -54,11 +66,23 @@ end
     ubs = ones(n)
 
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-    custom_heuristics= [Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
-    Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding)]
+    custom_heuristics = [
+        Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
+        Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
+    ]
 
-    x, _, result =
-        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true, time_limit=125, custom_heuristics = custom_heuristics)
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        lbs[int_vars],
+        ubs[int_vars],
+        int_vars,
+        n,
+        verbose=true,
+        time_limit=125,
+        custom_heuristics=custom_heuristics,
+    )
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)

@@ -14,7 +14,7 @@ function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
     branching::PartialStrongBranching{BLMO},
     node::Bonobo.AbstractNode,
-) where BLMO <: BoundedLinearMinimizationOracle 
+) where {BLMO<:BoundedLinearMinimizationOracle}
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
