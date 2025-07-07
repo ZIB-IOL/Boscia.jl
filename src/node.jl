@@ -106,9 +106,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     right_distance = ceil(x[vidx]) - x[vidx]
 
     if tree.root.options[:branch_callback] !== nothing
-        tree.root.options[:branch_callback](tree, node, x, vidx)
+        if !tree.root.options[:branch_callback](tree, node, x, vidx)
+            return Vector{typeof(node_info_left)}()
+        end
     end
-
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
