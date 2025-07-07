@@ -302,7 +302,7 @@ function solve(
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     lazy=true,
     lazy_tolerance=2.0,
