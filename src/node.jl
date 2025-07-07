@@ -107,7 +107,24 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
 
     if tree.root.options[:branch_callback] !== nothing
         if !tree.root.options[:branch_callback](tree, node, vidx)
-            return Vector{typeof(node_info_left)}()
+            dummy_node_info = (
+            active_set=node.active_set,
+            discarded_vertices=node.discarded_vertices,
+            local_bounds=node.local_bounds,
+            level=node.level + 1,
+            fw_dual_gap_limit=node.fw_dual_gap_limit,
+            fw_time=node.fw_time,
+            global_tightenings=0,
+            local_tightenings=0,
+            local_potential_tightenings=0,
+            dual_gap=NaN,
+            pre_computed_set=node.pre_computed_set,
+            parent_lower_bound_base=lower_bound_base,
+            branched_on=vidx,
+            branched_right=true, 
+            distance_to_int=0.0,
+        )
+            return Vector{typeof(dummy_node_info)}()
         end
     end
 
