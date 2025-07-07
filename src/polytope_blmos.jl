@@ -597,9 +597,16 @@ function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, in
     end
 
     m = if sblmo.append_by_column
-        reduce(vcat, Matrix(m))
+        # Convert sparse matrix to sparse vector by columns
+        I, J, V = SparseArrays.findnz(m)
+        linear_indices = (J .- 1) .* n .+ I
+        SparseArrays.sparsevec(linear_indices, V, n^2)
     else
-        reduce(vcat, LinearAlgebra.transpose(Matrix(m)))
+        # Convert sparse matrix to sparse vector by rows (transpose first)
+        mt = SparseArrays.sparse(LinearAlgebra.transpose(m))
+        I, J, V = SparseArrays.findnz(mt)
+        linear_indices = (J .- 1) .* n .+ I
+        SparseArrays.sparsevec(linear_indices, V, n^2)
     end
     return m
 end
@@ -737,11 +744,18 @@ function Boscia.bounded_compute_inface_extreme_point(
 		m[index_map_rows[rows[i]], index_map_cols[cols[i]]] = (vals[i] == 2)
 	end
 
-	m = if sblmo.append_by_column
-		reduce(vcat, Matrix(m))
-	else
-		reduce(vcat, LinearAlgebra.transpose(Matrix(m)))
-	end
+    m = if sblmo.append_by_column
+        # Convert sparse matrix to sparse vector by columns
+        I, J, V = SparseArrays.findnz(m)
+        linear_indices = (J .- 1) .* n .+ I
+        SparseArrays.sparsevec(linear_indices, V, n^2)
+    else
+        # Convert sparse matrix to sparse vector by rows (transpose first)
+        mt = SparseArrays.sparse(LinearAlgebra.transpose(m))
+        I, J, V = SparseArrays.findnz(mt)
+        linear_indices = (J .- 1) .* n .+ I
+        SparseArrays.sparsevec(linear_indices, V, n^2)
+    end
 
 	return m
 end

@@ -193,10 +193,12 @@ function solve(
     heuristics = vcat([Heuristic(rounding_heuristic, rounding_prob, :rounding)], custom_heuristics)
 
     Node = typeof(nodeEx)
-    Value = Vector{Float64}
+    Value = typeof(active_set.atoms[1])
+    @show typeof(active_set)
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
+        Value=Value,
         Solution=FrankWolfeSolution{Node,Value},
         root=(
             problem=m,
