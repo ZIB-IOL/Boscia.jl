@@ -262,7 +262,7 @@ function solve(
             global_tightenings=0,
             local_tightenings=0,
             local_potential_tightenings=0,
-            dual_gap=-Inf,
+            dual_gap=(-Inf),
             pre_computed_set=pre_computed_set,
             parent_lower_bound_base=Inf,
             branched_on=-1,
