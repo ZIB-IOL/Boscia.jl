@@ -76,8 +76,8 @@ function split_vertices_set!(
     rtol=1e-5,
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
-    right_as =
-        FrankWolfe.ActiveSet{Vector{Float64},Float64,Vector{Float64}}([], [], similar(active_set.x))
+    right_as = FrankWolfe.ActiveSet{T,R,T}([], [], similar(active_set.x))
+
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, tup) in enumerate(active_set)
@@ -191,7 +191,7 @@ function split_vertices_set!(
     atol=1e-5,
     rtol=1e-5,
 ) where {T}
-    right_as = FrankWolfe.DeletedVertexStorage{}(Vector{Float64}[], discarded_set.return_kth)
+    right_as = FrankWolfe.DeletedVertexStorage{T}(T[], discarded_set.return_kth)
     # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)

@@ -17,7 +17,8 @@ import Bonobo
 using Printf
 using Dates
 using MathOptInterface
-import SparseArrays: SparseMatrixCSC, sparse
+using SparseArrays
+using Hungarian
 import Statistics: mean
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities

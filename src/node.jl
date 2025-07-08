@@ -221,7 +221,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=node.level + 1,
+        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -238,7 +238,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=node.level + 1,
+        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -359,10 +359,11 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.active_set = atoms_set
     else
         # update set of computed atoms and active set
-        if isa(x, Vector)
+        if isa(x, AbstractVector)
             node.pre_computed_set = atoms_set
             node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
         else
+            @debug "x is not a vector, returning NaN, x: $x"
             return NaN, NaN
         end
     end
