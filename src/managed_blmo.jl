@@ -341,10 +341,6 @@ function solve(
     ignore_lower_bound=false,
     add_all_solutions=false,
     propagate_bounds=nothing,
-    use_strong_lazy=false,
-    use_DICG_warm_start=false,
-    use_strong_warm_start=false,
-    build_dicg_start_point = trivial_build_dicg_start_point,
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
@@ -394,10 +390,6 @@ function solve(
         ignore_lower_bound=ignore_lower_bound,
         add_all_solutions=add_all_solutions,
         propagate_bounds=propagate_bounds,
-        use_strong_lazy=use_strong_lazy,
-        use_DICG_warm_start=use_DICG_warm_start,
-        use_strong_warm_start=use_strong_warm_start,
-        build_dicg_start_point=build_dicg_start_point,
         kwargs...,
     )
 end

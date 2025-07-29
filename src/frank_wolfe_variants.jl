@@ -183,7 +183,21 @@ Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-struct DICG <: FrankWolfeVariant end
+struct DICG <: FrankWolfeVariant
+    use_strong_lazy::Bool
+    use_DICG_warm_start::Bool
+    use_strong_warm_start::Bool
+    build_dicg_start_point::Function
+end
+
+function DICG(;
+    use_strong_lazy=false,
+    use_DICG_warm_start=false,
+    use_strong_warm_start=false,
+    build_dicg_start_point=trivial_build_dicg_start_point,
+)
+    return DICG(use_strong_lazy, use_DICG_warm_start, use_strong_warm_start, build_dicg_start_point)
+end
 
 function solve_frank_wolfe(
     frank_wolfe_variant::DICG,
