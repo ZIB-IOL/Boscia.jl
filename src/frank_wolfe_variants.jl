@@ -45,7 +45,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -94,7 +94,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -141,7 +141,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -191,7 +191,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -287,7 +287,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
