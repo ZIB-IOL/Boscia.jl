@@ -17,6 +17,9 @@ import Bonobo
 using Printf
 using Dates
 using MathOptInterface
+using SparseArrays
+using Hungarian
+import Statistics: mean
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
@@ -33,6 +36,7 @@ include("callbacks.jl")
 include("problem.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
+include("branching_strategies.jl")
 include("utilities.jl")
 include("interface.jl")
 include("managed_blmo.jl")

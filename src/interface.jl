@@ -64,7 +64,7 @@ function solve(
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     lazy=true,
     lazy_tolerance=2.0,
@@ -87,10 +87,10 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    sharpness_constant = 0.0,
-    sharpness_exponent = Inf,
+    sharpness_constant=0.0,
+    sharpness_exponent=Inf,
     domain_oracle=_trivial_domain,
-    find_domain_point= _trivial_domain_point,
+    find_domain_point=_trivial_domain_point,
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
@@ -106,7 +106,7 @@ function solve(
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
-    build_dicg_start_point = trivial_build_dicg_start_point,
+    build_dicg_start_point=trivial_build_dicg_start_point,
     kwargs...,
 )
     time_ref = Dates.now()
@@ -121,6 +121,10 @@ function solve(
         println("Parameter settings.")
         println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
         println("\t Branching strategy: ", _value_to_print(branching_strategy))
+        isa(branching_strategy, Boscia.Hierarchy) && println(
+            "\t Order of criteria in Hierarchy Branching: ",
+            [stage.name for stage in branching_strategy.stages],
+        )
         println("\t FrankWolfe variant: $(variant)")
         println("\t Line Search Method: $(line_search)")
         println("\t Lazification: $(lazy)")
@@ -154,7 +158,8 @@ function solve(
 
     global_bounds = build_global_bounds(blmo, integer_variables)
 
-    if typeof(domain_oracle) != typeof(_trivial_domain) && typeof(find_domain_point) == typeof(_trivial_domain_point)
+    if typeof(domain_oracle) != typeof(_trivial_domain) &&
+       typeof(find_domain_point) == typeof(_trivial_domain_point)
         @warn "For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge."
     end
 
@@ -205,10 +210,11 @@ function solve(
     end
 
     Node = typeof(nodeEx)
-    Value = Vector{Float64}
+    Value = typeof(active_set.atoms[1])
     tree = Bonobo.initialize(;
         traverse_strategy=traverse_strategy,
         Node=Node,
+        Value=Value,
         Solution=FrankWolfeSolution{Node,Value},
         root=(
             problem=m,
@@ -275,8 +281,12 @@ function solve(
             global_tightenings=0,
             local_tightenings=0,
             local_potential_tightenings=0,
-            dual_gap=-Inf,
+            dual_gap=(-Inf),
             pre_computed_set=pre_computed_set,
+            parent_lower_bound_base=Inf,
+            branched_on=-1,
+            branched_right=false,
+            distance_to_int=0.0,
         ),
     )
 
@@ -336,13 +346,13 @@ function solve(
     )
 
     fw_callback = build_FW_callback(
-        tree, 
-        min_number_lower, 
-        true, 
-        fw_iterations, 
-        min_fw_iterations, 
-        time_ref, 
-        tree.root.options[:time_limit], 
+        tree,
+        min_number_lower,
+        true,
+        fw_iterations,
+        min_fw_iterations,
+        time_ref,
+        tree.root.options[:time_limit],
         use_DICG=tree.root.options[:variant] == DICG(),
     )
 
@@ -396,6 +406,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         status_string = "Time limit reached"
     elseif tree.root.problem.solving_stage == NODE_LIMIT_REACHED
         status_string = "Node limit reached"
+    elseif tree.root.problem.solving_stage == USER_STOP
+        status_string = "User defined stop"
     else
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
@@ -419,8 +431,10 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         )
         # previous solution rounded to account for 0.99999.. or 1.00000000002 types of values
         prev_x_rounded = copy(x)
-        prev_x_rounded[tree.root.problem.integer_variables] .= round.(prev_x_rounded[tree.root.problem.integer_variables])
-        prev_x_rounded = is_linear_feasible(tree.root.problem.tlmo, prev_x_rounded) ? prev_x_rounded : x
+        prev_x_rounded[tree.root.problem.integer_variables] .=
+            round.(prev_x_rounded[tree.root.problem.integer_variables])
+        prev_x_rounded =
+            is_linear_feasible(tree.root.problem.tlmo, prev_x_rounded) ? prev_x_rounded : x
 
         # Postprocessing
         direction = ones(length(x))
@@ -470,6 +484,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
     result[:status] = status_string
+    result[:solving_stage] = tree.root.problem.solving_stage
 
     if verbose
         println()
@@ -485,7 +500,10 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         if tree.root.options[:heu_ncalls] != 0
             println("\t LMO calls over all nodes: ", tree.root.problem.tlmo.ncalls)
             println("\t LMO calls in the heuristics: ", tree.root.options[:heu_ncalls])
-            println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls + tree.root.options[:heu_ncalls])
+            println(
+                "\t Total number of lmo calls: ",
+                tree.root.problem.tlmo.ncalls + tree.root.options[:heu_ncalls],
+            )
         else
             println("\t Total number of lmo calls: ", tree.root.problem.tlmo.ncalls)
         end
@@ -515,6 +533,27 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             println(
                 "\t Total number of potential local tightenings: ",
                 sum(result[:local_potential_tightenings]),
+            )
+        end
+        if isa(tree.options.branch_strategy, Boscia.Hierarchy)
+            fraction_of_decisions = [
+                (stage.decision_counter, stage.min_cutoff_counter) for
+                stage in tree.options.branch_strategy.stages
+            ]
+            println("\t Decisions made: ", fraction_of_decisions)
+        end
+        if isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+            println(
+                "\t Number of alternative decisions: ",
+                tree.options.branch_strategy.alt_decision_number,
+            )
+            println(
+                "\t Number of stable decisions: ",
+                tree.options.branch_strategy.stable_decision_number,
+            )
+            println(
+                "\t Minimum number of branchings per variable: ",
+                minimum(tree.options.branch_strategy.branch_tracker) - 1,
             )
         end
     end

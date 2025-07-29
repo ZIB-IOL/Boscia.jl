@@ -33,8 +33,8 @@ function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
     node = tree.nodes[tree.root.current_node_id[]]
     add_new_solution!(tree, node, val, x, heuristic_name)
     if !tree.root.options[:no_pruning]
-    Bonobo.bound!(tree, node.id)
-end
+        Bonobo.bound!(tree, node.id)
+    end
 end
 
 # TO DO: We might want to change the probability depending on the depth of the tree
@@ -55,7 +55,12 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                 min_val = Inf
                 min_idx = -1
                 for (i, x_heu) in enumerate(list_x_heu)
-                    feasible = check_feasibility ? is_linear_feasible(tree.root.problem.tlmo, x_heu) && is_integer_feasible(tree, x_heu) && tree.root.options[:domain_oracle](x_heu) : tree.root.options[:domain_oracle](x_heu)
+                    feasible =
+                        check_feasibility ?
+                        is_linear_feasible(tree.root.problem.tlmo, x_heu) &&
+                        is_integer_feasible(tree, x_heu) &&
+                        tree.root.options[:domain_oracle](x_heu) :
+                        tree.root.options[:domain_oracle](x_heu)
                     if feasible
                         val = tree.root.problem.f(x_heu)
                         if tree.root.options[:add_all_solutions]
@@ -64,7 +69,7 @@ function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
                         end
                         if val < min_val
                             min_val = val
-                            min_idx = i 
+                            min_idx = i
                         end
                     end
                 end
@@ -132,7 +137,7 @@ Advanced lmo-aware rounding for binary vars. Rounding respecting the hidden feas
 function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
     nabla = zeros(length(x))
     for idx in tree.branching_indices
-        nabla[idx] = 1 - 2*round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
+        nabla[idx] = 1 - 2 * round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
     end
     x_rounded = Boscia.compute_extreme_point(tlmo, nabla)
     return [x_rounded], false
@@ -143,7 +148,12 @@ Probability rounding for 0/1 problems.
 It decides based on the fractional value whether to ceil or floor the variable value. 
 Afterward, one call to Frank-Wolfe is performed to optimize the continuous variables.    
 """
-function probability_rounding(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rng=Random.GLOBAL_RNG)
+function probability_rounding(
+    tree::Bonobo.BnBTree,
+    tlmo::Boscia.TimeTrackingLMO,
+    x;
+    rng=Random.GLOBAL_RNG,
+)
     # save original bounds
     node = tree.nodes[tree.root.current_node_id[]]
     original_bounds = copy(node.local_bounds)

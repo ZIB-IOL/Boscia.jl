@@ -79,16 +79,8 @@ function build_birkhoff_lmo()
         MOI.add_constraint(o, theta[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, theta[i], MOI.LessThan(1.0))
         # doubly stochastic constraints
-        MOI.add_constraint.(
-            o,
-            X[i] * ones(n),
-            MOI.EqualTo(1.0),
-        )
-        MOI.add_constraint.(
-            o,
-            X[i]' * ones(n),
-            MOI.EqualTo(1.0),
-        )
+        MOI.add_constraint.(o, X[i] * ones(n), MOI.EqualTo(1.0))
+        MOI.add_constraint.(o, X[i]' * ones(n), MOI.EqualTo(1.0))
         # 0 ≤ Y_i ≤ X_i
         MOI.add_constraint.(o, 1.0 * Y[i] - X[i], MOI.LessThan(0.0))
         # 0 ≤ θ_i - Y_i ≤ 1 - X_i
@@ -113,7 +105,7 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.D
 #     end
 # end
 
-@testset "Birkhoff" begin
+@testset "Birkhoff decomposition" begin
     lmo = build_birkhoff_lmo()
     x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6

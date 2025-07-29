@@ -694,7 +694,7 @@ end
 
 
 function is_decomposition_invariant_oracle(blmo::MathOptBLMO)
-    true
+    return true
 end
 
 function compute_inface_extreme_point(blmo::MathOptBLMO, direction, x; kwargs...)
@@ -704,7 +704,8 @@ function compute_inface_extreme_point(blmo::MathOptBLMO, direction, x; kwargs...
     MOI_attribute[MOI.SimplexIterations()] = 0.0
     blmo.inface_point_solve_data.MOI_attribute = MOI_attribute
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
-    a = FrankWolfe.compute_inface_extreme_point(lmo,
+    a = FrankWolfe.compute_inface_extreme_point(
+        lmo,
         direction,
         x;
         solve_data=blmo.inface_point_solve_data.MOI_attribute,
@@ -716,12 +717,7 @@ end
 
 function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
-    return FrankWolfe.dicg_maximum_step(
-        lmo,
-        direction,
-        x;
-        kwargs...,
-    )
+    return FrankWolfe.dicg_maximum_step(lmo, direction, x; kwargs...)
 end
 
 """
@@ -735,7 +731,7 @@ function solve(
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     fw_epsilon=1e-2,
     verbose=false,
@@ -756,10 +752,10 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    sharpness_constant = 0.0,
-    sharpness_exponent = Inf,
+    sharpness_constant=0.0,
+    sharpness_exponent=Inf,
     domain_oracle=_trivial_domain,
-    find_domain_point= _trivial_domain_point,
+    find_domain_point=_trivial_domain_point,
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,

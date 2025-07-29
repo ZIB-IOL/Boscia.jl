@@ -8,6 +8,17 @@ function dual_tightening(tree, node, x, dual_gap)
         num_tightenings = 0
         num_potential_tightenings = 0
         μ = tree.root.options[:strong_convexity]
+        safety_tolerance = 2.0
+        rhs =
+            tree.incumbent - tree.root.problem.f(x) +
+            safety_tolerance * dual_gap +
+            sqrt(eps(tree.incumbent))
+        # If rhs is negative, we are either very close to the incumbent
+        # or f(x) is actually larger than the incumbent.
+        if rhs < 0
+            @debug "Skipping tightening because rhs is negative: $rhs"
+            return
+        end
         for j in tree.root.problem.integer_variables
             lb_global = get(tree.root.problem.integer_variable_bounds, (j, :greaterthan), -Inf)
             ub_global = get(tree.root.problem.integer_variable_bounds, (j, :lessthan), Inf)
@@ -20,11 +31,6 @@ function dual_tightening(tree, node, x, dual_gap)
                 continue
             end
             gj = grad[j]
-            safety_tolerance = 2.0
-            rhs =
-                tree.incumbent - tree.root.problem.f(x) +
-                safety_tolerance * dual_gap +
-                sqrt(eps(tree.incumbent))
             if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                 if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
@@ -205,11 +211,11 @@ function tightening_lowerbound(tree, node, x, lower_bound)
         sharpness_bound = -Inf
 
         # strong convexity
-        if μ > 0 
+        if μ > 0
             @debug "Using strong convexity $μ"
             strong_convexity_bound += μ / 2 * bound_improvement
             @debug "Strong convexity: $lower_bound -> $strong_convexity_bound"
-            @assert num_fractional == 0 || strong_convexity_bound > lower_bound 
+            @assert num_fractional == 0 || strong_convexity_bound > lower_bound
         end
 
         # sharpness
@@ -223,7 +229,9 @@ function tightening_lowerbound(tree, node, x, lower_bound)
                 node.dual_gap = 0.0
             end
 
-            sharpness_bound = M^(- 1 / θ) * 1/ 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            sharpness_bound =
+                M^(-1 / θ) * 1 / 2 * (sqrt(bound_improvement) - M / 2 * node.dual_gap^θ)^(1 / θ) +
+                fx - node.dual_gap
 
             @debug "Sharpness: $lower_bound -> $sharpness_bound"
             @assert num_fractional == 0 || sharpness_bound >= lower_bound "$(num_fractional) == 0 || $(sharpness_bound) > $(lower_bound)"
@@ -273,13 +281,17 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             @assert !(
                 (new_bound_left > tree.incumbent + tree.root.options[:dual_gap]) &&
                 (new_bound_right > tree.incumbent + tree.root.options[:dual_gap])
-            ) 
-        # sharpness
+            )
+            # sharpness
         elseif M > 0 && θ != Inf
             fx = tree.root.problem.f(x)
 
-            new_bound_left = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_left) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
-            new_bound_right = M^(- 1 / θ) * 1 / 2 * (sqrt(new_bound_right) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx - node.dual_gap
+            new_bound_left =
+                M^(-1 / θ) * 1 / 2 * (sqrt(new_bound_left) - M / 2 * node.dual_gap^θ)^(1 / θ) + fx -
+                node.dual_gap
+            new_bound_right =
+                M^(-1 / θ) * 1 / 2 * (sqrt(new_bound_right) - M / 2 * node.dual_gap^θ)^(1 / θ) +
+                fx - node.dual_gap
 
             if new_bound_left > tree.incumbent
                 @debug "prune left, from $(node.lb) -> $new_bound_left, ub $(tree.incumbent), lb $(node.lb)"
@@ -291,7 +303,7 @@ function prune_children(tree, node, lower_bound_base, x, vidx)
             end
         end
     end
-   
+
     # If both nodes are pruned, when one of them has to be equal to the incumbent.
     # Thus, we have proof of optimality by strong convexity.
     if prune_left && prune_right

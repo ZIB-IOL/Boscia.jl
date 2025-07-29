@@ -42,6 +42,14 @@ A node in the branch-and-bound tree storing information for a Frank-Wolfe subpro
 'level' stores the level in the tree
 'fw_dual_gap_limit' set the tolerance for the dual gap in the FW algorithms
 'pre_computed_set' stores specifically the extreme points computed in DICG for warm-start.
+'parent_lower_bound_base' contains lower bound value of the parent node.  Needed
+    for updating pseudocosts.
+'branched_on' contains the index of the parent. Required for updating pseudocosts.
+'branched_right' Boolean value specifying if node resulted from a left or right branch. Needed
+    for updating pseudocosts.
+'distance_to_int' Stores information on the rounding amount at branching. Required
+    for correct scaling of pseudocosts.
+
 """
 mutable struct FrankWolfeNode{
     AT<:FrankWolfe.ActiveSet,
@@ -61,8 +69,51 @@ mutable struct FrankWolfeNode{
     local_potential_tightenings::Int
     dual_gap::Float64
     pre_computed_set::Any
+    parent_lower_bound_base::Float64
+    branched_on::Int
+    branched_right::Bool
+    distance_to_int::Float64
 end
 
+<<<<<<< HEAD
+=======
+
+# For i.e. pseudocost branching we require additional information to be stored in FrankWolfeNode
+# this information can be set to a default value if not needed.
+FrankWolfeNode(
+    std,
+    active_set,
+    discarded_vertices,
+    local_bounds,
+    level,
+    fw_dual_gap_limit,
+    fw_time,
+    global_tightenings,
+    local_tightenings,
+    local_potential_tightenings,
+    dual_gap,
+    pre_computed_set,
+) = FrankWolfeNode(
+    std,
+    active_set,
+    discarded_vertices,
+    local_bounds,
+    level,
+    fw_dual_gap_limit,
+    fw_time,
+    global_tightenings,
+    local_tightenings,
+    local_potential_tightenings,
+    dual_gap,
+    pre_computed_set,
+    Inf,
+    -1,
+    false,
+    0.0,
+)
+
+
+>>>>>>> main
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
@@ -76,6 +127,9 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
+    left_distance = x[vidx] - floor(x[vidx])
+    right_distance = ceil(x[vidx]) - x[vidx]
+
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = if !tree.root.options[:no_pruning]
@@ -88,8 +142,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if tree.root.options[:variant] != DICG()
 
         # Keep the same pre_computed_set
-        pre_computed_set_left, pre_computed_set_right =
-            node.pre_computed_set, node.pre_computed_set
+        pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
 
         # Split active set
         active_set_left, active_set_right =
@@ -100,7 +153,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
             pre_computed_set_left, pre_computed_set_right =
                 split_pre_computed_set!(x, node.pre_computed_set, tree, vidx, node.local_bounds)
         else
-            pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
+            pre_computed_set_left, pre_computed_set_right =
+                node.pre_computed_set, node.pre_computed_set
         end
         active_set_left, active_set_right = node.active_set, node.active_set
     end
@@ -155,15 +209,17 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
     if tree.root.options[:variant] != DICG()
-	# in case of non trivial domain oracle: Only split if the iterate is still domain feasible
-   	x_left = FrankWolfe.compute_active_set_iterate!(active_set_left) 
-    	x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
-		
+        # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+        x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
+        x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+
         if !tree.root.options[:domain_oracle](x_left)
-            active_set_left = build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
+            active_set_left =
+                build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
         end
         if !tree.root.options[:domain_oracle](x_right)
-            active_set_right = build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
+            active_set_right =
+                build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
         end
     end
 
@@ -172,7 +228,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=node.level + 1,
+        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -180,12 +236,16 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_potential_tightenings=0,
         dual_gap=NaN,
         pre_computed_set=pre_computed_set_left,
+        parent_lower_bound_base=lower_bound_base,
+        branched_on=vidx,
+        branched_right=false,
+        distance_to_int=left_distance,
     )
     node_info_right = (
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=node.level + 1,
+        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -193,6 +253,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         local_potential_tightenings=0,
         dual_gap=NaN,
         pre_computed_set=pre_computed_set_right,
+        parent_lower_bound_base=lower_bound_base,
+        branched_on=vidx,
+        branched_right=true,
+        distance_to_int=right_distance,
     )
 
     domain_right = !isempty(active_set_right)
@@ -259,7 +323,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         error("Feasible region unbounded! Please check your constraints!")
         return NaN, NaN
     end
-    
+
     if tree.root.options[:variant] != DICG()
         # Check feasibility of the iterate
         active_set = node.active_set
@@ -296,10 +360,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         verbose=tree.root.options[:fwVerbose],
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
-	domain_oracle = domain_oracle,
-        use_strong_lazy = tree.root.options[:use_strong_lazy],
-        use_strong_warm_start = tree.root.options[:use_strong_warm_start],
-        build_dicg_start_point = tree.root.options[:build_dicg_start_point],
+        domain_oracle=domain_oracle,
+        use_strong_lazy=tree.root.options[:use_strong_lazy],
+        use_strong_warm_start=tree.root.options[:use_strong_warm_start],
+        build_dicg_start_point=tree.root.options[:build_dicg_start_point],
     )
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
@@ -308,8 +372,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     else
         node.pre_computed_set = atoms_set
         node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+        # update set of computed atoms and active set
+        if isa(x, AbstractVector)
+            node.pre_computed_set = atoms_set
+            node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+        else
+            @debug "x is not a vector, returning NaN, x: $x"
+            return NaN, NaN
+        end
     end
-    
+
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
 

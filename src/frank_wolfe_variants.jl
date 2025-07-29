@@ -204,34 +204,34 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
-    domain_oracle = _trivial_domain,
-    use_strong_lazy = false,
-    use_strong_warm_start = false,
-    build_dicg_start_point = trivial_build_dicg_start_point,
+    domain_oracle=_trivial_domain,
+    use_strong_lazy=false,
+    use_strong_warm_start=false,
+    build_dicg_start_point=trivial_build_dicg_start_point,
     kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
     function make_callback(pre_computed_set)
-	return function DICG_callback(state, kwargs...)
-		if !callback(state, pre_computed_set)
-			return false
-		end
-		return true
-	end
+        return function DICG_callback(state, kwargs...)
+            if !callback(state, pre_computed_set)
+                return false
+            end
+            return true
+        end
     end
-    
-   x0 = dicg_start_point_initialize(
-		lmo, 
-		active_set, 
-		pre_computed_set, 
-		build_dicg_start_point; 
-		domain_oracle = domain_oracle,
-	)
-	
+
+    x0 = dicg_start_point_initialize(
+        lmo,
+        active_set,
+        pre_computed_set,
+        build_dicg_start_point;
+        domain_oracle=domain_oracle,
+    )
+
     if x0 == nothing || !domain_oracle(x0)
-	return NaN, Inf, Inf, pre_computed_set
+        return NaN, Inf, Inf, pre_computed_set
     else
-	@assert is_linear_feasible(lmo, x0)
+        @assert is_linear_feasible(lmo, x0)
     end
 
     DICG_callback = make_callback(pre_computed_set)
@@ -247,7 +247,7 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
-	use_strong_lazy = use_strong_lazy,
+        use_strong_lazy=use_strong_lazy,
         linesearch_workspace=workspace,
         sparsity_control=lazy_tolerance,
         callback=DICG_callback,
@@ -319,7 +319,7 @@ function solve_frank_wolfe(
         extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
     )
-	return x, primal, dual_gap, active_set
+    return x, primal, dual_gap, active_set
 end
 
 Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")

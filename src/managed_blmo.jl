@@ -81,33 +81,40 @@ end
 function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
     a = bounded_compute_inface_extreme_point(
-                blmo.simple_lmo,
-                direction,
-                x,
-                blmo.lower_bounds,
-                blmo.upper_bounds,
-                blmo.int_vars,
-                )
-    
+        blmo.simple_lmo,
+        direction,
+        x,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+    )
+
     blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return a
 end
 
 # Check if the given point a is on the minimal face of x
 function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
-	return is_simple_inface_feasible(blmo.simple_lmo, a, x, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars)
+    return is_simple_inface_feasible(
+        blmo.simple_lmo,
+        a,
+        x,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+    )
 end
 
 #Provide FrankWolfe.dicg_maximum_step
 function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
     return bounded_dicg_maximum_step(
-                blmo.simple_lmo,
-                x,
-                direction,
-                blmo.lower_bounds, 
-                blmo.upper_bounds, 
-                blmo.int_vars,
-                )
+        blmo.simple_lmo,
+        x,
+        direction,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+    )
 end
 
 # Read global bounds from the problem.
@@ -252,12 +259,18 @@ function build_LMO_correct(blmo::ManagedBoundedLMO, node_bounds)
 end
 
 function check_feasibility(blmo::ManagedBoundedLMO)
-    for (lb,ub) in zip(blmo.lower_bounds, blmo.upper_bounds)
+    for (lb, ub) in zip(blmo.lower_bounds, blmo.upper_bounds)
         if ub < lb
             return INFEASIBLE
         end
     end
-    return check_feasibility(blmo.simple_lmo, blmo.lower_bounds, blmo.upper_bounds, blmo.int_vars, blmo.n)
+    return check_feasibility(
+        blmo.simple_lmo,
+        blmo.lower_bounds,
+        blmo.upper_bounds,
+        blmo.int_vars,
+        blmo.n,
+    )
 end
 
 function check_feasibility(simple_lmo::SimpleBoundableLMO, lb, ub, int_vars, n)
@@ -289,7 +302,7 @@ function solve(
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
     lazy=true,
     lazy_tolerance=2.0,
@@ -312,17 +325,17 @@ function solve(
     global_dual_tightening=true,
     bnb_callback=nothing,
     strong_convexity=0.0,
-    sharpness_constant = 0.0,
-    sharpness_exponent = Inf,
+    sharpness_constant=0.0,
+    sharpness_exponent=Inf,
     domain_oracle=_trivial_domain,
-    find_domain_point= _trivial_domain_point,
+    find_domain_point=_trivial_domain_point,
     start_solution=nothing,
     fw_verbose=false,
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     post_heuristics_callback=nothing,
     rounding_prob=1.0,
-    clean_solutions=false, 
+    clean_solutions=false,
     max_clean_iter=10,
     no_pruning=false,
     ignore_lower_bound=false,
