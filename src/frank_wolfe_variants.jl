@@ -37,10 +37,10 @@ If enough local progress can be made, weight is shifted from the away vertex to 
 
 In case lazification is activated, the FW vertex is only computed if not enough local progress can be guaranteed.
 """
-struct AwayFrankWolfe <: FrankWolfeVariant end
+struct AFW <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::AwayFrankWolfe,
+    frank_wolfe_variant::AFW,
     f,
     grad!,
     lmo,
@@ -80,16 +80,16 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
+Base.print(io::IO, ::AFW) = print(io, "Away-Frank-Wolfe")
 
 
 """
     Blended Conditional Gradient
 """
-struct Blended <: FrankWolfeVariant end
+struct BCG <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::Blended,
+    frank_wolfe_variant::BCG,
     f,
     grad!,
     lmo,
@@ -128,7 +128,7 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
+Base.print(io::IO, ::BCG) = print(io, "Blended Conditional Gradient")
 
 """
 	Blended Pairwise Conditional Gradient
@@ -279,10 +279,10 @@ The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing 
 
 Lazification cannot be used in this setting.
 """
-struct VanillaFrankWolfe <: FrankWolfeVariant end
+struct VFW <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VanillaFrankWolfe,
+    frank_wolfe_variant::VFW,
     f,
     grad!,
     lmo,
@@ -322,4 +322,4 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::VFW) = print(io, "Vanilla-Frank-Wolfe")
