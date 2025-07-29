@@ -75,8 +75,6 @@ mutable struct FrankWolfeNode{
     distance_to_int::Float64
 end
 
-<<<<<<< HEAD
-=======
 
 # For i.e. pseudocost branching we require additional information to be stored in FrankWolfeNode
 # this information can be set to a default value if not needed.
@@ -113,7 +111,6 @@ FrankWolfeNode(
 )
 
 
->>>>>>> main
 """
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
