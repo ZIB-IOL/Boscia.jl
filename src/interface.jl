@@ -38,28 +38,29 @@ function solve(
     settings_domain=settings_domain(),
     kwargs...,
 )
-    if variant == DICG()
+    options = merge(settings_frank_wolfe, settings_tolerances, settings_postprocessing, settings_tightening, settings_domain)
+    if options[:variant] == DICG()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
         end
     end
-    if verbose
+    if options[:verbose]
         println("\nBoscia Algorithm.\n")
         println("Parameter settings.")
-        println("\t Tree traversal strategy: ", _value_to_print(traverse_strategy))
-        println("\t Branching strategy: ", _value_to_print(branching_strategy))
-        isa(branching_strategy, Boscia.Hierarchy) && println(
+        println("\t Tree traversal strategy: ", _value_to_print(options[:traverse_strategy]))
+        println("\t Branching strategy: ", _value_to_print(options[:branching_strategy]))
+        isa(options[:branching_strategy], Boscia.Hierarchy) && println(
             "\t Order of criteria in Hierarchy Branching: ",
-            [stage.name for stage in branching_strategy.stages],
+            [stage.name for stage in options[:branching_strategy].stages],
         )
-        println("\t FrankWolfe variant: $(variant)")
-        println("\t Line Search Method: $(line_search)")
-        println("\t Lazification: $(lazy)")
-        lazy ? println("\t Lazification Tolerance: $(lazy_tolerance)") : nothing
-        @printf("\t Absolute dual gap tolerance: %e\n", dual_gap)
-        @printf("\t Relative dual gap tolerance: %e\n", rel_dual_gap)
-        @printf("\t Frank-Wolfe subproblem tolerance: %e\n", fw_epsilon)
-        @printf("\t Frank-Wolfe dual gap decay factor: %e\n", dual_gap_decay_factor)
+        println("\t FrankWolfe variant: $(options[:variant])")
+        println("\t Line Search Method: $(options[:line_search])")
+        println("\t Lazification: $(options[:lazy])")
+        options[:lazy] ? println("\t Lazification Tolerance: $(options[:lazy_tolerance])") : nothing
+        @printf("\t Absolute dual gap tolerance: %e\n", options[:dual_gap])
+        @printf("\t Relative dual gap tolerance: %e\n", options[:rel_dual_gap])
+        @printf("\t Frank-Wolfe subproblem tolerance: %e\n", options[:fw_epsilon])
+        @printf("\t Frank-Wolfe dual gap decay factor: %e\n", options[:dual_gap_decay_factor])
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
@@ -72,51 +73,55 @@ function solve(
         push!(integer_variables, c_idx)
         num_int += 1
     end
-    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, Float64(time_limit))
+    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, Float64(options[:time_limit]))
 
     if num_int == 0
         @warn("No integer variables detected! Please use an MIP solver!")
     end
 
-    if verbose
+    if options[:verbose]
         println("\t Total number of variables: ", n)
         println("\t Number of integer variables: $(num_int)\n")
     end
 
     global_bounds = build_global_bounds(blmo, integer_variables)
 
-    if typeof(domain_oracle) != typeof(_trivial_domain) &&
-       typeof(find_domain_point) == typeof(_trivial_domain_point)
+    if typeof(options[:domain_oracle]) != typeof(_trivial_domain) &&
+       typeof(options[:find_domain_point]) == typeof(_trivial_domain_point)
         @warn "For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge."
     end
 
     time_ref = Dates.now()
 
     v = []
-    if active_set === nothing
+    if options[:active_set] === nothing
         direction = collect(1.0:n)
         v = compute_extreme_point(blmo, direction)
         v[integer_variables] = round.(v[integer_variables])
         @assert isfinite(f(v))
-        active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        options[:active_set] = FrankWolfe.ActiveSet([(1.0, v)])
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
     else
-        @assert FrankWolfe.active_set_validate(active_set)
-        for a in active_set.atoms
+        @assert FrankWolfe.active_set_validate(options[:active_set])
+        for a in options[:active_set].atoms
             @assert is_linear_feasible(blmo, a)
         end
-        x = FrankWolfe.compute_active_set_iterate!(active_set)
+        x = FrankWolfe.compute_active_set_iterate!(options[:active_set])
         v = x
         @assert isfinite(f(x))
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    pre_computed_set = use_DICG_warm_start ? [v] : nothing
+    pre_computed_set = if options[:variant] == DICG() && options[:variant].use_DICG_warm_start
+        [v]
+    else
+        nothing
+    end
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
         NodeInfo(1, f(v), f(v)),
-        active_set,
+        options[:active_set],
         vertex_storage,
         IntegerBounds(),
         1,
@@ -127,21 +132,18 @@ function solve(
         0,
         0.0,
         [v],
-    )
-
-    # Create standard heuristics
-    heuristics = vcat([Heuristic(rounding_heuristic, rounding_prob, :rounding)], custom_heuristics)
+    )   
 
     # If we cannot trust the lower bound, we also shouldn't do any tighening.
-    if ignore_lower_bound
-        dual_tightening=false
-        global_dual_tightening=false
+    if options[:ignore_lower_bound]
+        options[:dual_tightening] = false
+        options[:global_dual_tightening] = false
     end
 
     Node = typeof(nodeEx)
     Value = typeof(active_set.atoms[1])
     tree = Bonobo.initialize(;
-        traverse_strategy=traverse_strategy,
+        traverse_strategy=options[:traverse_strategy],
         Node=Node,
         Value=Value,
         Solution=FrankWolfeSolution{Node,Value},
@@ -155,44 +157,12 @@ function solve(
                 upper_bounds=Dict{Int,Tuple{Float64,Float64}}(),
             ),
             global_tightenings=IntegerBounds(),
-            options=Dict{Symbol,Any}(
-                :domain_oracle => domain_oracle,
-                :find_domain_point => find_domain_point,
-                :dual_gap => dual_gap,
-                :dual_gap_decay_factor => dual_gap_decay_factor,
-                :dual_tightening => dual_tightening,
-                :fwVerbose => fw_verbose,
-                :global_dual_tightening => global_dual_tightening,
-                :lazy => lazy,
-                :lazy_tolerance => lazy_tolerance,
-                :lineSearch => line_search,
-                :min_node_fw_epsilon => min_node_fw_epsilon,
-                :max_fw_iter => max_fw_iter,
-                :fw_timeout => fw_timeout,
-                :print_iter => print_iter,
-                :strong_convexity => strong_convexity,
-                :sharpness_constant => sharpness_constant,
-                :sharpness_exponent => sharpness_exponent,
-                :time_limit => time_limit,
-                :node_limit => node_limit,
-                :usePostsolve => use_postsolve,
-                :variant => variant,
-                :use_shadow_set => use_shadow_set,
-                :heuristics => heuristics,
-                :post_heuristics_callback => post_heuristics_callback,
-                :heu_ncalls => 0,
-                :max_clean_iter => max_clean_iter,
-                :clean_solutions => clean_solutions,
-                :no_pruning => no_pruning,
-                :ignore_lower_bound => ignore_lower_bound,
-                :add_all_solutions => add_all_solutions,
-                :propagate_bounds => propagate_bounds,
-            ),
+            options=options,
             result=Dict{Symbol,Any}(),
         ),
-        branch_strategy=branching_strategy,
-        dual_gap_limit=rel_dual_gap,
-        abs_gap_limit=dual_gap,
+        branch_strategy=options[:branching_strategy],
+        dual_gap_limit=options[:rel_dual_gap],
+        abs_gap_limit=options[:dual_gap],
     )
     Bonobo.set_root!(
         tree,
@@ -201,7 +171,7 @@ function solve(
             discarded_vertices=vertex_storage,
             local_bounds=IntegerBounds(),
             level=1,
-            fw_dual_gap_limit=fw_epsilon,
+            fw_dual_gap_limit=options[:fw_epsilon],
             fw_time=Millisecond(0),
             global_tightenings=0,
             local_tightenings=0,
@@ -215,17 +185,17 @@ function solve(
         ),
     )
 
-    if start_solution !== nothing
-        if size(start_solution) != size(v)
+    if options[:start_solution] !== nothing
+        if size(options[:start_solution]) != size(v)
             error(
-                "size of starting solution differs from vertices: $(size(start_solution)), $(size(v))",
+                "size of starting solution differs from vertices: $(size(options[:start_solution])), $(size(v))",
             )
         end
         # Sanity check that the provided solution is in fact feasible.
-        @assert is_linear_feasible(blmo, start_solution) &&
-                is_integer_feasible(tree, start_solution)
+        @assert is_linear_feasible(blmo, options[:start_solution]) &&
+                is_integer_feasible(tree, options[:start_solution])
         node = tree.nodes[1]
-        add_new_solution!(tree, node, f(start_solution), start_solution, :start)
+        add_new_solution!(tree, node, f(options[:start_solution]), options[:start_solution], :start)
     end
 
     # build callbacks
@@ -253,7 +223,7 @@ function solve(
         list_time_cb,
         list_num_nodes_cb,
         list_lmo_calls_cb,
-        verbose,
+        options[:verbose],
         fw_iterations,
         list_active_set_size_cb,
         list_discarded_set_size_cb,
@@ -272,13 +242,13 @@ function solve(
 
     fw_callback = build_FW_callback(
         tree,
-        min_number_lower,
+        options[:min_number_lower],
         true,
         fw_iterations,
-        min_fw_iterations,
+        options[:min_fw_iterations],
         time_ref,
-        tree.root.options[:time_limit],
-        use_DICG=tree.root.options[:variant] == DICG(),
+        options[:time_limit],
+        use_DICG=options[:variant] == DICG(),
     )
 
     tree.root.options[:callback] = fw_callback
@@ -286,7 +256,7 @@ function solve(
 
     Bonobo.optimize!(tree; callback=bnb_callback)
 
-    x = postsolve(tree, tree.root.result, time_ref, verbose, max_iteration_post)
+    x = postsolve(tree, tree.root.result, time_ref, options[:verbose], options[:max_iteration_post])
 
     # Check solution and polish
     x_polished = x
