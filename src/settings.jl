@@ -210,9 +210,9 @@ function settings_heuristic(
     rounding_lmo_01_heu =
         Heuristic(rounding_lmo_01_heuristic, rounding_lmo_01_prob, :rounding_lmo_01)
     probability_rounding_heu =
-        Heuristic(probability_rounding_heuristic, probability_rounding_prob, :probability_rounding)
+        Heuristic(probability_rounding, probability_rounding_prob, :probability_rounding)
     hyperplane_aware_rounding_heu = Heuristic(
-        hyperplane_aware_rounding_heuristic,
+        rounding_hyperplane_heuristic,
         hyperplane_aware_rounding_prob,
         :hyperplane_aware_rounding,
     )
