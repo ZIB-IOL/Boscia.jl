@@ -182,21 +182,38 @@ Returns:
 
 Available settings:
 
-- `custom_heuristics` list of custom heuristics from the user. 
+- `custom_heuristics` list of custom heuristics from the user. Heuristics can be created via the `Boscia.Heuristic` constructor. It requires a function, a probability and an identifier (symbol). Note that the heuristics defined in Boscia themselves don't have to be added here and can be set via the probability parameters below.
 - `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. 
 - `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
+- `follow_gradient_prob` the probability for calling the follow-the-gradient heuristic. Per default, this is `0.0`.
+- `follow_gradient_steps` the number of steps for the follow-the-gradient heuristic. Per default, this is `10`.
+- `rounding_lmo_01_prob` the probability for calling the rounding-LMO-01 heuristic. Per default, this is `0.0`.
+- `probability_rounding_prob` the probability for calling the probability-rounding heuristic. Per default, this is `0.0`.
+- `hyperplane_aware_rounding_prob` the probability for calling the hyperplane-aware-rounding heuristic. Per default, this is `0.0`.
 - `add_all_solutions` if `true`, all solutions found by the heuristics, Frank-Wolfe or the BLMO are added to the tree. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 """
 function settings_heuristic(mode::Mode;
     custom_heuristics=[Heuristic()],
     post_heuristics_callback=nothing,
     rounding_prob=1.0,
+    follow_gradient_prob=0.0,
+    follow_gradient_steps=10,
+    rounding_lmo_01_prob=0.0,
+    probability_rounding_prob=0.0,
+    hyperplane_aware_rounding_prob=0.0,
     add_all_solutions=mode == HEURISTIC ? true : false
 )
+    round_heu = Heuristic(rounding_heuristic, rounding_prob, :rounding)
+    follow_grad_heu = Heuristic((tree, tlmo, x) -> follow_gradient_heuristic(tree, tlmo, x, follow_gradient_steps), follow_gradient_prob, :follow_gradient)
+    rounding_lmo_01_heu = Heuristic(rounding_lmo_01_heuristic, rounding_lmo_01_prob, :rounding_lmo_01)
+    probability_rounding_heu = Heuristic(probability_rounding_heuristic, probability_rounding_prob, :probability_rounding)
+    hyperplane_aware_rounding_heu = Heuristic(hyperplane_aware_rounding_heuristic, hyperplane_aware_rounding_prob, :hyperplane_aware_rounding)
+
+    heuristics = vcat([round_heu, follow_grad_heu, rounding_lmo_01_heu, probability_rounding_heu, hyperplane_aware_rounding_heu], custom_heuristics)
+
     return Dict(
-        :custom_heuristics => custom_heuristics,
+        :heuristics => heuristics,
         :post_heuristics_callback => post_heuristics_callback,
-        :rounding_prob => rounding_prob,
         :add_all_solutions => add_all_solutions,
     )
 end
