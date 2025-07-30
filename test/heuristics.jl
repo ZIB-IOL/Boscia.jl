@@ -41,7 +41,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -72,7 +72,7 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -104,7 +104,7 @@ end
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
     )
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n)
@@ -179,8 +179,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs[int_vars],
         int_vars,
         n,
-        custom_heuristics=[heu],
-        rounding_prob=0.0,
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu], rounding_prob=0.0),
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -217,9 +216,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0, m),
         int_vars,
         n,
-        custom_heuristics=[heu],
-        rounding_prob=0.0,
-        verbose=false,
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu], rounding_prob=0.0),
     )
 
     @test f(x) ≥ f(x_sol)

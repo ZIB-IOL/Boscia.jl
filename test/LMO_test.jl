@@ -87,7 +87,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs[int_vars],
         int_vars,
         n,
-        variant=Boscia.DICG(),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()),
     )
 
     @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
@@ -113,7 +113,7 @@ end
 
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(branching_strategy=branching_strategy))
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -131,7 +131,7 @@ end
         end
         branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(branching_strategy=branching_strategy))
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -165,7 +165,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        variant=Boscia.DICG(),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()),
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n

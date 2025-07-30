@@ -122,10 +122,8 @@ x, _, _ = Boscia.solve(
     f,
     grad!,
     lmo,
-    verbose=true,
-    print_iter=500,
-    custom_heuristics=heuristics,
-    time_limit=300,
+    settings_bnb=Boscia.settings_bnb(verbose=true, print_iter=500, time_limit=300),
+    settings_heuristic=Boscia.settings_heuristic(custom_heuristics=heuristics),
 )
 
 @show x

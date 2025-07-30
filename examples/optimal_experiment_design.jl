@@ -70,14 +70,10 @@ verbose = true
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        time_limit=10,
-        verbose=false,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(time_limit=10, verbose=false, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     # proper run with MGLS and Adaptive
@@ -88,13 +84,10 @@ verbose = true
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(verbose=verbose, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     # Run with Secant    
@@ -106,13 +99,10 @@ verbose = true
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(verbose=verbose, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     @test result_s[:dual_bound] <= g(x) + 1e-3
@@ -139,14 +129,10 @@ end
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        time_limit=10,
-        verbose=false,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(time_limit=10, verbose=false, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     # proper run with MGLS and Adaptive
@@ -157,13 +143,10 @@ end
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(verbose=verbose, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     # Run with Secant    
@@ -175,13 +158,10 @@ end
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings_bnb=Boscia.settings_bnb(verbose=verbose, start_solution=z),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=[heu]),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_domain=Boscia.settings_domain(active_set=active_set, domain_oracle=domain_oracle, find_domain_point=domain_point),
     )
 
     @test result_s[:dual_bound] <= g(x)
