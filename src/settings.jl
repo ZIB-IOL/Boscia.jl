@@ -1,7 +1,7 @@
 """
 Branch-and-Bound settings.
 """
-function BnBSettings(mode::Mode;
+function settings_bnb(mode::Mode;
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     verbose=false,
@@ -32,7 +32,7 @@ end
 """
 Frank-Wolfe settings.
 """
-function FWSettings(mode::Mode;
+function settings_frank_wolfe(mode::Mode;
     variant=BPCG(),
     line_search=FrankWolfe.Secant(),
     max_fw_iter=10000,
@@ -57,7 +57,7 @@ end
 """
 Tolerances.
 """
-function tolerances(mode::Mode;
+function settings_tolerances(mode::Mode;
     fw_epsilon=1e-2,
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
@@ -78,7 +78,7 @@ end
 """
 Postprocessing settings.
 """
-function postprocessing(mode::Mode; 
+function settings_postprocessing(mode::Mode; 
     use_postsolve=true,
     max_iteration_post=10000,
 )
@@ -91,7 +91,7 @@ end
 """
 Heuristic settings.
 """
-function heuristic_settings(mode::Mode;
+function settings_heuristic(mode::Mode;
     custom_heuristics=[Heuristic()],
     post_heuristics_callback=nothing,
     rounding_prob=1.0,
@@ -108,7 +108,7 @@ end
 """
 Tightening settings.
 """
-function tightening(mode::Mode; 
+function settings_tightening(mode::Mode; 
     dual_tightening=true,
     global_dual_tightening=true,
     strong_convexity=0.0,
@@ -129,7 +129,7 @@ end
 """
 Non-trivial domain settings.
 """
-function domain_settings(mode::Mode;
+function settings_domain(mode::Mode;
     domain_oracle=_trivial_domain,
     find_domain_point=_trivial_domain_point,
     active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing
