@@ -37,10 +37,10 @@ If enough local progress can be made, weight is shifted from the away vertex to 
 
 In case lazification is activated, the FW vertex is only computed if not enough local progress can be guaranteed.
 """
-struct AFW <: FrankWolfeVariant end
+struct AwayFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::AFW,
+    frank_wolfe_variant::AwayFrankWolfe,
     f,
     grad!,
     lmo,
@@ -80,16 +80,16 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::AFW) = print(io, "Away-Frank-Wolfe")
+Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 
 
 """
     Blended Conditional Gradient
 """
-struct BCG <: FrankWolfeVariant end
+struct BlendedConditionalGradient <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::BCG,
+    frank_wolfe_variant::BlendedConditionalGradient,
     f,
     grad!,
     lmo,
@@ -128,15 +128,15 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::BCG) = print(io, "Blended Conditional Gradient")
+Base.print(io::IO, ::BlendedConditionalGradient) = print(io, "Blended Conditional Gradient")
 
 """
 	Blended Pairwise Conditional Gradient
 """
-struct BPCG <: FrankWolfeVariant end
+struct BlendedPairwiseConditionalGradient <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::BPCG,
+    frank_wolfe_variant::BlendedPairwiseConditionalGradient,
     f,
     grad!,
     lmo,
@@ -175,7 +175,7 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
+Base.print(io::IO, ::BlendedPairwiseConditionalGradient) = print(io, "Blended Pairwise Conditional Gradient")
 
 """
    DICG-Frank-Wolfe
@@ -183,24 +183,28 @@ Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-struct DICG <: FrankWolfeVariant
+struct DecompositionInvariantConditionalGradient <: FrankWolfeVariant
     use_strong_lazy::Bool
     use_DICG_warm_start::Bool
     use_strong_warm_start::Bool
     build_dicg_start_point::Function
 end
 
-function DICG(;
+function DecompositionInvariantConditionalGradient(;
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
     build_dicg_start_point=trivial_build_dicg_start_point,
 )
-    return DICG(use_strong_lazy, use_DICG_warm_start, use_strong_warm_start, build_dicg_start_point)
+    return DecompositionInvariantConditionalGradient(
+        use_strong_lazy, 
+        use_DICG_warm_start, 
+        use_strong_warm_start,
+        build_dicg_start_point)
 end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::DICG,
+    frank_wolfe_variant::DecompositionInvariantConditionalGradient,
     f,
     grad!,
     lmo,
@@ -242,7 +246,7 @@ function solve_frank_wolfe(
         domain_oracle=domain_oracle,
     )
 
-    if x0 == nothing || !domain_oracle(x0)
+    if x0 === nothing || !domain_oracle(x0)
         return NaN, Inf, Inf, pre_computed_set
     else
         @assert is_linear_feasible(lmo, x0)
@@ -284,7 +288,7 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, pre_computed_set
 end
 
-Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
+Base.print(io::IO, ::DecompositionInvariantConditionalGradient) = print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
 	Vanilla-Frank-Wolfe
@@ -293,10 +297,10 @@ The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing 
 
 Lazification cannot be used in this setting.
 """
-struct VFW <: FrankWolfeVariant end
+struct FrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VFW,
+    frank_wolfe_variant::FrankWolfe,
     f,
     grad!,
     lmo,
@@ -336,4 +340,4 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::VFW) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::FrankWolfe) = print(io, "StandardFrank-Wolfe")
