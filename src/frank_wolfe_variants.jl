@@ -25,7 +25,7 @@ function solve_frank_wolfe end
 build_frank_wolfe_workspace(::FrankWolfeVariant, x) = nothing
 
 
-function Base.convert(::Type{V1}, v2::V2) where {V1<:FrankWolfeVariant, V2<:FrankWolfeVariant}
+function Base.convert(::Type{V1}, v2::V2) where {V1<:FrankWolfeVariant,V2<:FrankWolfeVariant}
     return V1()
 end
 
@@ -175,7 +175,8 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::BlendedPairwiseConditionalGradient) = print(io, "Blended Pairwise Conditional Gradient")
+Base.print(io::IO, ::BlendedPairwiseConditionalGradient) =
+    print(io, "Blended Pairwise Conditional Gradient")
 
 """
    DICG-Frank-Wolfe
@@ -197,10 +198,11 @@ function DecompositionInvariantConditionalGradient(;
     build_dicg_start_point=trivial_build_dicg_start_point,
 )
     return DecompositionInvariantConditionalGradient(
-        use_strong_lazy, 
-        use_DICG_warm_start, 
+        use_strong_lazy,
+        use_DICG_warm_start,
         use_strong_warm_start,
-        build_dicg_start_point)
+        build_dicg_start_point,
+    )
 end
 
 function solve_frank_wolfe(
@@ -288,7 +290,8 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, pre_computed_set
 end
 
-Base.print(io::IO, ::DecompositionInvariantConditionalGradient) = print(io, "Decompostion-Invariant-Frank-Wolfe")
+Base.print(io::IO, ::DecompositionInvariantConditionalGradient) =
+    print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
 	Vanilla-Frank-Wolfe

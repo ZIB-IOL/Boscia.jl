@@ -25,7 +25,8 @@ Available settings:
 - `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
 - `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the BLMO is expensive. In case of a cheap BLMO, performance might improve by disabling this option. Per default, this is `true`.
 """
-function settings_bnb(mode::Mode;
+function settings_bnb(
+    mode::Mode;
     traverse_strategy=Bonobo.BestFirstSearch(),
     branching_strategy=Bonobo.MOST_INFEASIBLE(),
     verbose=false,
@@ -34,10 +35,10 @@ function settings_bnb(mode::Mode;
     print_iter=100,
     bnb_callback=nothing,
     no_pruning=mode == HEURISTIC ? true : false,
-    ignore_lower_bound= mode == HEURISTIC ? true : false,
+    ignore_lower_bound=mode == HEURISTIC ? true : false,
     start_solution=nothing,
-    use_shadow_set=true
-    )
+    use_shadow_set=true,
+)
     return Dict(
         :traverse_strategy => traverse_strategy,
         :branching_strategy => branching_strategy,
@@ -77,7 +78,8 @@ Available settings:
 - `lazy` flag specifies whether the lazification of the Frank-Wolfe variant should be used. Per default `true`. Note that it has no effect on standard Frank-Wolfe.
 - `lazy_tolerance` decides how much progress is deemed enough to not have to call the LMO. Only used if the `lazy` flag is activated. Per default, this is set to `2`.
 """
-function settings_frank_wolfe(mode::Mode;
+function settings_frank_wolfe(
+    mode::Mode;
     variant=BlendedPairwiseConditionalGradient(),
     line_search=FrankWolfe.Secant(),
     max_fw_iter=10000,
@@ -85,7 +87,7 @@ function settings_frank_wolfe(mode::Mode;
     min_fw_iterions=5,
     fw_verbose=false,
     lazy=true,
-    lazy_tolerance=2
+    lazy_tolerance=2,
 )
     return Dict(
         :variant => variant,
@@ -121,13 +123,14 @@ Available settings:
 - `min_number_lower` if not `Inf`, evaluation of a node is stopped if at least `min_number_lower` open nodes have a better lower bound. Per default, this is set to `Inf`.
 - `min_node_fw_epsilon` smallest fw epsilon tolerance, see also `dual_gap_decay_factor`. Per default, this is set to `1e-6`.
 """
-function settings_tolerances(mode::Mode;
+function settings_tolerances(
+    mode::Mode;
     fw_epsilon=1e-2,
     dual_gap=1e-6,
     rel_dual_gap=1.0e-2,
     dual_gap_decay_factor=0.8,
     min_number_lower=Inf,
-    min_node_fw_epsilon=1e-6
+    min_node_fw_epsilon=1e-6,
 )
     return Dict(
         :fw_epsilon => fw_epsilon,
@@ -157,14 +160,8 @@ Available settings:
 - `use_postsolve` if `true`, runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e. it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables. Per default, this is `true`.
 - `max_iteration_post` maximum number of iterations in the Frank-Wolfe run during postsolve. Per default, this is set to `10000`.
 """
-function settings_postprocessing(mode::Mode; 
-    use_postsolve=true,
-    max_iteration_post=10000,
-)
-    return Dict(
-        :use_postsolve => use_postsolve,
-        :max_iteration_post => max_iteration_post,
-    )
+function settings_postprocessing(mode::Mode; use_postsolve=true, max_iteration_post=10000)
+    return Dict(:use_postsolve => use_postsolve, :max_iteration_post => max_iteration_post)
 end
 
 """
@@ -192,7 +189,8 @@ Available settings:
 - `hyperplane_aware_rounding_prob` the probability for calling the hyperplane-aware-rounding heuristic. Per default, this is `0.0`.
 - `add_all_solutions` if `true`, all solutions found by the heuristics, Frank-Wolfe or the BLMO are added to the tree. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 """
-function settings_heuristic(mode::Mode;
+function settings_heuristic(
+    mode::Mode;
     custom_heuristics=[Heuristic()],
     post_heuristics_callback=nothing,
     rounding_prob=1.0,
@@ -201,15 +199,34 @@ function settings_heuristic(mode::Mode;
     rounding_lmo_01_prob=0.0,
     probability_rounding_prob=0.0,
     hyperplane_aware_rounding_prob=0.0,
-    add_all_solutions=mode == HEURISTIC ? true : false
+    add_all_solutions=mode == HEURISTIC ? true : false,
 )
     round_heu = Heuristic(rounding_heuristic, rounding_prob, :rounding)
-    follow_grad_heu = Heuristic((tree, tlmo, x) -> follow_gradient_heuristic(tree, tlmo, x, follow_gradient_steps), follow_gradient_prob, :follow_gradient)
-    rounding_lmo_01_heu = Heuristic(rounding_lmo_01_heuristic, rounding_lmo_01_prob, :rounding_lmo_01)
-    probability_rounding_heu = Heuristic(probability_rounding_heuristic, probability_rounding_prob, :probability_rounding)
-    hyperplane_aware_rounding_heu = Heuristic(hyperplane_aware_rounding_heuristic, hyperplane_aware_rounding_prob, :hyperplane_aware_rounding)
+    follow_grad_heu = Heuristic(
+        (tree, tlmo, x) -> follow_gradient_heuristic(tree, tlmo, x, follow_gradient_steps),
+        follow_gradient_prob,
+        :follow_gradient,
+    )
+    rounding_lmo_01_heu =
+        Heuristic(rounding_lmo_01_heuristic, rounding_lmo_01_prob, :rounding_lmo_01)
+    probability_rounding_heu =
+        Heuristic(probability_rounding_heuristic, probability_rounding_prob, :probability_rounding)
+    hyperplane_aware_rounding_heu = Heuristic(
+        hyperplane_aware_rounding_heuristic,
+        hyperplane_aware_rounding_prob,
+        :hyperplane_aware_rounding,
+    )
 
-    heuristics = vcat([round_heu, follow_grad_heu, rounding_lmo_01_heu, probability_rounding_heu, hyperplane_aware_rounding_heu], custom_heuristics)
+    heuristics = vcat(
+        [
+            round_heu,
+            follow_grad_heu,
+            rounding_lmo_01_heu,
+            probability_rounding_heu,
+            hyperplane_aware_rounding_heu,
+        ],
+        custom_heuristics,
+    )
 
     return Dict(
         :heuristics => heuristics,
@@ -240,13 +257,14 @@ Available settings:
 - `sharpness_exponent` - the exponent `θ ∈ [0, 1/2]` for `(θ, M)`-sharpness. Per default, this is set to `Inf`.
 - `propagate_bounds` optional function that allows the user to propagate and tighten bounds depending on the node. Receives the tree and the node as input.
 """
-function settings_tightening(mode::Mode; 
+function settings_tightening(
+    mode::Mode;
     dual_tightening=true,
     global_dual_tightening=true,
     strong_convexity=0.0,
     sharpness_constant=0.0,
     sharpness_exponent=Inf,
-    propagate_bounds=nothing
+    propagate_bounds=nothing,
 )
     return Dict(
         :dual_tightening => dual_tightening,
@@ -277,10 +295,11 @@ Available settings:
 - `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`. Only necessary for a non-trivial domain oracle.
 - `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
 """
-function settings_domain(mode::Mode;
+function settings_domain(
+    mode::Mode;
     domain_oracle=_trivial_domain,
     find_domain_point=_trivial_domain_point,
-    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing
+    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
 )
     return Dict(
         :domain_oracle => domain_oracle,

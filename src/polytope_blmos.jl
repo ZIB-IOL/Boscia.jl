@@ -602,7 +602,7 @@ struct ReverseKnapsackBLMO <: SimpleBoundableLMO
 end
 
 # Have the same upper bounds for all variables
-function ReverseKnapsackBLMO(size; N=1.0, upper=1.0) 
+function ReverseKnapsackBLMO(size; N=1.0, upper=1.0)
     return ReverseKnapsackBLMO(N, fill(upper, size))
 end
 
@@ -612,7 +612,7 @@ Entries corresponding to non positive entries in d, are assigned their upper bou
 function bounded_compute_extreme_point(sblmo::ReverseKnapsackBLMO, d, lb, ub, int_vars; kwargs...)
     v = copy(sblmo.upper_bounds)
     v[int_vars] = min.(v[int_vars], ub)
-    
+
     idx_pos = findall(x -> x > 0, d)
     #v[idx_pos] = 0.0
     #v[intersect(idx_pos, int_vars)] = lb
@@ -620,7 +620,7 @@ function bounded_compute_extreme_point(sblmo::ReverseKnapsackBLMO, d, lb, ub, in
     perm = sortperm(d[idx_pos], rev=true)
     for i in idx_pos[perm]
         if i in int_vars
-            v[i] += max(sblmo.N - sum(v), lb[i] - ub[i], -v[i]) 
+            v[i] += max(sblmo.N - sum(v), lb[i] - ub[i], -v[i])
         else
             v[i] += max(N - sum(v), -v[i])
         end
@@ -656,16 +656,22 @@ end
 """
 Hyperplane-aware rounding for the reverse knapsack constraint.
 """
-function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ReverseKnapsackBLMO}}, x)
+function rounding_hyperplane_heuristic(
+    tree::Bonobo.BnBTree,
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{ReverseKnapsackBLMO}},
+    x,
+)
     z = copy(x)
     for idx in tree.branching_indices
         z[idx] = round(x[idx])
     end
-    
+
     N = tlmo.blmo.simple_lmo.N
 
     non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
-    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    cont_z =
+        isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 :
+        sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
     if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N
         @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
         return [z], true

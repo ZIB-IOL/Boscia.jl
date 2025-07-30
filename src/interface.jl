@@ -38,7 +38,13 @@ function solve(
     settings_domain=settings_domain(),
     kwargs...,
 )
-    options = merge(settings_frank_wolfe, settings_tolerances, settings_postprocessing, settings_tightening, settings_domain)
+    options = merge(
+        settings_frank_wolfe,
+        settings_tolerances,
+        settings_postprocessing,
+        settings_tightening,
+        settings_domain,
+    )
     if options[:variant] == DICG()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
@@ -132,7 +138,7 @@ function solve(
         0,
         0.0,
         [v],
-    )   
+    )
 
     # If we cannot trust the lower bound, we also shouldn't do any tighening.
     if options[:ignore_lower_bound]

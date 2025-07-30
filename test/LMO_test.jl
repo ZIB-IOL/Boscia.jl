@@ -189,16 +189,15 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
     N = sum(x_sol) + floor(n / 2)
     sblmo = Boscia.UnitSimplexSimpleBLMO(N)
 
-    x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
-    
+    x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
+
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n/4), n)
-diffi = x_sol + 0.3*rand([-1,1], n)
+x_sol = rand(1:floor(Int, n / 4), n)
+diffi = x_sol + 0.3 * rand([-1, 1], n)
 
 @testset "Reverse Knapsack LMO" begin
     function f(x)
@@ -208,11 +207,10 @@ diffi = x_sol + 0.3*rand([-1,1], n)
         @. storage = x - diffi
     end
 
-    N = sum(x_sol) - floor(n/2)
+    N = sum(x_sol) - floor(n / 2)
     sblmo = Boscia.ReverseKnapsackBLMO(n, N=N, upper=N)
 
-    x, _, result =
-        Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
+    x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)

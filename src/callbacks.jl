@@ -95,13 +95,13 @@ function process_FW_callback_logic(
         if ncalls != state.lmo.ncalls
             ncalls = state.lmo.ncalls
             (best_v, best_val) = find_best_solution(
-                    tree,
+                tree,
                 tree.root.problem.f,
                 tree.root.problem.tlmo.blmo,
                 vars,
                 tree.root.options[:domain_oracle],
             )
-                if best_val < tree.incumbent && !tree.root.options[:add_all_solutions]
+            if best_val < tree.incumbent && !tree.root.options[:add_all_solutions]
                 node = tree.nodes[tree.root.current_node_id[]]
                 add_new_solution!(tree, node, best_val, best_v, :Solver)
                 Bonobo.bound!(tree, node.id)
@@ -117,7 +117,7 @@ function process_FW_callback_logic(
 
     if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
         val = tree.root.problem.f(state.v)
-            if val < tree.incumbent || tree.root.options[:add_all_solutions]
+        if val < tree.incumbent || tree.root.options[:add_all_solutions]
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
             add_new_solution!(tree, node, val, copy(state.v), :vertex)

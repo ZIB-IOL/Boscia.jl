@@ -481,7 +481,13 @@ end
 
 Find best solution from the solving process.
 """
-function find_best_solution(tree::Bonobo.BnBTree, f::Function, blmo::MathOptBLMO, vars, domain_oracle)
+function find_best_solution(
+    tree::Bonobo.BnBTree,
+    f::Function,
+    blmo::MathOptBLMO,
+    vars,
+    domain_oracle,
+)
     return find_best_solution(tree, f, blmo.o, vars, domain_oracle)
 end
 
@@ -761,8 +767,8 @@ function solve(
     use_shadow_set=true,
     custom_heuristics=[Heuristic()],
     post_heuristics_callback=nothing,
-    rounding_prob=1.0, 
-    clean_solutions=false, 
+    rounding_prob=1.0,
+    clean_solutions=false,
     max_clean_iter=10,
     no_pruning=false,
     ignore_lower_bound=false,

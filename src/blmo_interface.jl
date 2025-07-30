@@ -190,7 +190,13 @@ end
 
 Find best solution from the solving process.
 """
-function find_best_solution(tree::Bonobo.BnBTree, f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
+function find_best_solution(
+    tree::Bonobo.BnBTree,
+    f::Function,
+    blmo::BoundedLinearMinimizationOracle,
+    vars,
+    domain_oracle,
+)
     return (nothing, Inf)
 end
 
