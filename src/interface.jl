@@ -46,7 +46,7 @@ function solve(
         settings_tightening,
         settings_domain,
     )
-    if options[:variant] == DICG()
+    if options[:variant] == DecompositionInvariantConditionalGradient()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
         end
