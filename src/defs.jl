@@ -14,8 +14,9 @@ end
 Enum for the different modes.
 """
 @enum Mode::Int32 begin
-    DEFAULT = 0
-    HEURISTIC = 1
+    DEFAULT_MODE = 0
+    HEURISTIC_MODE = 1
+    SMOOTHING_MODE = 2
 end
 
 """

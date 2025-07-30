@@ -29,13 +29,14 @@ function solve(
     f,
     grad!,
     blmo::BoundedLinearMinimizationOracle;
-    settings_bnb=settings_bnb(),
-    settings_frank_wolfe=settings_frank_wolfe(),
-    settings_tolerances=settings_tolerances(),
-    settings_postprocessing=settings_postprocessing(),
-    settings_heuristic=settings_heuristic(),
-    settings_tightening=settings_tightening(),
-    settings_domain=settings_domain(),
+    mode::Mode=DEFAULT_MODE,
+    settings_bnb=settings_bnb(mode),
+    settings_frank_wolfe=settings_frank_wolfe(mode),
+    settings_tolerances=settings_tolerances(mode),
+    settings_postprocessing=settings_postprocessing(mode),
+    settings_heuristic=settings_heuristic(mode),
+    settings_tightening=settings_tightening(mode),
+    settings_domain=settings_domain(mode),
     kwargs...,
 )
     options = merge(
