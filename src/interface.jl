@@ -38,8 +38,6 @@ function solve(
     settings_domain=settings_domain(),
     kwargs...,
 )
-    time_ref = Dates.now()
-
     if variant == DICG()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
@@ -91,6 +89,8 @@ function solve(
        typeof(find_domain_point) == typeof(_trivial_domain_point)
         @warn "For a non trivial domain oracle, please provide the DOMAIN POINT function. Otherwise, Boscia might not converge."
     end
+
+    time_ref = Dates.now()
 
     v = []
     if active_set === nothing
