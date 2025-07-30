@@ -17,96 +17,25 @@ Returns
 
 Optional settings
 
-- `traverse_strategy` encodes how to choose the next node for evaluation. By default the node with the best lower bound is picked.
-- `branching_strategy` fixes the branching strategy. By default, weuse `MOST_INFEASIBLE`, i.e. we branch on the entry which is the farthest away from being an integer.
-- `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `Blended`, `BPCG` and `VanillaFrankWolfe`.
-- `line_search` specifies the line search method used in the FrankWolfe variant. Default is the `Adaptive` line search. For other available types, check the FrankWolfe.jl package.
-- `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
-- `lazy` flag specifies whether the lazification of the Frank-Wolfe variant should be used. Per default `true`. Note that it has no effect on Vanilla Frank-Wolfe.
-- `lazy_tolerance` decides how much progress is deemed enough to not have to call the LMO. Only used if the `lazy` flag is activated.
-- `fw_epsilon` the solving precision of Frank-Wolfe at the root node.
-- `verbose` if `true`, logs and solution statistics are printed.
-- `dual_gap` absolute dual gap. If  reached, the algorithm stops.
-- `rel_dual_gap` relative dual gap. If reached, the algorithm stops.
-- `time_limit` algorithm will stop if the time limit is reached. Depending on the problem it is possible that no feasible solution has been found yet. On default, there is no time limit.
-- `print_iter` encodes after how many processed nodes the current node and solution status is printed. The logs are always printed if a new integral solution has been found.
-- `dual_gap_decay_factor` the FrankWolfe tolerance at a given level `i` in the tree is given by `fw_epsilon * dual_gap_decay_factor^i` until we reach the `min_node_fw_epsilon`.
-- `max_fw_iter` maximum number of iterations in a Frank-Wolfe run.
-- `min_number_lower` if not `Inf`, evaluation of a node is stopped if at least `min_number_lower` open nodes have a better lower bound.
-- `min_node_fw_epsilon` smallest fw epsilon tolerance, see also `dual_gap_decay_factor`.
-- `use_postsolve` if `true`, runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e. it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables.
-- `min_fw_iterations` the minimum number of Frank-Wolfe iterations performed in the node evaluation.
-- `max_iteration_post` maximum number of iterations in the Frank-Wolfe run during postsolve.
-- `dual_tightening` flag to decide  whether to use dual tightening techniques at node level. Note that this only porvides valid tightenings if your function is convex!
-- `global_dual_tightening` flag to decide whether to generate dual tightenings from new solutions that are gloablly valid.
-- `bnb_callback` an optional callback called after every node evaluation.
-- `strong_convexity` strong convexity parameter of the objective `f`, used for tightening the dual bound at every node.
-- `sharpness_constant` - the constant `M > 0` for `(θ, M)`-sharpness. `f` is `(θ, M)`-sharpness: `f` satisfies `min_{x^* ∈ X^*} || x - x^* || ≤ M (f(x) - f^(x^*))^θ` where `X^*` is the set of minimizer of `f`. Note that tightenings using sharpness are only valid if the problem has a unique minimizer, i.e. `f` is stricly convex!
-- `sharpness_exponent` - the exponent `θ ∈ [0, 1/2]` for `(θ, M)`-sharpness.
-- `domain_oracle` given a point `x`: returns `true` if `x` is in the domain of `f`, else false. Per default, it always returns `true`. In case of the non-trivial domain oracle, the starting point has to be domain feasible for `f`. Additionally, the user has to provide a function `domain_point`, see below. Also, depending on the line search method, you might have to provide the domain oracle to it, too.
-- `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`.
-- `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
-- `fw_verbose` if `true`, the Frank-Wolfe logs are printed at each node. Mostly meant for debugging.
-- `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the BLMO is expensive. In case of a cheap BLMO, performance might improve by disabling this option.
-- `custom_heuristics` list of custom heuristics from the user. 
-- `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
-- `clean_solutions` flag deciding whether new solutions should be polished. They will be rounded and then a quick Frank-Wolfe run will be started.
-- `max_clean_iter` maximum number of iterations in the Frank-Wolfe call for polishing new solutions.
-- `use_strong_lazy` specifies strong lazification in DICG. Otherwise, weak version is used.
-- `use_DICG_warm_start` if `true`, enables DICG-specific warm-start strategy.
-- `use_strong_warm_start` if `true`, performs additional in-face check for vertices.
-- `build_dicg_start_point` default generates a random feasible vertex.
+- `settings_bnb` dictionary of settings for the branch-and-bound algorithm. Created via `settings_bnb()`.
+- `settings_frank_wolfe` dictionary of settings for the Frank-Wolfe algorithm. Created via `settings_frank_wolfe()`.
+- `settings_tolerances` dictionary of settings for the tolerances. Created via `settings_tolerances()`.
+- `settings_postprocessing` dictionary of settings for the postprocessing. Created via `settings_postprocessing()`.
+- `settings_heuristic` dictionary of settings for the heuristics. Created via `settings_heuristic()`.
+- `settings_tightening` dictionary of settings for the tightening. Created via `settings_tightening()`.
+- `settings_domain` dictionary of settings for the domain. Created via `settings_domain()`.
 """
 function solve(
     f,
     grad!,
     blmo::BoundedLinearMinimizationOracle;
-    traverse_strategy=Bonobo.BestFirstSearch(),
-    branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
-    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
-    lazy=true,
-    lazy_tolerance=2.0,
-    fw_epsilon=1e-2,
-    verbose=false,
-    dual_gap=1e-6,
-    rel_dual_gap=1.0e-2,
-    time_limit=Inf,
-    node_limit=Inf,
-    print_iter=100,
-    dual_gap_decay_factor=0.8,
-    max_fw_iter=10000,
-    fw_timeout=Inf,
-    min_number_lower=Inf,
-    min_node_fw_epsilon=1e-6,
-    use_postsolve=true,
-    min_fw_iterations=5,
-    max_iteration_post=10000,
-    dual_tightening=true,
-    global_dual_tightening=true,
-    bnb_callback=nothing,
-    strong_convexity=0.0,
-    sharpness_constant=0.0,
-    sharpness_exponent=Inf,
-    domain_oracle=_trivial_domain,
-    find_domain_point=_trivial_domain_point,
-    start_solution=nothing,
-    fw_verbose=false,
-    use_shadow_set=true,
-    custom_heuristics=[Heuristic()],
-    post_heuristics_callback=nothing,
-    rounding_prob=1.0,
-    clean_solutions=false,
-    max_clean_iter=10,
-    no_pruning=false,
-    ignore_lower_bound=false,
-    add_all_solutions=false,
-    propagate_bounds=nothing,
-    use_strong_lazy=false,
-    use_DICG_warm_start=false,
-    use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point,
+    settings_bnb=settings_bnb(),
+    settings_frank_wolfe=settings_frank_wolfe(),
+    settings_tolerances=settings_tolerances(),
+    settings_postprocessing=settings_postprocessing(),
+    settings_heuristic=settings_heuristic(),
+    settings_tightening=settings_tightening(),
+    settings_domain=settings_domain(),
     kwargs...,
 )
     time_ref = Dates.now()
