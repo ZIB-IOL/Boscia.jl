@@ -69,7 +69,7 @@ Returns:
 
 Available settings:
 
-- `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `BlendedConditionalGradient`, `BlendedPairwiseConditionalGradient`, `DecompositionInvariantConditionalGradient` and `FrankWolfe`. Per default, this is set to `BlendedPairwiseConditionalGradient`.
+- `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `BlendedConditionalGradient`, `BlendedPairwiseConditionalGradient`, `DecompositionInvariantConditionalGradient` and `StandardFrankWolfe`. Per default, this is set to `BlendedPairwiseConditionalGradient`.
 - `line_search` specifies the line search method used in the FrankWolfe variant. Default is the `FrankWolfe.Secant` line search. For other available types, check the FrankWolfe.jl package.
 - `max_fw_iter` maximum number of iterations in a Frank-Wolfe run. Per default, this is set to `10000`.
 - `fw_timeout` time limit for the Frank-Wolfe runs. Per default, there is no time limit. It is preferred to set the iteration limit but this can be used as a fallback and/or if the BLMO call is time consuming.

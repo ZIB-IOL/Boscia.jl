@@ -300,10 +300,10 @@ The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing 
 
 Lazification cannot be used in this setting.
 """
-struct FrankWolfe <: FrankWolfeVariant end
+struct StandardFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::FrankWolfe,
+    frank_wolfe_variant::StandardFrankWolfe,
     f,
     grad!,
     lmo,
@@ -343,4 +343,4 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::FrankWolfe) = print(io, "StandardFrank-Wolfe")
+Base.print(io::IO, ::StandardFrankWolfe) = print(io, "StandardFrank-Wolfe")
