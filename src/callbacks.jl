@@ -380,8 +380,8 @@ function build_bnb_callback(
             end
             primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
             # deactivate postsolve if there is no solution
-            tree.root.options[:usePostsolve] =
-                x === nothing ? false : tree.root.options[:usePostsolve]
+            tree.root.options[:use_postsolve] =
+                x === nothing ? false : tree.root.options[:use_postsolve]
 
             # TODO: here we need to calculate the actual state
 

@@ -44,9 +44,11 @@ function solve(
         settings_frank_wolfe,
         settings_tolerances,
         settings_postprocessing,
+        settings_heuristic,
         settings_tightening,
         settings_domain,
     )
+    merge!(options, Dict(:heu_ncalls => 0))
     if options[:variant] == DecompositionInvariantConditionalGradient()
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
@@ -120,7 +122,7 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    pre_computed_set = if options[:variant] == DICG() && options[:variant].use_DICG_warm_start
+    pre_computed_set = if options[:variant] == DecompositionInvariantConditionalGradient() && options[:variant].use_DICG_warm_start
         [v]
     else
         nothing
@@ -149,7 +151,7 @@ function solve(
     end
 
     Node = typeof(nodeEx)
-    Value = typeof(active_set.atoms[1])
+    Value = typeof(options[:active_set].atoms[1])
     tree = Bonobo.initialize(;
         traverse_strategy=options[:traverse_strategy],
         Node=Node,
@@ -175,7 +177,7 @@ function solve(
     Bonobo.set_root!(
         tree,
         (
-            active_set=active_set,
+            active_set=options[:active_set],
             discarded_vertices=vertex_storage,
             local_bounds=IntegerBounds(),
             level=1,
@@ -240,7 +242,7 @@ function solve(
         active_set_size_per_layer,
         discarded_set_size_per_layer,
         node_level,
-        bnb_callback,
+        options[:bnb_callback],
         global_tightenings,
         local_tightenings,
         local_potential_tightenings,
@@ -256,7 +258,7 @@ function solve(
         options[:min_fw_iterations],
         time_ref,
         options[:time_limit],
-        use_DICG=options[:variant] == DICG(),
+        use_DICG=options[:variant] == DecompositionInvariantConditionalGradient(),
     )
 
     tree.root.options[:callback] = fw_callback
@@ -317,7 +319,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     end
 
     only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
-    if tree.root.options[:usePostsolve] && !only_integer_vars
+    if tree.root.options[:use_postsolve] && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
         for i in tree.root.problem.integer_variables
