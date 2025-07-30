@@ -40,6 +40,7 @@ function solve(
     kwargs...,
 )
     options = merge(
+        settings_bnb,
         settings_frank_wolfe,
         settings_tolerances,
         settings_postprocessing,
