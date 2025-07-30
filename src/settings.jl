@@ -34,8 +34,8 @@ function settings_bnb(
     time_limit=Inf,
     print_iter=100,
     bnb_callback=nothing,
-    no_pruning=mode == HEURISTIC ? true : false,
-    ignore_lower_bound=mode == HEURISTIC ? true : false,
+    no_pruning=mode == HEURISTIC_MODE ? true : false,
+    ignore_lower_bound=mode == HEURISTIC_MODE ? true : false,
     start_solution=nothing,
     use_shadow_set=true,
 )
@@ -199,7 +199,7 @@ function settings_heuristic(
     rounding_lmo_01_prob=0.0,
     probability_rounding_prob=0.0,
     hyperplane_aware_rounding_prob=0.0,
-    add_all_solutions=mode == HEURISTIC ? true : false,
+    add_all_solutions=mode == HEURISTIC_MODE ? true : false,
 )
     round_heu = Heuristic(rounding_heuristic, rounding_prob, :rounding)
     follow_grad_heu = Heuristic(
