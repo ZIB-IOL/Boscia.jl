@@ -735,13 +735,13 @@ function solve(
     g,
     lmo::FrankWolfe.MathOptLMO;
     mode::Mode=DEFAULT_MODE,
-    settings_bnb=settings_bnb(mode),
-    settings_frank_wolfe=settings_frank_wolfe(mode),
-    settings_tolerances=settings_tolerances(mode),
-    settings_postprocessing=settings_postprocessing(mode),
-    settings_heuristic=settings_heuristic(mode),
-    settings_tightening=settings_tightening(mode),
-    settings_domain=settings_domain(mode),
+    settings_bnb=settings_bnb(mode=mode),
+    settings_frank_wolfe=settings_frank_wolfe(mode=mode),
+    settings_tolerances=settings_tolerances(mode=mode),
+    settings_postprocessing=settings_postprocessing(mode=mode),
+    settings_heuristic=settings_heuristic(mode=mode),
+    settings_tightening=settings_tightening(mode=mode),
+    settings_domain=settings_domain(mode=mode),
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
