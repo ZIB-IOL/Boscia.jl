@@ -71,7 +71,7 @@ rng = StableRNG(seed)
                 settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
                 settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
             )
-        
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] > result[:dual_bound]
@@ -170,7 +170,7 @@ end
                     sharpness_exponent=θ,
                 ),
             )
-        
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] >= result[:dual_bound]
