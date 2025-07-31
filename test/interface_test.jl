@@ -482,8 +482,8 @@ end
 
     lmo = build_model()
     line_search = FrankWolfe.Adaptive()
-    @suppress begin
-        x_adaptive, _, result_adaptive = Boscia.solve(
+    x_adaptive, _, result_adaptive = @suppress begin
+        Boscia.solve(
             f,
             grad!,
             lmo,

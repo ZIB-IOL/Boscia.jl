@@ -4,6 +4,7 @@ using Random
 using LinearAlgebra
 using FrankWolfe
 using StableRNGs
+using Suppressor
 
 ## Log barrier
 # min_x - ∑ log(xi + ϵ) - log(N - ∑ xi + ϵ)
@@ -70,10 +71,11 @@ rng = StableRNG(seed)
                 settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
                 settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
             )
-        end
+        
 
-        @test f(x_sc) <= f(x) + 1e-6
-        @test result_sc[:dual_bound] > result[:dual_bound]
+            @test f(x_sc) <= f(x) + 1e-6
+            @test result_sc[:dual_bound] > result[:dual_bound]
+        end
     end
 
     @testset "General convex quadratic" begin
@@ -168,10 +170,11 @@ end
                     sharpness_exponent=θ,
                 ),
             )
-        end
+        
 
-        @test f(x_sc) <= f(x) + 1e-6
-        @test result_sc[:dual_bound] >= result[:dual_bound]
+            @test f(x_sc) <= f(x) + 1e-6
+            @test result_sc[:dual_bound] >= result[:dual_bound]
+        end
     end
 
     @testset "General convex quadratic" begin
