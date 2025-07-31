@@ -123,7 +123,7 @@ function solve(
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     pre_computed_set =
-        if options[:variant] == DecompositionInvariantConditionalGradient() &&
+        if typeof(options[:variant]) == DecompositionInvariantConditionalGradient &&
            options[:variant].use_DICG_warm_start
             [v]
         else
