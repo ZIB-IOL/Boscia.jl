@@ -65,7 +65,11 @@ end
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=Bonobo.MOST_INFEASIBLE()),
+        settings_bnb=Boscia.settings_bnb(
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=Bonobo.MOST_INFEASIBLE(),
+        ),
     )
 
     @testset "Largest Gradient Branching" begin
@@ -77,7 +81,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -93,7 +101,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -109,7 +121,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -125,7 +141,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -145,7 +165,11 @@ end
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=Bonobo.MOST_INFEASIBLE()),
+        settings_bnb=Boscia.settings_bnb(
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=Bonobo.MOST_INFEASIBLE(),
+        ),
     )
 
     @testset "Pseudocost with Most-Infeasible alternative and weighted_sum decision function" begin
@@ -163,7 +187,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -185,7 +213,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -207,7 +239,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -229,7 +265,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -298,7 +338,11 @@ end
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=Bonobo.MOST_INFEASIBLE()),
+        settings_bnb=Boscia.settings_bnb(
+            verbose=verbose,
+            time_limit=time_limit,
+            branching_strategy=Bonobo.MOST_INFEASIBLE(),
+        ),
     )
 
     @testset "Hierarchy with Most-Infeasible pseudocost alternative and weighted_sum decision function" begin
@@ -317,7 +361,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -336,7 +384,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -359,7 +411,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -380,7 +436,11 @@ end
             f,
             grad!,
             lmo,
-            settings_bnb=Boscia.settings_bnb(verbose=verbose, time_limit=time_limit, branching_strategy=branching_strategy),
+            settings_bnb=Boscia.settings_bnb(
+                verbose=verbose,
+                time_limit=time_limit,
+                branching_strategy=branching_strategy,
+            ),
         )
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
@@ -425,8 +485,12 @@ const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result_strong_branching =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy))
+    x, _, result_strong_branching = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
+    )
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
@@ -470,7 +534,12 @@ end
     branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
     MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy))
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
+    )
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end

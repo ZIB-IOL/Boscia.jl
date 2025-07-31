@@ -39,14 +39,20 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         end
         return FrankWolfe.MathOptLMO(o)
     end
-    x_baseline, _, result =
-        Boscia.solve(f, grad!, build_norm_lmo(), 
-            settings_bnb=Boscia.settings_bnb(verbose=false),
-            settings_tightening=Boscia.settings_tightening(dual_tightening=false))
-    x_tighten, _, result =
-        Boscia.solve(f, grad!, build_norm_lmo(), 
-            settings_bnb=Boscia.settings_bnb(verbose=false),
-            settings_tightening=Boscia.settings_tightening(dual_tightening=true))
+    x_baseline, _, result = Boscia.solve(
+        f,
+        grad!,
+        build_norm_lmo(),
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_tightening=Boscia.settings_tightening(dual_tightening=false),
+    )
+    x_tighten, _, result = Boscia.solve(
+        f,
+        grad!,
+        build_norm_lmo(),
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_tightening=Boscia.settings_tightening(dual_tightening=true),
+    )
     x_strong, _, result = Boscia.solve(
         f,
         grad!,
@@ -84,7 +90,12 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=false, branching_strategy=branching_strategy))
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=false, branching_strategy=branching_strategy),
+    )
 
     @test x == round.(diffi)
     @test f(x) == f(result[:raw_solution])
@@ -180,7 +191,10 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            settings_tightening=Boscia.settings_tightening(sharpness_constant=M, sharpness_exponent=θ),
+            settings_tightening=Boscia.settings_tightening(
+                sharpness_constant=M,
+                sharpness_exponent=θ,
+            ),
         )
 
         @test x == round.(diffi)
@@ -205,7 +219,11 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            settings_tightening=Boscia.settings_tightening(strong_convexity=μ, sharpness_constant=M, sharpness_exponent=θ),
+            settings_tightening=Boscia.settings_tightening(
+                strong_convexity=μ,
+                sharpness_constant=M,
+                sharpness_exponent=θ,
+            ),
         )
 
         @test x == round.(diffi)
@@ -373,33 +391,56 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     end
 
     lmo = build_model()
-    x_afw, _, result_afw =
-        Boscia.solve(f, grad!, lmo, 
+    x_afw, _, result_afw = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.AwayFrankWolfe()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.AwayFrankWolfe()),
+    )
 
     lmo = build_model()
-    x_blended, _, result_blended =
-        Boscia.solve(f, grad!, lmo, 
+    x_blended, _, result_blended = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.BlendedConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.BlendedConditionalGradient(),
+        ),
+    )
 
     lmo = build_model()
-    x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, 
+    x_bpcg, _, result_bpcg = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.BlendedPairwiseConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.BlendedPairwiseConditionalGradient(),
+        ),
+    )
 
     lmo = build_model()
-    x_dicg, _, result_dicg =
-        Boscia.solve(f, grad!, lmo, 
-            settings_bnb=Boscia.settings_bnb(verbose=false),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient(), fw_verbose=false))
+    x_dicg, _, result_dicg = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+            fw_verbose=false,
+        ),
+    )
 
     lmo = build_model()
-    x_vfw, _, result_vfw =
-        Boscia.solve(f, grad!, lmo, 
-            settings_bnb=Boscia.settings_bnb(verbose=false),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.StandardFrankWolfe()))
+    x_vfw, _, result_vfw = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.StandardFrankWolfe()),
+    )
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -440,24 +481,33 @@ end
 
     lmo = build_model()
     line_search = FrankWolfe.Adaptive()
-    x_adaptive, _, result_adaptive =
-        Boscia.solve(f, grad!, lmo, 
+    x_adaptive, _, result_adaptive = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+    )
 
     lmo = build_model()
     line_search = FrankWolfe.MonotonicStepSize()
-    x_monotonic, _, result_monotonic =
-        Boscia.solve(f, grad!, lmo, 
-            settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search))
+    x_monotonic, _, result_monotonic = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+    )
 
     lmo = build_model()
     line_search = FrankWolfe.Agnostic()
-    x_agnostic, _, result_agnostic =
-        Boscia.solve(f, grad!, lmo, 
-            settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search))
+    x_agnostic, _, result_agnostic = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+    )
 
     @test isapprox(f(x_adaptive), f(result_adaptive[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_monotonic), f(result_monotonic[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -472,7 +522,7 @@ end
         grad!,
         lmo,
         settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
-        settings_bnb=Boscia.settings_bnb(verbose=false, print_iter=1, node_limit=2)
+        settings_bnb=Boscia.settings_bnb(verbose=false, print_iter=1, node_limit=2),
     )
 
     @test length(result_monotonic_node_limit[:list_ub]) <= 3
@@ -506,17 +556,26 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     end
 
     lmo = build_model()
-    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=false))
+    x_lazy, _, result_lazy =
+        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=false))
 
     lmo = build_model()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, 
+    x_no, _, result_no = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false),
+    )
 
     lmo = build_model()
-    x_mid, _, result_mid = Boscia.solve(f, grad!, lmo, 
+    x_mid, _, result_mid = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5),
+    )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -550,15 +609,27 @@ end
 
     # testing for weak lazification
     lmo = build_model()
-    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, 
+    x_lazy, _, result_lazy = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+        ),
+    )
 
     lmo = build_model()
-    x_no, _, result_no =
-        Boscia.solve(f, grad!, lmo, 
+    x_no, _, result_no = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false, variant=Boscia.DecompositionInvariantConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            lazy=false,
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+        ),
+    )
 
     lmo = build_model()
     x_warm_start, _, result_warm_start = Boscia.solve(
@@ -566,7 +637,11 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5, variant=Boscia.DecompositionInvariantConditionalGradient())
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            lazy=true,
+            lazy_tolerance=1.5,
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+        ),
     )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -577,10 +652,15 @@ end
 
     # testing for strong lazification
     lmo = build_model()
-    x_lazy, _, result_lazy =
-        Boscia.solve(f, grad!, lmo, 
+    x_lazy, _, result_lazy = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true)))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true),
+        ),
+    )
 
     lmo = build_model()
     x_no, _, result_no = Boscia.solve(
@@ -588,7 +668,10 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false, variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            lazy=false,
+            variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true),
+        ),
     )
 
     lmo = build_model()
@@ -597,7 +680,11 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5, variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            lazy=true,
+            lazy_tolerance=1.5,
+            variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true),
+        ),
     )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -632,16 +719,27 @@ end
 
 
     lmo = build_model()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, 
+    x_no, _, result_no = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+        ),
+    )
 
     # testing for weak warm-start
     lmo = build_model()
-    x_weak_warm_start, _, result_weak_warm_start =
-        Boscia.solve(f, grad!, lmo, 
+    x_weak_warm_start, _, result_weak_warm_start = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient(use_DICG_warm_start=true)))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(use_DICG_warm_start=true),
+        ),
+    )
 
     # testing for strong warm_start
     x_strong_warm_start, _, result_strong_warm_start = Boscia.solve(
@@ -649,7 +747,12 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient(use_DICG_warm_start=true, use_strong_warm_start=true)),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(
+                use_DICG_warm_start=true,
+                use_strong_warm_start=true,
+            ),
+        ),
     )
 
     @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -704,10 +807,15 @@ end
     end
 
     lmo = build_model()
-    x_no, _, result_no =
-        Boscia.solve(f, grad!, lmo, 
+    x_no, _, result_no = Boscia.solve(
+        f,
+        grad!,
+        lmo,
         settings_bnb=Boscia.settings_bnb(verbose=false, bnb_callback=callback),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()))
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(
+            variant=Boscia.DecompositionInvariantConditionalGradient(),
+        ),
+    )
 
     @test result_no[:status] == "User defined stop"
     @test result_no[:solving_stage] == Boscia.USER_STOP

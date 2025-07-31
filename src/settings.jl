@@ -160,7 +160,11 @@ Available settings:
 - `use_postsolve` if `true`, runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e. it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables. Per default, this is `true`.
 - `max_iteration_post` maximum number of iterations in the Frank-Wolfe run during postsolve. Per default, this is set to `10000`.
 """
-function settings_postprocessing(; mode::Mode=Boscia.DEFAULT_MODE, use_postsolve=true, max_iteration_post=10000)
+function settings_postprocessing(;
+    mode::Mode=Boscia.DEFAULT_MODE,
+    use_postsolve=true,
+    max_iteration_post=10000,
+)
     return Dict(:use_postsolve => use_postsolve, :max_iteration_post => max_iteration_post)
 end
 

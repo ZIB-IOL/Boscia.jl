@@ -122,11 +122,13 @@ function solve(
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
-    pre_computed_set = if options[:variant] == DecompositionInvariantConditionalGradient() && options[:variant].use_DICG_warm_start
-        [v]
-    else
-        nothing
-    end
+    pre_computed_set =
+        if options[:variant] == DecompositionInvariantConditionalGradient() &&
+           options[:variant].use_DICG_warm_start
+            [v]
+        else
+            nothing
+        end
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
@@ -258,7 +260,7 @@ function solve(
         options[:min_fw_iterations],
         time_ref,
         options[:time_limit],
-        use_DICG= typeof(options[:variant]) == DecompositionInvariantConditionalGradient,
+        use_DICG=typeof(options[:variant]) == DecompositionInvariantConditionalGradient,
     )
 
     tree.root.options[:callback] = fw_callback

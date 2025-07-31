@@ -358,11 +358,14 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
-        use_strong_lazy=typeof(tree.root.options[:variant]) == DecompositionInvariantConditionalGradient ?
+        use_strong_lazy=typeof(tree.root.options[:variant]) ==
+                        DecompositionInvariantConditionalGradient ?
                         tree.root.options[:variant].use_strong_lazy : false,
-        use_strong_warm_start=typeof(tree.root.options[:variant]) == DecompositionInvariantConditionalGradient ?
+        use_strong_warm_start=typeof(tree.root.options[:variant]) ==
+                              DecompositionInvariantConditionalGradient ?
                               tree.root.options[:variant].use_strong_warm_start : false,
-        build_dicg_start_point=typeof(tree.root.options[:variant]) == DecompositionInvariantConditionalGradient ?
+        build_dicg_start_point=typeof(tree.root.options[:variant]) ==
+                               DecompositionInvariantConditionalGradient ?
                                tree.root.options[:variant].build_dicg_start_point :
                                trivial_build_dicg_start_point,
     )
