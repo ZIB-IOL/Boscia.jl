@@ -44,31 +44,33 @@ rng = StableRNG(seed)
         sblmo = Boscia.UnitSimplexSimpleBLMO(N)
         line_search = FrankWolfe.Adaptive()
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            sblmo,
-            fill(0.0, n),
-            fill(floor(N / 2), n),
-            int_vars,
-            n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
-        )
+        @suppress begin
+            x, _, result = Boscia.solve(
+                f,
+                grad!,
+                sblmo,
+                fill(0.0, n),
+                fill(floor(N / 2), n),
+                int_vars,
+                n,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+            )
 
-        μ = 1 / (1 + ϵ)^(2 * n)
-        x_sc, _, result_sc = Boscia.solve(
-            f,
-            grad!,
-            sblmo,
-            fill(0.0, n),
-            fill(floor(N / 2), n),
-            int_vars,
-            n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
-            settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
-        )
+            μ = 1 / (1 + ϵ)^(2 * n)
+            x_sc, _, result_sc = Boscia.solve(
+                f,
+                grad!,
+                sblmo,
+                fill(0.0, n),
+                fill(floor(N / 2), n),
+                int_vars,
+                n,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+                settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
+            )
+        end
 
         @test f(x_sc) <= f(x) + 1e-6
         @test result_sc[:dual_bound] > result[:dual_bound]
@@ -135,36 +137,38 @@ end
         sblmo = Boscia.UnitSimplexSimpleBLMO(N)
         line_search = FrankWolfe.Adaptive()
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            sblmo,
-            fill(0.0, n),
-            fill(floor(N / 2), n),
-            int_vars,
-            n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
-        )
+        @suppress begin
+            x, _, result = Boscia.solve(
+                f,
+                grad!,
+                sblmo,
+                fill(0.0, n),
+                fill(floor(N / 2), n),
+                int_vars,
+                n,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+            )
 
-        μ = 1 / (1 + ϵ)^(2 * n)
-        θ = 1 / 2
-        M = sqrt(2 / μ)
-        x_sc, _, result_sc = Boscia.solve(
-            f,
-            grad!,
-            sblmo,
-            fill(0.0, n),
-            fill(floor(N / 2), n),
-            int_vars,
-            n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
-            settings_tightening=Boscia.settings_tightening(
-                sharpness_constant=M,
-                sharpness_exponent=θ,
-            ),
-        )
+            μ = 1 / (1 + ϵ)^(2 * n)
+            θ = 1 / 2
+            M = sqrt(2 / μ)
+            x_sc, _, result_sc = Boscia.solve(
+                f,
+                grad!,
+                sblmo,
+                fill(0.0, n),
+                fill(floor(N / 2), n),
+                int_vars,
+                n,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+                settings_tightening=Boscia.settings_tightening(
+                    sharpness_constant=M,
+                    sharpness_exponent=θ,
+                ),
+            )
+        end
 
         @test f(x_sc) <= f(x) + 1e-6
         @test result_sc[:dual_bound] >= result[:dual_bound]
