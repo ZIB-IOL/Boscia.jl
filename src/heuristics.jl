@@ -205,11 +205,11 @@ function probability_rounding(
         active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
-        line_search=tree.root.options[:lineSearch],
+        line_search=tree.root.options[:line_search],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
         callback=tree.root.options[:callback],
-        verbose=tree.root.options[:fwVerbose],
+        verbose=tree.root.options[:fw_verbose],
     )
 
     @assert sum(

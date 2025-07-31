@@ -124,7 +124,7 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            use_shadow_set=false,
+            settings_bnb=Boscia.settings_bnb(use_shadow_set=false),
         )
 
         @test x == round.(diffi)
@@ -156,7 +156,7 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            strong_convexity=μ,
+            settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
         )
 
         @test x == round.(diffi)
@@ -180,8 +180,7 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            sharpness_constant=M,
-            sharpness_exponent=θ,
+            settings_tightening=Boscia.settings_tightening(sharpness_constant=M, sharpness_exponent=θ),
         )
 
         @test x == round.(diffi)
@@ -206,9 +205,7 @@ end
             ubs[int_vars],
             int_vars,
             n,
-            strong_convexity=μ,
-            sharpness_constant=M,
-            sharpness_exponent=θ,
+            settings_tightening=Boscia.settings_tightening(strong_convexity=μ, sharpness_constant=M, sharpness_exponent=θ),
         )
 
         @test x == round.(diffi)
@@ -242,7 +239,7 @@ end
         ubs[int_vars],
         int_vars,
         n,
-        active_set=active_set,
+        settings_domain=Boscia.settings_domain(active_set=active_set),
     )
 
     @test x == round.(diffi)
@@ -474,10 +471,8 @@ end
         f,
         grad!,
         lmo,
-        verbose=false,
-        line_search=line_search,
-        node_limit=2,
-        print_iter=1,
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+        settings_bnb=Boscia.settings_bnb(verbose=false, print_iter=1, node_limit=2)
     )
 
     @test length(result_monotonic_node_limit[:list_ub]) <= 3
@@ -570,10 +565,8 @@ end
         f,
         grad!,
         lmo,
-        verbose=false,
-        lazy=true,
-        lazy_tolerance=1.5,
-        variant=Boscia.DICG(),
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5, variant=Boscia.DecompositionInvariantConditionalGradient())
     )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
@@ -594,10 +587,8 @@ end
         f,
         grad!,
         lmo,
-        verbose=false,
-        lazy=false,
-        use_strong_lazy=true,
-        variant=Boscia.DICG(),
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false, variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true))
     )
 
     lmo = build_model()
@@ -605,11 +596,8 @@ end
         f,
         grad!,
         lmo,
-        verbose=false,
-        lazy=true,
-        lazy_tolerance=1.5,
-        use_strong_lazy=true,
-        variant=Boscia.DICG(),
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=true, lazy_tolerance=1.5, variant=Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true))
     )
 
     @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)

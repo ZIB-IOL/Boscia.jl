@@ -258,7 +258,7 @@ function solve(
         options[:min_fw_iterations],
         time_ref,
         options[:time_limit],
-        use_DICG=options[:variant] == DecompositionInvariantConditionalGradient(),
+        use_DICG= typeof(options[:variant]) == DecompositionInvariantConditionalGradient,
     )
 
     tree.root.options[:callback] = fw_callback

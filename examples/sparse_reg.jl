@@ -10,6 +10,7 @@ using Dates
 using Printf
 using Test
 using StableRNGs
+using Statistics
 
 seed = rand(UInt64)
 @show seed

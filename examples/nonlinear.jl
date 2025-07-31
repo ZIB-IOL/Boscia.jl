@@ -13,6 +13,8 @@ seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
 
+n = 30
+
 # using SCIP
 # const MOI = MathOptInterface
 

@@ -6,7 +6,6 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
-import Ipopt
 
 
 # MIPLIB instances

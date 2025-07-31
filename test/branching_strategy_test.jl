@@ -6,10 +6,14 @@ using Random
 using SCIP
 using HiGHS
 using LinearAlgebra
-
+using StableRNGs
 
 import MathOptInterface
 const MOI = MathOptInterface
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
 
 verbose = true
 
