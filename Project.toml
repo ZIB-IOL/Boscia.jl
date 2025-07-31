@@ -44,7 +44,7 @@ SCIP = "0.11, 0.12"
 SparseArrays = "1.10"
 StableRNGs = "1"
 Statistics = "1.6"
-Suppressor = "2.8"
+Suppressor = "0.2"
 Test = "1"
 julia = "1.6"
 
