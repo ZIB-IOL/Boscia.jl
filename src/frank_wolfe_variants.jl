@@ -195,13 +195,13 @@ function DecompositionInvariantConditionalGradient(;
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point,
+    build_dicg_start_point=trivial_build_dicg_start_point
 )
     return DecompositionInvariantConditionalGradient(
         use_strong_lazy,
         use_DICG_warm_start,
         use_strong_warm_start,
-        build_dicg_start_point,
+        build_dicg_start_point
     )
 end
 
@@ -225,9 +225,6 @@ function solve_frank_wolfe(
     workspace=nothing,
     pre_computed_set=nothing,
     domain_oracle=_trivial_domain,
-    use_strong_lazy=false,
-    use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point,
     kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
@@ -244,7 +241,7 @@ function solve_frank_wolfe(
         lmo,
         active_set,
         pre_computed_set,
-        build_dicg_start_point;
+        frank_wolfe_variant.build_dicg_start_point;
         domain_oracle=domain_oracle,
     )
 
@@ -267,15 +264,14 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
-        use_strong_lazy=use_strong_lazy,
+        use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
         linesearch_workspace=workspace,
         sparsity_control=lazy_tolerance,
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
     )
-
-    if pre_computed_set != nothing
-        if use_strong_warm_start
+    if pre_computed_set !== nothing
+        if frank_wolfe_variant.use_strong_warm_start
             indices_to_delete = []
             for idx in eachindex(pre_computed_set)
                 atom = pre_computed_set[idx]

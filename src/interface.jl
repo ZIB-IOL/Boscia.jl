@@ -49,7 +49,7 @@ function solve(
         settings_domain,
     )
     merge!(options, Dict(:heu_ncalls => 0))
-    if options[:variant] == DecompositionInvariantConditionalGradient()
+    if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
         end
