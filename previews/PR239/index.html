@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · Boscia.jl</title><meta name="title" content="Home · Boscia.jl"/><meta property="og:title" content="Home · Boscia.jl"/><meta property="twitter:title" content="Home · Boscia.jl"/><meta name="description" content="Documentation for Boscia.jl."/><meta property="og:description" content="Documentation for Boscia.jl."/><meta property="twitter:description" content="Documentation for Boscia.jl."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>Boscia.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Getting-started"><span>Getting started</span></a></li></ul></li><li><a class="tocitem" href="basics/">How does it work?</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="reference/1_algorithms/">Algorithm Interface</a></li><li><a class="tocitem" href="reference/2_blmo_build/">The Bounded Linear Minimization Oracle (BLMO)</a></li><li><a class="tocitem" href="reference/custom/">Branch-and-Bound tree functionality</a></li><li><a class="tocitem" href="reference/fw_variant/">Frank-Wolfe Variants</a></li><li><a class="tocitem" href="reference/utilities/">Utilities</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl.git" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl/blob/main/docs/src/index.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Boscia.jl"><a class="docs-heading-anchor" href="#Boscia.jl">Boscia.jl</a><a id="Boscia.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Boscia.jl" title="Permalink"></a></h1><p><a href="https://github.com/ZIB-IOL/Boscia.jl/actions"><img src="https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg" alt="Build Status"/></a> <a href="https://zib-iol.github.io/Boscia.jl/dev/"><img src="https://img.shields.io/badge/docs-dev-blue.svg" alt="Dev"/></a> <a href="https://zib-iol.github.io/Boscia.jl/stable/"><img src="https://img.shields.io/badge/docs-stable-blue.svg" alt="Stable"/></a> <a href="https://codecov.io/gh/ZIB-IOL/Boscia.jl"><img src="https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg" alt="Coverage"/></a> <a href="https://doi.org/10.5281/zenodo.12720675"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.12720675.svg" alt="DOI"/></a> <a href="https://github.com/JuliaTesting/Aqua.jl"><img src="https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg" alt="Aqua QA"/></a></p><p>A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for convex relaxations and a branch-and-bound algorithm.</p><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>The Boscia.jl solver combines (a variant of) the Frank-Wolfe algorithm with a branch-and-bound-like algorithm to solve mixed-integer convex optimization problems of the form <span>$\min_{x ∈ C, x_I ∈ \mathbb{Z}^n} f(x)$</span>, where <span>$f$</span> is a differentiable convex function, <span>$C$</span> is a convex and compact set, and <span>$I$</span> is a set of indices of integral variables.</p><p>This approach is especially effective when we have a method to optimize a linear function over <span>$C$</span> and the integrality constraints in a computationally efficient way. The set <code>C</code> can modelled using the Julia package <strong>MathOptInterface</strong> (or <strong>JuMP</strong>).  We also implemented simple polytopes like the hypercube, the unit simplex and the probability simplex. Also, we intend to extend this list by combinatorial polytopes, e.g. the matching polytope.</p><p>The paper presenting the package with mathematical explanations and numerous examples can be found here:</p><blockquote><p>Convex mixed-integer optimization with Frank-Wolfe methods: <a href="https://arxiv.org/abs/2208.11010">2208.11010</a></p></blockquote><p><code>Boscia.jl</code> uses <a href="https://github.com/ZIB-IOL/FrankWolfe.jl"><code>FrankWolfe.jl</code></a> for solving the convex subproblems, <a href="https://github.com/Wikunia/Bonobo.jl"><code>Bonobo.jl</code></a> for managing the search tree, and oracles optimizing linear functions over the feasible set, for instance calling <a href="https://scipopt.org">SCIP</a> or any MOI-compatible solver to solve MIP subproblems.</p><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>Add the Boscia stable release with:</p><pre><code class="language-julia hljs">import Pkg
+Pkg.add(&quot;Boscia&quot;)</code></pre><p>Or get the latest master branch with:</p><pre><code class="language-julia hljs">import Pkg
+Pkg.add(url=&quot;https://github.com/ZIB-IOL/Boscia.jl&quot;, rev=&quot;main&quot;)</code></pre><p>For the installation of <code>SCIP.jl</code>, see <a href="https://github.com/scipopt/SCIP.jl">here</a>. Note, for Windows users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.</p><h2 id="Getting-started"><a class="docs-heading-anchor" href="#Getting-started">Getting started</a><a id="Getting-started-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-started" title="Permalink"></a></h2><p>Here is a simple example to get started. For more examples, see the examples folder in the package.</p><pre><code class="language-julia hljs">using Boscia
+using FrankWolfe
+using Random
+using SCIP
+using LinearAlgebra
+import MathOptInterface
+const MOI = MathOptInterface
+
+n = 6
+
+const diffw = 0.5 * ones(n)
+o = SCIP.Optimizer()
+
+MOI.set(o, MOI.Silent(), true)
+
+x = MOI.add_variables(o, n)
+
+for xi in x
+    MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+    MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+    MOI.add_constraint(o, xi, MOI.ZeroOne())
+end
+
+lmo = FrankWolfe.MathOptLMO(o)
+
+function f(x)
+    return sum(0.5*(x.-diffw).^2)
+end
+
+function grad!(storage, x)
+    @. storage = x-diffw
+end
+
+x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+
+Boscia Algorithm.
+
+Parameter settings.
+	 Tree traversal strategy: Move best bound
+	 Branching strategy: Most infeasible
+	 Absolute dual gap tolerance: 1.000000e-06
+	 Relative dual gap tolerance: 1.000000e-02
+	 Frank-Wolfe subproblem tolerance: 1.000000e-05
+	 Total number of varibales: 6
+	 Number of integer variables: 0
+	 Number of binary variables: 6
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*          1          2  -1.202020e-06   7.500000e-01   7.500012e-01            Inf   3.870000e-01   7.751938e+00            237              2              9         13            1          0
+         100         27   6.249998e-01   7.500000e-01   1.250002e-01   2.000004e-01   5.590000e-01   2.271914e+02              0              0            641          0            1          0
+         127          0   7.500000e-01   7.500000e-01   0.000000e+00   0.000000e+00   5.770000e-01   2.201040e+02              0              0            695          0            1          0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Postprocessing
+
+Blended Pairwise Conditional Gradient Algorithm.
+MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
+GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
+[ Info: In memory_mode memory iterates are written back into x0!
+
+----------------------------------------------------------------------------------------------------------------
+  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
+----------------------------------------------------------------------------------------------------------------
+  Last             0   7.500000e-01   7.500000e-01   0.000000e+00   1.086583e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+    PP             0   7.500000e-01   7.500000e-01   0.000000e+00   1.927792e-03   0.000000e+00              1
+----------------------------------------------------------------------------------------------------------------
+
+Solution Statistics.
+	 Solution Status: Optimal (tree empty)
+	 Primal Objective: 0.75
+	 Dual Bound: 0.75
+	 Dual Gap (relative): 0.0
+
+Search Statistics.
+	 Total number of nodes processed: 127
+	 Total number of lmo calls: 699
+	 Total time (s): 0.58
+	 LMO calls / sec: 1205.1724137931035
+	 Nodes / sec: 218.96551724137933
+	 LMO calls / node: 5.503937007874016</code></pre></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="basics/">How does it work? »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Saturday 2 August 2025 01:06">Saturday 2 August 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
