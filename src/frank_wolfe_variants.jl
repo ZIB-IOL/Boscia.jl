@@ -195,13 +195,13 @@ function DecompositionInvariantConditionalGradient(;
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point
+    build_dicg_start_point=trivial_build_dicg_start_point,
 )
     return DecompositionInvariantConditionalGradient(
         use_strong_lazy,
         use_DICG_warm_start,
         use_strong_warm_start,
-        build_dicg_start_point
+        build_dicg_start_point,
     )
 end
 
