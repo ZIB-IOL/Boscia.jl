@@ -6,7 +6,6 @@ using SCIP
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
-import Ipopt
 
 
 # MIPLIB instances
@@ -94,11 +93,8 @@ test_instance = string("MPS ", example, " instance")
         f,
         grad!,
         lmo,
-        verbose=true,
-        print_iter=10,
-        fw_epsilon=1e-1,
-        min_node_fw_epsilon=1e-3,
-        time_limit=600,
+        settings_bnb=Boscia.settings_bnb(verbose=true, print_iter=10, time_limit=600),
+        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-1, min_node_fw_epsilon=1e-3),
     )
     @test f(x) <= f(result[:raw_solution])
 end

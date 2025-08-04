@@ -126,7 +126,7 @@ function Bonobo.update_best_solution!(
     isinf(node.ub) && return false
 
     if !tree.root.options[:add_all_solutions]
-    node.ub >= tree.incumbent && return false
+        node.ub >= tree.incumbent && return false
     end
 
     Bonobo.add_new_solution!(tree, node)
@@ -149,7 +149,8 @@ function add_new_solution!(
 ) where {N,R,V,S<:FrankWolfeSolution{N,V},T<:Real}
     time = Inf
     if tree.root.options[:post_heuristics_callback] !== nothing
-        add_solution, time, objective, solution = tree.root.options[:post_heuristics_callback](tree, node, solution)
+        add_solution, time, objective, solution =
+            tree.root.options[:post_heuristics_callback](tree, node, solution)
     end
 
     sol = FrankWolfeSolution(objective, solution, node, origin, time)

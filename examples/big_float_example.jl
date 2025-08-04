@@ -39,9 +39,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs[int_vars],
         int_vars,
         n,
-        verbose=true,
-        time_limit=120,
-        custom_heuristics=custom_heuristics,
+        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
     )
 
     if result[:total_time_in_sec] < 125
@@ -79,9 +78,8 @@ end
         ubs[int_vars],
         int_vars,
         n,
-        verbose=true,
-        time_limit=125,
-        custom_heuristics=custom_heuristics,
+        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=125),
+        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
     )
 
     if result[:total_time_in_sec] < 125

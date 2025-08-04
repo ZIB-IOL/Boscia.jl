@@ -21,7 +21,7 @@ mutable struct NodeInfo{T<:Real}
     ub::T
 end
 
-function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where T<:Real
+function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
     return NodeInfo(std.id, T(std.lb), T(std.ub))
 end
 
@@ -136,7 +136,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     #different ways to split active set
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -159,7 +159,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Sanity check
         @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
         @assert sum(active_set_left.weights .< 0) == 0
@@ -205,7 +205,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
         x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
         x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
@@ -321,7 +321,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Check feasibility of the iterate
         active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
@@ -347,20 +347,17 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
-        line_search=tree.root.options[:lineSearch],
+        line_search=tree.root.options[:line_search],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
         add_dropped_vertices=tree.root.options[:use_shadow_set],
         use_extra_vertex_storage=tree.root.options[:use_shadow_set],
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
-        verbose=tree.root.options[:fwVerbose],
+        verbose=tree.root.options[:fw_verbose],
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
-        use_strong_lazy=tree.root.options[:use_strong_lazy],
-        use_strong_warm_start=tree.root.options[:use_strong_warm_start],
-        build_dicg_start_point=tree.root.options[:build_dicg_start_point],
     )
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
