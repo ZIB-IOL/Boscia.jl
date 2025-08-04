@@ -264,10 +264,10 @@ end
 Is a given point v inface feasible for the model?
 """
 function is_inface_feasible(blmo::MathOptBLMO, a::AbstractVector, x::AbstractVector)
-	o2 = MOI.instantiate(typeof(blmo.o))
-	MOI.copy_to(o2, blmo.o)
-	MOI.set(o2, MOI.Silent(), true)
-	return is_inface_feasible(o2, a, x)
+    o2 = MOI.instantiate(typeof(blmo.o))
+    MOI.copy_to(o2, blmo.o)
+    MOI.set(o2, MOI.Silent(), true)
+    return is_inface_feasible(o2, a, x)
 end
 function is_inface_feasible(o::MOI.ModelLike, a::AbstractVector, x::AbstractVector)
     variables = MOI.get(o, MOI.ListOfVariableIndices())
@@ -275,16 +275,16 @@ function is_inface_feasible(o::MOI.ModelLike, a::AbstractVector, x::AbstractVect
     for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
         is_inface_feasible_subroutine(o, F, S, valvar)
     end
-	return is_linear_feasible(o, x)
+    return is_linear_feasible(o, x)
 end
 function is_inface_feasible_subroutine(
-	o::MOI.ModelLike,
+    o::MOI.ModelLike,
     ::Type{F},
     ::Type{S},
     valvar;
     atol=1e-6,
 ) where {F,S}
-	const_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+    const_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
     for c_idx in const_list
         func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
         val = MOIU.eval_variables(valvar, func)
