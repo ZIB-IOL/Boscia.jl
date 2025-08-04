@@ -498,7 +498,7 @@ end
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
+        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=60),
         settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
     )
 
@@ -508,7 +508,7 @@ end
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=120),
+        settings_bnb=Boscia.settings_bnb(verbose=false, time_limit=60),
         settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
     )
 

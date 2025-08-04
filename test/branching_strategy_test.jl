@@ -59,7 +59,7 @@ end
     seed = 1
     o = SCIP.Optimizer()
     f, grad!, lmo = build_examples(o, dimension, seed)
-    time_limit = 180
+    time_limit = 60
 
     x_mi, _, result_mi = Boscia.solve(
         f,
@@ -159,7 +159,7 @@ end
     seed = 1
     o = SCIP.Optimizer()
     f, grad!, lmo = build_examples(o, dimension, seed)
-    time_limit = 600
+    time_limit = 60
 
     x_mi, _, result_mi = Boscia.solve(
         f,
@@ -332,7 +332,7 @@ end
     #lmo, f, grad! = int_sparse_regression(o, n, m, l, k, seed)
 
     f, grad!, lmo = build_examples(o, dimension, seed)
-    time_limit = 600
+    time_limit = 60
 
     x_mi, _, result_mi = Boscia.solve(
         f,

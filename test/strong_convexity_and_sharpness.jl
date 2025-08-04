@@ -54,7 +54,7 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
                 settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
             )
 
@@ -67,7 +67,7 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
                 settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
                 settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
             )
@@ -109,7 +109,7 @@ rng = StableRNG(seed)
             fill(1.0, n),
             collect(1:n),
             n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
             settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=FrankWolfe.Secant()),
             settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
         )
@@ -148,7 +148,7 @@ end
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
                 settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
             )
 
@@ -209,7 +209,7 @@ end
             fill(1.0, n),
             collect(1:n),
             n,
-            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
             settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=FrankWolfe.Secant()),
             settings_tightening=Boscia.settings_tightening(
                 sharpness_constant=M,

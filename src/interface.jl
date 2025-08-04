@@ -289,7 +289,9 @@ function solve(
             end
         end
     end
-    println() # cleaner output
+    if options[:verbose]
+        println() # cleaner output
+    end
 
     return x, tree.root.problem.tlmo, tree.root.result
 end
