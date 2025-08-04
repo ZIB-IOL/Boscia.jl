@@ -91,7 +91,7 @@ N = 1.0
     end
 
     x, _, result =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=500))
+        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k

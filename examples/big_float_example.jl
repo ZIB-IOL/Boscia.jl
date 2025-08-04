@@ -39,7 +39,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs[int_vars],
         int_vars,
         n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120),
+        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
         settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
     )
 
@@ -78,7 +78,7 @@ end
         ubs[int_vars],
         int_vars,
         n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=125),
+        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
         settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
     )
 
