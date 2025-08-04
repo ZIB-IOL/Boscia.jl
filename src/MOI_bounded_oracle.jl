@@ -261,6 +261,107 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
 end
 
 """
+Is a given point v inface feasible for the model?
+"""
+function is_inface_feasible(blmo::MathOptBLMO, a::AbstractVector, x::AbstractVector)
+	o2 = MOI.instantiate(typeof(blmo.o))
+	MOI.copy_to(o2, blmo.o)
+	MOI.set(o2, MOI.Silent(), true)
+	return is_inface_feasible(o2, a, x)
+end
+function is_inface_feasible(o::MOI.ModelLike, a::AbstractVector, x::AbstractVector)
+    variables = MOI.get(o, MOI.ListOfVariableIndices())
+    valvar(f) = x[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        is_inface_feasible_subroutine(o, F, S, valvar)
+    end
+	return is_linear_feasible(o, x)
+end
+function is_inface_feasible_subroutine(
+	o::MOI.ModelLike,
+    ::Type{F},
+    ::Type{S},
+    valvar;
+    atol=1e-6,
+) where {F,S}
+	const_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+    for c_idx in const_list
+        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+        val = MOIU.eval_variables(valvar, func)
+        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+        if S <: MOI.GreaterThan
+            if isapprox(set.lower, val; atol=atol)
+                MOI.delete(o, c_idx)
+                if F <: MOI.VariableIndex
+                    check_cidx = MOI.ConstraintIndex{F,MOI.LessThan{Float64}}(c_idx.value)
+                    if MOI.is_valid(o, check_cidx)
+                        MOI.delete(o, check_cidx)
+                    end
+                else
+                    func_dict =
+                        Dict(field => getfield(func, field) for field in fieldnames(typeof(func)))
+
+                    # Get the list of constraints with same ConstraintFunction but LessThan ConstraintSet.
+                    const_list_less =
+                        MOI.get(o, MOI.ListOfConstraintIndices{F,MOI.LessThan{Float64}}())
+
+                    # Check if the ConstraintFunction has other ConstraintSet.
+                    # If exists, delete the constraint to avoid conflict.
+                    for c_idx_less in const_list_less
+                        func_less = MOI.get(o, MOI.ConstraintFunction(), c_idx_less)
+                        func_less_dict = Dict(
+                            field => getfield(func_less, field) for
+                            field in fieldnames(typeof(func_less))
+                        )
+                        if func_less_dict == func_dict
+                            MOI.delete(o, c_idx_less)
+                            break
+                        end
+                    end
+                end
+                MOI.add_constraint(o, func, MOI.EqualTo(set.lower))
+            end
+        elseif S <: MOI.LessThan
+            if isapprox(set.upper, val; atol=atol)
+                MOI.delete(o, c_idx)
+                if F <: MOI.VariableIndex
+                    check_cidx = MOI.ConstraintIndex{F,MOI.GreaterThan{Float64}}(c_idx.value)
+                    if MOI.is_valid(o, check_cidx)
+                        MOI.delete(o, check_cidx)
+                    end
+                else
+                    func_dict =
+                        Dict(field => getfield(func, field) for field in fieldnames(typeof(func)))
+                    const_list_greater =
+                        MOI.get(o, MOI.ListOfConstraintIndices{F,MOI.GreaterThan{Float64}}())
+                    for c_idx_greater in const_list_greater
+                        func_greater = MOI.get(o, MOI.ConstraintFunction(), c_idx_greater)
+                        func_greater_dict = Dict(
+                            field => getfield(func_greater, field) for
+                            field in fieldnames(typeof(func_greater))
+                        )
+                        if func_greater_dict == func_dict
+                            MOI.delete(o, c_idx_greater)
+                            break
+                        end
+                    end
+                end
+                MOI.add_constraint(o, func, MOI.EqualTo(set.upper))
+            end
+        elseif S <: MOI.Interval
+            if isapprox(set.upper, val; atol=atol)
+                MOI.delete(o, c_idx)
+                MOI.add_constraint(o, func, MOI.EqualTo(set.upper))
+            elseif isapprox(set.lower, val; atol=atol)
+                MOI.delete(o, c_idx)
+                MOI.add_constraint(o, func, MOI.EqualTo(set.lower))
+            end
+        end
+    end
+    return true
+end
+
+"""
     explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds)
 
 Add explicit bounds for binary variables.
