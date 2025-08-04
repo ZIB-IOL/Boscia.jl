@@ -68,7 +68,7 @@ n = 10
         @. storage = x - diff_point
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
 
     # build optimal solution
     xopt = zeros(n)
@@ -88,10 +88,14 @@ n = 10
     println()
 
     # test if number of nodes is still correct when stopping FW early
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=false, min_number_lower=5)
+    x, _, result = Boscia.solve(f, grad!, lmo, 
+        settings_bnb=Boscia.settings_bnb(verbose=false),
+        settings_tolerances=Boscia.settings_tolerances(min_number_lower=5))
     @test result[:number_nodes] == 2^(n + 1) - 1
 
-    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, verbose=true, strong_convexity=1.0)
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, 
+        settings_bnb=Boscia.settings_bnb(verbose=true),
+        settings_tightening=Boscia.settings_tightening(strong_convexity=1.0))
 
     @test f(x_strong) == f(x)
 end

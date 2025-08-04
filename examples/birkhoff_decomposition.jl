@@ -91,8 +91,10 @@ function build_birkhoff_lmo()
 end
 
 lmo = build_birkhoff_lmo()
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.DICG())
+x, _, _ = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+x, _, _ = Boscia.solve(f, grad!, lmo, 
+    settings_bnb=Boscia.settings_bnb(verbose=true),
+    settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false, variant=Boscia.DecompositionInvariantConditionalGradient()))
 
 
 # TODO the below needs to be fixed
@@ -107,14 +109,14 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.D
 
 @testset "Birkhoff decomposition" begin
     lmo = build_birkhoff_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
     lmo = build_birkhoff_lmo()
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
     x_strong, _, result_strong =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy))
     @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end

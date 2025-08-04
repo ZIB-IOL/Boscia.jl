@@ -261,6 +261,107 @@ function is_linear_feasible_subroutine(o::MOI.ModelLike, ::Type{F}, ::Type{S}, v
 end
 
 """
+Is a given point v inface feasible for the model?
+"""
+function is_inface_feasible(blmo::MathOptBLMO, a::AbstractVector, x::AbstractVector)
+    o2 = MOI.instantiate(typeof(blmo.o))
+    MOI.copy_to(o2, blmo.o)
+    MOI.set(o2, MOI.Silent(), true)
+    return is_inface_feasible(o2, a, x)
+end
+function is_inface_feasible(o::MOI.ModelLike, a::AbstractVector, x::AbstractVector)
+    variables = MOI.get(o, MOI.ListOfVariableIndices())
+    valvar(f) = x[f.value]
+    for (F, S) in MOI.get(o, MOI.ListOfConstraintTypesPresent())
+        is_inface_feasible_subroutine(o, F, S, valvar)
+    end
+    return is_linear_feasible(o, x)
+end
+function is_inface_feasible_subroutine(
+    o::MOI.ModelLike,
+    ::Type{F},
+    ::Type{S},
+    valvar;
+    atol=1e-6,
+) where {F,S}
+    const_list = MOI.get(o, MOI.ListOfConstraintIndices{F,S}())
+    for c_idx in const_list
+        func = MOI.get(o, MOI.ConstraintFunction(), c_idx)
+        val = MOIU.eval_variables(valvar, func)
+        set = MOI.get(o, MOI.ConstraintSet(), c_idx)
+        if S <: MOI.GreaterThan
+            if isapprox(set.lower, val; atol=atol)
+                MOI.delete(o, c_idx)
+                if F <: MOI.VariableIndex
+                    check_cidx = MOI.ConstraintIndex{F,MOI.LessThan{Float64}}(c_idx.value)
+                    if MOI.is_valid(o, check_cidx)
+                        MOI.delete(o, check_cidx)
+                    end
+                else
+                    func_dict =
+                        Dict(field => getfield(func, field) for field in fieldnames(typeof(func)))
+
+                    # Get the list of constraints with same ConstraintFunction but LessThan ConstraintSet.
+                    const_list_less =
+                        MOI.get(o, MOI.ListOfConstraintIndices{F,MOI.LessThan{Float64}}())
+
+                    # Check if the ConstraintFunction has other ConstraintSet.
+                    # If exists, delete the constraint to avoid conflict.
+                    for c_idx_less in const_list_less
+                        func_less = MOI.get(o, MOI.ConstraintFunction(), c_idx_less)
+                        func_less_dict = Dict(
+                            field => getfield(func_less, field) for
+                            field in fieldnames(typeof(func_less))
+                        )
+                        if func_less_dict == func_dict
+                            MOI.delete(o, c_idx_less)
+                            break
+                        end
+                    end
+                end
+                MOI.add_constraint(o, func, MOI.EqualTo(set.lower))
+            end
+        elseif S <: MOI.LessThan
+            if isapprox(set.upper, val; atol=atol)
+                MOI.delete(o, c_idx)
+                if F <: MOI.VariableIndex
+                    check_cidx = MOI.ConstraintIndex{F,MOI.GreaterThan{Float64}}(c_idx.value)
+                    if MOI.is_valid(o, check_cidx)
+                        MOI.delete(o, check_cidx)
+                    end
+                else
+                    func_dict =
+                        Dict(field => getfield(func, field) for field in fieldnames(typeof(func)))
+                    const_list_greater =
+                        MOI.get(o, MOI.ListOfConstraintIndices{F,MOI.GreaterThan{Float64}}())
+                    for c_idx_greater in const_list_greater
+                        func_greater = MOI.get(o, MOI.ConstraintFunction(), c_idx_greater)
+                        func_greater_dict = Dict(
+                            field => getfield(func_greater, field) for
+                            field in fieldnames(typeof(func_greater))
+                        )
+                        if func_greater_dict == func_dict
+                            MOI.delete(o, c_idx_greater)
+                            break
+                        end
+                    end
+                end
+                MOI.add_constraint(o, func, MOI.EqualTo(set.upper))
+            end
+        elseif S <: MOI.Interval
+            if isapprox(set.upper, val; atol=atol)
+                MOI.delete(o, c_idx)
+                MOI.add_constraint(o, func, MOI.EqualTo(set.upper))
+            elseif isapprox(set.lower, val; atol=atol)
+                MOI.delete(o, c_idx)
+                MOI.add_constraint(o, func, MOI.EqualTo(set.lower))
+            end
+        end
+    end
+    return true
+end
+
+"""
     explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds)
 
 Add explicit bounds for binary variables.
@@ -481,8 +582,14 @@ end
 
 Find best solution from the solving process.
 """
-function find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
-    return find_best_solution(f, blmo.o, vars, domain_oracle)
+function find_best_solution(
+    tree::Bonobo.BnBTree,
+    f::Function,
+    blmo::MathOptBLMO,
+    vars,
+    domain_oracle,
+)
+    return find_best_solution(tree, f, blmo.o, vars, domain_oracle)
 end
 
 """
@@ -492,6 +599,7 @@ Finds the best solution in the Optimizer's solution storage, based on the object
 Returns the solution vector and the corresponding best value.
 """
 function find_best_solution(
+    tree::Bonobo.BnBTree,
     f::Function,
     o::MOI.AbstractOptimizer,
     vars::Vector{MOI.VariableIndex},
@@ -505,6 +613,10 @@ function find_best_solution(
         xv = [MOI.get(o, MOI.VariablePrimal(sol_idx), xi) for xi in vars]
         if domain_oracle(xv)
             val = f(xv)
+            if tree.root.options[:add_all_solutions]
+                node = tree.nodes[tree.root.current_node_id[]]
+                add_new_solution!(tree, node, val, xv, :MIPSolver)
+            end
             if val < best_val
                 best_val = val
                 best_v = xv
@@ -515,7 +627,7 @@ function find_best_solution(
 end
 
 """
-     get_variables_pointers(blmo::MathOptBLMO, tree)
+    get_variables_pointers(blmo, tree)
 
 List of all variable pointers. Depends on how you save your variables internally.
 Is used in `find_best_solution`.
@@ -723,39 +835,14 @@ function solve(
     f,
     g,
     lmo::FrankWolfe.MathOptLMO;
-    traverse_strategy=Bonobo.BestFirstSearch(),
-    branching_strategy=Bonobo.MOST_INFEASIBLE(),
-    variant::FrankWolfeVariant=BPCG(),
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
-    active_set::Union{Nothing,FrankWolfe.ActiveSet}=nothing,
-    fw_epsilon=1e-2,
-    verbose=false,
-    dual_gap=1e-6,
-    rel_dual_gap=1.0e-2,
-    time_limit=Inf,
-    print_iter=100,
-    dual_gap_decay_factor=0.8,
-    max_fw_iter=10000,
-    min_number_lower=Inf,
-    min_node_fw_epsilon=1e-6,
-    use_postsolve=true,
-    min_fw_iterations=5,
-    max_iteration_post=10000,
-    dual_tightening=true,
-    global_dual_tightening=true,
-    bnb_callback=nothing,
-    strong_convexity=0.0,
-    sharpness_constant=0.0,
-    sharpness_exponent=Inf,
-    domain_oracle=_trivial_domain,
-    find_domain_point=_trivial_domain_point,
-    start_solution=nothing,
-    fw_verbose=false,
-    use_shadow_set=true,
-    custom_heuristics=[Heuristic()],
-    rounding_prob=1.0,
-    clean_solutions=false,
-    max_clean_iter=10,
+    mode::Mode=DEFAULT_MODE,
+    settings_bnb=settings_bnb(mode=mode),
+    settings_frank_wolfe=settings_frank_wolfe(mode=mode),
+    settings_tolerances=settings_tolerances(mode=mode),
+    settings_postprocessing=settings_postprocessing(mode=mode),
+    settings_heuristic=settings_heuristic(mode=mode),
+    settings_tightening=settings_tightening(mode=mode),
+    settings_domain=settings_domain(mode=mode),
     kwargs...,
 )
     blmo = convert(MathOptBLMO, lmo)
@@ -763,39 +850,13 @@ function solve(
         f,
         g,
         blmo;
-        traverse_strategy=traverse_strategy,
-        branching_strategy=branching_strategy,
-        variant=variant,
-        line_search=line_search,
-        active_set=active_set,
-        fw_epsilon=fw_epsilon,
-        verbose=verbose,
-        dual_gap=dual_gap,
-        rel_dual_gap=rel_dual_gap,
-        time_limit=time_limit,
-        print_iter=print_iter,
-        dual_gap_decay_factor=dual_gap_decay_factor,
-        max_fw_iter=max_fw_iter,
-        min_number_lower=min_number_lower,
-        min_node_fw_epsilon=min_node_fw_epsilon,
-        use_postsolve=use_postsolve,
-        min_fw_iterations=min_fw_iterations,
-        max_iteration_post=max_iteration_post,
-        dual_tightening=dual_tightening,
-        global_dual_tightening=global_dual_tightening,
-        bnb_callback=bnb_callback,
-        strong_convexity=strong_convexity,
-        sharpness_constant=sharpness_constant,
-        sharpness_exponent=sharpness_exponent,
-        domain_oracle=domain_oracle,
-        find_domain_point=find_domain_point,
-        start_solution=start_solution,
-        fw_verbose=fw_verbose,
-        use_shadow_set=use_shadow_set,
-        custom_heuristics=custom_heuristics,
-        rounding_prob=rounding_prob,
-        clean_solutions=clean_solutions,
-        max_clean_iter=max_clean_iter,
+        settings_bnb=settings_bnb,
+        settings_frank_wolfe=settings_frank_wolfe,
+        settings_tolerances=settings_tolerances,
+        settings_postprocessing=settings_postprocessing,
+        settings_heuristic=settings_heuristic,
+        settings_tightening=settings_tightening,
+        settings_domain=settings_domain,
         kwargs...,
     )
 end
