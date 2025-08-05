@@ -17,6 +17,9 @@ Returns
 
 Optional settings
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
+If a different mode is supplied, default settings will be set according to the chosen mode. 
+If you want to change the default parameter settings, please provide the mode to the settings constructor!
 - `settings_bnb` dictionary of settings for the branch-and-bound algorithm. Created via `settings_bnb()`.
 - `settings_frank_wolfe` dictionary of settings for the Frank-Wolfe algorithm. Created via `settings_frank_wolfe()`.
 - `settings_tolerances` dictionary of settings for the tolerances. Created via `settings_tolerances()`.
@@ -37,6 +40,7 @@ function solve(
     settings_heuristic=settings_heuristic(mode=mode),
     settings_tightening=settings_tightening(mode=mode),
     settings_domain=settings_domain(mode=mode),
+    settings_smoothing=settings_smoothing(mode=mode),
     kwargs...,
 )
     options = merge(
@@ -47,8 +51,14 @@ function solve(
         settings_heuristic,
         settings_tightening,
         settings_domain,
+        settings_smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
+    merge!(options, Dict(:mode => mode))
+    if options[:mode] == SMOOTHING_MODE
+        merge!(options, Dict(:original_objective => f))
+    end
+
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
         if !is_decomposition_invariant_oracle(blmo)
             error("DICG within Boscia is not implemented for $(typeof(blmo)).")
@@ -71,6 +81,13 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", options[:rel_dual_gap])
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", options[:fw_epsilon])
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", options[:dual_gap_decay_factor])
+        if options[:mode] == SMOOTHING_MODE
+            println("\t Smoothing Mode")
+            println("\t\t Start smoothing parameter: $(options[:μ_start])")
+            println("\t\t Minimum smoothing parameter: $(options[:μ_min])")
+            println("\t\t Smoothing parameter decay factor: $(options[:μ_decay])")
+            println("\t\t Minimum smoothing parameter valid: $(options[:μ_min_valid])")
+        end
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 

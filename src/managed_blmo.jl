@@ -307,6 +307,7 @@ function solve(
     settings_heuristic=settings_heuristic(mode=mode),
     settings_tightening=settings_tightening(mode=mode),
     settings_domain=settings_domain(mode=mode),
+    settings_smoothing=settings_smoothing(mode=mode),
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
@@ -321,6 +322,7 @@ function solve(
         settings_heuristic=settings_heuristic,
         settings_tightening=settings_tightening,
         settings_domain=settings_domain,
+        settings_smoothing=settings_smoothing,
         kwargs...,
     )
 end
