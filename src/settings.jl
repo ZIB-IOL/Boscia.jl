@@ -3,16 +3,13 @@
 
 Set the settings for the branch-and-bound algorithm.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the branch-and-bound algorithm.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `traverse_strategy` encodes how to choose the next node for evaluation. By default the node with the best lower bound is picked.
 - `branching_strategy` fixes the branching strategy. By default, weuse `MOST_INFEASIBLE`, i.e. we branch on the entry which is the farthest away from being an integer.
 - `verbose` if `true`, logs and solution statistics are printed. Per default, this is `false`.
@@ -59,16 +56,13 @@ end
 
 Options for the Frank-Wolfe algorithm used as node solver.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the Frank-Wolfe algorithm.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `BlendedConditionalGradient`, `BlendedPairwiseConditionalGradient`, `DecompositionInvariantConditionalGradient` and `StandardFrankWolfe`. Per default, this is set to `BlendedPairwiseConditionalGradient`.
 - `line_search` specifies the line search method used in the FrankWolfe variant. Default is the `FrankWolfe.Secant` line search. For other available types, check the FrankWolfe.jl package.
 - `max_fw_iter` maximum number of iterations in a Frank-Wolfe run. Per default, this is set to `10000`.
@@ -106,16 +100,13 @@ end
 
 Set the tolerances for the Frank-Wolfe algorithm. These are tolerances both for the Branch-and-Bound tree as well as for the Frank-Wolfe variant used as node solver.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of tolerances for the Frank-Wolfe algorithm.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `fw_epsilon` the solving precision of Frank-Wolfe at the root node.
 - `dual_gap` absolute dual gap. If the difference between the incumbent and the lower bound reaches this value, the algorithm stops. Per default, this is set to `1e-6`.
 - `rel_dual_gap` relative dual gap. If the difference between the incumbent and the lower bound reaches this value, the algorithm stops. Per default, this is set to `1e-2`.
@@ -147,16 +138,13 @@ end
 
 Set the settings for the postprocessing.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the postprocessing.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `use_postsolve` if `true`, runs the specified Frank-Wolfe variant on the problem with the integral variables fixed to the solution, i.e. it only optimizes over the continuous variables. This might improve the solution if one has many continuous variables. Per default, this is `true`.
 - `max_iteration_post` maximum number of iterations in the Frank-Wolfe run during postsolve. Per default, this is set to `10000`.
 """
@@ -173,16 +161,13 @@ end
 
 Set the settings for the heuristics.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the heuristics.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `custom_heuristics` list of custom heuristics from the user. Heuristics can be created via the `Boscia.Heuristic` constructor. It requires a function, a probability and an identifier (symbol). Note that the heuristics defined in Boscia themselves don't have to be added here and can be set via the probability parameters below.
 - `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. 
 - `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
@@ -244,16 +229,13 @@ end
 
 Set the tightening parameters.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the tightening.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `dual_tightening` flag to decide  whether to use dual tightening techniques at node level. Note that this only porvides valid tightenings if your function is convex! Per default, this is `true`.
 - `global_dual_tightening` flag to decide whether to generate dual tightenings from new solutions that are gloablly valid. Per default, this is `true`.
 - `strong_convexity` strong convexity parameter of the objective `f`, used for tightening the dual bound at every node. Per default, this is set to `0.0`.
@@ -285,16 +267,13 @@ end
 
 To set settings for a non-trivial domain, i.e. if not all points of the feasible region are domain feasible.
 
-Requires:
-
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-
 Returns:
 
 - `Dict` of settings for the domain.
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `domain_oracle` given a point `x`: returns `true` if `x` is in the domain of `f`, else false. Per default, it always returns `true`. In case of the non-trivial domain oracle, the initial point has to be domain feasible for `f` and can be set via the `active_set``. Additionally, the user has to provide a function `domain_point`, see below. Also, depending on the line search method, you might have to provide the domain oracle to it, too. The default line search Secant, for example, requires the domain oracle.
 - `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`. Only necessary for a non-trivial domain oracle.
 - `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
