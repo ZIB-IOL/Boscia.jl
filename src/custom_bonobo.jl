@@ -153,6 +153,10 @@ function add_new_solution!(
             tree.root.options[:post_heuristics_callback](tree, node, solution)
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        objective = tree.root.options[:original_objective](solution)
+    end
+
     sol = FrankWolfeSolution(objective, solution, node, origin, time)
     sol.solution = solution
     sol.objective = objective
