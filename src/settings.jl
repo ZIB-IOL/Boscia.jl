@@ -321,6 +321,9 @@ function settings_smoothing(;
     if mode == SMOOTHING_MODE && generate_smoothing_objective === nothing
         error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
     end
+    if generate_smoothing_objective !== nothing && mode != SMOOTHING_MODE
+        @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
+    end
     return Dict(
         :μ_start => μ_start,
         :μ_min => μ_min,
