@@ -311,3 +311,23 @@ function settings_domain(;
         :active_set => active_set,
     )
 end
+
+function settings_smoothing(;
+    mode::Mode=Boscia.DEFAULT_MODE,
+    μ_start = 1.0
+    μ_min = 1e-3,
+    μ_decay = 0.9,
+    μ_min_valid = false,
+    generate_smoothing_objective = nothing,
+)
+    if mode == SMOOTHING_MODE && generate_smoothing_objective === nothing
+        error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
+    end
+    return Dict(
+        :μ_start => μ_start,
+        :μ_min => μ_min,
+        :μ_decay => μ_decay,
+        :μ_min_valid => μ_min_valid,
+        :generate_smoothing_objective => generate_smoothing_objective,
+    )
+end
