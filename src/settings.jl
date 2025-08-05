@@ -312,6 +312,25 @@ function settings_domain(;
     )
 end
 
+"""
+    settings_smoothing()
+
+Set the settings for a smoothed objective. 
+Only important if mode == SMOOTHING_MODE.
+
+Returns:
+
+- `Dict` of settings for the smoothing.
+
+Available settings:
+
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
+- `μ_start` the starting value for the smoothing parameter. Per default, this is set to `1.0`.
+- `μ_min` the minimum value for the smoothing parameter. Per default, this is set to `1e-3`.
+- `μ_decay` the decay factor for the smoothing parameter. Per default, this is set to `0.9`.
+- `μ_min_valid` per default `false`. Should only be `true` if `f_μ_min` has the same set of minimizers as `f`.
+- `generate_smoothing_objective` function that generates the smoothed objective nd its gradient depending on the `μ` provided.
+"""
 function settings_smoothing(;
     mode::Mode=Boscia.DEFAULT_MODE,
     μ_start = 1.0
