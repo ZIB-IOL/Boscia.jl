@@ -45,7 +45,8 @@ rng = StableRNG(seed)
         sblmo = Boscia.UnitSimplexSimpleBLMO(N)
         line_search = FrankWolfe.Adaptive()
 
-        @suppress begin x, _, result = Boscia.solve(
+        @suppress begin
+            x, _, result = Boscia.solve(
                 f,
                 grad!,
                 sblmo,
@@ -141,7 +142,8 @@ end
         sblmo = Boscia.UnitSimplexSimpleBLMO(N)
         line_search = FrankWolfe.Adaptive()
 
-        @suppress begin x, _, result = Boscia.solve(
+        @suppress begin
+            x, _, result = Boscia.solve(
                 f,
                 grad!,
                 sblmo,
