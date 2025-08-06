@@ -57,6 +57,7 @@ function solve(
     merge!(options, Dict(:mode => mode))
     if options[:mode] == SMOOTHING_MODE
         merge!(options, Dict(:original_objective => f))
+        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start])
     end
 
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
