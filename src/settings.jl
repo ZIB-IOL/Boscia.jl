@@ -312,7 +312,7 @@ Available settings:
 """
 function settings_smoothing(;
     mode::Mode=Boscia.DEFAULT_MODE,
-    μ_start = 1.0
+    μ_start = 1.0,
     μ_min = 1e-3,
     μ_decay = 0.9,
     μ_min_valid = false,
