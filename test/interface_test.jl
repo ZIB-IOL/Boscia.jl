@@ -9,6 +9,7 @@ import Boscia
 import FrankWolfe
 using Test
 using StableRNGs
+using Suppressor
 
 seed = rand(UInt64)
 @show seed
@@ -430,8 +431,9 @@ end
 
     lmo = build_model()
     line_search = FrankWolfe.Adaptive()
-    x_adaptive, _, result_adaptive =
+    x_adaptive, _, result_adaptive = @suppress begin
         Boscia.solve(f, grad!, lmo, verbose=false, line_search=line_search)
+    end
 
     lmo = build_model()
     line_search = FrankWolfe.MonotonicStepSize()
