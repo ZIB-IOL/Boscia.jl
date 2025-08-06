@@ -83,10 +83,10 @@ function solve(
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", options[:dual_gap_decay_factor])
         if options[:mode] == SMOOTHING_MODE
             println("\t Smoothing Mode")
-            println("\t\t Start smoothing parameter: $(options[:μ_start])")
-            println("\t\t Minimum smoothing parameter: $(options[:μ_min])")
-            println("\t\t Smoothing parameter decay factor: $(options[:μ_decay])")
-            println("\t\t Minimum smoothing parameter valid: $(options[:μ_min_valid])")
+            println("\t\t Start smoothing parameter: $(options[:smoothing_start])")
+            println("\t\t Minimum smoothing parameter: $(options[:smoothing_min])")
+            println("\t\t Smoothing parameter decay factor: $(options[:smoothing_decay])")
+            println("\t\t Minimum smoothing parameter valid: $(options[:smoothing_min_valid])")
         end
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
