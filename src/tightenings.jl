@@ -225,7 +225,7 @@ function tightening_lowerbound(tree, node, x, lower_bound)
             fx = tree.root.problem.f(x)
 
             if node.dual_gap < 0.0
-                @assert abs(node.dual_gap) > eps() "node dual gap is negative: $(node.dual_gap)"
+                @assert abs(node.dual_gap) < sqrt(eps()) "node dual gap is negative: $(node.dual_gap)"
                 node.dual_gap = 0.0
             end
 
