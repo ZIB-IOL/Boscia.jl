@@ -861,18 +861,11 @@ end
 LMO-like operation which computes a vertex minimizing in `direction` on the face defined by the current fixings.
 Fixings are maintained by the oracle (or deduced from `x` itself).
 """
-function bounded_dicg_maximum_step(
-    sblmo::BirkhoffBLMO,
-    direction,
-    x,
-    lb,
-    ub,
-    int_vars;
-    kwargs...,
-)
+function bounded_dicg_maximum_step(sblmo::BirkhoffBLMO, direction, x, lb, ub, int_vars; kwargs...)
     n = sblmo.dim
 
-    direction = sblmo.append_by_column ? reshape(direction, (n, n)) : transpose(reshape(direction, (n, n)))
+    direction =
+        sblmo.append_by_column ? reshape(direction, (n, n)) : transpose(reshape(direction, (n, n)))
     x = sblmo.append_by_column ? reshape(x, (n, n)) : transpose(reshape(x, (n, n)))
     return FrankWolfe.dicg_maximum_step(FrankWolfe.BirkhoffPolytopeLMO(), direction, x)
 end
