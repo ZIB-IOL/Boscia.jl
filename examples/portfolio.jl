@@ -57,11 +57,16 @@ const Mi = (Ai + Ai') / 2
     end
 
     depth = 5
-    heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, depth), 0.2, :follow_gradient)
+    heu = Boscia.Heuristic(
+        (tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree, blmo, x, depth),
+        0.2,
+        :follow_gradient,
+    )
     heuristics = [heu]
     # heuristics = []
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=600, custom_heuristics=heuristics)
+    x, _, result =
+        Boscia.solve(f, grad!, lmo, verbose=true, time_limit=600, custom_heuristics=heuristics)
     @test dot(ai, x) <= bi + 1e-2
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end

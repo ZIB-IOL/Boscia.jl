@@ -40,7 +40,7 @@ function is_simple_linear_feasible(sblmo::CubeSimpleBLMO, v)
 end
 
 function is_simple_inface_feasible(sblmo::CubeSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
-	return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
+    return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::CubeSimpleBLMO)
@@ -51,22 +51,32 @@ end
 If the entry in x is at the boundary, choose the corresponding bound.
 Otherwise, if the entry in direction is positve, choose the lower bound. Else, choose the upper bound.
 """
-function bounded_compute_inface_extreme_point(sblmo::CubeSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+function bounded_compute_inface_extreme_point(
+    sblmo::CubeSimpleBLMO,
+    d,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+)
     a = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+            if isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 a[i] = ub[idx]
-            elseif isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+            elseif isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 a[i] = lb[idx]
             else
                 a[i] = d[i] > 0 ? lb[idx] : ub[idx]
             end
         else
-            if isapprox(x[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol)
+            if isapprox(x[i], sblmo.upper_bounds[i]; atol=atol, rtol=rtol)
                 a[i] = sblmo.upper_bounds[i]
-            elseif isapprox(x[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol)
+            elseif isapprox(x[i], sblmo.lower_bounds[i]; atol=atol, rtol=rtol)
                 a[i] = sblmo.lower_bounds[i]
             else
                 a[i] = d[i] > 0 ? sblmo.lower_bounds[i] : sblmo.upper_bounds[i]
@@ -112,11 +122,19 @@ struct ProbabilitySimplexSimpleBLMO <: SimpleBoundableLMO
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::ProbabilitySimplexSimpleBLMO)
-    return true  
+    return true
 end
 
-function is_simple_inface_feasible(sblmo::ProbabilitySimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
-	return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
+function is_simple_inface_feasible(
+    sblmo::ProbabilitySimplexSimpleBLMO,
+    a,
+    x,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
+    return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
 """
@@ -124,7 +142,14 @@ end
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
-function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(
+    sblmo::ProbabilitySimplexSimpleBLMO,
+    d,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
     v = zeros(length(d))
     indices = collect(1:length(d))
     perm = sortperm(d)
@@ -135,7 +160,7 @@ function bounded_compute_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, l
     for i in indices[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
         else
             v[i] += sblmo.N - sum(v)
         end
@@ -147,7 +172,17 @@ end
 Fix the corresponding entries to the boudary based on the given x.
 Assign the largest possible values to the unfixed entries corresponding to the smallest entries of d.
 """
-function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+function bounded_compute_inface_extreme_point(
+    sblmo::ProbabilitySimplexSimpleBLMO,
+    d,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+)
     indices = collect(1:length(d))
     a = zeros(length(d))
     a[int_vars] = lb
@@ -156,17 +191,17 @@ function bounded_compute_inface_extreme_point(sblmo::ProbabilitySimplexSimpleBLM
     for i in indices
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+            if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            elseif isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+            elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
             end
         else
-            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
             end
-            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = sblmo.N
             end
@@ -200,7 +235,16 @@ end
 """
 Compute the maximum step size for each entry and return the minium of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(sblmo::ProbabilitySimplexSimpleBLMO, direction, x, lb, ub, int_vars; tol = 1e-6, kwargs...)
+function bounded_dicg_maximum_step(
+    sblmo::ProbabilitySimplexSimpleBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol=1e-6,
+    kwargs...,
+)
     # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
@@ -228,10 +272,10 @@ end
 
 function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
-    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m*sblmo.N
+    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N
         return OPTIMAL
     else
-        INFEASIBLE 
+        INFEASIBLE
     end
 end
 
@@ -240,7 +284,11 @@ end
 
 Hyperplane-aware rounding for the probability simplex.
 """
-function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}}, x) 
+function rounding_hyperplane_heuristic(
+    tree::Bonobo.BnBTree,
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleBLMO}},
+    x,
+)
     z = copy(x)
     for idx in tree.branching_indices
         z[idx] = round(x[idx])
@@ -253,8 +301,11 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     N = tlmo.blmo.simple_lmo.N
 
     non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
-    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
-    if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N || cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
+    cont_z =
+        isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 :
+        sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    if cont_z + sum(tlmo.blmo.upper_bounds[non_zero_int]) < N ||
+       cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
         @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.blmo.upperbounds[non_zero_int])), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
         return [z], true
     end
@@ -272,9 +323,9 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
 end
 function add_to_min(x, ub, int_vars)
     perm = sortperm(x)
-    j = findfirst(x->x != 0, x[perm])
-    
-    for i in intersect(perm[j:end], int_vars) 
+    j = findfirst(x -> x != 0, x[perm])
+
+    for i in intersect(perm[j:end], int_vars)
         if x[i] < ub[i]
             x[i] += 1
             break
@@ -285,12 +336,12 @@ function add_to_min(x, ub, int_vars)
     return x
 end
 function remove_from_max(x, lb, int_vars)
-    perm = sortperm(x, rev = true)
-    j = findlast(x->x != 0, x[perm])
-    
-    for i in intersect(perm[1:j], int_vars) 
-       if x[i] > lb[i]
-        x[i] -= 1
+    perm = sortperm(x, rev=true)
+    j = findlast(x -> x != 0, x[perm])
+
+    for i in intersect(perm[1:j], int_vars)
+        if x[i] > lb[i]
+            x[i] -= 1
             break
         else
             continue
@@ -309,11 +360,11 @@ struct UnitSimplexSimpleBLMO <: SimpleBoundableLMO
 end
 
 function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
-    return true  
+    return true
 end
 
 function is_simple_inface_feasible(sblmo::UnitSimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
-    if isapprox(sum(x), N; atol = atol, rtol = rtol) && !isapprox(sum(a), N; atol = atol, rtol = rtol)
+    if isapprox(sum(x), N; atol=atol, rtol=rtol) && !isapprox(sum(a), N; atol=atol, rtol=rtol)
         return false
     end
     return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
@@ -333,13 +384,13 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     if !isempty(cont_vars)
         v[cont_vars] .= 0.0
     end
-    
-    idx_neg = findall(x-> x <= 0, d)
+
+    idx_neg = findall(x -> x <= 0, d)
     perm = sortperm(d[idx_neg])
     for i in idx_neg[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx]-lb[idx], sblmo.N - sum(v))
+            v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
         else
             v[i] += N - sum(v)
         end
@@ -352,7 +403,17 @@ For boundary entries of x, assign the corresponding boudary.
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
-function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-4, kwargs...)
+function bounded_compute_inface_extreme_point(
+    sblmo::UnitSimplexSimpleBLMO,
+    d,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+)
     indices = collect(1:length(d))
     a = zeros(length(d))
 
@@ -363,17 +424,17 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, x
     for i in indices
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if isapprox(x[i], lb[idx]; atol = atol, rtol = rtol)
+            if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            elseif isapprox(x[i], ub[idx]; atol = atol, rtol = rtol)
+            elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
             end
         else
-            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
             end
-            if isapprox(x[i], 0.0; atol = atol, rtol = rtol)
+            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = sblmo.N
             end
@@ -386,7 +447,7 @@ function bounded_compute_inface_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, x
 
     non_fixed_idx = setdiff(indices, fixed_vars)
     d_updated = d[non_fixed_idx]
-    idx_neg = findall(x-> x <= 0, d_updated)
+    idx_neg = findall(x -> x <= 0, d_updated)
     perm = sortperm(d_updated[idx_neg])
     sorted_neg = idx_neg[perm]
     sorted = non_fixed_idx[sorted_neg]
@@ -410,7 +471,16 @@ end
 Compute the maximum step size for each entry and the sum of entries should satisfy inequality constraint.
 Return the minium of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, direction, x, lb, ub, int_vars; tol = 1e-6, kwargs...)
+function bounded_dicg_maximum_step(
+    sblmo::UnitSimplexSimpleBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol=1e-6,
+    kwargs...,
+)
     # the direction should never violate the simplex constraint because it would correspond to a gamma_max > 1.
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
@@ -420,7 +490,7 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, direction, x, l
         elseif di < -tol
             gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
         end
-		
+
         if gamma_max == 0.0
             return 0.0
         end
@@ -430,7 +500,7 @@ function bounded_dicg_maximum_step(sblmo::UnitSimplexSimpleBLMO, direction, x, l
     if sum(direction) < 0.0
         gamma_max = min(gamma_max, (sum(x) - sblmo.N) / sum(direction))
     end
-	
+
     return gamma_max
 end
 
@@ -446,7 +516,7 @@ function check_feasibility(sblmo::UnitSimplexSimpleBLMO, lb, ub, int_vars, n)
     if sum(lb) ≤ sblmo.N
         return OPTIMAL
     else
-        INFEASIBLE 
+        INFEASIBLE
     end
 end
 
@@ -455,16 +525,22 @@ end
     
 Hyperplane-aware rounding for the unit simplex.
 """
-function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}}, x) 
+function rounding_hyperplane_heuristic(
+    tree::Bonobo.BnBTree,
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleBLMO}},
+    x,
+)
     z = copy(x)
     for idx in tree.branching_indices
         z[idx] = round(x[idx])
     end
-    
+
     N = tlmo.blmo.simple_lmo.N
 
     non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
-    cont_z = isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 : sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
+    cont_z =
+        isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 :
+        sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
     if cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]) > N
         @debug "No heuristics improvement possible, bounds already reached, N=$(N), minimal possible sum $(cont_z + sum(tlmo.blmo.lower_bounds[non_zero_int]))"
         return [z], true
@@ -479,19 +555,33 @@ function rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingL
     return [z], false
 end
 
-function is_simple_inface_feasible_subroutine(sblmo::SimpleBoundableLMO, a, x, lb, ub, int_vars; atol = 1e-6, rtol = 1e-5, kwargs...)
+function is_simple_inface_feasible_subroutine(
+    sblmo::SimpleBoundableLMO,
+    a,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-5,
+    kwargs...,
+)
     for i in eachindex(x)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if isapprox(x[idx], lb[idx]; atol = atol, rtol = rtol) && !isapprox(a[i], lb[idx]; atol = atol, rtol = rtol)
+            if isapprox(x[idx], lb[idx]; atol=atol, rtol=rtol) &&
+               !isapprox(a[i], lb[idx]; atol=atol, rtol=rtol)
                 return false
-            elseif isapprox(x[idx], ub[idx]; atol = atol, rtol = rtol) && !isapprox(a[i], ub[idx]; atol = atol, rtol = rtol)
+            elseif isapprox(x[idx], ub[idx]; atol=atol, rtol=rtol) &&
+                   !isapprox(a[i], ub[idx]; atol=atol, rtol=rtol)
                 return false
             end
         else
-            if isapprox(x[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol) && !isapprox(a[i], sblmo.lower_bounds[i]; atol = atol, rtol = rtol)
+            if isapprox(x[i], sblmo.lower_bounds[i]; atol=atol, rtol=rtol) &&
+               !isapprox(a[i], sblmo.lower_bounds[i]; atol=atol, rtol=rtol)
                 return false
-            elseif isapprox(x[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol) && !isapprox(a[i], sblmo.upper_bounds[i]; atol = atol, rtol = rtol)
+            elseif isapprox(x[i], sblmo.upper_bounds[i]; atol=atol, rtol=rtol) &&
+                   !isapprox(a[i], sblmo.upper_bounds[i]; atol=atol, rtol=rtol)
                 return false
             end
         end
@@ -513,16 +603,17 @@ struct BirkhoffBLMO <: SimpleBoundableLMO
     rtol::Float64
 end
 
-BirkhoffBLMO(dim, int_vars; append_by_column = true)= BirkhoffBLMO(append_by_column, dim, int_vars, 1e-6, 1e-3)
+BirkhoffBLMO(dim, int_vars; append_by_column=true) =
+    BirkhoffBLMO(append_by_column, dim, int_vars, 1e-6, 1e-3)
 
 """
 Computes the extreme point given an direction d, the current lower and upper bounds on the integer variables, and the set of integer variables.
 """
-function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, int_vars; kwargs...) 
+function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, int_vars; kwargs...)
     n = sblmo.dim
 
-    if size(d,2) == 1
-        d = sblmo.append_by_column ? reshape(d, (n,n)) : transpose(reshape(d, (n,n)))
+    if size(d, 2) == 1
+        d = sblmo.append_by_column ? reshape(d, (n, n)) : transpose(reshape(d, (n, n)))
     end
 
     fixed_to_one_rows = Int[]
@@ -530,19 +621,19 @@ function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, in
     delete_ub = Int[]
     for j in 1:n
         for i in 1:n
-            if lb[(j-1)*n + i] >= 1 - eps()
+            if lb[(j-1)*n+i] >= 1 - eps()
                 if sblmo.append_by_column
                     push!(fixed_to_one_rows, i)
                     push!(fixed_to_one_cols, j)
-                    append!(delete_ub, union(collect((j-1)*n+1:j*n), collect(i:n:n^2)))
+                    append!(delete_ub, union(collect(((j-1)*n+1):(j*n)), collect(i:n:(n^2))))
                 else
                     push!(fixed_to_one_rows, j)
                     push!(fixed_to_one_cols, i)
-                    append!(delete_ub, union(collect((i-1)*n+1:i*n), collect(j:n:n^2)))
+                    append!(delete_ub, union(collect(((i-1)*n+1):(i*n)), collect(j:n:(n^2))))
                 end
             end
         end
-    end 
+    end
 
     sort!(delete_ub)
     unique!(delete_ub)
@@ -566,22 +657,22 @@ function Boscia.bounded_compute_extreme_point(sblmo::BirkhoffBLMO, d, lb, ub, in
             idx_in_map_col += 1
         end
     end
-    type = typeof(d[1,1])
-    d2 = ones(Union{type, Missing}, nreduced, nreduced)
+    type = typeof(d[1, 1])
+    d2 = ones(Union{type,Missing}, nreduced, nreduced)
     for j in 1:nreduced
         for i in 1:nreduced
             # interdict arc when fixed to zero
-            if reducedub[(j-1)*nreduced + i] <= eps()
+            if reducedub[(j-1)*nreduced+i] <= eps()
                 if sblmo.append_by_column
-                    d2[i,j] = missing
+                    d2[i, j] = missing
                 else
-                    d2[j,i] = missing
+                    d2[j, i] = missing
                 end
             else
                 if sblmo.append_by_column
-                    d2[i,j] = d[index_map_rows[i], index_map_cols[j]]
+                    d2[i, j] = d[index_map_rows[i], index_map_cols[j]]
                 else
-                    d2[j,i] = d[index_map_rows[j], index_map_cols[i]]
+                    d2[j, i] = d[index_map_rows[j], index_map_cols[i]]
                 end
             end
         end
@@ -615,98 +706,104 @@ end
 Computes the inface extreme point given an direction d, x, the current lower and upper bounds on the integer variables, and the set of integer variables.
 """
 function Boscia.bounded_compute_inface_extreme_point(
-	sblmo::BirkhoffBLMO,
-	direction,
-	x,
-	lb,
-	ub,
-	int_vars;
-	kwargs...,
+    sblmo::BirkhoffBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
 )
-	n = sblmo.dim
+    n = sblmo.dim
 
-	if size(direction, 2) == 1
-		direction =
-			sblmo.append_by_column ? reshape(direction, (n, n)) :
-			transpose(reshape(direction, (n, n)))
-	end
+    if size(direction, 2) == 1
+        direction =
+            sblmo.append_by_column ? reshape(direction, (n, n)) :
+            transpose(reshape(direction, (n, n)))
+    end
 
-	if size(x, 2) == 1
-		x = sblmo.append_by_column ? reshape(x, (n, n)) : transpose(reshape(x, (n, n)))
-	end
-	fixed_to_one_rows = Int[]
-	fixed_to_one_cols = Int[]
-	delete_ub = Int[]
+    if size(x, 2) == 1
+        x = sblmo.append_by_column ? reshape(x, (n, n)) : transpose(reshape(x, (n, n)))
+    end
+    fixed_to_one_rows = Int[]
+    fixed_to_one_cols = Int[]
+    delete_ub = Int[]
 
-	for idx in eachindex(int_vars)
-		if lb[idx] >= 1 - eps()
-			var_idx = int_vars[idx]
-			if sblmo.append_by_column
-				j = ceil(Int, var_idx / n)
-				i = Int(var_idx - n * (j - 1))
-				push!(fixed_to_one_rows, i)
-				push!(fixed_to_one_cols, j)
-				append!(delete_ub, union(collect((j-1)*n+1:j*n), collect(i:n:n^2)))
-			else
-				i = ceil(int, var_idx / n)
-				j = Int(var_idx - n * (j - 1))
-				push!(fixed_to_one_rows, j)
-				push!(fixed_to_one_cols, i)
-				append!(delete_ub, union(collect((i-1)*n+1:i*n), collect(j:n:n^2)))
-			end
-		end
-	end
+    for idx in eachindex(int_vars)
+        if lb[idx] >= 1 - eps()
+            var_idx = int_vars[idx]
+            if sblmo.append_by_column
+                j = ceil(Int, var_idx / n)
+                i = Int(var_idx - n * (j - 1))
+                push!(fixed_to_one_rows, i)
+                push!(fixed_to_one_cols, j)
+                append!(delete_ub, union(collect(((j-1)*n+1):(j*n)), collect(i:n:(n^2))))
+            else
+                i = ceil(int, var_idx / n)
+                j = Int(var_idx - n * (j - 1))
+                push!(fixed_to_one_rows, j)
+                push!(fixed_to_one_cols, i)
+                append!(delete_ub, union(collect(((i-1)*n+1):(i*n)), collect(j:n:(n^2))))
+            end
+        end
+    end
 
-	for j in 1:n
-		if j ∉ fixed_to_one_cols
-			for i in 1:n
-				if i ∉ fixed_to_one_rows
-					if x[i, j] >= 1 - eps()
-						push!(fixed_to_one_rows, i)
-						push!(fixed_to_one_cols, j)
-						if sblmo.append_by_column
-							append!(delete_ub, union(collect((j-1)*n+1:j*n), collect(i:n:n^2)))
-						else
-							append!(delete_ub, union(collect((i-1)*n+1:i*n), collect(j:n:n^2)))
-						end
-					end
-				end
-			end
-		end
-	end
+    for j in 1:n
+        if j ∉ fixed_to_one_cols
+            for i in 1:n
+                if i ∉ fixed_to_one_rows
+                    if x[i, j] >= 1 - eps()
+                        push!(fixed_to_one_rows, i)
+                        push!(fixed_to_one_cols, j)
+                        if sblmo.append_by_column
+                            append!(
+                                delete_ub,
+                                union(collect(((j-1)*n+1):(j*n)), collect(i:n:(n^2))),
+                            )
+                        else
+                            append!(
+                                delete_ub,
+                                union(collect(((i-1)*n+1):(i*n)), collect(j:n:(n^2))),
+                            )
+                        end
+                    end
+                end
+            end
+        end
+    end
 
-	sort!(delete_ub)
-	unique!(delete_ub)
-	fixed_to_one_cols = unique!(fixed_to_one_cols)
-	fixed_to_one_rows = unique!(fixed_to_one_rows)
-	nfixed = length(fixed_to_one_cols)
-	nreduced = n - nfixed
-	reducedub = copy(ub)
-	reducedintvars = copy(int_vars)
-	delete_ub_idx = findall(x -> x in delete_ub, int_vars)
-	deleteat!(reducedub, delete_ub_idx)
-	deleteat!(reducedintvars, delete_ub_idx)
-	# stores the indices of the original matrix that are still in the reduced matrix
-	index_map_rows = fill(1, nreduced)
-	index_map_cols = fill(1, nreduced)
-	idx_in_map_row = 1
-	idx_in_map_col = 1
-	for orig_idx in 1:n
-		if orig_idx ∉ fixed_to_one_rows
-			index_map_rows[idx_in_map_row] = orig_idx
-			idx_in_map_row += 1
-		end
-		if orig_idx ∉ fixed_to_one_cols
-			index_map_cols[idx_in_map_col] = orig_idx
-			idx_in_map_col += 1
-		end
-	end
-	type = typeof(direction[1, 1])
-	d2 = ones(Union{type, Missing}, nreduced, nreduced)
+    sort!(delete_ub)
+    unique!(delete_ub)
+    fixed_to_one_cols = unique!(fixed_to_one_cols)
+    fixed_to_one_rows = unique!(fixed_to_one_rows)
+    nfixed = length(fixed_to_one_cols)
+    nreduced = n - nfixed
+    reducedub = copy(ub)
+    reducedintvars = copy(int_vars)
+    delete_ub_idx = findall(x -> x in delete_ub, int_vars)
+    deleteat!(reducedub, delete_ub_idx)
+    deleteat!(reducedintvars, delete_ub_idx)
+    # stores the indices of the original matrix that are still in the reduced matrix
+    index_map_rows = fill(1, nreduced)
+    index_map_cols = fill(1, nreduced)
+    idx_in_map_row = 1
+    idx_in_map_col = 1
+    for orig_idx in 1:n
+        if orig_idx ∉ fixed_to_one_rows
+            index_map_rows[idx_in_map_row] = orig_idx
+            idx_in_map_row += 1
+        end
+        if orig_idx ∉ fixed_to_one_cols
+            index_map_cols[idx_in_map_col] = orig_idx
+            idx_in_map_col += 1
+        end
+    end
+    type = typeof(direction[1, 1])
+    d2 = ones(Union{type,Missing}, nreduced, nreduced)
 
-	for j in 1:nreduced
-		for i in 1:nreduced
-			idx = (index_map_cols[j] - 1) * n + index_map_rows[i]
+    for j in 1:nreduced
+        for i in 1:nreduced
+            idx = (index_map_cols[j] - 1) * n + index_map_rows[i]
             if sblmo.append_by_column
                 if x[index_map_rows[i], index_map_cols[j]] <= eps()
                     d2[i, j] = missing
@@ -722,27 +819,27 @@ function Boscia.bounded_compute_inface_extreme_point(
             end
             # interdict arc when fixed to zero
             if idx in reducedintvars
-				reducedub_idx = findfirst(x -> x == idx, reducedintvars)
-				if reducedub[reducedub_idx] <= eps()
-					if sblmo.append_by_column
-						d2[i, j] = missing
-					else
-						d2[j, i] = missing
-					end
+                reducedub_idx = findfirst(x -> x == idx, reducedintvars)
+                if reducedub[reducedub_idx] <= eps()
+                    if sblmo.append_by_column
+                        d2[i, j] = missing
+                    else
+                        d2[j, i] = missing
+                    end
                 end
             end
-		end
-	end
+        end
+    end
 
-	m = SparseArrays.spzeros(n, n)
-	for (i, j) in zip(fixed_to_one_rows, fixed_to_one_cols)
-		m[i, j] = 1
-	end
-	res_mat = Hungarian.munkres(d2)
-	(rows, cols, vals) = SparseArrays.findnz(res_mat)
-	@inbounds for i in eachindex(cols)
-		m[index_map_rows[rows[i]], index_map_cols[cols[i]]] = (vals[i] == 2)
-	end
+    m = SparseArrays.spzeros(n, n)
+    for (i, j) in zip(fixed_to_one_rows, fixed_to_one_cols)
+        m[i, j] = 1
+    end
+    res_mat = Hungarian.munkres(d2)
+    (rows, cols, vals) = SparseArrays.findnz(res_mat)
+    @inbounds for i in eachindex(cols)
+        m[index_map_rows[rows[i]], index_map_cols[cols[i]]] = (vals[i] == 2)
+    end
 
     m = if sblmo.append_by_column
         # Convert sparse matrix to sparse vector by columns
@@ -757,7 +854,7 @@ function Boscia.bounded_compute_inface_extreme_point(
         SparseArrays.sparsevec(linear_indices, V, n^2)
     end
 
-	return m
+    return m
 end
 
 """
@@ -789,15 +886,15 @@ function dicg_split_vertices_set_simple(sblmo::BirkhoffBLMO, x, vidx)
     x0_right = copy(x)
     return x0_left, x0_right
 end
-        
+
 """
 The sum of each row and column has to be equal to 1.
 """
-function is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector) 
+function is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector)
     n = sblmo.dim
     for i in 1:n
         # append by column ? column sum : row sum 
-        if !isapprox(sum(v[((i-1)*n+1):(i*n)]), 1.0, atol=1e-6, rtol=1e-3) 
+        if !isapprox(sum(v[((i-1)*n+1):(i*n)]), 1.0, atol=1e-6, rtol=1e-3)
             @debug "Column sum not 1: $(sum(v[((i-1)*n+1):(i*n)]))"
             return false
         end
@@ -808,7 +905,7 @@ function is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector)
         end
     end
     return true
-end 
+end
 
 function check_feasibility(sblmo::BirkhoffBLMO, lb, ub, int_vars, n)
     # For double stochastic matrices, each row and column must sum to 1
@@ -820,11 +917,11 @@ function check_feasibility(sblmo::BirkhoffBLMO, lb, ub, int_vars, n)
     row_max_sum = zeros(n)  # maximum possible sum for each row
     col_min_sum = zeros(n)  # minimum possible sum for each column
     col_max_sum = zeros(n)  # maximum possible sum for each column
-    
+
     # Process each integer variable
     for idx in eachindex(int_vars)
         var_idx = int_vars[idx]
-        
+
         # Convert linear index to (row, col) based on storage format
         if sblmo.append_by_column
             j = ceil(Int, var_idx / n0)  # column index
@@ -833,27 +930,23 @@ function check_feasibility(sblmo::BirkhoffBLMO, lb, ub, int_vars, n)
             i = ceil(Int, var_idx / n0)  # row index  
             j = Int(var_idx - n0 * (i - 1))  # column index
         end
-        
         # Add bounds to row and column sums
         row_min_sum[i] += lb[idx]
         row_max_sum[i] += ub[idx]
         col_min_sum[j] += lb[idx]
         col_max_sum[j] += ub[idx]
     end
-    
     # Check feasibility: each row and column must be able to sum to exactly 1
     for i in 1:n0
         # Check row sum constraints
         if row_min_sum[i] > 1 + eps() || row_max_sum[i] < 1 - eps()
             return INFEASIBLE
         end
-        
         # Check column sum constraints  
         if col_min_sum[i] > 1 + eps() || col_max_sum[i] < 1 - eps()
             return INFEASIBLE
         end
     end
-    
+
     return OPTIMAL
 end
-

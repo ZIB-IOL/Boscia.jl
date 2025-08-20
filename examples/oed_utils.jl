@@ -8,19 +8,19 @@ corr - boolean deciding whether we build the independent or correlated data.
 """
 function build_data(rng, m, n)
     # set up
-    B = rand(rng, m,n)
-    B = B'*B
+    B = rand(rng, m, n)
+    B = B' * B
     @assert isposdef(B)
-    D = MvNormal(randn(rng, n),B)
-    
-    A = rand(D, m)'
-    @assert rank(A) == n 
+    D = MvNormal(randn(rng, n), B)
 
-    N = floor(1.5*n)
-    u = floor(N/3)
+    A = rand(D, m)'
+    @assert rank(A) == n
+
+    N = floor(1.5 * n)
+    u = floor(N / 3)
     ub = rand(rng, 1.0:u, m)
-        
-    return A, N, ub 
+
+    return A, N, ub
 end
 
 """
@@ -40,47 +40,47 @@ If one builds the unsafe version, a FrankWolfe line search must be chosen that c
 a domain oracle as an input like Secant or MonotonicGenericStepSize. 
 """
 function build_a_criterion(A; μ=1e-4, build_safe=false)
-    m, n = size(A) 
+    m, n = size(A)
     a = m
     domain_oracle = build_domain_oracle(A, n)
 
     function f_a(x)
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
         U = cholesky(X)
         X_inv = U \ I
-        return LinearAlgebra.tr(X_inv)/a 
+        return LinearAlgebra.tr(X_inv) / a
     end
 
     function grad_a!(storage, x)
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
-        X = Symmetric(X*X)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+        X = Symmetric(X * X)
         F = cholesky(X)
         for i in 1:length(x)
-            storage[i] = LinearAlgebra.tr(- (F \ A[i,:]) * transpose(A[i,:]))/a
+            storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :])) / a
         end
-        return storage 
-    end 
+        return storage
+    end
 
     function f_a_safe(x)
         if !domain_oracle(x)
             return Inf
         end
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
         X_inv = LinearAlgebra.inv(X)
-        return LinearAlgebra.tr(X_inv)/a 
+        return LinearAlgebra.tr(X_inv) / a
     end
 
     function grad_a_safe!(storage, x)
         if !domain_oracle(x)
-            return fill(Inf, length(x))        
+            return fill(Inf, length(x))
         end
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
-        X = Symmetric(X*X)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+        X = Symmetric(X * X)
         F = cholesky(X)
         for i in 1:length(x)
-            storage[i] = LinearAlgebra.tr(- (F \ A[i,:]) * transpose(A[i,:]))/a
+            storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :])) / a
         end
         return storage
     end
@@ -99,23 +99,23 @@ satisfy the domain oracle, infinity is returned.
 If one builds the unsafe version, a FrankWolfe line search must be chosen that can take 
 a domain oracle as an input like Secant or MonotonicGenericStepSize. 
 """
-function build_d_criterion(A; μ =0.0, build_safe=false)
+function build_d_criterion(A; μ=0.0, build_safe=false)
     m, n = size(A)
     a = 1#m
     domain_oracle = build_domain_oracle(A, n)
 
     function f_d(x)
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
-        return float(-log(det(X))/a)
+        return float(-log(det(X)) / a)
     end
 
     function grad_d!(storage, x)
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
-        F = cholesky(X) 
-        for i in 1:length(x)        
-            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) 
+        F = cholesky(X)
+        for i in 1:length(x)
+            storage[i] = 1 / a * LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
         end
         return storage
     end
@@ -124,20 +124,20 @@ function build_d_criterion(A; μ =0.0, build_safe=false)
         if !domain_oracle(x)
             return Inf
         end
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
-        return float(-log(det(X))/a)
+        return float(-log(det(X)) / a)
     end
 
     function grad_d_safe!(storage, x)
         if !domain_oracle(x)
             return fill(Inf, length(x))
         end
-        X = transpose(A)*diagm(x)*A + Matrix(μ *I, n, n)
+        X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
         X = Symmetric(X)
-        F = cholesky(X) 
-        for i in 1:length(x)        
-            storage[i] = 1/a * LinearAlgebra.tr(-(F \ A[i,:] )*transpose(A[i,:])) 
+        F = cholesky(X)
+        for i in 1:length(x)
+            storage[i] = 1 / a * LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
         end
         # https://stackoverflow.com/questions/46417005/exclude-elements-of-array-based-on-index-julia
         return storage
@@ -160,21 +160,21 @@ function linearly_independent_rows(A; u=fill(1, size(A, 1)))
         if iszero(u[i])
             continue
         end
-        S_i= vcat(S, i)
-        if rank(A[S_i,:])==length(S_i)
-            S=S_i
+        S_i = vcat(S, i)
+        if rank(A[S_i, :]) == length(S_i)
+            S = S_i
         end
         if length(S) == n # we only n linearly independent points
             return S
         end
-    end 
+    end
     return S # then x= zeros(m) and x[S] = 1
 end
 
 function add_to_min(x, u)
     perm = sortperm(x)
-    j = findfirst(x->x != 0, x[perm])
-    
+    j = findfirst(x -> x != 0, x[perm])
+
     for i in j:length(x)
         if x[perm[i]] < u[perm[i]]
             x[perm[i]] += 1
@@ -188,9 +188,9 @@ end
 We want to add to the smallest value of x while respecting the upper bounds u.
 In constrast to the add_to_min function, we do not require x to have coordinates at zero.
 """
-function add_to_min2(x,u)
+function add_to_min2(x, u)
     perm = sortperm(x)
-    
+
     for i in perm
         if x[i] < u[i]
             x[i] += 1
@@ -201,9 +201,9 @@ function add_to_min2(x,u)
 end
 
 function remove_from_max(x)
-    perm = sortperm(x, rev = true)
-    j = findlast(x->x != 0, x[perm])
-    
+    perm = sortperm(x, rev=true)
+    j = findlast(x -> x != 0, x[perm])
+
     for i in 1:j
         if x[perm[i]] > 1
             x[perm[i]] -= 1
@@ -217,21 +217,23 @@ end
 Build start point used in FrankWolfe and Boscia for the A-Optimal and D-Optimal Design Problem.
 The functions are self concordant and so not every point in the feasible region
 is in the domain of f and grad!.
-""" 
+"""
 function build_start_point(A, N, ub)
     # Get n linearly independent rows of A
     m, n = size(A)
     S = linearly_independent_rows(A)
     @assert length(S) == n
-    
+
     x = zeros(m)
     E = []
     V = Vector{Float64}[]
 
-    while !isempty(setdiff(S, findall(x-> !(iszero(x)),x)))
+    while !isempty(setdiff(S, findall(x -> !(iszero(x)), x)))
         v = zeros(m)
         while sum(v) < N
-            idx = isempty(setdiff(S, findall(x-> !(iszero(x)),v))) ? rand(setdiff(collect(1:m), S)) : rand(setdiff(S, findall(x-> !(iszero(x)),v)))
+            idx =
+                isempty(setdiff(S, findall(x -> !(iszero(x)), v))) ?
+                rand(setdiff(collect(1:m), S)) : rand(setdiff(S, findall(x -> !(iszero(x)), v)))
             if !isapprox(v[idx], 0.0)
                 @debug "Index $(idx) already picked"
                 continue
@@ -239,13 +241,13 @@ function build_start_point(A, N, ub)
             v[idx] = min(ub[idx], N - sum(v))
             push!(E, idx)
         end
-        push!(V,v)
-        x = sum(V .* 1/length(V)) 
+        push!(V, v)
+        x = sum(V .* 1 / length(V))
     end
     unique!(V)
     a = length(V)
-    x = sum(V .* 1/a)
-    active_set= FrankWolfe.ActiveSet(fill(1/a, a), V, x)
+    x = sum(V .* 1 / a)
+    active_set = FrankWolfe.ActiveSet(fill(1 / a, a), V, x)
 
     return x, active_set, S
 end
@@ -268,7 +270,7 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
             end
         end
         # Node itself infeasible
-        if sum(lb) > N 
+        if sum(lb) > N
             return nothing
         end
         # No intersection between node and domain
@@ -276,17 +278,17 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
             return nothing
         end
         x = lb
-        
-        S = linearly_independent_rows(A, u=.!(iszero.(ub)))
+
+        S = linearly_independent_rows(A, u=(.!(iszero.(ub))))
         while sum(x) <= N
-            if sum(x) == N 
+            if sum(x) == N
                 if domain_oracle(x)
-                    return x 
-                else 
-                    return nothing 
-                end 
+                    return x
+                else
+                    return nothing
+                end
             end
-            if !iszero(x[S]-ub[S])
+            if !iszero(x[S] - ub[S])
                 y = add_to_min2(x[S], ub[S])
                 x[S] = y
             else
@@ -319,13 +321,13 @@ function greedy_incumbent(A, N, ub)
         S1 = S
         while sum(x) < N
             jdx = rand(setdiff(collect(1:m), S1))
-            x[jdx] = min(N-sum(x), ub[jdx])
-            push!(S1,jdx)
+            x[jdx] = min(N - sum(x), ub[jdx])
+            push!(S1, jdx)
             sort!(S1)
         end
     end
     @assert isapprox(sum(x), N; atol=1e-4, rtol=1e-2)
-    @assert sum(ub - x .>= 0) == m 
+    @assert sum(ub - x .>= 0) == m
     return x
 end
 
@@ -340,13 +342,13 @@ positive definite.
 """
 function build_domain_oracle(A, n)
     return function domain_oracle(x)
-        S = findall(x-> !iszero(x),x)
-        return length(S) >= n && rank(A[S,:]) == n 
+        S = findall(x -> !iszero(x), x)
+        return length(S) >= n && rank(A[S, :]) == n
     end
 end
 
 function build_domain_oracle2(A)
     return function domain_oracle2(x)
         return isposdef(Symmetric(A' * diagm(x) * A))
-    end 
+    end
 end

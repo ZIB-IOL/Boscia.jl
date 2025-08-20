@@ -1,13 +1,9 @@
 # Ultilities function 
 @inline function Base.setproperty!(c::AbstractFrankWolfeNode, s::Symbol, v)
-    if s in (
-        :id,
-        :lb,
-        :ub,
-    )
+    if s in (:id, :lb, :ub)
         # To be bale to convert, we want the function defined in Base
         # not in Core like in Bonobo.Ultilities.jl
-        Base.setproperty!(c.std, s, v) 
+        Base.setproperty!(c.std, s, v)
     else
         Core.setproperty!(c, s, v)
     end
@@ -120,13 +116,14 @@ function split_vertices_set!(
 end
 
 function split_pre_computed_set!(
-    x, 
-    pre_computed_set::Vector, 
-    tree, vidx::Int,
+    x,
+    pre_computed_set::Vector,
+    tree,
+    vidx::Int,
     local_bounds::IntegerBounds;
-    atol = 1e-5, 
-    rtol = 1e-5, 
-    kwargs...
+    atol=1e-5,
+    rtol=1e-5,
+    kwargs...,
 )
     pre_computed_set_left = []
     pre_computed_set_right = []
@@ -134,9 +131,10 @@ function split_pre_computed_set!(
         if !is_bound_feasible(local_bounds, atom)
             continue
         end
-        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol = atol, rtol = rtol)
+        if atom[vidx] >= ceil(x[vidx]) || isapprox(atom[vidx], ceil(x[vidx]), atol=atol, rtol=rtol)
             push!(pre_computed_set_right, atom)
-        elseif atom[vidx] <= floor(x[vidx]) || isapprox(atom[vidx], floor(x[vidx]), atol = atol, rtol = rtol)
+        elseif atom[vidx] <= floor(x[vidx]) ||
+               isapprox(atom[vidx], floor(x[vidx]), atol=atol, rtol=rtol)
             push!(pre_computed_set_left, atom)
         end
     end
@@ -154,12 +152,12 @@ function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
 end
 
 function dicg_start_point_initialize(
-    lmo::TimeTrackingLMO, 
-    active_set::FrankWolfe.ActiveSet{T, R},
+    lmo::TimeTrackingLMO,
+    active_set::FrankWolfe.ActiveSet{T,R},
     pre_computed_set,
-    build_dicg_start_point; 
-    domain_oracle = _trivial_domain
- ) where {T,R}
+    build_dicg_start_point;
+    domain_oracle=_trivial_domain,
+) where {T,R}
     if lmo.ncalls == 0
         return FrankWolfe.get_active_set_iterate(active_set)
     end
@@ -265,7 +263,7 @@ function build_active_set_by_domain_oracle(
         @assert !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
         FrankWolfe.compute_active_set_iterate!(active_set)
-    # No vertex is domain feasible
+        # No vertex is domain feasible
     else
         x_star = tree.root.options[:find_domain_point](local_bounds)
         # No domain feasible point can be build.
@@ -273,7 +271,7 @@ function build_active_set_by_domain_oracle(
         if x_star === nothing
             deleteat!(active_set, del_indices)
         else
-            inner_f(x) = 1/2 * LinearAlgebra.norm(x - x_star)^2
+            inner_f(x) = 1 / 2 * LinearAlgebra.norm(x - x_star)^2
 
             function inner_grad!(storage, x)
                 storage .= x - x_star
@@ -393,13 +391,13 @@ function sparse_min_via_enum(f, n, k, values=fill(0:1, n))
     return best_val, best_sol
 end
 
-function min_via_enum_simplex(f, n, N, values=fill(0:1,n))
+function min_via_enum_simplex(f, n, N, values=fill(0:1, n))
     solutions = Iterators.product(values...)
     best_val = Inf
     best_sol = nothing
     for sol in solutions
         sol_vec = collect(sol)
-        if sum(sol_vec) > N 
+        if sum(sol_vec) > N
             continue
         end
         val = f(sol_vec)
@@ -411,13 +409,13 @@ function min_via_enum_simplex(f, n, N, values=fill(0:1,n))
     return best_val, best_sol
 end
 
-function min_via_enum_prob_simplex(f, n, N, values=fill(0:1,n))
+function min_via_enum_prob_simplex(f, n, N, values=fill(0:1, n))
     solutions = Iterators.product(values...)
     best_val = Inf
     best_sol = nothing
     for sol in solutions
         sol_vec = collect(sol)
-        if sum(sol_vec) != N 
+        if sum(sol_vec) != N
             continue
         end
         val = f(sol_vec)
