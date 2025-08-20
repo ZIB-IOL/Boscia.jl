@@ -40,6 +40,7 @@ Optional settings
 - `dual_tightening` flag to decide  whether to use dual tightening techniques at node level. Note that this only porvides valid tightenings if your function is convex!
 - `global_dual_tightening` flag to decide whether to generate dual tightenings from new solutions that are gloablly valid.
 - `bnb_callback` an optional callback called after every node evaluation.
+- `branch_callback` an optional callback called before branching. Receives the tree, the node and the branching variable index as input. If it returns `false`, no branching is performed and the node is pruned.
 - `strong_convexity` strong convexity parameter of the objective `f`, used for tightening the dual bound at every node.
 - `sharpness_constant` - the constant `M > 0` for `(θ, M)`-sharpness. `f` is `(θ, M)`-sharpness: `f` satisfies `min_{x^* ∈ X^*} || x - x^* || ≤ M (f(x) - f^(x^*))^θ` where `X^*` is the set of minimizer of `f`. Note that tightenings using sharpness are only valid if the problem has a unique minimizer, i.e. `f` is stricly convex!
 - `sharpness_exponent` - the exponent `θ ∈ [0, 1/2]` for `(θ, M)`-sharpness.
