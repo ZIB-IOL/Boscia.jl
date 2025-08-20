@@ -355,7 +355,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             tree.root.problem.g,
             tree.root.problem.tlmo,
             active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
+            line_search=tree.root.options[:lineSearch],
             lazy=true,
             verbose=verbose,
             max_iteration=max_iteration_post,
