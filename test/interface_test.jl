@@ -464,7 +464,7 @@ end
     )
 
     @test length(result_monotonic_node_limit[:list_ub]) <= 3
-    @test result_monotonic_node_limit[:status] == "Node limit reached"
+    @test result_monotonic_node_limit[:status] == Boscia.NODE_LIMIT_REACHED
 end
 
 n = 20
@@ -690,8 +690,7 @@ end
     x_no, _, result_no =
         Boscia.solve(f, grad!, lmo, verbose=false, variant=Boscia.DICG(), bnb_callback=callback)
 
-    @test result_no[:status] == "User defined stop"
-    @test result_no[:solving_stage] == Boscia.USER_STOP
+    @test result_no[:status] == Boscia.USER_STOP
 end
 
 @testset "Linear feasible" begin
