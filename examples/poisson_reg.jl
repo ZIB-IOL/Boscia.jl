@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nPoisson Sparse Regression Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -112,7 +114,7 @@ Ns = 0.10
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
     #@show x
     @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6

@@ -6,6 +6,8 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 
+println("\nReadme Example")
+
 n = 6
 
 const diffw = 0.5 * ones(n)
@@ -31,4 +33,4 @@ function grad!(storage, x)
     @. storage = x - diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))

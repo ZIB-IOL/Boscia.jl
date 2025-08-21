@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nMPS Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -58,6 +60,6 @@ function grad!(storage, x)
 end
 
 @testset "MPS 22433 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
     @test f(x) <= f(result[:raw_solution])
 end

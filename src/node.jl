@@ -4,6 +4,7 @@ mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value,T<:Real} <:
     solution::Value
     node::Node
     source::Symbol
+    time::Float64
 end
 
 """
@@ -150,10 +151,14 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     # In case of strong convexity, check if a child can be pruned
-    prune_left, prune_right = prune_children(tree, node, lower_bound_base, x, vidx)
+    prune_left, prune_right = if !tree.root.options[:no_pruning]
+        prune_children(tree, node, lower_bound_base, x, vidx)
+    else
+        false, false
+    end
 
     #different ways to split active set
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -162,7 +167,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set_left, active_set_right =
             split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
     else
-
         if node.pre_computed_set !== nothing
             # Split pre_computed_set
             pre_computed_set_left, pre_computed_set_right =
@@ -177,7 +181,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Sanity check
         @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
         @assert sum(active_set_left.weights .< 0) == 0
@@ -223,7 +227,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
         x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
         x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
@@ -339,7 +343,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    if tree.root.options[:variant] != DICG()
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Check feasibility of the iterate
         active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
@@ -347,6 +351,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
+    end
+
+    if tree.root.options[:propagate_bounds] !== nothing
+        tree.root.options[:propagate_bounds](tree, node)
     end
 
     # time tracking FW
@@ -361,25 +369,25 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         node.active_set;
         epsilon=node.fw_dual_gap_limit,
         max_iteration=tree.root.options[:max_fw_iter],
-        line_search=tree.root.options[:lineSearch],
+        line_search=tree.root.options[:line_search],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
         add_dropped_vertices=tree.root.options[:use_shadow_set],
         use_extra_vertex_storage=tree.root.options[:use_shadow_set],
         extra_vertex_storage=node.discarded_vertices,
         callback=tree.root.options[:callback],
-        verbose=tree.root.options[:fwVerbose],
+        verbose=tree.root.options[:fw_verbose],
+        timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
-        use_strong_lazy=tree.root.options[:use_strong_lazy],
-        use_strong_warm_start=tree.root.options[:use_strong_warm_start],
-        build_dicg_start_point=tree.root.options[:build_dicg_start_point],
     )
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
         # update active set of the node
         node.active_set = atoms_set
     else
+        node.pre_computed_set = atoms_set
+        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
         # update set of computed atoms and active set
         if isa(x, AbstractVector)
             node.pre_computed_set = atoms_set
@@ -404,6 +412,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # improvement of the lower bound using strong convexity
     lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
 
+    # Call heuristic 
+    run_heuristics(tree, x, tree.root.options[:heuristics])
+
     # Found an upper bound
     if is_integer_feasible(tree, x)
         node.ub = primal
@@ -411,14 +422,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return lower_bound, primal
         # Sanity check: If the incumbent is better than the lower bound of the root node
         # and the root node is not integer feasible, something is off!
-    elseif node.id == 1
+    elseif node.id == 1 && !tree.root.options[:ignore_lower_bound]
         @debug "Lower bound of root node: $(lower_bound)"
         @debug "Current incumbent: $(tree.incumbent)"
         @assert lower_bound <= tree.incumbent + dual_gap "lower_bound <= tree.incumbent + dual_gap : $(lower_bound) <= $(tree.incumbent + dual_gap)"
     end
 
-    # Call heuristic 
-    run_heuristics(tree, x, tree.root.options[:heuristics])
+
+    if tree.root.options[:ignore_lower_bound]
+        return -Inf, NaN
+    end
 
     return lower_bound, NaN
 end

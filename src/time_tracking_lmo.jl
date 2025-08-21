@@ -4,7 +4,7 @@
 A wrapper for the BLMO tracking the solving time, number of calls etc.
 Is created in Boscia itself.
 """
-mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <:
+mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle,D<:Dates.DateTime} <:
                FrankWolfe.LinearMinimizationOracle
     blmo::BLMO
     optimizing_times::Vector{Float64}
@@ -12,6 +12,9 @@ mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <:
     simplex_iterations::Vector{Int}
     ncalls::Int
     int_vars::Vector{Int}
+    time_ref::D
+    type_moi::Bool
+    time_limit::Float64
 end
 
 """
@@ -19,16 +22,35 @@ end
 
 Constructor with just the blmo.
 """
-TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle) =
-    TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, Int[])
+TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, time_ref, time_limit) = TimeTrackingLMO(
+    blmo,
+    Float64[],
+    Int[],
+    Int[],
+    0,
+    Int[],
+    time_ref,
+    isa(blmo, MathOptBLMO),
+    time_limit,
+)
 
 """
     TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars)
 
 Constructor with just the blmo.
 """
-TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars) =
-    TimeTrackingLMO(blmo, Float64[], Int[], Int[], 0, int_vars)
+TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars, time_ref, time_limit) =
+    TimeTrackingLMO(
+        blmo,
+        Float64[],
+        Int[],
+        Int[],
+        0,
+        int_vars,
+        time_ref,
+        isa(blmo, MathOptBLMO),
+        time_limit,
+    )
 
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) =
     is_decomposition_invariant_oracle(tlmo.blmo)
@@ -82,6 +104,11 @@ Compute the extreme point and collect statistics.
 function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.blmo)
+    if tlmo.type_moi && isfinite(tlmo.time_limit)
+        time_limit = tlmo.time_limit - float(Dates.value(Dates.now() - tlmo.time_ref)) / 1000
+        time_limit = time_limit <= 0 ? 1 : time_limit
+        MOI.set(tlmo.blmo.o, MOI.TimeLimitSec(), time_limit)
+    end
     v = FrankWolfe.compute_extreme_point(tlmo.blmo, d; kwargs)
 
     if !is_linear_feasible(tlmo, v)

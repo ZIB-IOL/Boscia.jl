@@ -10,6 +10,8 @@ import HiGHS
 using SCIP
 using StableRNGs
 
+println("\nStrong Branching Portfolio Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -68,7 +70,7 @@ end
 
 @testset "Portfolio strong branching" begin
     lmo = prepare_portfolio_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 
@@ -78,7 +80,7 @@ end
 
     lmo = prepare_portfolio_lmo()
     x, _, result_strong_branching =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy))
 
     @test dot(ai, x) <= bi + 1e-3
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6

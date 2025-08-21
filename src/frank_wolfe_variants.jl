@@ -25,6 +25,10 @@ function solve_frank_wolfe end
 build_frank_wolfe_workspace(::FrankWolfeVariant, x) = nothing
 
 
+function Base.convert(::Type{V1}, v2::V2) where {V1<:FrankWolfeVariant,V2<:FrankWolfeVariant}
+    return V1()
+end
+
 """
 	Away-Frank-Wolfe
 
@@ -41,7 +45,7 @@ function solve_frank_wolfe(
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -82,15 +86,15 @@ Base.print(io::IO, ::AwayFrankWolfe) = print(io, "Away-Frank-Wolfe")
 """
     Blended Conditional Gradient
 """
-struct Blended <: FrankWolfeVariant end
+struct BlendedConditionalGradient <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::Blended,
+    frank_wolfe_variant::BlendedConditionalGradient,
     f,
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -124,20 +128,20 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::Blended) = print(io, "Blended Conditional Gradient")
+Base.print(io::IO, ::BlendedConditionalGradient) = print(io, "Blended Conditional Gradient")
 
 """
 	Blended Pairwise Conditional Gradient
 """
-struct BPCG <: FrankWolfeVariant end
+struct BlendedPairwiseConditionalGradient <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::BPCG,
+    frank_wolfe_variant::BlendedPairwiseConditionalGradient,
     f,
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -171,7 +175,8 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
+Base.print(io::IO, ::BlendedPairwiseConditionalGradient) =
+    print(io, "Blended Pairwise Conditional Gradient")
 
 """
    DICG-Frank-Wolfe
@@ -179,15 +184,34 @@ Base.print(io::IO, ::BPCG) = print(io, "Blended Pairwise Conditional Gradient")
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-struct DICG <: FrankWolfeVariant end
+struct DecompositionInvariantConditionalGradient <: FrankWolfeVariant
+    use_strong_lazy::Bool
+    use_DICG_warm_start::Bool
+    use_strong_warm_start::Bool
+    build_dicg_start_point::Function
+end
+
+function DecompositionInvariantConditionalGradient(;
+    use_strong_lazy=false,
+    use_DICG_warm_start=false,
+    use_strong_warm_start=false,
+    build_dicg_start_point=trivial_build_dicg_start_point,
+)
+    return DecompositionInvariantConditionalGradient(
+        use_strong_lazy,
+        use_DICG_warm_start,
+        use_strong_warm_start,
+        build_dicg_start_point,
+    )
+end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::DICG,
+    frank_wolfe_variant::DecompositionInvariantConditionalGradient,
     f,
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -201,9 +225,6 @@ function solve_frank_wolfe(
     workspace=nothing,
     pre_computed_set=nothing,
     domain_oracle=_trivial_domain,
-    use_strong_lazy=false,
-    use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point,
     kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
@@ -220,11 +241,11 @@ function solve_frank_wolfe(
         lmo,
         active_set,
         pre_computed_set,
-        build_dicg_start_point;
+        frank_wolfe_variant.build_dicg_start_point;
         domain_oracle=domain_oracle,
     )
 
-    if x0 == nothing || !domain_oracle(x0)
+    if x0 === nothing || !domain_oracle(x0)
         return NaN, Inf, Inf, pre_computed_set
     else
         @assert is_linear_feasible(lmo, x0)
@@ -243,15 +264,14 @@ function solve_frank_wolfe(
         verbose=verbose,
         timeout=timeout,
         lazy=lazy,
-        use_strong_lazy=use_strong_lazy,
+        use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
         linesearch_workspace=workspace,
         sparsity_control=lazy_tolerance,
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
     )
-
-    if pre_computed_set != nothing
-        if use_strong_warm_start
+    if pre_computed_set !== nothing
+        if frank_wolfe_variant.use_strong_warm_start
             indices_to_delete = []
             for idx in eachindex(pre_computed_set)
                 atom = pre_computed_set[idx]
@@ -266,21 +286,25 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, pre_computed_set
 end
 
-Base.print(io::IO, ::DICG) = print(io, "Decompostion-Invariant-Frank-Wolfe")
+Base.print(io::IO, ::DecompositionInvariantConditionalGradient) =
+    print(io, "Decompostion-Invariant-Frank-Wolfe")
 
 """
 	Vanilla-Frank-Wolfe
 
+The standard variant of Frank-Wolfe. In each iteration, the vertex v minimizing ∇f * (x-v) is computed. 
+
+Lazification cannot be used in this setting.
 """
-struct VanillaFrankWolfe <: FrankWolfeVariant end
+struct StandardFrankWolfe <: FrankWolfeVariant end
 
 function solve_frank_wolfe(
-    frank_wolfe_variant::VanillaFrankWolfe,
+    frank_wolfe_variant::StandardFrankWolfe,
     f,
     grad!,
     lmo,
     active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Adaptive(),
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
     epsilon=1e-7,
     max_iteration=10000,
     add_dropped_vertices=false,
@@ -294,26 +318,25 @@ function solve_frank_wolfe(
     workspace=nothing,
     kwargs...,
 )
+    # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
     # Observe that the lazy flag is only observed if away_steps is set to true, so it can neglected. 
     x, _, primal, dual_gap, _, active_set = FrankWolfe.away_frank_wolfe(
         f,
         grad!,
         lmo,
         active_set,
+        away_steps=false,
         epsilon=epsilon,
         max_iteration=max_iteration,
         line_search=line_search,
         callback=callback,
-        lazy=lazy,
-        lazy_tolerance=lazy_tolerance,
         timeout=timeout,
         add_dropped_vertices=add_dropped_vertices,
         use_extra_vertex_storage=use_extra_vertex_storage,
         extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
-        away_steps=false,
     )
     return x, primal, dual_gap, active_set
 end
 
-Base.print(io::IO, ::VanillaFrankWolfe) = print(io, "Vanilla-Frank-Wolfe")
+Base.print(io::IO, ::StandardFrankWolfe) = print(io, "StandardFrank-Wolfe")

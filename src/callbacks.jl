@@ -95,12 +95,13 @@ function process_FW_callback_logic(
         if ncalls != state.lmo.ncalls
             ncalls = state.lmo.ncalls
             (best_v, best_val) = find_best_solution(
+                tree,
                 tree.root.problem.f,
                 tree.root.problem.tlmo.blmo,
                 vars,
                 tree.root.options[:domain_oracle],
             )
-            if best_val < tree.incumbent
+            if best_val < tree.incumbent && !tree.root.options[:add_all_solutions]
                 node = tree.nodes[tree.root.current_node_id[]]
                 add_new_solution!(tree, node, best_val, best_v, :Solver)
                 Bonobo.bound!(tree, node.id)
@@ -116,7 +117,7 @@ function process_FW_callback_logic(
 
     if tree.root.options[:domain_oracle](state.v) && state.step_type != FrankWolfe.ST_SIMPLEXDESCENT
         val = tree.root.problem.f(state.v)
-        if val < tree.incumbent
+        if val < tree.incumbent || tree.root.options[:add_all_solutions]
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
             add_new_solution!(tree, node, val, copy(state.v), :vertex)
@@ -379,13 +380,13 @@ function build_bnb_callback(
             end
             primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
             # deactivate postsolve if there is no solution
-            tree.root.options[:usePostsolve] =
-                x === nothing ? false : tree.root.options[:usePostsolve]
+            tree.root.options[:use_postsolve] =
+                x === nothing ? false : tree.root.options[:use_postsolve]
 
             # TODO: here we need to calculate the actual state
 
             # If the tree is empty, incumbent and solution should be the same!
-            if isempty(tree.nodes)
+            if !tree.root.options[:no_pruning] && isempty(tree.nodes)
                 @assert isapprox(tree.incumbent, primal_value)
             end
 
@@ -406,6 +407,7 @@ function build_bnb_callback(
             result[:global_tightenings] = global_tightenings
             result[:local_tightenings] = local_tightenings
             result[:local_potential_tightenings] = local_potential_tightenings
+            result[:tree_solutions] = tree.solutions
 
             if verbose
                 FrankWolfe.print_callback(headers, format_string, print_footer=true)

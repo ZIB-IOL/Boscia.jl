@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nApproximate Planted Point Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -40,7 +42,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         end
         lmo = FrankWolfe.MathOptLMO(o)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+        x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -56,7 +58,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         end
         blmo = CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -70,7 +72,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
         x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -103,7 +105,7 @@ end
         end
         lmo = FrankWolfe.MathOptLMO(o)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+        x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
@@ -119,7 +121,7 @@ end
         end
         blmo = CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, verbose=true)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
@@ -134,7 +136,7 @@ end
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
         x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
+            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings_bnb=Boscia.settings_bnb(verbose=true))
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])

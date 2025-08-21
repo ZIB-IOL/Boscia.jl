@@ -13,9 +13,10 @@ using Dates
 using Test
 using StableRNGs
 
-#seed = rand(UInt64)
-#@show seed
-seed = 0x28bb11167f7b9d35
+println("\nPoisson Tests")
+
+seed = rand(UInt64)
+@show seed
 rng = StableRNG(seed)
 
 # Sparse Poisson regression
@@ -91,7 +92,8 @@ N = 1.0
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, time_limit=500)
+    x, _, result =
+        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -169,9 +171,8 @@ end
         f,
         grad!,
         lmo,
-        verbose=true,
-        branching_strategy=branching_strategy,
-        fw_epsilon=1e-3,
+        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
+        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-3),
     )
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -271,7 +272,7 @@ push!(groups, ((k-1)*group_size+1):pg)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k
 end
@@ -348,7 +349,12 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+    x, _, result = Boscia.solve(
+        f,
+        grad!,
+        lmo,
+        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
+    )
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k

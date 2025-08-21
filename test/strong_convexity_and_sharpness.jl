@@ -6,6 +6,8 @@ using FrankWolfe
 using StableRNGs
 using Suppressor
 
+println("\nStrong Convexity and Sharpness Tests")
+
 ## Log barrier
 # min_x - ∑ log(xi + ϵ) - log(N - ∑ xi + ϵ)
 # s.t.  x ∈ {0,1}^n
@@ -54,10 +56,8 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                time_limit=120,
-                print_iter=1000,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
             )
 
             μ = 1 / (1 + ϵ)^(2 * n)
@@ -69,12 +69,11 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                strong_convexity=μ,
-                time_limit=120,
-                print_iter=1000,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+                settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
             )
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] > result[:dual_bound]
@@ -112,9 +111,9 @@ rng = StableRNG(seed)
             fill(1.0, n),
             collect(1:n),
             n,
-            strong_convexity=μ,
-            verbose=true,
-            fw_epsilon=1e-3,
+            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
+            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=FrankWolfe.Secant()),
+            settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
@@ -151,10 +150,8 @@ end
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                time_limit=120,
-                print_iter=1000,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
             )
 
             μ = 1 / (1 + ϵ)^(2 * n)
@@ -168,13 +165,14 @@ end
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                sharpness_constant=M,
-                sharpness_exponent=θ,
-                time_limit=120,
-                print_iter=1000,
+                settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120, print_iter=1000),
+                settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=line_search),
+                settings_tightening=Boscia.settings_tightening(
+                    sharpness_constant=M,
+                    sharpness_exponent=θ,
+                ),
             )
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] >= result[:dual_bound]
@@ -213,9 +211,12 @@ end
             fill(1.0, n),
             collect(1:n),
             n,
-            sharpness_constant=M,
-            sharpness_exponent=θ,
-            verbose=true,
+            settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60, print_iter=1000),
+            settings_frank_wolfe=Boscia.settings_frank_wolfe(line_search=FrankWolfe.Secant()),
+            settings_tightening=Boscia.settings_tightening(
+                sharpness_constant=M,
+                sharpness_exponent=θ,
+            ),
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
