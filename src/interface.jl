@@ -392,7 +392,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     result[:raw_solution] = x
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
-    result[:status] = status_string
+    result[:status] = tree.root.problem.solving_stage
+    result[:status_string] = status_string
     result[:solving_stage] = tree.root.problem.solving_stage
 
     if verbose

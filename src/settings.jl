@@ -20,6 +20,7 @@ Available settings:
 - `time_limit` algorithm will stop if the time limit is reached. Depending on the problem it is possible that no feasible solution has been found yet. In DEFAULT mode, there is no time limit. In HEURISTIC mode, the default is set to 300 seconds (5 minutes).
 - `print_iter` encodes after how many processed nodes the current node and solution status is printed. The logs are always printed if a new integral solution has been found. Per default, `print_iter` is set to `100``.
 - `bnb_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
+- `branch_callback` an optional callback called before branching. Receives the tree, the node and the branching variable index as input. If it returns `false`, no branching is performed and the node is pruned.
 - `no_pruning` if `true`, no pruning of nodes is performed. Per default, nodes are pruned if they have a lower bound which is worse than the best known solution. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `ignore_lower_bound` if `true`, the lower bound obtain by Frank-Wolfe is ignored and in the logs, only Inf will be printed. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
@@ -34,6 +35,7 @@ function settings_bnb(;
     time_limit=mode == HEURISTIC_MODE ? 300 : Inf,
     print_iter=100,
     bnb_callback=nothing,
+    branch_callback=nothing,
     no_pruning=mode == HEURISTIC_MODE ? true : false,
     ignore_lower_bound=mode == HEURISTIC_MODE ? true : false,
     start_solution=nothing,
@@ -47,6 +49,7 @@ function settings_bnb(;
         :time_limit => time_limit,
         :print_iter => print_iter,
         :bnb_callback => bnb_callback,
+        :branch_callback => branch_callback,
         :no_pruning => no_pruning,
         :ignore_lower_bound => ignore_lower_bound,
         :start_solution => start_solution,

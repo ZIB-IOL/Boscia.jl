@@ -988,7 +988,7 @@ function is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector)
             return false
         end
         # append by column ? row sum : column sum
-        if !isapprox(sum(v[i:n:(n^2)]), 1.0, atol=1e-6, rtol=1e-3)
+        if !isapprox(sum(v[i:n:n^2]), 1.0, atol=1e-6, rtol=1e-3)
             @debug "Row sum not 1: $(sum(v[i:n:n^2]))"
             return false
         end
@@ -1019,21 +1019,18 @@ function check_feasibility(sblmo::BirkhoffBLMO, lb, ub, int_vars, n)
             i = ceil(Int, var_idx / n0)  # row index  
             j = Int(var_idx - n0 * (i - 1))  # column index
         end
-
         # Add bounds to row and column sums
         row_min_sum[i] += lb[idx]
         row_max_sum[i] += ub[idx]
         col_min_sum[j] += lb[idx]
         col_max_sum[j] += ub[idx]
     end
-
     # Check feasibility: each row and column must be able to sum to exactly 1
     for i in 1:n0
         # Check row sum constraints
         if row_min_sum[i] > 1 + eps() || row_max_sum[i] < 1 - eps()
             return INFEASIBLE
         end
-
         # Check column sum constraints  
         if col_min_sum[i] > 1 + eps() || col_max_sum[i] < 1 - eps()
             return INFEASIBLE

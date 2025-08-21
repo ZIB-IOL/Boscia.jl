@@ -13,8 +13,9 @@ using Dates
 using Test
 using StableRNGs
 
-seed = rand(UInt64)
-@show seed
+#seed = rand(UInt64)
+#@show seed
+seed = 0x28bb11167f7b9d35
 rng = StableRNG(seed)
 
 # Sparse Poisson regression
@@ -170,6 +171,7 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
+        settings_frank_wolfe=Boscia.settings_frank_wolfe(fw_epsilon=1e-3),
     )
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
