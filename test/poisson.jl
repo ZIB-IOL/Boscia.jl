@@ -13,9 +13,8 @@ using Dates
 using Test
 using StableRNGs
 
-#seed = rand(UInt64)
-#@show seed
-seed = 0x28bb11167f7b9d35
+seed = rand(UInt64)
+@show seed
 rng = StableRNG(seed)
 
 # Sparse Poisson regression
