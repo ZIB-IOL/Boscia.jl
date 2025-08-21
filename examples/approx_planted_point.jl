@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nApproximate Planted Point Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

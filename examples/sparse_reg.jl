@@ -12,6 +12,8 @@ using Test
 using StableRNGs
 using Statistics
 
+println("\nSparse Regression Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

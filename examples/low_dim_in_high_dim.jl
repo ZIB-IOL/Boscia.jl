@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nLow-dimensional function in high-dimensional space Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

@@ -3,6 +3,8 @@ using Test
 using DoubleFloats
 using StableRNGs
 
+println("\nBig Float Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

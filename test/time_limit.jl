@@ -16,6 +16,8 @@ import MathOptSetDistances
 const MOD = MathOptSetDistances
 using StableRNGs
 
+println("\nTime Limit Test")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

@@ -12,6 +12,8 @@ const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
 
+println("\nLMO Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

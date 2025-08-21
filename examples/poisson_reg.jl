@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nPoisson Sparse Regression Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

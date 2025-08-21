@@ -13,6 +13,8 @@ using Dates
 using Test
 using StableRNGs
 
+println("\nPoisson Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

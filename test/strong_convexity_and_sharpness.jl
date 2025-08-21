@@ -6,6 +6,8 @@ using FrankWolfe
 using StableRNGs
 using Suppressor
 
+println("\nStrong Convexity and Sharpness Tests")
+
 ## Log barrier
 # min_x - ∑ log(xi + ϵ) - log(N - ∑ xi + ϵ)
 # s.t.  x ∈ {0,1}^n

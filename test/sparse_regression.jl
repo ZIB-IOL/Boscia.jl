@@ -10,6 +10,8 @@ using Bonobo
 using FrankWolfe
 using StableRNGs
 
+println("\nSparse Regression Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

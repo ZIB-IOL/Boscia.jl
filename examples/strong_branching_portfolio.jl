@@ -10,6 +10,8 @@ import HiGHS
 using SCIP
 using StableRNGs
 
+println("\nStrong Branching Portfolio Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

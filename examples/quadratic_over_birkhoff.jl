@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 
+println("\nQuadratic over Birkhoff Example")
+
 # min_{X} 1/2 * || X - Xhat ||_F^2
 # X ∈ P_n (permutation matrix)
 

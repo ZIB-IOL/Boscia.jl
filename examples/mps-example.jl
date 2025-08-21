@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nMPS Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

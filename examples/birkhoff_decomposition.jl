@@ -9,6 +9,8 @@ const MOI = MathOptInterface
 import HiGHS
 using StableRNGs
 
+println("\nBirkhoff Decomposition Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

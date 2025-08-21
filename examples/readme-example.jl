@@ -6,6 +6,8 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 
+println("\nReadme Example")
+
 n = 6
 
 const diffw = 0.5 * ones(n)

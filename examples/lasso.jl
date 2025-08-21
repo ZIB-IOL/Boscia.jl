@@ -12,6 +12,8 @@ using Dates
 using Printf
 using StableRNGs
 
+println("\nLasso Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

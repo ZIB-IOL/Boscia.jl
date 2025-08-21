@@ -11,6 +11,7 @@ using StableRNGs
 import MathOptInterface
 const MOI = MathOptInterface
 
+println("\nBranching Strategy Tests")
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

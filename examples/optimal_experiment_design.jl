@@ -7,6 +7,8 @@ using Statistics
 using Test
 using StableRNGs
 
+println("\nOptimal Experiment Design Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

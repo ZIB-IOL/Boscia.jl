@@ -7,6 +7,8 @@ import MathOptInterface
 
 const MOI = MathOptInterface
 
+println("\nHiGHS Example")
+
 n = 6
 
 const diffw = 0.5 * ones(n)

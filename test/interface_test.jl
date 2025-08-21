@@ -11,6 +11,8 @@ using Test
 using StableRNGs
 using Suppressor
 
+println("\nInterface Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)

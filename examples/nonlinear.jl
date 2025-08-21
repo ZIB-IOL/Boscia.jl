@@ -9,6 +9,8 @@ using Printf
 using Dates
 using StableRNGs
 
+println("\nNonlinear Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
