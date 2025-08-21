@@ -171,7 +171,7 @@ end
         grad!,
         lmo,
         settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(fw_epsilon=1e-3),
+        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-3),
     )
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
