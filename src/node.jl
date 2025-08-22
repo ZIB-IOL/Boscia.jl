@@ -406,7 +406,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # Found an upper bound
     if is_integer_feasible(tree, x)
-        @show x
         node.ub = primal
         @debug "Node $(node.id) has an integer solution."
         return lower_bound, primal
