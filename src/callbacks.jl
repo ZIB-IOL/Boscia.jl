@@ -387,7 +387,7 @@ function build_bnb_callback(
 
             # If the tree is empty, incumbent and solution should be the same!
             if !tree.root.options[:no_pruning] && isempty(tree.nodes)
-                if tree.root.problem.solving_stage == SOLVING
+                if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
                     @warn "Incumbent is not equal to primal value: $(tree.incumbent) != $(primal_value)"
                 else
                     @assert isapprox(tree.incumbent, primal_value)
