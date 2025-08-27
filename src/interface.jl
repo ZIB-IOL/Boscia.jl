@@ -43,7 +43,7 @@ function solve(
     settings_smoothing=settings_smoothing(mode=mode),
     kwargs...,
 )
-@show settings_heuristic[:rounding_prob]
+@show settings_heuristic
     options = merge(
         settings_bnb,
         settings_frank_wolfe,
