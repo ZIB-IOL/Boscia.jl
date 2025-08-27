@@ -408,6 +408,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     result[:rel_dual_gap] = relative_gap(primal, tree_lb(tree))
     result[:dual_gap] = tree.incumbent - tree_lb(tree)
     result[:raw_solution] = x
+    result[:solution_source] = tree.incumbent_solution.source
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
     result[:status] = status_string
