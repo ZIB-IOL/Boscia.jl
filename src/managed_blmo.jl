@@ -310,7 +310,6 @@ function solve(
     settings_smoothing=settings_smoothing(mode=mode),
     kwargs...,
 )
-@show settings_heuristic
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
     return solve(
         f,

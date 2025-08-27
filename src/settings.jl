@@ -190,7 +190,6 @@ function settings_heuristic(;
     hyperplane_aware_rounding_prob=0.0,
     add_all_solutions=mode == HEURISTIC_MODE ? true : false,
 )
-    @show rounding_prob
     round_heu = Heuristic(rounding_heuristic, rounding_prob, :rounding)
     follow_grad_heu = Heuristic(
         (tree, tlmo, x) -> follow_gradient_heuristic(tree, tlmo, x, follow_gradient_steps),
