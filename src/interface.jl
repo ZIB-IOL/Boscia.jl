@@ -344,6 +344,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     end
 
     only_integer_vars = tree.root.problem.nvars == length(tree.root.problem.integer_variables)
+    @show only_integer_vars
     if tree.root.options[:use_postsolve] && !only_integer_vars
         # Build solution lmo
         fix_bounds = IntegerBounds()
