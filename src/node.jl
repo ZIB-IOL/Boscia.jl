@@ -331,6 +331,17 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.level - 1))
+        if μ < tree.root.options[:smoothing_min]
+            μ = tree.root.options[:smoothing_min]
+        end
+        @debug "Smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
+    end
+
     if tree.root.options[:propagate_bounds] !== nothing
         tree.root.options[:propagate_bounds](tree, node)
     end
@@ -374,6 +385,13 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             @debug "x is not a vector, returning NaN, x: $x"
             return NaN, NaN
         end
+    end
+
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        sub_grad = similar(x)
+        tree.root.options[:sub_grad!](sub_grad, x)
+        v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
+        dual_gap = dot(sub_grad, x - v_sub)
     end
 
     node.fw_time = Dates.now() - time_ref
