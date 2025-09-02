@@ -291,7 +291,6 @@ function solve(
 
     # Check solution and polish
     x_polished = x
-    @show x
     if x !== nothing
         if !is_linear_feasible(tree.root.problem.tlmo, x)
             error("Reported solution not linear feasbile!")
@@ -303,7 +302,6 @@ function solve(
                 x_polished[i] = round(x_polished[i])
             end
             if !is_linear_feasible(tree.root.problem.tlmo, x_polished)
-                @show sum(x_polished)
                 @warn "Polished solution not linear feasible"
             else
                 x = x_polished
