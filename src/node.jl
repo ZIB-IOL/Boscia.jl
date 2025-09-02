@@ -394,6 +394,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         dual_gap = dot(sub_grad, x - v_sub)
     end
 
+    @assert is_integer_feasible(tree.root.problem.integer_variables, tree.incumbent_solution.solution) "solution is not integer feasible: $(tree.incumbent_solution.solution)"
+
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
 
@@ -411,7 +413,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Call heuristic 
     run_heuristics(tree, x, tree.root.options[:heuristics])
 
-    @show tree.incumbent_solution.solution
+    @assert is_integer_feasible(tree.root.problem.integer_variables, tree.incumbent_solution.solution) "solution is not integer feasible: $(tree.incumbent_solution.solution)"
 
     # Found an upper bound
     if is_integer_feasible(tree, x)
