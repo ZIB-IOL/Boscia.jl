@@ -387,6 +387,13 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        sub_grad = similar(x)
+        tree.root.options[:sub_grad!](sub_grad, x)
+        v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
+        dual_gap = dot(sub_grad, x - v_sub)
+    end
+
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
 
