@@ -411,6 +411,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # Call heuristic 
     run_heuristics(tree, x, tree.root.options[:heuristics])
 
+    @show tree.incumbent_solution.solution
+
     # Found an upper bound
     if is_integer_feasible(tree, x)
         node.ub = primal
