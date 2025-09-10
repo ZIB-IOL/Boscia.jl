@@ -30,6 +30,7 @@ function solve(
     grad!,
     blmo::BoundedLinearMinimizationOracle;
     mode::Mode=DEFAULT_MODE,
+    #settings=create_default_settings(mode=mode),
     settings_bnb=settings_bnb(mode=mode),
     settings_frank_wolfe=settings_frank_wolfe(mode=mode),
     settings_tolerances=settings_tolerances(mode=mode),

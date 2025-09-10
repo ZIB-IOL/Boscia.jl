@@ -1,4 +1,22 @@
 """
+Create default settings depending on the mode.
+
+Only requires the mode, if no mode is provided, the default mode is used.
+Returns a NamedTuple of dictionaries for the different group of settings.
+"""
+function create_default_settings(; mode::Mode=Boscia.DEFAULT_MODE)
+    return (
+        branch_and_bound=settings_bnb(mode=mode),
+        frank_wolfe=settings_frank_wolfe(mode=mode),
+        tolerances=settings_tolerances(mode=mode),
+        postprocessing=settings_postprocessing(mode=mode),
+        heuristic=settings_heuristic(mode=mode),
+        tightening=settings_tightening(mode=mode),
+        domain=settings_domain(mode=mode),
+    )
+end
+
+"""
     settings_bnb(mode::Mode;...)
 
 Set the settings for the branch-and-bound algorithm.
