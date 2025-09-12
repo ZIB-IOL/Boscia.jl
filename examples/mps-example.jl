@@ -60,6 +60,8 @@ function grad!(storage, x)
 end
 
 @testset "MPS 22433 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result[:raw_solution])
 end

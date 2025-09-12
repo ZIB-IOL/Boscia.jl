@@ -71,8 +71,10 @@ const M = 2 * var(A)
         return storage
     end
 
-    x, _, result =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=100))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 100
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     # println("Solution: $(x[1:p])")
     @test sum(x[1+p:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
@@ -149,13 +151,10 @@ end
     end
 
     lmo = build_sparse_lmo_grouped()
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true),
-        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-3),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.tolerances[:fw_epsilon] = 1e-3
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test sum(x[p+1:2p]) <= k
     for i in 1:k_int
@@ -172,14 +171,13 @@ end
     μ = 2lambda_0_g
 
     lmo = build_sparse_lmo_grouped()
-    x2, _, result2 = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true),
-        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-3),
-        settings_tightening=Boscia.settings_tightening(strong_convexity=μ),
-    )
+    settings = Boscia.create_default_settings()
+    settings = merge(settings, (
+        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true)),
+        tolerances = merge(settings.tolerances, Dict(:fw_epsilon => 1e-3)),
+        tightening = merge(settings.tightening, Dict(:strong_convexity => μ))
+    ))
+    x2, _, result2 = Boscia.solve(f, grad!, lmo, settings=settings)
     @test sum(x2[p+1:2p]) <= k
     for i in 1:k_int
         @test sum(x2[groups[i]]) >= 1

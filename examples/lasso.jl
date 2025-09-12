@@ -132,9 +132,11 @@ push!(groups, ((k_int-1)*group_size+1):p)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=true),
-        settings_tolerances=Boscia.settings_tolerances(rel_dual_gap=1e-2, dual_gap=1e-5))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.tolerances[:rel_dual_gap] = 1e-2
+    settings.tolerances[:dual_gap] = 1e-5
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     # println("Solution: $(x[1:p])")
     z = x[p+1:2p]

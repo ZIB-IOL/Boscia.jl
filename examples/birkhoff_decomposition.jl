@@ -93,10 +93,14 @@ function build_birkhoff_lmo()
 end
 
 lmo = build_birkhoff_lmo()
-x, _, _ = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
-x, _, _ = Boscia.solve(f, grad!, lmo, 
-    settings_bnb=Boscia.settings_bnb(verbose=true),
-    settings_frank_wolfe=Boscia.settings_frank_wolfe(lazy=false, variant=Boscia.DecompositionInvariantConditionalGradient()))
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+settings.frank_wolfe[:lazy] = false
+settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
 
 
 # TODO the below needs to be fixed
@@ -111,14 +115,18 @@ x, _, _ = Boscia.solve(f, grad!, lmo,
 
 @testset "Birkhoff decomposition" begin
     lmo = build_birkhoff_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
     lmo = build_birkhoff_lmo()
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
-    x_strong, _, result_strong =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, settings=settings)
     @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end

@@ -88,10 +88,11 @@ const y_d = D * sol_x
      MOI.set(branching_strategy.pstrong.optimizer, MOI.Silent(), true)=#
 
 
-    x, _, result = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=true),
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(max_fw_iter=10001),
-        settings_tolerances=Boscia.settings_tolerances(rel_dual_gap=1e-3))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.frank_wolfe[:max_fw_iter] = 10001
+    settings.tolerances[:rel_dual_gap] = 1e-3
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min

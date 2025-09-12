@@ -62,10 +62,15 @@ const Mi = (Ai + Ai') / 2
     heuristics = [heu]
     # heuristics = []
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
-    x_heu, _, result_heu = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=600),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=heuristics))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 120
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 600
+    settings.heuristic[:custom_heuristics] = heuristics
+    x_heu, _, result_heu = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test dot(ai, x_heu) <= bi + 1e-2
     @test f(x_heu) <= f(result[:raw_solution]) + 1e-6

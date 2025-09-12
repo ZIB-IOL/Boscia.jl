@@ -33,6 +33,10 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
     x, _, result = Boscia.solve(
         f,
         grad!,
@@ -41,8 +45,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs[int_vars],
         int_vars,
         n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
+        settings=settings,
     )
 
     if result[:total_time_in_sec] < 125
@@ -72,6 +75,10 @@ end
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
     x, _, result = Boscia.solve(
         f,
         grad!,
@@ -80,8 +87,7 @@ end
         ubs[int_vars],
         int_vars,
         n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
+        settings=settings,
     )
 
     if result[:total_time_in_sec] < 125

@@ -114,7 +114,9 @@ Ns = 0.10
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     #@show x
     @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6

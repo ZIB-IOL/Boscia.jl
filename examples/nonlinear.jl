@@ -122,12 +122,16 @@ heu2 = Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.8, :lmo_rounding)
 heuristics = [heu, heu2]
 # heuristics = []
 
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:print_iter] = 500
+settings.branch_and_bound[:time_limit] = 300
+settings.heuristic[:custom_heuristics] = heuristics
 x, _, _ = Boscia.solve(
     f,
     grad!,
     lmo,
-    settings_bnb=Boscia.settings_bnb(verbose=true, print_iter=500, time_limit=300),
-    settings_heuristic=Boscia.settings_heuristic(custom_heuristics=heuristics),
+    settings=settings,
 )
 
 @show x

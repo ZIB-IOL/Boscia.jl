@@ -89,12 +89,17 @@ test_instance = string("MPS ", example, " instance")
 @testset "$test_instance" begin
     println("Example $(example)")
     lmo, f, grad! = build_example(example, num_v)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:print_iter] = 10
+    settings.branch_and_bound[:time_limit] = 600
+    settings.tolerances[:fw_epsilon] = 1e-1
+    settings.tolerances[:min_node_fw_epsilon] = 1e-3
     x, _, result = Boscia.solve(
         f,
         grad!,
         lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, print_iter=10, time_limit=600),
-        settings_tolerances=Boscia.settings_tolerances(fw_epsilon=1e-1, min_node_fw_epsilon=1e-3),
+        settings=settings,
     )
     @test f(x) <= f(result[:raw_solution])
 end

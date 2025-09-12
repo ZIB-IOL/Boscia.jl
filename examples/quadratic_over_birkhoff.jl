@@ -74,7 +74,9 @@ end
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
 
-        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, settings=settings)
         @test f(x) <= f(result[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x)
     end
@@ -86,9 +88,10 @@ end
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
 
-        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, 
-            settings_bnb=Boscia.settings_bnb(verbose=true),
-            settings_frank_wolfe=Boscia.settings_frank_wolfe(variant=Boscia.DecompositionInvariantConditionalGradient()))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, settings=settings)
         @test f(x_dicg) <= f(result_dicg[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x_dicg)
     end
@@ -97,7 +100,9 @@ end
     @testset "MIP BLMO" begin
         lmo = build_birkhoff_mip(n)
 
-        x_mip, _, result_mip = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x_mip, _, result_mip = Boscia.solve(f, grad!, lmo, settings=settings)
         @test f(x_mip) <= f(result_mip[:raw_solution]) + 1e-6
         @test Boscia.is_linear_feasible(lmo, x_mip)
     end 
