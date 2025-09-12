@@ -29,25 +29,18 @@ function solve(
     f,
     grad!,
     blmo::BoundedLinearMinimizationOracle;
-    mode::Mode=DEFAULT_MODE,
-    #settings=create_default_settings(mode=mode),
-    settings_bnb=settings_bnb(mode=mode),
-    settings_frank_wolfe=settings_frank_wolfe(mode=mode),
-    settings_tolerances=settings_tolerances(mode=mode),
-    settings_postprocessing=settings_postprocessing(mode=mode),
-    settings_heuristic=settings_heuristic(mode=mode),
-    settings_tightening=settings_tightening(mode=mode),
-    settings_domain=settings_domain(mode=mode),
+    settings=create_default_settings(),
     kwargs...,
 )
     options = merge(
-        settings_bnb,
-        settings_frank_wolfe,
-        settings_tolerances,
-        settings_postprocessing,
-        settings_heuristic,
-        settings_tightening,
-        settings_domain,
+        settings.mode,
+        settings.branch_and_bound,
+        settings.frank_wolfe,
+        settings.tolerances,
+        settings.postprocessing,
+        settings.heuristic,
+        settings.tightening,
+        settings.domain,
     )
     merge!(options, Dict(:heu_ncalls => 0))
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient

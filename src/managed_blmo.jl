@@ -299,14 +299,7 @@ function solve(
     upper_bounds::Vector{Float64},
     int_vars::Vector{Int},
     n::Int;
-    mode::Mode=DEFAULT_MODE,
-    settings_bnb=settings_bnb(mode=mode),
-    settings_frank_wolfe=settings_frank_wolfe(mode=mode),
-    settings_tolerances=settings_tolerances(mode=mode),
-    settings_postprocessing=settings_postprocessing(mode=mode),
-    settings_heuristic=settings_heuristic(mode=mode),
-    settings_tightening=settings_tightening(mode=mode),
-    settings_domain=settings_domain(mode=mode),
+    settings=create_default_settings(),
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
@@ -314,13 +307,7 @@ function solve(
         f,
         grad!,
         blmo,
-        settings_bnb=settings_bnb,
-        settings_frank_wolfe=settings_frank_wolfe,
-        settings_tolerances=settings_tolerances,
-        settings_postprocessing=settings_postprocessing,
-        settings_heuristic=settings_heuristic,
-        settings_tightening=settings_tightening,
-        settings_domain=settings_domain,
+        settings=settings,
         kwargs...,
     )
 end
