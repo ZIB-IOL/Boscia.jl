@@ -76,10 +76,11 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         ubs = ones(n)
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
-        x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -147,6 +148,7 @@ end
         ubs = ones(n)
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
