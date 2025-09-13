@@ -47,7 +47,7 @@ const Mi = (Ai + Ai') / 2
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(1.0),
     )
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -65,12 +65,12 @@ const Mi = (Ai + Ai') / 2
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:time_limit] = 120
-    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:time_limit] = 600
     settings.heuristic[:custom_heuristics] = heuristics
-    x_heu, _, result_heu = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_heu, _, result_heu = Boscia.solve(f, grad!, blmo, settings=settings)
 
     @test dot(ai, x_heu) <= bi + 1e-2
     @test f(x_heu) <= f(result[:raw_solution]) + 1e-6

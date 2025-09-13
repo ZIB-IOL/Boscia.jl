@@ -40,9 +40,13 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
             MOI.add_constraint(o, xi, MOI.LessThan(1.0))
             MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
         end
-        lmo = FrankWolfe.MathOptLMO(o)
+        blmo = Boscia.MathOptBLMO(o)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -58,7 +62,9 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         end
         blmo = CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -71,8 +77,9 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -103,9 +110,13 @@ end
                 MOI.add_constraint(o, xi, MOI.ZeroOne()) # or MOI.Integer()
             end
         end
-        lmo = FrankWolfe.MathOptLMO(o)
+        blmo = Boscia.MathOptBLMO(o)
 
-        x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
@@ -121,7 +132,9 @@ end
         end
         blmo = CubeBLMO(n, int_vars, bounds)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
@@ -135,8 +148,9 @@ end
 
         sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
-        x, _, result =
-            Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings_bnb=Boscia.settings_bnb(verbose=true))
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])

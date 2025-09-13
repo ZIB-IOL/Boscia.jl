@@ -71,7 +71,7 @@ const M = 2 * var(A)
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
         MOI.LessThan(k),
     )
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         xv = @view(x[1:p])
@@ -88,7 +88,7 @@ const M = 2 * var(A)
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:print_iter] = 10
     settings.tolerances[:fw_epsilon] = 1e-3
-    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     # @show result // too large to be output
     @test f(x) <= f(result[:raw_solution]) + 1e-6

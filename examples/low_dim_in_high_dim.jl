@@ -46,11 +46,11 @@ end
         MOI.add_constraint(o, xi, MOI.LessThan(1.0))
         MOI.add_constraint(o, xi, MOI.ZeroOne())
     end
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
-    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)
@@ -72,7 +72,7 @@ end
     # modified solve call from managed_blmo.jl automatically wraps sblmo into a managed_blmo
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
-    x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)

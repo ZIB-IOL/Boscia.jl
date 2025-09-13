@@ -23,7 +23,7 @@ for xi in x
     MOI.add_constraint(o, xi, MOI.ZeroOne())
 end
 
-lmo = FrankWolfe.MathOptLMO(o)
+blmo = Boscia.MathOptBLMO(o)
 
 function f(x)
     return sum(0.5 * (x .- diffw) .^ 2)
@@ -35,4 +35,4 @@ end
 
 settings = Boscia.create_default_settings()
 settings.branch_and_bound[:verbose] = true
-x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)

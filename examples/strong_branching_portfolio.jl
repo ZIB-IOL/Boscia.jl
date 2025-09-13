@@ -55,8 +55,8 @@ function prepare_portfolio_lmo()
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(1.0),
     )
-    lmo = FrankWolfe.MathOptLMO(o)
-    return lmo
+    blmo = Boscia.MathOptBLMO(o)
+    return blmo
 end
 
 function f(x)
@@ -69,10 +69,10 @@ function grad!(storage, x)
 end
 
 @testset "Portfolio strong branching" begin
-    lmo = prepare_portfolio_lmo()
+    blmo = prepare_portfolio_lmo()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result_baseline = Boscia.solve(f, grad!, blmo, settings=settings)
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 
@@ -80,11 +80,11 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    lmo = prepare_portfolio_lmo()
+    blmo_main = prepare_portfolio_lmo()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:branching_strategy] = branching_strategy
-    x, _, result_strong_branching = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result_strong_branching = Boscia.solve(f, grad!, blmo_main, settings=settings)
 
     @test dot(ai, x) <= bi + 1e-3
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6

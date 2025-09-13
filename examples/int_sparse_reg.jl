@@ -68,7 +68,7 @@ const y_d = D * sol_x
     MOI.add_constraint(o, sum(z, init=0.0), MOI.LessThan(1.0 * k))
     # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(zeros(n),x), sum(Float64.(iszero.(x)))), MOI.GreaterThan(1.0*(n-k)))
     # MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n),z), 0.0), MOI.GreaterThan(1.0*k))
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         xv = @view(x[1:n])
@@ -92,7 +92,7 @@ const y_d = D * sol_x
     settings.branch_and_bound[:verbose] = true
     settings.frank_wolfe[:max_fw_iter] = 10001
     settings.tolerances[:rel_dual_gap] = 1e-3
-    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     val_min, x_min = Boscia.sparse_min_via_enum(f, n, k, fill(0:l, n))
     #@show x_min

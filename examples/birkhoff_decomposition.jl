@@ -89,7 +89,7 @@ function build_birkhoff_lmo()
         MOI.add_constraint.(o, 1.0 * theta[i] .- Y[i] .+ X[i], MOI.LessThan(1.0))
     end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
-    return FrankWolfe.MathOptLMO(o)
+    return Boscia.MathOptBLMO(o)
 end
 
 lmo = build_birkhoff_lmo()
