@@ -152,7 +152,7 @@ end
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
-        x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         sol = diffi
         sol[int_vars] = round.(sol[int_vars])
