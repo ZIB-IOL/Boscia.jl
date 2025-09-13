@@ -412,9 +412,8 @@ const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true, :branching_strategy => branching_strategy))
-    ))
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
     x, _, result_strong_branching = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
@@ -460,9 +459,8 @@ end
     MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true, :branching_strategy => branching_strategy))
-    ))
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)

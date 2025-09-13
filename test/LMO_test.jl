@@ -166,11 +166,7 @@ diffi = x_sol + 0.3 * dir
 
     # testing for Probability simplex inface oracles
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        frank_wolfe = merge(settings.frank_wolfe, Dict(
-            :variant => Boscia.DecompositionInvariantConditionalGradient(),
-        ))
-    ))
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     x_dicg, _, result_dicg = Boscia.solve(
         f,
         grad!,

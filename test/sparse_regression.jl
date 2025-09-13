@@ -172,11 +172,9 @@ end
 
     lmo = build_sparse_lmo_grouped()
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true)),
-        tolerances = merge(settings.tolerances, Dict(:fw_epsilon => 1e-3)),
-        tightening = merge(settings.tightening, Dict(:strong_convexity => μ))
-    ))
+    settings.branch_and_bound[:verbose] = true
+    settings.tolerances[:fw_epsilon] = 1e-3
+    settings.tightening[:strong_convexity] = μ
     x2, _, result2 = Boscia.solve(f, grad!, lmo, settings=settings)
     @test sum(x2[p+1:2p]) <= k
     for i in 1:k_int

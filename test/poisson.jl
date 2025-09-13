@@ -273,9 +273,7 @@ push!(groups, ((k-1)*group_size+1):pg)
     end
 
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true))
-    ))
+    settings.branch_and_bound[:verbose] = true
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k
@@ -354,9 +352,8 @@ end
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => true, :branching_strategy => branching_strategy))
-    ))
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6

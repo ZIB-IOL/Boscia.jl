@@ -534,9 +534,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
-    settings = merge(settings, (
-        branch_and_bound = merge(settings.branch_and_bound, Dict(:verbose => false))
-    ))
+    settings.branch_and_bound[:verbose] = false
     x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
