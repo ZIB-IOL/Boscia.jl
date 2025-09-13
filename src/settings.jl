@@ -271,10 +271,58 @@ function settings_heuristic(; mode::Mode=Boscia.DEFAULT_MODE)
     )
 
     return Dict(
-        :heuristics => heuristics,
+        :custom_heuristics => custom_heuristics,
+        :rounding_prob => rounding_prob,
+        :follow_gradient_prob => follow_gradient_prob,
+        :follow_gradient_steps => follow_gradient_steps,
+        :rounding_lmo_01_prob => rounding_lmo_01_prob,
+        :probability_rounding_prob => probability_rounding_prob,
+        :hyperplane_aware_rounding_prob => hyperplane_aware_rounding_prob,
         :post_heuristics_callback => post_heuristics_callback,
         :add_all_solutions => add_all_solutions,
+        :heu_ncalls => 0,
     )
+end
+
+function build_heuristics(heuristics_dictionary)
+    custom_heuristics = heuristics_dictionary[:custom_heuristics]
+    rounding_prob = heuristics_dictionary[:rounding_prob]
+    follow_gradient_prob = heuristics_dictionary[:follow_gradient_prob]
+    follow_gradient_steps = heuristics_dictionary[:follow_gradient_steps]
+    rounding_lmo_01_prob = heuristics_dictionary[:rounding_lmo_01_prob]
+    probability_rounding_prob = heuristics_dictionary[:probability_rounding_prob]
+    hyperplane_aware_rounding_prob = heuristics_dictionary[:hyperplane_aware_rounding_prob]
+
+    round_heu = Heuristic(rounding_heuristic, rounding_prob, :rounding)
+    follow_grad_heu = Heuristic(
+        (tree, tlmo, x) -> follow_gradient_heuristic(tree, tlmo, x, follow_gradient_steps),
+        follow_gradient_prob,
+        :follow_gradient,
+    )
+    rounding_lmo_01_heu =
+        Heuristic(rounding_lmo_01_heuristic, rounding_lmo_01_prob, :rounding_lmo_01)
+    probability_rounding_heu =
+        Heuristic(probability_rounding, probability_rounding_prob, :probability_rounding)
+    hyperplane_aware_rounding_heu = Heuristic(
+        rounding_hyperplane_heuristic,
+        hyperplane_aware_rounding_prob,
+        :hyperplane_aware_rounding,
+    )
+
+    heuristics = vcat(
+        [
+            round_heu,
+            follow_grad_heu,
+            rounding_lmo_01_heu,
+            probability_rounding_heu,
+            hyperplane_aware_rounding_heu,
+        ],
+        custom_heuristics,
+    )
+
+    heuristics_dictionary[:heuristics] = heuristics
+
+    return heuristics
 end
 
 """

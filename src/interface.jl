@@ -32,6 +32,7 @@ function solve(
     settings=create_default_settings(),
     kwargs...,
 )
+    build_heuristics(settings.heuristic)
     options = merge(
         settings.mode,
         settings.branch_and_bound,
