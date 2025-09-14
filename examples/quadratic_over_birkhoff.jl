@@ -77,7 +77,7 @@ end
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
-        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n, settings=settings)
+        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
         @test f(x) <= f(result[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x)
     end
@@ -92,7 +92,7 @@ end
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
         settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n, settings=settings)
+        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
         @test f(x_dicg) <= f(result_dicg[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x_dicg)
     end
