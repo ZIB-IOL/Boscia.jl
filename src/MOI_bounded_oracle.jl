@@ -831,19 +831,7 @@ end
 The `solve`  function receiving a `FrankWolfe.MathOptLMO`. 
 Converts the lmo into an instance of `Boscia.MathOptBLMO` and calls the main `solve` function.
 """
-function solve(
-    f,
-    g,
-    lmo::FrankWolfe.MathOptLMO;
-    settings=create_default_settings(),
-    kwargs...,
-)
+function solve(f, g, lmo::FrankWolfe.MathOptLMO; settings=create_default_settings(), kwargs...)
     blmo = convert(MathOptBLMO, lmo)
-    return solve(
-        f,
-        g,
-        blmo;
-        settings=settings,
-        kwargs...,
-    )
+    return solve(f, g, blmo; settings=settings, kwargs...)
 end

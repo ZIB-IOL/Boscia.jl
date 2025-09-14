@@ -177,16 +177,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     settings = Boscia.create_default_settings()
     settings.heuristic[:probability_rounding_prob] = 0.6
     settings.heuristic[:rounding_prob] = 0.0
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        settings=settings,
-    )
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -216,16 +208,8 @@ diffi = x_sol + 0.3 * dir
     settings = Boscia.create_default_settings()
     settings.heuristic[:probability_rounding_prob] = 0.6
     settings.heuristic[:rounding_prob] = 0.0
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        fill(0.0, m),
-        fill(1.0, m),
-        int_vars,
-        n,
-        settings=settings,
-    )
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, settings=settings)
 
     @test f(x) ≥ f(x_sol)
     if isapprox(sum(x_sol), N)

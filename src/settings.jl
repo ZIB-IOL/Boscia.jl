@@ -54,27 +54,27 @@ function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     branch_callback = nothing
     start_solution = nothing
     use_shadow_set = true
-    node_limit = if mode == HEURISTIC_MODE 
-        1000 
+    node_limit = if mode == HEURISTIC_MODE
+        1000
     else
         Inf
     end
-    time_limit = if mode == HEURISTIC_MODE 
-        300 
+    time_limit = if mode == HEURISTIC_MODE
+        300
     else
         Inf
     end
-    no_pruning = if mode == HEURISTIC_MODE 
-        true 
+    no_pruning = if mode == HEURISTIC_MODE
+        true
     else
         false
     end
-    ignore_lower_bound = if mode == HEURISTIC_MODE 
-        true 
+    ignore_lower_bound = if mode == HEURISTIC_MODE
+        true
     else
         false
     end
-    
+
     return Dict(
         :traverse_strategy => traverse_strategy,
         :branching_strategy => branching_strategy,
@@ -236,8 +236,8 @@ function settings_heuristic(; mode::Mode=Boscia.DEFAULT_MODE)
     rounding_lmo_01_prob = 0.0
     probability_rounding_prob = 0.0
     hyperplane_aware_rounding_prob = 0.0
-    add_all_solutions = if mode == HEURISTIC_MODE 
-        true 
+    add_all_solutions = if mode == HEURISTIC_MODE
+        true
     else
         false
     end
@@ -389,7 +389,7 @@ function settings_domain(; mode::Mode=Boscia.DEFAULT_MODE)
     find_domain_point = _trivial_domain_point
     active_set = nothing
 
-    return Dict{Symbol, Union{Nothing, Function, FrankWolfe.ActiveSet}}(
+    return Dict{Symbol,Union{Nothing,Function,FrankWolfe.ActiveSet}}(
         :domain_oracle => domain_oracle,
         :find_domain_point => find_domain_point,
         :active_set => active_set,

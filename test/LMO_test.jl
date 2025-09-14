@@ -83,16 +83,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     # testing for cube inface oracles
     settings = Boscia.create_default_settings()
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-    x_dicg, _, result_dicg = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        settings=settings,
-    )
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
 
     @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)

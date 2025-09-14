@@ -303,11 +303,5 @@ function solve(
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
-    return solve(
-        f,
-        grad!,
-        blmo,
-        settings=settings,
-        kwargs...,
-    )
+    return solve(f, grad!, blmo, settings=settings, kwargs...)
 end
