@@ -37,7 +37,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:time_limit] = 60
     settings.heuristic[:custom_heuristics] = custom_heuristics
-    x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)
@@ -70,7 +70,7 @@ end
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:time_limit] = 60
     settings.heuristic[:custom_heuristics] = custom_heuristics
-    x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)

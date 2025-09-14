@@ -72,7 +72,7 @@ end
     # modified solve call from managed_blmo.jl automatically wraps sblmo into a managed_blmo
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
-    x, _, result = Boscia.solve(f, grad!, sblmo, settings=settings)
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)
