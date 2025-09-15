@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS
 
+println("\nQuadratic over Birkhoff Example")
+
 # min_{X} 1/2 * || X - Xhat ||_F^2
 # X ∈ P_n (permutation matrix)
 
@@ -66,13 +68,16 @@ end
     f, grad! = build_objective(n)
 
     x = zeros(n, n)
+    int_vars = collect(1:n^2)
     @testset "Birkhoff BLMO (BPCG)" begin
         sblmo = Boscia.BirkhoffBLMO(n, collect(1:n^2))
 
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
 
-        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, verbose=true)
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
         @test f(x) <= f(result[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x)
     end
@@ -84,7 +89,10 @@ end
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
 
-        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, collect(1:n^2), n^2, verbose=true, variant=Boscia.DICG())
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
         @test f(x_dicg) <= f(result_dicg[:raw_solution]) + 1e-6
         @test Boscia.is_simple_linear_feasible(sblmo, x_dicg)
     end
@@ -93,7 +101,9 @@ end
     @testset "MIP BLMO" begin
         lmo = build_birkhoff_mip(n)
 
-        x_mip, _, result_mip = Boscia.solve(f, grad!, lmo, verbose=true)
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        x_mip, _, result_mip = Boscia.solve(f, grad!, lmo, settings=settings)
         @test f(x_mip) <= f(result_mip[:raw_solution]) + 1e-6
         @test Boscia.is_linear_feasible(lmo, x_mip)
     end 

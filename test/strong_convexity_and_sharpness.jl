@@ -6,6 +6,8 @@ using FrankWolfe
 using StableRNGs
 using Suppressor
 
+println("\nStrong Convexity and Sharpness Tests")
+
 ## Log barrier
 # min_x - ∑ log(xi + ϵ) - log(N - ∑ xi + ϵ)
 # s.t.  x ∈ {0,1}^n
@@ -46,6 +48,11 @@ rng = StableRNG(seed)
         line_search = FrankWolfe.Adaptive()
 
         @suppress begin
+            settings = Boscia.create_default_settings()
+            settings.branch_and_bound[:verbose] = true
+            settings.branch_and_bound[:time_limit] = 60
+            settings.branch_and_bound[:print_iter] = 1000
+            settings.frank_wolfe[:line_search] = line_search
             x, _, result = Boscia.solve(
                 f,
                 grad!,
@@ -54,13 +61,16 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                time_limit=120,
-                print_iter=1000,
+                settings=settings,
             )
 
             μ = 1 / (1 + ϵ)^(2 * n)
+            settings = Boscia.create_default_settings()
+            settings.branch_and_bound[:verbose] = true
+            settings.branch_and_bound[:time_limit] = 60
+            settings.branch_and_bound[:print_iter] = 1000
+            settings.frank_wolfe[:line_search] = line_search
+            settings.tightening[:strong_convexity] = μ
             x_sc, _, result_sc = Boscia.solve(
                 f,
                 grad!,
@@ -69,12 +79,9 @@ rng = StableRNG(seed)
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                strong_convexity=μ,
-                time_limit=120,
-                print_iter=1000,
+                settings=settings,
             )
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] > result[:dual_bound]
@@ -104,6 +111,12 @@ rng = StableRNG(seed)
         blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
         μ = minimum(eigvals(Q))
 
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings.branch_and_bound[:time_limit] = 60
+        settings.branch_and_bound[:print_iter] = 1000
+        settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
+        settings.tightening[:strong_convexity] = μ
         x, _, _ = Boscia.solve(
             f,
             grad!,
@@ -112,9 +125,7 @@ rng = StableRNG(seed)
             fill(1.0, n),
             collect(1:n),
             n,
-            strong_convexity=μ,
-            verbose=true,
-            fw_epsilon=1e-3,
+            settings=settings,
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)
@@ -143,6 +154,11 @@ end
         line_search = FrankWolfe.Adaptive()
 
         @suppress begin
+            settings = Boscia.create_default_settings()
+            settings.branch_and_bound[:verbose] = true
+            settings.branch_and_bound[:time_limit] = 60
+            settings.branch_and_bound[:print_iter] = 1000
+            settings.frank_wolfe[:line_search] = line_search
             x, _, result = Boscia.solve(
                 f,
                 grad!,
@@ -151,15 +167,19 @@ end
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                time_limit=120,
-                print_iter=1000,
+                settings=settings,
             )
 
             μ = 1 / (1 + ϵ)^(2 * n)
             θ = 1 / 2
             M = sqrt(2 / μ)
+            settings = Boscia.create_default_settings()
+            settings.branch_and_bound[:verbose] = true
+            settings.branch_and_bound[:time_limit] = 120
+            settings.branch_and_bound[:print_iter] = 1000
+            settings.frank_wolfe[:line_search] = line_search
+            settings.tightening[:sharpness_constant] = M
+            settings.tightening[:sharpness_exponent] = θ
             x_sc, _, result_sc = Boscia.solve(
                 f,
                 grad!,
@@ -168,13 +188,9 @@ end
                 fill(floor(N / 2), n),
                 int_vars,
                 n,
-                verbose=true,
-                line_search=line_search,
-                sharpness_constant=M,
-                sharpness_exponent=θ,
-                time_limit=120,
-                print_iter=1000,
+                settings=settings,
             )
+
 
             @test f(x_sc) <= f(x) + 1e-6
             @test result_sc[:dual_bound] >= result[:dual_bound]
@@ -205,6 +221,13 @@ end
         θ = 1 / 2
         M = sqrt(2 / μ)
 
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = true
+        settings.branch_and_bound[:time_limit] = 60
+        settings.branch_and_bound[:print_iter] = 1000
+        settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
+        settings.tightening[:sharpness_constant] = M
+        settings.tightening[:sharpness_exponent] = θ
         x, _, _ = Boscia.solve(
             f,
             grad!,
@@ -213,9 +236,7 @@ end
             fill(1.0, n),
             collect(1:n),
             n,
-            sharpness_constant=M,
-            sharpness_exponent=θ,
-            verbose=true,
+            settings=settings,
         )
 
         @test isapprox(f(x), f(sol), atol=1e-5, rtol=1e-2)

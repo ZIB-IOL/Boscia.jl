@@ -10,6 +10,8 @@ import HiGHS
 using SCIP
 using StableRNGs
 
+println("\nStrong Branching Portfolio Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -53,8 +55,8 @@ function prepare_portfolio_lmo()
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(1.0),
     )
-    lmo = FrankWolfe.MathOptLMO(o)
-    return lmo
+    blmo = Boscia.MathOptBLMO(o)
+    return blmo
 end
 
 function f(x)
@@ -67,8 +69,10 @@ function grad!(storage, x)
 end
 
 @testset "Portfolio strong branching" begin
-    lmo = prepare_portfolio_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+    blmo = prepare_portfolio_lmo()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result_baseline = Boscia.solve(f, grad!, blmo, settings=settings)
     @test dot(ai, x) <= bi + 1e-6
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
 
@@ -76,9 +80,11 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
 
-    lmo = prepare_portfolio_lmo()
-    x, _, result_strong_branching =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+    blmo_main = prepare_portfolio_lmo()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x, _, result_strong_branching = Boscia.solve(f, grad!, blmo_main, settings=settings)
 
     @test dot(ai, x) <= bi + 1e-3
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6

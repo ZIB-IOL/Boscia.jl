@@ -9,6 +9,8 @@ const MOI = MathOptInterface
 import HiGHS
 using StableRNGs
 
+println("\nBirkhoff Decomposition Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -87,12 +89,18 @@ function build_birkhoff_lmo()
         MOI.add_constraint.(o, 1.0 * theta[i] .- Y[i] .+ X[i], MOI.LessThan(1.0))
     end
     MOI.add_constraint(o, sum(theta, init=0.0), MOI.EqualTo(1.0))
-    return FrankWolfe.MathOptLMO(o)
+    return Boscia.MathOptBLMO(o)
 end
 
 lmo = build_birkhoff_lmo()
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true)
-x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.DICG())
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+settings.frank_wolfe[:lazy] = false
+settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
 
 
 # TODO the below needs to be fixed
@@ -107,14 +115,18 @@ x, _, _ = Boscia.solve(f, grad!, lmo, verbose=true, lazy=false, variant=Boscia.D
 
 @testset "Birkhoff decomposition" begin
     lmo = build_birkhoff_lmo()
-    x, _, result_baseline = Boscia.solve(f, grad!, lmo, verbose=true)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
     lmo = build_birkhoff_lmo()
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
-    x_strong, _, result_strong =
-        Boscia.solve(f, grad!, lmo, verbose=true, branching_strategy=branching_strategy)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, settings=settings)
     @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
     @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
 end

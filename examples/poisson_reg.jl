@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nPoisson Sparse Regression Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -83,7 +85,7 @@ Ns = 0.10
     MOI.add_constraint(o, sum(z, init=0.0), MOI.GreaterThan(1.0))
     MOI.add_constraint(o, b, MOI.LessThan(Ns))
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ns))
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     α = 1.3
     function f(θ)
@@ -112,7 +114,9 @@ Ns = 0.10
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
     #@show x
     @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6

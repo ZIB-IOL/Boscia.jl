@@ -10,6 +10,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nLow-dimensional function in high-dimensional space Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -44,9 +46,11 @@ end
         MOI.add_constraint(o, xi, MOI.LessThan(1.0))
         MOI.add_constraint(o, xi, MOI.ZeroOne())
     end
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)
@@ -66,8 +70,9 @@ end
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
     # modified solve call from managed_blmo.jl automatically wraps sblmo into a managed_blmo
-    x, _, result =
-        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, verbose=true)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if n < 15  # only do for small n 
         valopt, xopt = Boscia.min_via_enum(f, n)

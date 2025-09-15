@@ -1,5 +1,7 @@
 """
-Supertype for the Bounded Linear Minimization Oracles (BLMO).
+    BLMO
+
+Supertype for the Bounded Linear Minimization Oracles
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end
 
@@ -104,7 +106,6 @@ function has_integer_constraint end
 
 
 
-
 #################### Optional to implement ####################
 
 # These are safety check, utilities and log functions.
@@ -189,7 +190,13 @@ end
 
 Find best solution from the solving process.
 """
-function find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
+function find_best_solution(
+    tree::Bonobo.BnBTree,
+    f::Function,
+    blmo::BoundedLinearMinimizationOracle,
+    vars,
+    domain_oracle,
+)
     return (nothing, Inf)
 end
 

@@ -3,6 +3,8 @@ using Test
 using DoubleFloats
 using StableRNGs
 
+println("\nBig Float Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -31,18 +33,11 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        verbose=true,
-        time_limit=120,
-        custom_heuristics=custom_heuristics,
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)
@@ -71,18 +66,11 @@ end
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        verbose=true,
-        time_limit=125,
-        custom_heuristics=custom_heuristics,
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)

@@ -43,6 +43,17 @@ function Bonobo.optimize!(
         Bonobo.set_node_bound!(tree.sense, node, lb, ub)
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
+        if !tree.root.options[:no_pruning] && node.lb >= tree.incumbent
+            Bonobo.close_node!(tree, node)
+            callback(
+                tree,
+                node;
+                worse_than_incumbent=true,
+                lb_update=isapprox(node.lb, tree.incumbent),
+            )
+            continue
+        end
+
         if node.lb >= tree.incumbent
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
             if isa(tree.options.branch_strategy, Boscia.Hierarchy) ||
@@ -63,15 +74,6 @@ function Bonobo.optimize!(
                     tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
                 end
             end
-
-            Bonobo.close_node!(tree, node)
-            callback(
-                tree,
-                node;
-                worse_than_incumbent=true,
-                lb_update=isapprox(node.lb, tree.incumbent),
-            )
-            continue
         end
 
         tree.node_queue[node.id] = (node.lb, node.id)
@@ -122,7 +124,10 @@ function Bonobo.update_best_solution!(
     node::Bonobo.AbstractNode,
 )
     isinf(node.ub) && return false
-    node.ub >= tree.incumbent && return false
+
+    if !tree.root.options[:add_all_solutions]
+        node.ub >= tree.incumbent && return false
+    end
 
     Bonobo.add_new_solution!(tree, node)
     return true
@@ -142,7 +147,13 @@ function add_new_solution!(
     solution::V,
     origin::Symbol,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V},T<:Real}
-    sol = FrankWolfeSolution(objective, solution, node, origin)
+    time = Inf
+    if tree.root.options[:post_heuristics_callback] !== nothing
+        add_solution, time, objective, solution =
+            tree.root.options[:post_heuristics_callback](tree, node, solution)
+    end
+
+    sol = FrankWolfeSolution(objective, solution, node, origin, time)
     sol.solution = solution
     sol.objective = objective
 

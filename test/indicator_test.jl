@@ -11,6 +11,8 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
+println("\nIndicator Tests")
+
 @testset "Indicators" begin
     n = 5
     o = SCIP.Optimizer()

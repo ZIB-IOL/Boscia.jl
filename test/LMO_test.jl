@@ -12,6 +12,8 @@ const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
 
+println("\nLMO Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -79,16 +81,10 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
     # testing for cube inface oracles
-    x_dicg, _, result_dicg = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        variant=Boscia.DICG(),
-    )
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
 
     @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -113,7 +109,9 @@ end
 
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -131,7 +129,9 @@ end
         end
         branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
 
-        x, _, result = Boscia.solve(f, grad!, blmo, branching_strategy=branching_strategy)
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -157,6 +157,8 @@ diffi = x_sol + 0.3 * dir
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n)
 
     # testing for Probability simplex inface oracles
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     x_dicg, _, result_dicg = Boscia.solve(
         f,
         grad!,
@@ -165,7 +167,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        variant=Boscia.DICG(),
+        settings=settings,
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -191,20 +193,27 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
 
-    # testing for Unit simplex inface oracles
-    x_dicg, _, result_dicg = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        fill(0.0, n),
-        fill(1.0 * N, n),
-        collect(1:n),
-        n,
-        variant=Boscia.DICG(),
-    )
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+n = 20
+x_sol = rand(1:floor(Int, n / 4), n)
+diffi = x_sol + 0.3 * rand([-1, 1], n)
+
+@testset "Reverse Knapsack LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    N = sum(x_sol) - floor(n / 2)
+    sblmo = Boscia.ReverseKnapsackBLMO(n, N=N, upper=N)
+
+    x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(N, n), collect(1:n), n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-    @test sum(isapprox.(x_dicg, round.(diffi), atol=1e-6, rtol=1e-2)) == n
-    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end

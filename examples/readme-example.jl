@@ -6,6 +6,8 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 
+println("\nReadme Example")
+
 n = 6
 
 const diffw = 0.5 * ones(n)
@@ -21,7 +23,7 @@ for xi in x
     MOI.add_constraint(o, xi, MOI.ZeroOne())
 end
 
-lmo = FrankWolfe.MathOptLMO(o)
+blmo = Boscia.MathOptBLMO(o)
 
 function f(x)
     return sum(0.5 * (x .- diffw) .^ 2)
@@ -31,4 +33,6 @@ function grad!(storage, x)
     @. storage = x - diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, verbose=true)
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)

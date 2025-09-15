@@ -7,6 +7,8 @@ using Statistics
 using Test
 using StableRNGs
 
+println("\nOptimal Experiment Design Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -66,53 +68,58 @@ verbose = true
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10
+    settings.branch_and_bound[:verbose] = false
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x, _, _ = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        time_limit=10,
-        verbose=false,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x, _, result = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
-
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x_s, _, result_s = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     @test result_s[:dual_bound] <= g(x) + 1e-3
@@ -135,53 +142,58 @@ end
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10
+    settings.branch_and_bound[:verbose] = false
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x, _, _ = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        time_limit=10,
-        verbose=false,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x, _, result = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
-
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
     x_s, _, result_s = Boscia.solve(
         g,
         grad!,
         blmo,
-        active_set=active_set,
-        start_solution=z,
-        verbose=verbose,
-        domain_oracle=domain_oracle,
-        find_domain_point=domain_point,
-        custom_heuristics=[heu],
-        line_search=line_search,
+        settings=settings,
     )
 
     @test result_s[:dual_bound] <= g(x)

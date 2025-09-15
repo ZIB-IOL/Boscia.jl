@@ -12,6 +12,8 @@ using Dates
 using Printf
 using StableRNGs
 
+println("\nLasso Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -108,14 +110,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
             MOI.GreaterThan(1.0),
         )
     end
-    lmo = FrankWolfe.MathOptLMO(o)
-    global_bounds = Boscia.IntegerBounds()
-    for i in 1:p
-        push!(global_bounds, (i + p, 0.0), :greaterthan)
-        push!(global_bounds, (i + p, 1.0), :lessthan)
-        push!(global_bounds, (i, -M_g), :greaterthan)
-        push!(global_bounds, (i, M_g), :lessthan)
-    end
+    blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         return sum((y_g - A_g * x[1:p]) .^ 2) +
@@ -130,7 +125,11 @@ push!(groups, ((k_int-1)*group_size+1):p)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, verbose=true, rel_dual_gap=1e-5)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.tolerances[:rel_dual_gap] = 1e-2
+    settings.tolerances[:dual_gap] = 1e-5
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     # println("Solution: $(x[1:p])")
     z = x[p+1:2p]

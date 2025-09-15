@@ -12,6 +12,8 @@ const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
 
+println("\nHeuristics Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -31,8 +33,9 @@ diffi = x_sol + 0.3 * dir
     end
 
     sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
-    heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.8, :hyperplane_rounding)
 
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:hyperplane_aware_rounding_prob] = 0.8
     x, _, result = Boscia.solve(
         f,
         grad!,
@@ -41,7 +44,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings=settings,
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -62,8 +65,9 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
 
     N = sum(x_sol) + floor(n / 2)
     sblmo = Boscia.UnitSimplexSimpleBLMO(N)
-    heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.8, :hyperplane_rounding)
 
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:hyperplane_aware_rounding_prob] = 0.8
     x, _, result = Boscia.solve(
         f,
         grad!,
@@ -72,7 +76,7 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings=settings,
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -90,12 +94,10 @@ end
     N = sum(x_sol) + floor(n / 2)
     sblmo = Boscia.UnitSimplexSimpleBLMO(N)
     depth = 5
-    heu = Boscia.Heuristic(
-        (tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree, blmo, x, depth),
-        1.0,
-        :follow_gradient,
-    )
 
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:follow_gradient_prob] = 1.0
+    settings.heuristic[:follow_gradient_steps] = depth
     x_heu, _, result_heu = Boscia.solve(
         f,
         grad!,
@@ -104,7 +106,7 @@ end
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        custom_heuristics=[heu],
+        settings=settings,
     )
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n)
@@ -134,6 +136,8 @@ end
         Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n)
 
     sblmo = Boscia.UnitSimplexSimpleBLMO(N)
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:rounding_prob] = 0.5
     x, _, result = Boscia.solve(
         f,
         grad!,
@@ -142,7 +146,7 @@ end
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        rounding_prob=0.5,
+        settings=settings,
     )
 
     @test sum(isapprox.(x_always, x_sol, atol=1e-6, rtol=1e-2)) == n
@@ -169,19 +173,12 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x_sol[int_vars] = round.(x_sol[int_vars])
 
     sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
-    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        custom_heuristics=[heu],
-        rounding_prob=0.0,
-    )
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:probability_rounding_prob] = 0.6
+    settings.heuristic[:rounding_prob] = 0.0
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -207,20 +204,12 @@ diffi = x_sol + 0.3 * dir
     x_sol[cont_vars] = diffi[cont_vars]
 
     sblmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
-    heu = Boscia.Heuristic(Boscia.probability_rounding, 0.6, :probability_rounding)
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        fill(0.0, m),
-        fill(1.0, m),
-        int_vars,
-        n,
-        custom_heuristics=[heu],
-        rounding_prob=0.0,
-        verbose=false,
-    )
+    settings = Boscia.create_default_settings()
+    settings.heuristic[:probability_rounding_prob] = 0.6
+    settings.heuristic[:rounding_prob] = 0.0
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, m), fill(1.0, m), int_vars, n, settings=settings)
 
     @test f(x) ≥ f(x_sol)
     if isapprox(sum(x_sol), N)

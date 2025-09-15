@@ -9,9 +9,13 @@ using Printf
 using Dates
 using StableRNGs
 
+println("\nNonlinear Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
+
+n = 30
 
 # using SCIP
 # const MOI = MathOptInterface
@@ -118,14 +122,16 @@ heu2 = Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.8, :lmo_rounding)
 heuristics = [heu, heu2]
 # heuristics = []
 
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:print_iter] = 500
+settings.branch_and_bound[:time_limit] = 300
+settings.heuristic[:custom_heuristics] = heuristics
 x, _, _ = Boscia.solve(
     f,
     grad!,
     lmo,
-    verbose=true,
-    print_iter=500,
-    custom_heuristics=heuristics,
-    time_limit=300,
+    settings=settings,
 )
 
 @show x
