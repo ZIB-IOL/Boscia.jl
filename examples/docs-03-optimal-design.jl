@@ -1,4 +1,4 @@
-# ä Optimal Design of Experiments
+# Optimal Design of Experiments
 #
 # This example shows the A-Optimal and D-Optimal Design of Experiments problems.
 # To quantify information, we use the Fisher information matrix: 
@@ -39,15 +39,13 @@ D = MvNormal(randn(rng, n), B)
 A = rand(D, m)'
 @assert rank(A) == n
 
-μ = 0.0 #1e-4
-
 # Next, we define the two criteria and their gradients.
 # The A-criterion is::
 # ```math
 # f_a(x) = \text{Tr}|left(X(x)^{-1}/right)
 # ```
 function f_a(x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
     U = cholesky(X)
     X_inv = U \ I
@@ -55,7 +53,7 @@ function f_a(x)
 end
 
 function grad_a!(storage, x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X * X)
     F = cholesky(X)
     for i in 1:length(x)
@@ -68,13 +66,13 @@ end
 # f_d(x) = -\log(\det(X(x)))
 # ```
 function f_d(x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
     return float(-log(det(X)))
 end
 
 function grad_d!(storage, x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
     F = cholesky(X)
     for i in 1:length(x)
