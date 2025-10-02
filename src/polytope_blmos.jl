@@ -208,7 +208,7 @@ function bounded_compute_inface_extreme_point(
         end
     end
 
-    if sum(a) == sblmo.N
+    if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
         return a
     end
 
@@ -224,7 +224,7 @@ function bounded_compute_inface_extreme_point(
         else
             a[i] += sblmo.N - sum(a)
         end
-        if sum(a) == sblmo.N
+        if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -364,9 +364,10 @@ function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
 end
 
 function is_simple_inface_feasible(sblmo::UnitSimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
-    if isapprox(sum(x), N; atol=atol, rtol=rtol) && !isapprox(sum(a), N; atol=atol, rtol=rtol)
-        return false
-    end
+    if isapprox(sum(x), sblmo.N; atol=atol, rtol=rtol) &&
+        !isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
+         return false
+     end
     return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
@@ -392,7 +393,7 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
             idx = findfirst(x -> x == i, int_vars)
             v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
         else
-            v[i] += N - sum(v)
+            v[i] += sblmo.N - sum(v)
         end
     end
     return v
@@ -441,7 +442,7 @@ function bounded_compute_inface_extreme_point(
         end
     end
 
-    if sum(a) == sblmo.N
+    if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
         return a
     end
 
@@ -459,7 +460,7 @@ function bounded_compute_inface_extreme_point(
         else
             a[i] += sblmo.N - sum(a)
         end
-        if sum(a) == sblmo.N
+        if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
     end
