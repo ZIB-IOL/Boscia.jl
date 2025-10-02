@@ -142,6 +142,33 @@ end
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
+# function bounded_compute_extreme_point(
+#     sblmo::ProbabilitySimplexSimpleBLMO,
+#     d,
+#     lb,
+#     ub,
+#     int_vars;
+#     kwargs...,
+# )
+#     v = zeros(length(d))
+#     indices = collect(1:length(d))
+#     perm = sortperm(d)
+
+#     # The lower bounds always have to be met. 
+#     v[int_vars] = lb
+
+#     for i in indices[perm]
+#         if i in int_vars
+#             idx = findfirst(x -> x == i, int_vars)
+#             v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
+#         else
+#             v[i] += sblmo.N - sum(v)
+#         end
+#     end
+#     return v
+# end
+
+
 function bounded_compute_extreme_point(
     sblmo::ProbabilitySimplexSimpleBLMO,
     d,
@@ -154,19 +181,40 @@ function bounded_compute_extreme_point(
     indices = collect(1:length(d))
     perm = sortperm(d)
 
-    # The lower bounds always have to be met. 
+    # Step 1: satisfy integer lower bounds
     v[int_vars] = lb
 
+    # Step 2: distribute remaining N
     for i in indices[perm]
+        rem = sblmo.N - sum(v)
+        if rem ≤ 1e-10
+            break
+        end
+
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
+            idx = findfirst(==(i), int_vars)
+            add_int = min(ub[idx] - v[i], floor(rem))  # make sure int
+            v[i] += add_int
         else
-            v[i] += sblmo.N - sum(v)
+            # continous variable can be the rem
+            v[i] += rem
         end
     end
+
+    # make sure sum is N
+    rem = sblmo.N - sum(v)
+    if abs(rem) > 1e-8
+        cont_vars = setdiff(indices, int_vars)
+        if !isempty(cont_vars)
+            v[cont_vars[1]] += rem
+        else
+            @warn "No continuous variable to absorb fractional remainder $(rem)"
+        end
+    end
+
     return v
 end
+
 
 """
 Fix the corresponding entries to the boudary based on the given x.
@@ -263,7 +311,11 @@ function bounded_dicg_maximum_step(
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
-    if sum(v .≥ 0) < length(v)
+    # if sum(v .≥ 0) < length(v)
+    #     @debug "v has negative entries: $(v)"
+    #     return false
+    # end
+    if any(v .< -1e-8)
         @debug "v has negative entries: $(v)"
         return false
     end
@@ -398,6 +450,8 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
     end
     return v
 end
+
+
 
 """
 For boundary entries of x, assign the corresponding boudary.

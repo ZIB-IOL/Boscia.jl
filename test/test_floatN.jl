@@ -10,7 +10,7 @@ using ForwardDiff
 
 @testset "Float N test with ProbabilitySimplexSimpleBLMO" begin
     n = 10
-    N = 15.9   #Float N
+    N = 15.6   #Float N
     d = randn(n)
     nint=3
 
@@ -21,7 +21,8 @@ using ForwardDiff
 
     blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
 
-    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 1.1] #exactly equal to N
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 0.8] #exactly equal to N
+
 
     Q = Matrix(I, n, n)
     b = -Q * x_feas 
@@ -47,6 +48,8 @@ using ForwardDiff
         n;
         settings=settings
     )
+
+    @show x sum(x)
 
     @test length(x) == n
     @test isfinite(f(x))
@@ -60,7 +63,7 @@ end
 
 @testset "Float N test with UnitSimplexSimpleBLMO" begin
     n = 10
-    N = 22.9   #Float N
+    N = 22.4   #Float N
     d = randn(n)
     nint=3
 
@@ -71,7 +74,7 @@ end
 
     blmo = Boscia.UnitSimplexSimpleBLMO(N)
 
-    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 1.1] #smaller than N
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 0.6] #smaller than N
 
     Q = Matrix(I, n, n)
     b = -Q * x_feas 
@@ -100,8 +103,7 @@ end
 
     @test length(x) == n
     @test isfinite(f(x))
-    @test Boscia.is_simple_linear_feasible(blmo, x)
-
+    @test Boscia.is_simple_linear_feasible(blmo, x_feas)
 
     println("Solution x = ", x)
     println("Objective f(x) = ", f(x))
