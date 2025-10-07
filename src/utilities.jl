@@ -294,7 +294,8 @@ function build_active_set_by_domain_oracle(
             end
             inner_callback = build_inner_callback(tree)
 
-            x, _, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            x, _, _, _, _, _, active_set = solve_frank_wolfe(
+                tree.root.options[:variant],
                 inner_f,
                 inner_grad!,
                 tree.root.problem.tlmo,
