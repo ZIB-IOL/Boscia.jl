@@ -229,11 +229,13 @@ function bounded_compute_inface_extreme_point(
     sorted = non_fixed_idx[perm]
 
     for i in sorted
+        rem = sblmo.N - sum(a)
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            idx = findfirst(==(i), int_vars)
+            add_int = min(ub[idx] - a[i], floor(rem))
+            a[i] += add_int
         else
-            a[i] += sblmo.N - sum(a)
+            a[i] += rem
         end
         if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
