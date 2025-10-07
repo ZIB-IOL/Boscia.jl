@@ -10,18 +10,18 @@ using ForwardDiff
 
 @testset "Float N test with ProbabilitySimplexSimpleBLMO" begin
     n = 10
-    N = 15.6   #Float N
+    N = 24.5   #Float N
     d = randn(n)
-    nint=3
+    nint=9
 
     lb = zeros(nint)        
-    ub = ones(nint) * 10.0   
+    ub = ones(nint) * 20.0   
 
     int_vars = collect(1:nint)
 
     blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
 
-    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 0.8] #exactly equal to N
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 9.7] #exactly equal to N
 
 
     Q = Matrix(I, n, n)
@@ -49,7 +49,6 @@ using ForwardDiff
         settings=settings
     )
 
-    @show x sum(x)
 
     @test length(x) == n
     @test isfinite(f(x))

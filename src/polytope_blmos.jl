@@ -142,31 +142,6 @@ end
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
-# function bounded_compute_extreme_point(
-#     sblmo::ProbabilitySimplexSimpleBLMO,
-#     d,
-#     lb,
-#     ub,
-#     int_vars;
-#     kwargs...,
-# )
-#     v = zeros(length(d))
-#     indices = collect(1:length(d))
-#     perm = sortperm(d)
-
-#     # The lower bounds always have to be met. 
-#     v[int_vars] = lb
-
-#     for i in indices[perm]
-#         if i in int_vars
-#             idx = findfirst(x -> x == i, int_vars)
-#             v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
-#         else
-#             v[i] += sblmo.N - sum(v)
-#         end
-#     end
-#     return v
-# end
 
 
 function bounded_compute_extreme_point(
@@ -192,23 +167,11 @@ function bounded_compute_extreme_point(
         end
 
         if i in int_vars
-            idx = findfirst(==(i), int_vars)
-            add_int = min(ub[idx] - v[i], floor(rem))  # make sure int
+            idx = findfirst(x -> x == i, int_vars)
+            add_int = min(ub[idx] - v[i], floor(rem))  # make sure it is int
             v[i] += add_int
         else
-            # continous variable can be the rem
             v[i] += rem
-        end
-    end
-
-    # make sure sum is N
-    rem = sblmo.N - sum(v)
-    if abs(rem) > 1e-8
-        cont_vars = setdiff(indices, int_vars)
-        if !isempty(cont_vars)
-            v[cont_vars[1]] += rem
-        else
-            @warn "No continuous variable to absorb fractional remainder $(rem)"
         end
     end
 
@@ -324,10 +287,12 @@ end
 
 function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
-    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N
+    if !(sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N)
+        return INFEASIBLE
+    elseif length(int_vars) == n && !isinteger(sblmo.N)
+        return INFEASIBLE
+    else 
         return OPTIMAL
-    else
-        INFEASIBLE
     end
 end
 
