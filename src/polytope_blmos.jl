@@ -198,12 +198,13 @@ function bounded_compute_inface_extreme_point(
     a = zeros(length(d))
     a[int_vars] = lb
     fixed_vars = []
-
+    
     for i in indices
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
+            idx = findfirst(==(i), int_vars)
             if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
+                a[i] = lb[idx]
             elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
@@ -211,10 +212,7 @@ function bounded_compute_inface_extreme_point(
         else
             if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            end
-            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-                a[i] = sblmo.N
+                a[i] = 0.0
             end
         end
     end
@@ -227,16 +225,18 @@ function bounded_compute_inface_extreme_point(
     d_updated = d[non_fixed_idx]
     perm = sortperm(d_updated)
     sorted = non_fixed_idx[perm]
+    rem = sblmo.N - sum(a)
+
 
     for i in sorted
-        rem = sblmo.N - sum(a)
         if i in int_vars
-            idx = findfirst(==(i), int_vars)
+            idx = findfirst(x -> x == i, int_vars)
             add_int = min(ub[idx] - a[i], floor(rem))
             a[i] += add_int
         else
             a[i] += rem
         end
+        rem = sblmo.N - sum(a)
         if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
@@ -263,12 +263,22 @@ function bounded_dicg_maximum_step(
     for idx in eachindex(x)
         di = direction[idx]
         if di > tol
-            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
+            else 
+                gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
+            end
         elseif di < -tol
-            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
+            else
+                gamma_max = min(gamma_max, (sblmo.N - x[idx]) / -di)
+            end
         end
 
-        if gamma_max == 0.0
+        if isapprox(gamma_max, 0.0; atol=tol)
             return 0.0
         end
     end
@@ -445,9 +455,10 @@ function bounded_compute_inface_extreme_point(
 
     for i in indices
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
+            idx = findfirst(==(i), int_vars)
             if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
+                a[i] = lb[idx]
             elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
@@ -455,10 +466,7 @@ function bounded_compute_inface_extreme_point(
         else
             if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            end
-            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-                a[i] = sblmo.N
+                a[i] = 0.0
             end
         end
     end
@@ -473,14 +481,18 @@ function bounded_compute_inface_extreme_point(
     perm = sortperm(d_updated[idx_neg])
     sorted_neg = idx_neg[perm]
     sorted = non_fixed_idx[sorted_neg]
+    rem = sblmo.N - sum(a)
+
 
     for i in sorted
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            add_int = min(ub[idx] - a[i], floor(rem))
+            a[i] += add_int
         else
-            a[i] += sblmo.N - sum(a)
+            a[i] += rem
         end
+        rem = sblmo.N - sum(a)
         if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
@@ -508,12 +520,22 @@ function bounded_dicg_maximum_step(
     for idx in eachindex(x)
         di = direction[idx]
         if di > tol
-            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
+            else 
+                gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
+            end
         elseif di < -tol
-            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
+            else
+                gamma_max = min(gamma_max, (sblmo.N - x[idx]) / -di)
+            end
         end
 
-        if gamma_max == 0.0
+        if isapprox(gamma_max, 0.0; atol=tol)
             return 0.0
         end
     end

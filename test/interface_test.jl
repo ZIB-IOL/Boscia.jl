@@ -769,7 +769,7 @@ end
     n = 10
     N = 24.5   #Float N
     d = randn(n)
-    nint=9
+    nint=4
 
     lb = zeros(nint)        
     ub = ones(nint) * 20.0   
@@ -794,6 +794,7 @@ end
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
 
     x, tlmo, result = Boscia.solve(
         f,
@@ -845,6 +846,7 @@ end
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
 
     x, tlmo, result = Boscia.solve(
         f,
