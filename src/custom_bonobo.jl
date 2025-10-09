@@ -30,6 +30,7 @@ function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode};
     callback=(args...; kwargs...) -> (),
 )
+
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         lb, ub = Bonobo.evaluate_node!(tree, node)
@@ -92,9 +93,15 @@ function Bonobo.optimize!(
             end
         end
 
+        tree.root.options[:as_size_before_branch] = length(node.active_set)
+        tree.root.options[:shadow_size_before_branch] = length(node.discarded_vertices.storage)
+
         Bonobo.close_node!(tree, node)
+
         Bonobo.branch!(tree, node)
+
         callback(tree, node)
+        
     end
     # To make sure that we collect the statistics in case the time limit is reached.
     if !haskey(tree.root.result, :global_tightenings)
