@@ -119,6 +119,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+
+    tree.root.options[:as_size_before_branch] = length(node.active_set)
+    tree.root.options[:shadow_size_before_branch] = length(node.discarded_vertices.storage)
+
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
