@@ -93,9 +93,6 @@ function Bonobo.optimize!(
             end
         end
 
-        tree.root.options[:as_size_before_branch] = length(node.active_set)
-        tree.root.options[:shadow_size_before_branch] = length(node.discarded_vertices.storage)
-
         Bonobo.close_node!(tree, node)
 
         Bonobo.branch!(tree, node)
