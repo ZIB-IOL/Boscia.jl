@@ -27,7 +27,7 @@ end
 Check feasibility and boundedness
 """
 function check_feasibility(tlmo::TimeTrackingLMO)
-    return check_feasibility(tlmo.blmo)
+    return check_feasibility(tlmo.lmo)
 end
 
 
@@ -35,7 +35,7 @@ end
 Check if at a given index we have an integer constraint respectivily.
 """
 function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
+    return has_integer_constraint(tree.root.problem.tlmo.lmo, idx)
 end
 
 
@@ -43,7 +43,7 @@ end
 Check wether a split is valid. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
-    return is_valid_split(tree, tree.root.problem.tlmo.blmo, vidx)
+    return is_valid_split(tree, tree.root.problem.tlmo.lmo, vidx)
 end
 
 

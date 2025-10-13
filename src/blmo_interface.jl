@@ -181,7 +181,7 @@ end
 """
     get_tol(lmo::LinearMinimizationOracle)
 
-Get solving tolerance for the BLMO.
+Get solving tolerance for the LMO.
 """
 function get_tol(lmo::LinearMinimizationOracle)
     return 1e-6
@@ -216,11 +216,11 @@ end
 
 ## Logs
 """
-    get_BLMO_solve_data(lmo::LinearMinimizationOracle)
+    get_LMO_solve_data(lmo::LinearMinimizationOracle)
 
 Get solve time, number of nodes and number of iterations, if applicable.
 """
-function get_BLMO_solve_data(lmo::LinearMinimizationOracle)
+function get_LMO_solve_data(lmo::LinearMinimizationOracle)
     return 0.0, 0.0, 0.0
 end
 
@@ -262,7 +262,7 @@ end
 
 """
     dicg_maximum_step(lmo::LinearMinimizationOracle, d, x)
-    
+
 Implement `FrankWolfe.dicg_maximum_step`
 
 Given a direction d and feasible point x solves the problem

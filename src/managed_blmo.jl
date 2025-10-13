@@ -1,7 +1,7 @@
 """
     SimpleBoundableLinearMinimizationOracle
 
-A "simple" BLMO that computes the extreme point given a linear objective and the node specific bounds on the integer variables.
+A "simple" LMO that computes the extreme point given a linear objective and the node specific bounds on the integer variables.
 Can be stateless since all of the bound management is done by the `ManagedBoundedLMO`.   
 """
 abstract type SimpleBoundableLMO <: FrankWolfe.LinearMinimizationOracle end
@@ -60,69 +60,69 @@ end
 #ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars) = ManagedBoundedLMO(simple_lmo, lb, ub, n, int_vars, 0.0)
 
 # Overload FrankWolfe.compute_extreme_point
-function compute_extreme_point(blmo::ManagedBoundedLMO, d; kwargs...)
+function compute_extreme_point(lmo::ManagedBoundedLMO, d; kwargs...)
     time_ref = Dates.now()
     v = bounded_compute_extreme_point(
-        blmo.simple_lmo,
+        lmo.simple_lmo,
         d,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
+        lmo.lower_bounds,
+        lmo.upper_bounds,
+        lmo.int_vars,
     )
-    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    lmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return v
 end
 
-function is_decomposition_invariant_oracle(blmo::ManagedBoundedLMO)
-    return is_decomposition_invariant_oracle_simple(blmo.simple_lmo)
+function is_decomposition_invariant_oracle(lmo::ManagedBoundedLMO)
+    return is_decomposition_invariant_oracle_simple(lmo.simple_lmo)
 end
 
 # Provide FrankWolfe.compute_inface_extreme_point
-function compute_inface_extreme_point(blmo::ManagedBoundedLMO, direction, x; kwargs...)
+function compute_inface_extreme_point(lmo::ManagedBoundedLMO, direction, x; kwargs...)
     time_ref = Dates.now()
     a = bounded_compute_inface_extreme_point(
-        blmo.simple_lmo,
+        lmo.simple_lmo,
         direction,
         x,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
+        lmo.lower_bounds,
+        lmo.upper_bounds,
+        lmo.int_vars,
     )
 
-    blmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    lmo.solving_time = float(Dates.value(Dates.now() - time_ref))
     return a
 end
 
 # Check if the given point a is on the minimal face of x
-function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
+function is_inface_feasible(lmo::ManagedBoundedLMO, a, x)
     return is_simple_inface_feasible(
-        blmo.simple_lmo,
+        lmo.simple_lmo,
         a,
         x,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
+        lmo.lower_bounds,
+        lmo.upper_bounds,
+        lmo.int_vars,
     )
 end
 
 #Provide FrankWolfe.dicg_maximum_step
-function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+function dicg_maximum_step(lmo::ManagedBoundedLMO, x, direction; kwargs...)
     return bounded_dicg_maximum_step(
-        blmo.simple_lmo,
+        lmo.simple_lmo,
         x,
         direction,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
+        lmo.lower_bounds,
+        lmo.upper_bounds,
+        lmo.int_vars,
     )
 end
 
 # Read global bounds from the problem.
-function build_global_bounds(blmo::ManagedBoundedLMO, integer_variables)
+function build_global_bounds(lmo::ManagedBoundedLMO, integer_variables)
     global_bounds = IntegerBounds()
-    for (idx, int_var) in enumerate(blmo.int_vars)
-        push!(global_bounds, (int_var, blmo.lower_bounds[idx]), :greaterthan)
-        push!(global_bounds, (int_var, blmo.upper_bounds[idx]), :lessthan)
+    for (idx, int_var) in enumerate(lmo.int_vars)
+        push!(global_bounds, (int_var, lmo.lower_bounds[idx]), :greaterthan)
+        push!(global_bounds, (int_var, lmo.upper_bounds[idx]), :lessthan)
     end
     return global_bounds
 end
@@ -131,36 +131,36 @@ end
 
 # Get list of variables indices. 
 # If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
-function get_list_of_variables(blmo::ManagedBoundedLMO)
-    return blmo.n, collect(1:blmo.n)
+function get_list_of_variables(lmo::ManagedBoundedLMO)
+    return lmo.n, collect(1:lmo.n)
 end
 
 # Get list of integer variables
-function get_integer_variables(blmo::ManagedBoundedLMO)
-    return blmo.int_vars
+function get_integer_variables(lmo::ManagedBoundedLMO)
+    return lmo.int_vars
 end
 
 # Get the index of the integer variable the bound is working on.
-function get_int_var(blmo::ManagedBoundedLMO, cidx)
-    return blmo.int_vars[cidx]
+function get_int_var(lmo::ManagedBoundedLMO, cidx)
+    return lmo.int_vars[cidx]
 end
 
 # Get the list of lower bounds.
-function get_lower_bound_list(blmo::ManagedBoundedLMO)
-    return collect(1:length(blmo.lower_bounds))
+function get_lower_bound_list(lmo::ManagedBoundedLMO)
+    return collect(1:length(lmo.lower_bounds))
 end
 
 # Get the list of upper bounds.
-function get_upper_bound_list(blmo::ManagedBoundedLMO)
-    return collect(1:length(blmo.upper_bounds))
+function get_upper_bound_list(lmo::ManagedBoundedLMO)
+    return collect(1:length(lmo.upper_bounds))
 end
 
 # Read bound value for c_idx.
-function get_bound(blmo::ManagedBoundedLMO, c_idx, sense::Symbol)
+function get_bound(lmo::ManagedBoundedLMO, c_idx, sense::Symbol)
     if sense == :lessthan
-        return blmo.upper_bounds[c_idx]
+        return lmo.upper_bounds[c_idx]
     elseif sense == :greaterthan
-        return blmo.lower_bounds[c_idx]
+        return lmo.lower_bounds[c_idx]
     else
         error("Allowed value for sense are :lessthan and :greaterthan!")
     end
@@ -169,34 +169,34 @@ end
 ## Changing the bounds constraints.
 
 # Change the value of the bound c_idx.
-function set_bound!(blmo::ManagedBoundedLMO, c_idx, value, sense::Symbol)
+function set_bound!(lmo::ManagedBoundedLMO, c_idx, value, sense::Symbol)
     if sense == :greaterthan
-        blmo.lower_bounds[c_idx] = value
+        lmo.lower_bounds[c_idx] = value
     elseif sense == :lessthan
-        blmo.upper_bounds[c_idx] = value
+        lmo.upper_bounds[c_idx] = value
     else
         error("Allowed values for sense are :lessthan and :greaterthan.")
     end
 end
 
 # Delete bounds.
-function delete_bounds!(blmo::ManagedBoundedLMO, cons_delete)
+function delete_bounds!(lmo::ManagedBoundedLMO, cons_delete)
     for (d_idx, sense) in cons_delete
         if sense == :greaterthan
-            blmo.lower_bounds[d_idx] = -Inf
+            lmo.lower_bounds[d_idx] = -Inf
         else
-            blmo.upper_bounds[d_idx] = Inf
+            lmo.upper_bounds[d_idx] = Inf
         end
     end
 end
 
 # Add bound constraint.
-function add_bound_constraint!(blmo::ManagedBoundedLMO, key, value, sense::Symbol)
-    idx = findfirst(x -> x == key, blmo.int_vars)
+function add_bound_constraint!(lmo::ManagedBoundedLMO, key, value, sense::Symbol)
+    idx = findfirst(x -> x == key, lmo.int_vars)
     if sense == :greaterthan
-        blmo.lower_bounds[idx] = value
+        lmo.lower_bounds[idx] = value
     elseif sense == :lessthan
-        blmo.upper_bounds[idx] = value
+        lmo.upper_bounds[idx] = value
     else
         error("Allowed value of sense are :lessthan and :greaterthan!")
     end
@@ -205,34 +205,34 @@ end
 ## Checks
 
 # Check if the subject of the bound c_idx is an integer variable (recorded in int_vars).
-function is_constraint_on_int_var(blmo::ManagedBoundedLMO, c_idx, int_vars)
-    return blmo.int_vars[c_idx] in int_vars
+function is_constraint_on_int_var(lmo::ManagedBoundedLMO, c_idx, int_vars)
+    return lmo.int_vars[c_idx] in int_vars
 end
 
 # To check if there is bound for the variable in the global or node bounds.
-function is_bound_in(blmo::ManagedBoundedLMO, c_idx, bounds)
-    return haskey(bounds, blmo.int_vars[c_idx])
+function is_bound_in(lmo::ManagedBoundedLMO, c_idx, bounds)
+    return haskey(bounds, lmo.int_vars[c_idx])
 end
 
 # Is a given point v linear feasible for the model?
 # That means does v satisfy all bounds and other linear constraints?
-function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
-    for (i, int_var) in enumerate(blmo.int_vars)
+function is_linear_feasible(lmo::ManagedBoundedLMO, v::AbstractVector)
+    for (i, int_var) in enumerate(lmo.int_vars)
         if !(
-            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
+            lmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ lmo.upper_bounds[i])
         )
             @debug(
-                "Variable: $(int_var) Vertex entry: $(v[int_var]) Lower bound: $(blmo.lower_bounds[i]) Upper bound: $(blmo.upper_bounds[i]))"
+                "Variable: $(int_var) Vertex entry: $(v[int_var]) Lower bound: $(lmo.lower_bounds[i]) Upper bound: $(lmo.upper_bounds[i]))"
             )
             return false
         end
     end
-    return is_simple_linear_feasible(blmo.simple_lmo, v)
+    return is_simple_linear_feasible(lmo.simple_lmo, v)
 end
 
 # Has variable an integer constraint?
-function has_integer_constraint(blmo::ManagedBoundedLMO, idx)
-    return idx in blmo.int_vars
+function has_integer_constraint(lmo::ManagedBoundedLMO, idx)
+    return idx in lmo.int_vars
 end
 
 
@@ -242,34 +242,34 @@ end
 
 # Check if the bounds were set correctly in build_LMO.
 # Safety check only.
-function build_LMO_correct(blmo::ManagedBoundedLMO, node_bounds)
+function build_LMO_correct(lmo::ManagedBoundedLMO, node_bounds)
     for key in keys(node_bounds.lower_bounds)
-        idx = findfirst(x -> x == key, blmo.int_vars)
-        if idx === nothing || blmo.lower_bounds[idx] != node_bounds[key, :greaterthan]
+        idx = findfirst(x -> x == key, lmo.int_vars)
+        if idx === nothing || lmo.lower_bounds[idx] != node_bounds[key, :greaterthan]
             return false
         end
     end
     for key in keys(node_bounds.upper_bounds)
-        idx = findfirst(x -> x == key, blmo.int_vars)
-        if idx === nothing || blmo.upper_bounds[idx] != node_bounds[key, :lessthan]
+        idx = findfirst(x -> x == key, lmo.int_vars)
+        if idx === nothing || lmo.upper_bounds[idx] != node_bounds[key, :lessthan]
             return false
         end
     end
     return true
 end
 
-function check_feasibility(blmo::ManagedBoundedLMO)
-    for (lb, ub) in zip(blmo.lower_bounds, blmo.upper_bounds)
+function check_feasibility(lmo::ManagedBoundedLMO)
+    for (lb, ub) in zip(lmo.lower_bounds, lmo.upper_bounds)
         if ub < lb
             return INFEASIBLE
         end
     end
     return check_feasibility(
-        blmo.simple_lmo,
-        blmo.lower_bounds,
-        blmo.upper_bounds,
-        blmo.int_vars,
-        blmo.n,
+        lmo.simple_lmo,
+        lmo.lower_bounds,
+        lmo.upper_bounds,
+        lmo.int_vars,
+        lmo.n,
     )
 end
 
@@ -278,15 +278,15 @@ function check_feasibility(simple_lmo::SimpleBoundableLMO, lb, ub, int_vars, n)
 end
 
 # Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
-function is_valid_split(tree::Bonobo.BnBTree, blmo::ManagedBoundedLMO, vidx::Int)
-    idx = findfirst(x -> x == vidx, blmo.int_vars)
-    return blmo.lower_bounds[idx] != blmo.upper_bounds[idx]
+function is_valid_split(tree::Bonobo.BnBTree, lmo::ManagedBoundedLMO, vidx::Int)
+    idx = findfirst(x -> x == vidx, lmo.int_vars)
+    return lmo.lower_bounds[idx] != lmo.upper_bounds[idx]
 end
 
 ## Logs
 # Get solve time, number of nodes and number of iterations, if applicable.
-function get_BLMO_solve_data(blmo::ManagedBoundedLMO)
-    return blmo.solving_time, 0.0, 0.0
+function get_lmo_solve_data(lmo::ManagedBoundedLMO)
+    return lmo.solving_time, 0.0, 0.0
 end
 
 # Solve function that just get a SimpleBoundableLMO and builds the corresponding
@@ -294,7 +294,7 @@ end
 function solve(
     f,
     grad!,
-    sblmo::SimpleBoundableLMO,
+    slmo::SimpleBoundableLMO,
     lower_bounds::Vector{Float64},
     upper_bounds::Vector{Float64},
     int_vars::Vector{Int},
@@ -302,6 +302,6 @@ function solve(
     settings=create_default_settings(),
     kwargs...,
 )
-    blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
-    return solve(f, grad!, blmo, settings=settings, kwargs...)
+    lmo = ManagedBoundedLMO(slmo, lower_bounds, upper_bounds, int_vars, n)
+    return solve(f, grad!, lmo, settings=settings, kwargs...)
 end

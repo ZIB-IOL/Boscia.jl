@@ -43,7 +43,7 @@ end
 Choose which heuristics to run by rolling a dice.
 """
 function run_heuristics(tree, x, heuristic_list; rng=Random.GLOBAL_RNG)
-    inner_lmo = tree.root.problem.tlmo.blmo
+    inner_lmo = tree.root.problem.tlmo.lmo
     heuristic_lmo = TimeTrackingLMO(
         inner_lmo,
         tree.root.problem.integer_variables,
@@ -100,7 +100,7 @@ end
 """
 Simple rounding heuristic.
 """
-function rounding_heuristic(tree::Bonobo.BnBTree, blmo::Boscia.TimeTrackingLMO, x)
+function rounding_heuristic(tree::Bonobo.BnBTree, lmo::Boscia.TimeTrackingLMO, x)
     x_rounded = copy(x)
     for idx in tree.branching_indices
         x_rounded[idx] = round(x[idx])

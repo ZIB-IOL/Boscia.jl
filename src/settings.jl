@@ -43,7 +43,7 @@ Available settings:
 - `no_pruning` if `true`, no pruning of nodes is performed. Per default, nodes are pruned if they have a lower bound which is worse than the best known solution. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `ignore_lower_bound` if `true`, the lower bound obtain by Frank-Wolfe is ignored and in the logs, only Inf will be printed. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
-- `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the BLMO is expensive. In case of a cheap BLMO, performance might improve by disabling this option. Per default, this is `true`.
+- `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO, performance might improve by disabling this option. Per default, this is `true`.
 """
 function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     traverse_strategy = Bonobo.BestFirstSearch()
@@ -109,7 +109,7 @@ Available settings:
 - `variant` the Frank-Wolfe variant to be used to solve the node problem. Options currently available are `AwayFrankWolfe`, `BlendedConditionalGradient`, `BlendedPairwiseConditionalGradient`, `DecompositionInvariantConditionalGradient` and `StandardFrankWolfe`. Per default, this is set to `BlendedPairwiseConditionalGradient`.
 - `line_search` specifies the line search method used in the FrankWolfe variant. Default is the `FrankWolfe.Secant` line search. For other available types, check the FrankWolfe.jl package.
 - `max_fw_iter` maximum number of iterations in a Frank-Wolfe run. Per default, this is set to `10000`.
-- `fw_timeout` time limit for the Frank-Wolfe runs. Per default, there is no time limit. It is preferred to set the iteration limit but this can be used as a fallback and/or if the BLMO call is time consuming.
+- `fw_timeout` time limit for the Frank-Wolfe runs. Per default, there is no time limit. It is preferred to set the iteration limit but this can be used as a fallback and/or if the LMO call is time consuming.
 - `min_fw_iterations` the minimum number of Frank-Wolfe iterations performed in the node evaluation. Per default, this is set to `5`.
 - `fw_verbose` if `true`, the Frank-Wolfe logs are printed at each node. Mostly meant for debugging. Per default, this is `false`.
 - `lazy` flag specifies whether the lazification of the Frank-Wolfe variant should be used. Per default `true`. Note that it has no effect on standard Frank-Wolfe.
@@ -225,7 +225,7 @@ Available settings:
 - `rounding_lmo_01_prob` the probability for calling the rounding-LMO-01 heuristic. Per default, this is `0.0`.
 - `probability_rounding_prob` the probability for calling the probability-rounding heuristic. Per default, this is `0.0`.
 - `hyperplane_aware_rounding_prob` the probability for calling the hyperplane-aware-rounding heuristic. Per default, this is `0.0`.
-- `add_all_solutions` if `true`, all solutions found by the heuristics, Frank-Wolfe or the BLMO are added to the tree. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
+- `add_all_solutions` if `true`, all solutions found by the heuristics, Frank-Wolfe or the LMO are added to the tree. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 """
 function settings_heuristic(; mode::Mode=Boscia.DEFAULT_MODE)
     custom_heuristics = [Heuristic()]

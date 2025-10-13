@@ -7,12 +7,12 @@ Requires
 
 - `f` oracle of the objective function.
 - `g` oracle of the gradient of the objective
-- `blmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `LinearMinimizationOracle` (see `blmo_interface.jl`).
+- `lmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `LinearMinimizationOracle` (see `blmo_interface.jl`).
 
 Returns
 
 - `x` the best solution found.
-- `tlmo` the BLMO wrapped in a TimeTrackingLMO instance.
+- `tlmo` the LMO wrapped in a TimeTrackingLMO instance.
 - `result` a dictionary containg the statistics like number of nodes, total solving etc. It also contains information for plotting progress plots like the lower and upper bound progress.
 
 Optional settings
