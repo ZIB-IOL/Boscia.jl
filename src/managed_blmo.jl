@@ -23,7 +23,7 @@ function is_simple_linear_feasible end
 
 
 """
-    ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
+    ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: LinearMinimizationOracle
 
 A Bounded Linear Minimization Oracle that manages the bounds.
 
@@ -34,7 +34,7 @@ A Bounded Linear Minimization Oracle that manages the bounds.
 - `int_vars` list of indices of the integer variables.
 - `solving_time` the time to evaluate `compute_extreme_point`.
 """
-mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
+mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: LinearMinimizationOracle
     simple_lmo::SBLMO
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}

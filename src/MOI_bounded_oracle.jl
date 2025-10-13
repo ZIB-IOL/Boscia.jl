@@ -1,7 +1,7 @@
 """
-    MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
+    MathOptBLMO{OT<:MOI.AbstractOptimizer} <: LinearMinimizationOracle
 
-BoundedLinearMinimizationOracle for solvers supporting MathOptInterface.
+LinearMinimizationOracle for solvers supporting MathOptInterface.
 """
 
 # Store extra information of solving inface extrem points.
@@ -14,7 +14,7 @@ mutable struct Inface_point_solve_data
     end
 end
 
-struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: BoundedLinearMinimizationOracle
+struct MathOptBLMO{OT<:MOI.AbstractOptimizer} <: LinearMinimizationOracle
     o::OT
     use_modify::Bool
     inface_point_solve_data::Inface_point_solve_data
@@ -682,14 +682,14 @@ function Bonobo.get_branching_variable(
         end
         return !(item isa MOI.ConstraintIndex{<:Any,<:Union{MOI.ZeroOne,MOI.Integer,MOI.Indicator}})
     end
-    index_map = MOI.copy_to(branching.bounded_lmo.o, filtered_src)
+    index_map = MOI.copy_to(branching.lmo.o, filtered_src)
     # sanity check, otherwise the functions need permuted indices
     for (v1, v2) in index_map
         if v1 isa MOI.VariableIndex
             @assert v1 == v2
         end
     end
-    relaxed_lmo = MathOptBLMO(branching.bounded_lmo.o)
+    relaxed_lmo = MathOptBLMO(branching.lmo.o)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)

@@ -1,12 +1,12 @@
 """
-    TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle} <: FrankWolfe.LinearMinimizationOracle
+    TimeTrackingLMO{LMO<:LinearMinimizationOracle} <: FrankWolfe.LinearMinimizationOracle
 
 A wrapper for the BLMO tracking the solving time, number of calls etc.
 Is created in Boscia itself.
 """
-mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle,D<:Dates.DateTime} <:
+mutable struct TimeTrackingLMO{LMO<:LinearMinimizationOracle,D<:Dates.DateTime} <:
                FrankWolfe.LinearMinimizationOracle
-    blmo::BLMO
+    lmo::LMO
     optimizing_times::Vector{Float64}
     optimizing_nodes::Vector{Int}
     simplex_iterations::Vector{Int}
@@ -18,70 +18,70 @@ mutable struct TimeTrackingLMO{BLMO<:BoundedLinearMinimizationOracle,D<:Dates.Da
 end
 
 """
-    TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle)
+    TimeTrackingLMO(lmo::LinearMinimizationOracle)
 
 Constructor with just the blmo.
 """
-TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, time_ref, time_limit) = TimeTrackingLMO(
-    blmo,
+TimeTrackingLMO(lmo::LinearMinimizationOracle, time_ref, time_limit) = TimeTrackingLMO(
+    lmo,
     Float64[],
     Int[],
     Int[],
     0,
     Int[],
     time_ref,
-    isa(blmo, MathOptBLMO),
+    isa(lmo, MathOptBLMO),
     time_limit,
 )
 
 """
-    TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars)
+    TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars)
 
 Constructor with just the blmo.
 """
-TimeTrackingLMO(blmo::BoundedLinearMinimizationOracle, int_vars, time_ref, time_limit) =
+TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) =
     TimeTrackingLMO(
-        blmo,
+        lmo,
         Float64[],
         Int[],
         Int[],
         0,
         int_vars,
         time_ref,
-        isa(blmo, MathOptBLMO),
+        isa(lmo, MathOptBLMO),
         time_limit,
     )
 
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) =
-    is_decomposition_invariant_oracle(tlmo.blmo)
+    is_decomposition_invariant_oracle(tlmo.lmo)
 
 function is_inface_feasible(tlmo::TimeTrackingLMO, a, x)
-    return is_inface_feasible(tlmo.blmo, a, x)
+    return is_inface_feasible(tlmo.lmo, a, x)
 end
 
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
-    free_model(tlmo.blmo)
-    a = compute_inface_extreme_point(tlmo.blmo, direction, x)
+    free_model(tlmo.lmo)
+    a = compute_inface_extreme_point(tlmo.lmo, direction, x)
 
     if !is_linear_feasible(tlmo, a)
         @debug "Vertex not linear feasible $(a)"
         @assert is_linear_feasible(tlmo, a)
     end
 
-    opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.blmo)
+    opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.lmo)
 
     push!(tlmo.optimizing_times, opt_times)
     push!(tlmo.optimizing_nodes, numberofnodes)
     push!(tlmo.simplex_iterations, simplex_iterations)
 
-    free_model(tlmo.blmo)
+    free_model(tlmo.lmo)
 
     return a
 end
 
 function dicg_maximum_step(tlmo::TimeTrackingLMO, direction, x)
-    gamma_max = dicg_maximum_step(tlmo.blmo, direction, x)
+    gamma_max = dicg_maximum_step(tlmo.lmo, direction, x)
     return gamma_max
 end
 
@@ -103,13 +103,13 @@ Compute the extreme point and collect statistics.
 """
 function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     tlmo.ncalls += 1
-    free_model(tlmo.blmo)
+    free_model(tlmo.lmo)
     if tlmo.type_moi && isfinite(tlmo.time_limit)
         time_limit = tlmo.time_limit - float(Dates.value(Dates.now() - tlmo.time_ref)) / 1000
         time_limit = time_limit <= 0 ? 1 : time_limit
-        MOI.set(tlmo.blmo.o, MOI.TimeLimitSec(), time_limit)
+        MOI.set(tlmo.lmo.o, MOI.TimeLimitSec(), time_limit)
     end
-    v = FrankWolfe.compute_extreme_point(tlmo.blmo, d; kwargs)
+    v = FrankWolfe.compute_extreme_point(tlmo.lmo, d; kwargs)
 
     if !is_linear_feasible(tlmo, v)
         @debug "Vertex not linear feasible $(v)"
@@ -117,12 +117,12 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     end
     v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
-    opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.blmo)
+    opt_times, numberofnodes, simplex_iterations = get_BLMO_solve_data(tlmo.lmo)
 
     push!(tlmo.optimizing_times, opt_times)
     push!(tlmo.optimizing_nodes, numberofnodes)
     push!(tlmo.simplex_iterations, simplex_iterations)
 
-    free_model(tlmo.blmo)
+    free_model(tlmo.lmo)
     return v
 end
