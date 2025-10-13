@@ -503,11 +503,11 @@ function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
 end
 
 """
-    get_BLMO_solve_data(blmo::MathOptBLMO)
+    get_LMO_solve_data(blmo::MathOptBLMO)
 
 Get solve time, number of nodes and number of simplex iterations.
 """
-function get_BLMO_solve_data(blmo::MathOptBLMO)
+function get_LMO_solve_data(blmo::MathOptBLMO)
     if !isempty(blmo.inface_point_solve_data.MOI_attribute)
         opt_times = blmo.inface_point_solve_data.MOI_attribute[MOI.SolveTimeSec()]
         numberofnodes = blmo.inface_point_solve_data.MOI_attribute[MOI.NodeCount()]
