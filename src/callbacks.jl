@@ -301,8 +301,8 @@ function build_bnb_callback(
             push!(list_lb_cb, tree_lb(tree))
             # active_set_size = length(node.active_set)
             # discarded_set_size = length(node.discarded_vertices.storage)
-            active_set_size = get(tree.root.options, :as_size_before_branch, length(node.active_set))
-            discarded_set_size = get(tree.root.options, :shadow_size_before_branch, length(node.discarded_vertices.storage))
+            active_set_size = node.std.active_set_size
+            discarded_set_size = node.std.discarded_set_size
             push!(list_active_set_size_cb, active_set_size)
             push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left = length(tree.nodes)
