@@ -10,7 +10,6 @@ import FrankWolfe
 using Test
 using StableRNGs
 using Suppressor
-using ForwardDiff
 
 println("\nInterface Tests")
 
@@ -789,7 +788,7 @@ end
     end
 
     function grad!(storage, x)
-        storage .= ForwardDiff.gradient(f, x)
+        storage .= Q * x + b
     end
 
     settings = Boscia.create_default_settings()
@@ -841,7 +840,7 @@ end
     end
 
     function grad!(storage, x)
-        storage .= ForwardDiff.gradient(f, x)
+        storage .= Q * x + b
     end
 
     settings = Boscia.create_default_settings()
