@@ -110,6 +110,8 @@ FrankWolfeNode(
     -1,
     false,
     0.0,
+    0,
+    0,
 )
 
 
@@ -151,6 +153,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
                 branched_on=vidx,
                 branched_right=true,
                 distance_to_int=0.0,
+                active_set_size=0,
+                discarded_set_size=0,
             )
             return Vector{typeof(dummy_node_info)}()
         end
@@ -265,6 +269,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=false,
         distance_to_int=left_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -282,6 +288,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=true,
         distance_to_int=right_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
 
     domain_right = !isempty(active_set_right)
