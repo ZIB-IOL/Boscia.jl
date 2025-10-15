@@ -680,8 +680,8 @@ print_solution(x_moi, net_data, removed_edges, edge_list, "MOI-based LMO")
 
 println("\n" * "="^70)
 println("Solving with Custom LMO (shortest path oracle)")
-penalty_weight = 1e2
-penalty_exponent = 1.6
+penalty_weight = 1e3
+penalty_exponent = 1.5
 println("Penalty weight: $penalty_weight, Penalty exponent: $penalty_exponent")
 println("="^70)
 
