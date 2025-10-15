@@ -68,22 +68,56 @@ end
 #########################################
 
 function load_braess_network()
-    # Braess network: 4 nodes, 5 edges
-    # Edges: (1,3), (1,4), (3,2), (3,4), (4,2)
-    init_nodes = [1, 1, 3, 3, 4]
-    term_nodes = [3, 4, 2, 4, 2]
+    # Transportation network matching the purchasable edge diagram
+    # 2 sources (S1, S2) → 5 intermediate nodes → 1 destination (D)
+    # Total: 8 nodes
+    #
+    # IMPORTANT: Node numbering is constrained by the code structure
+    # The code requires zones 1..num_zones to BE nodes 1..num_zones
+    # So: Node 1=S1 (zone 1), Node 2=S2 (zone 2), Node 3=D (zone 3)
+    # Nodes 4-8 are the 5 intermediate nodes from the diagram
+    #
+    # Mapping from diagram to code:
+    # Diagram -> Code numbering
+    # S1 -> 1, S2 -> 2, D -> 3
+    # intermediate nodes 1,2,3,4,5 -> 4,5,6,7,8
+    #
+    # Network topology from your description:
+    # S1(1) → node_1(4)
+    # S2(2) → node_3(6)  
+    # node_1(4) → node_2(5), node_3(6)
+    # node_2(5) → node_1(4), D(3)
+    # node_3(6) → node_1(4), node_4(7)
+    # node_4(7) → node_3(6), node_5(8)
+    # node_5(8) → node_4(7), D(3)
+    # Optional edge: node_3(6) → D(3) [the purchasable dashed edge]
     
-    # Travel times: free_flow_time * (1 + b * (flow/capacity)^power)
-    free_flow_time = [0.00000001, 50.0, 50.0, 10.0, 0.00000001]
-    capacity = [1.0, 1.0, 1.0, 1.0, 1.0]
-    b = [1e9, 0.02, 0.02, 0.1, 1e9]
-    power = [1.0, 1.0, 1.0, 1.0, 1.0]
+    # List all edges
+    init_nodes = [1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 6]
+    term_nodes = [4, 6, 5, 6, 4, 3, 4, 7, 6, 8, 7, 3, 3]
     
-    # Travel demand: 6 units from node 1 to node 2
-    travel_demand = [0.0 6.0; 0.0 0.0]
+    # Edge list:
+    # 1: S1→1, 2: S2→3, 3: 1→2, 4: 1→3, 5: 2→1, 6: 2→D,
+    # 7: 3→1, 8: 3→4, 9: 4→3, 10: 4→5, 11: 5→4, 12: 5→D, 13: 3→D (optional)
     
-    return NetworkData(4, 5, init_nodes, term_nodes, free_flow_time, 
-                      capacity, b, power, travel_demand, 2)
+    # Travel times using BPR function
+    # Edge 12 (5→D) gets congested when both source flows merge there
+    # Edge 13 (3→D) is optional - when purchased, allows flow separation
+    free_flow_time = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0]
+    capacity = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0, 10.0]
+    b = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 5.0, 0.1]
+    power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    
+    # Travel demand with 3 zones
+    # Zone 1 (S1, node 1) → Zone 3 (D, node 3): 1 unit
+    # Zone 2 (S2, node 2) → Zone 3 (D, node 3): 1 unit
+    # Zone 3 (D) doesn't send flow
+    travel_demand = [0.0 0.0 1.0; 
+                     0.0 0.0 1.0;
+                     0.0 0.0 0.0]
+    
+    return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time, 
+                      capacity, b, power, travel_demand, 3)
 end
 
 #########################################
@@ -709,14 +743,17 @@ function main()
     
     # Load network
     net_data = load_braess_network()
-    println("\nNetwork: Braess Paradox Example")
-    println("  Nodes: $(net_data.num_nodes)")
+    println("\nNetwork: Two-Source Network with Purchasable Edge")
+    println("  Nodes: $(net_data.num_nodes) (2 sources, 5 intermediate, 1 destination)")
     println("  Edges: $(net_data.num_edges)")
-    println("  OD Demand: Node 1 → Node 2 = $(net_data.travel_demand[1,2]) units")
+    println("  Sources: S1 (node 1), S2 (node 2)")
+    println("  Destination: D (node 3)")
+    println("  Intermediate nodes: 4, 5, 6, 7, 8")
+    println("  Demand: 1 unit from each source (2 units total)")
     
     # Define removed edges (edges that need design decision)
-    removed_edges = [(3, 4)]  # Middle edge in Braess network
-    cost_per_edge = [50.0]  # Cost to restore each edge
+    removed_edges = [(6, 3)]  # Optional edge from node_3 (intermediate node 6) to D (node 3)
+    cost_per_edge = [0.5]  # Cost to purchase the edge
     
     println("\nRemoved edges (need restoration decision): $removed_edges")
     println("Cost to restore: $cost_per_edge")
