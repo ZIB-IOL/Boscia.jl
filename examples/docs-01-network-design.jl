@@ -81,28 +81,29 @@ function load_braess_network()
     # Network topology from your description:
     # S1(1) → node_1(4)
     # S2(2) → node_3(6)  
-    # node_1(4) → node_2(5), node_3(6)
+    # node_1(4) → node_3(6)
     # node_2(5) → node_1(4), D(3)
     # node_3(6) → node_1(4), node_4(7)
     # node_4(7) → node_3(6), node_5(8)
     # node_5(8) → node_4(7), D(3)
-    # Optional edge: node_3(6) → D(3) [the purchasable dashed edge]
+    # Optional edge: node_1(4) → node_2(5) [the purchasable dashed edge]
     
     # List all edges
-    init_nodes = [1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 6]
-    term_nodes = [4, 6, 5, 6, 4, 3, 4, 7, 6, 8, 7, 3, 3]
+    init_nodes = [1, 2, 4, 5, 5, 6, 6, 7, 7, 8, 8, 4]
+    term_nodes = [4, 6, 6, 4, 3, 4, 7, 6, 8, 7, 3, 5]
     
     # Edge list:
-    # 1: S1→1, 2: S2→3, 3: 1→2, 4: 1→3, 5: 2→1, 6: 2→D,
-    # 7: 3→1, 8: 3→4, 9: 4→3, 10: 4→5, 11: 5→4, 12: 5→D, 13: 3→D (optional)
+    # 1: S1→1, 2: S2→3, 3: 1→3, 4: 2→1, 5: 2→D,
+    # 6: 3→1, 7: 3→4, 8: 4→3, 9: 4→5, 10: 5→4, 11: 5→D, 12: 1→2 (optional)
     
     # Travel times using BPR function
-    # Edge 12 (5→D) gets congested when both source flows merge there
-    # Edge 13 (3→D) is optional - when purchased, allows flow separation
-    free_flow_time = [1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0]
-    capacity = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.0, 10.0]
-    b = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 5.0, 0.1]
-    power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    # Edge 5 (5→D) gets congested when both flows merge there without the shortcut
+    # Edge 12 (4→5, optional) provides an alternative that splits the load
+    # When edge 12 is not purchased, flows naturally separate to paths 5→D and 8→D
+    free_flow_time = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    capacity = [10.0, 10.0, 10.0, 10.0, 1.5, 10.0, 10.0, 10.0, 10.0, 10.0, 1.5, 10.0]
+    b = [0.1, 0.1, 0.1, 0.1, 3.0, 0.1, 0.1, 0.1, 0.1, 0.1, 3.0, 0.1]
+    power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
     
     # Travel demand with 3 zones
     # Zone 1 (S1, node 1) → Zone 3 (D, node 3): 1 unit
@@ -590,6 +591,19 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
     
+    # Helper function to format node names
+    function node_label(node)
+        if node == 1
+            return "S1"
+        elseif node == 2
+            return "S2"
+        elseif node == 3
+            return "D"
+        else
+            return string(node)
+        end
+    end
+    
     # Extract design variables
     design_start = num_zones * num_edges + num_edges + 1
     design_vars = x[design_start:end]
@@ -597,7 +611,9 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     println("\nEdges to restore:")
     for (i, edge) in enumerate(removed_edges)
         status = design_vars[i] > 0.5 ? "RESTORE" : "KEEP CLOSED"
-        println("  Edge $edge: y = $(round(design_vars[i], digits=3)) → $status")
+        from_label = node_label(edge[1])
+        to_label = node_label(edge[2])
+        println("  Edge ($from_label → $to_label): y = $(round(design_vars[i], digits=3)) → $status")
     end
     
     # Extract aggregate flows
@@ -606,7 +622,9 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     for i in 1:num_edges
         flow = x[agg_start + i - 1]
         if flow > 1e-6
-            println("  Edge $(edge_list[i]): flow = $(round(flow, digits=3))")
+            from_label = node_label(edge_list[i][1])
+            to_label = node_label(edge_list[i][2])
+            println("  Edge ($from_label → $to_label): flow = $(round(flow, digits=3))")
         end
     end
 end
@@ -624,7 +642,7 @@ println("  Intermediate nodes: 4, 5, 6, 7, 8")
 println("  Demand: 1 unit from each source (2 units total)")
 
 # Define removed edges (edges that need design decision)
-removed_edges = [(6, 3)]  # Optional edge from node_3 (intermediate node 6) to D (node 3)
+removed_edges = [(4, 5)]  # Optional edge from node_1 (intermediate node 4) to node_2 (intermediate node 5)
 cost_per_edge = [0.5]  # Cost to purchase the edge
 
 println("\nRemoved edges (need restoration decision): $removed_edges")
