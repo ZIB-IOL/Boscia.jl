@@ -94,11 +94,8 @@ function Bonobo.optimize!(
         end
 
         Bonobo.close_node!(tree, node)
-
         Bonobo.branch!(tree, node)
-
         callback(tree, node)
-        
     end
     # To make sure that we collect the statistics in case the time limit is reached.
     if !haskey(tree.root.result, :global_tightenings)
