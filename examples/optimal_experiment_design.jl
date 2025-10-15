@@ -77,12 +77,7 @@ verbose = true
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x, _, _ = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x, _, _ = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
@@ -96,12 +91,7 @@ verbose = true
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x, _, result = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x, _, result = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
@@ -115,12 +105,7 @@ verbose = true
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x_s, _, result_s = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x_s, _, result_s = Boscia.solve(g, grad!, blmo, settings=settings)
 
     @test result_s[:dual_bound] <= g(x) + 1e-3
     @test result[:dual_bound] <= g(x_s) + 1e-3
@@ -151,12 +136,7 @@ end
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x, _, _ = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x, _, _ = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # proper run with MGLS and Adaptive
     line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
@@ -170,12 +150,7 @@ end
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x, _, result = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x, _, result = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # Run with Secant    
     x0, active_set = build_start_point(Ex_mat, N, ub)
@@ -189,12 +164,7 @@ end
     settings.domain[:active_set] = active_set
     settings.domain[:domain_oracle] = domain_oracle
     settings.domain[:find_domain_point] = domain_point
-    x_s, _, result_s = Boscia.solve(
-        g,
-        grad!,
-        blmo,
-        settings=settings,
-    )
+    x_s, _, result_s = Boscia.solve(g, grad!, blmo, settings=settings)
 
     @test result_s[:dual_bound] <= g(x)
     @test result[:dual_bound] <= g(x_s)

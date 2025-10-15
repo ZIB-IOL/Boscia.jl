@@ -198,7 +198,7 @@ function bounded_compute_inface_extreme_point(
     a = zeros(length(d))
     a[int_vars] = lb
     fixed_vars = []
-    
+
     for i in indices
         if i in int_vars
             idx = findfirst(==(i), int_vars)
@@ -266,7 +266,7 @@ function bounded_dicg_maximum_step(
             if idx in int_vars
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
-            else 
+            else
                 gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
             end
         elseif di < -tol
@@ -303,7 +303,7 @@ function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars
         return INFEASIBLE
     elseif length(int_vars) == n && !isinteger(sblmo.N)
         return INFEASIBLE
-    else 
+    else
         return OPTIMAL
     end
 end
@@ -394,9 +394,9 @@ end
 
 function is_simple_inface_feasible(sblmo::UnitSimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
     if isapprox(sum(x), sblmo.N; atol=atol, rtol=rtol) &&
-        !isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
-         return false
-     end
+       !isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
+        return false
+    end
     return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
 end
 
@@ -523,7 +523,7 @@ function bounded_dicg_maximum_step(
             if idx in int_vars
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
-            else 
+            else
                 gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
             end
         elseif di < -tol
