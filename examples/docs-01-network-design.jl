@@ -592,6 +592,8 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     num_removed = length(removed_edges)
     
     # Helper function to format node names
+    # Map code node numbers to diagram labels:
+    # 1→S1, 2→S2, 3→D, 4→1, 5→2, 6→3, 7→4, 8→5
     function node_label(node)
         if node == 1
             return "S1"
@@ -599,6 +601,16 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
             return "S2"
         elseif node == 3
             return "D"
+        elseif node == 4
+            return "1"
+        elseif node == 5
+            return "2"
+        elseif node == 6
+            return "3"
+        elseif node == 7
+            return "4"
+        elseif node == 8
+            return "5"
         else
             return string(node)
         end
