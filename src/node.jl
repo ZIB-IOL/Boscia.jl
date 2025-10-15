@@ -19,12 +19,10 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
-    active_set_size::Int
-    discarded_set_size::Int
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub),0,0)
+    return NodeInfo(std.id, T(std.lb), T(std.ub))
 end
 
 """
@@ -75,6 +73,8 @@ mutable struct FrankWolfeNode{
     branched_on::Int
     branched_right::Bool
     distance_to_int::Float64
+    active_set_size::Int
+    discarded_set_size::Int
 end
 
 
@@ -122,8 +122,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         error("Splitting on the same index as parent! Abort!")
     end
 
-    node.std.active_set_size = length(node.active_set)
-    node.std.discarded_set_size = length(node.discarded_vertices.storage)    
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices.storage)
 
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
