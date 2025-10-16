@@ -405,6 +405,12 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.PairwiseFrankWolfe()
+    x_bpcg, _, result_bpcg = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     settings.frank_wolfe[:fw_verbose] = false
     x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, settings=settings)
