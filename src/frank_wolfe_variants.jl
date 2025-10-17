@@ -30,55 +30,6 @@ function Base.convert(::Type{V1}, v2::V2) where {V1<:FrankWolfeVariant,V2<:Frank
 end
 
 """
-    Pairwise FrankWolfe
-"""
-
-struct PairwiseFrankWolfe <: FrankWolfeVariant end
-
-function solve_frank_wolfe(
-    frank_wolfe_variant::PairwiseFrankWolfe,
-    f,
-    grad!,
-    lmo,
-    active_set;
-    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
-    epsilon=1e-7,
-    max_iteration=10000,
-    add_dropped_vertices=false,
-    use_extra_vertex_storage=false,
-    extra_vertex_storage=nothing,
-    callback=nothing,
-    lazy=false,
-    lazy_tolerance=2.0,
-    timeout=Inf,
-    verbose=false,
-    workspace=nothing,
-    kwargs...,
-)
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.pairwise_frank_wolfe(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        callback=callback,
-        lazy=lazy,
-        sparsity_control=lazy_tolerance,
-        timeout=timeout,
-        verbose=verbose,
-    )
-    return x, primal, dual_gap, active_set
-end
-
-Base.print(io::IO, ::PairwiseFrankWolfe) = print(io, "Pairwise FrankWolfe")
-
-
-"""
 	Away-Frank-Wolfe
 
 In every iteration, it computes the worst performing vertex, called away vertex, in the active set with regard to the gradient.
@@ -178,6 +129,54 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::BlendedConditionalGradient) = print(io, "Blended Conditional Gradient")
+
+"""
+    Pairwise FrankWolfe
+"""
+
+struct PairwiseFrankWolfe <: FrankWolfeVariant end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::PairwiseFrankWolfe,
+    f,
+    grad!,
+    lmo,
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing,
+    callback=nothing,
+    lazy=false,
+    lazy_tolerance=2.0,
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing,
+    kwargs...,
+)
+    x, _, primal, dual_gap, _, active_set = FrankWolfe.pairwise_frank_wolfe(
+        f,
+        grad!,
+        lmo,
+        active_set,
+        line_search=line_search,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        add_dropped_vertices=add_dropped_vertices,
+        use_extra_vertex_storage=use_extra_vertex_storage,
+        extra_vertex_storage=extra_vertex_storage,
+        callback=callback,
+        lazy=lazy,
+        sparsity_control=lazy_tolerance,
+        timeout=timeout,
+        verbose=verbose,
+    )
+    return x, primal, dual_gap, active_set
+end
+
+Base.print(io::IO, ::PairwiseFrankWolfe) = print(io, "Pairwise Frank-Wolfe")
 
 """
 	Blended Pairwise Conditional Gradient
@@ -391,5 +390,3 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::StandardFrankWolfe) = print(io, "StandardFrank-Wolfe")
-
-@info "After define" PairwiseFrankWolfe
