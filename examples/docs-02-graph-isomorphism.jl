@@ -22,6 +22,9 @@ using SparseArrays
 using LinearAlgebra
 using FrankWolfe
 using MAT
+using Bonobo
+using CSV
+using DataFrames
 using Random
 using StableRNGs
 using CombinatorialLinearOracles
