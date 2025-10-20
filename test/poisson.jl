@@ -198,7 +198,7 @@ Ng = 5.0
 
 k = 10
 group_size = convert(Int64, floor(pg / k))
-groups = []
+const groups = []
 for i in 1:(k-1)
     push!(groups, ((i-1)*group_size+1):(i*group_size))
 end
