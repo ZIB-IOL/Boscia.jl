@@ -1039,3 +1039,318 @@ function check_feasibility(sblmo::BirkhoffBLMO, lb, ub, int_vars, n)
 
     return OPTIMAL
 end
+
+"""
+    KSparseLMO{T}(K::Int, right_hand_side::T)
+
+LMO for the K-sparse polytope:
+```
+C = B_1(τK) ∩ B_∞(τ)
+```
+with `τ` the `right_hand_side` parameter.
+The LMO results in a vector with the K largest absolute values
+of direction, taking values `-τ sign(x_i)`.
+"""
+struct KSparseBLMO <: LinearMinimizationOracle
+    K::Int
+    right_hand_side::Float64
+end
+
+function compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_vars; v=nothing, kwargs...)
+    K = min(lmo.K, length(direction))
+    K_indices = sortperm(direction[1:K], by=abs, rev=true)
+    K_values = direction[K_indices]
+    for idx in K+1:length(direction)
+        new_val = direction[idx]
+        # new greater value: shift everything right
+        if abs(new_val) > abs(K_values[1])
+            K_values[2:end] .= K_values[1:end-1]
+            K_indices[2:end] .= K_indices[1:end-1]
+            K_indices[1] = idx
+            K_values[1] = new_val
+            # new value in the interior
+        elseif abs(new_val) > abs(K_values[K])
+            # NOTE: not out of bound since unreachable with K=1
+            j = K - 1
+            while abs(new_val) > abs(K_values[j])
+                j -= 1
+            end
+            K_values[j+1:end] .= K_values[j:end-1]
+            K_indices[j+1:end] .= K_indices[j:end-1]
+            K_values[j+1] = new_val
+            K_indices[j+1] = idx
+        end
+    end
+    v = spzeros(T, length(direction))
+    for (idx, val) in zip(K_indices, K_values)
+        if idx in int_vars
+            lower_eff = ceil(max(lb[idx], -lmo.right_hand_side))
+            upper_eff = floor(min(ub[idx],  lmo.right_hand_side))
+        else
+            lower_eff = max(lb[idx], -lmo.right_hand_side)
+            upper_eff = min(ub[idx],  lmo.right_hand_side)
+        end
+        if val > 0
+            v[idx] = lower_eff
+        elseif val < 0
+            v[idx] = upper_eff
+        else
+            v[idx] = 0
+        end
+    end
+    return v
+end
+
+function bounded_compute_inface_extreme_point(
+    lmo::KSparseBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...
+)
+    n = length(direction)
+    rhs = lmo.right_hand_side
+    K = lmo.K
+
+    v = copy(x)
+    fixed_vars = Int[]
+
+    # Identify fixed coordinates (already on the face boundary)
+    for i in 1:n
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            if isapprox(x[i], ceil(lb[idx]); atol=atol, rtol=rtol) ||
+            isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
+                push!(fixed_vars, i)
+            end
+        else
+            if isapprox(abs(x[i]), rhs; atol=atol, rtol=rtol) ||
+            isapprox(x[i], 0.0; atol=atol, rtol=rtol)
+                push!(fixed_vars, i)
+            end
+        end
+    end
+
+    free_idx = setdiff(1:n, fixed_vars)
+    if isempty(free_idx)
+        return v  # already at in-face extreme point
+    end
+
+    # Determine how many free coordinates we can move
+    n_free = length(free_idx)
+    current_sparsity = count(!iszero, x)
+    K_free = max(0, min(K - current_sparsity, n_free))
+
+    if K_free == 0
+        return v  # cannot activate any new coordinate
+    end
+
+    # Select top-K_free by |direction[i]| among free_idx
+    d_free = direction[free_idx]
+    if n_free > K_free
+        K_values = similar(d_free, K_free)
+        K_indices = sortperm(d_free[1:K_free], by=abs, rev=true)
+        K_values .= d_free[K_indices]
+
+        for j in K_free+1:n_free
+            new_val = d_free[j]
+            if abs(new_val) > abs(K_values[1])
+                K_values[2:end] .= K_values[1:end-1]
+                K_indices[2:end] .= K_indices[1:end-1]
+                K_indices[1] = j
+                K_values[1] = new_val
+            elseif abs(new_val) > abs(K_values[K_free])
+                k = K_free - 1
+                while k >= 1 && abs(new_val) > abs(K_values[k])
+                    k -= 1
+                end
+                K_values[k+1:end] .= K_values[k:end-1]
+                K_indices[k+1:end] .= K_indices[k:end-1]
+                K_values[k+1] = new_val
+                K_indices[k+1] = j
+            end
+        end
+        active_idx = free_idx[K_indices]
+    else
+        active_idx = free_idx
+    end
+
+    # Construct new in-face extreme point
+    for idx in active_idx
+        val = direction[idx]
+        lb_i, ub_i = lb[idx], ub[idx]
+
+        lower_eff = max(lb_i, -rhs)
+        upper_eff = min(ub_i,  rhs)
+        
+        if idx in int_vars
+            lower_eff = ceil(lower_eff)
+            upper_eff = floor(upper_eff)
+        end
+
+        if val > 0
+            v[idx] = lower_eff
+        elseif val < 0
+            v[idx] = upper_eff
+        else
+            if lb_i <= 0 <= ub_i
+                v[idx] = 0
+            else
+                v[idx] = abs(lb_i) < abs(ub_i) ? lb_i : ub_i
+            end
+        end
+    end
+
+    return v
+end
+
+function bounded_dicg_maximum_step(
+    sblmo::KSparseBLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol=1e-6,
+    kwargs...,
+)
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if di > tol
+            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+        elseif di < -tol
+            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+        end
+
+        if isapprox(gamma_max , 0.0; atol=tol)
+            return 0.0
+        end
+    end
+
+    return max(gamma_max, 0.0)
+end
+
+function is_simple_linear_feasible(sblmo::KSparseBLMO, v; int_vars=Int[], tol=1e-8)
+    τ = sblmo.right_hand_side
+    K = sblmo.K
+
+    l1_norm = sum(abs, v)
+    if l1_norm > K * τ
+        @debug "v violates sparsity constraint: ‖v‖₀ = $nnz_v > K = $K"
+        return false
+    end
+
+    if any(abs.(v) .> τ + tol)
+        @debug "v violates bound constraint: some |vᵢ| > τ = $τ"
+        return false
+    end
+
+    return true
+end
+
+
+function check_feasibility(sblmo::KSparseBLMO, lb, ub, int_vars, n; tol=1e-8)
+    K = sblmo.K
+    τ = sblmo.right_hand_side
+
+    # ensure at least K feasible coordinates exist within [-τ, τ]
+    feasible_slots = count(i -> (lb[i] <= τ + tol) && (ub[i] >= -τ - tol), 1:n)
+    if feasible_slots < K
+        @debug "Infeasible: only $feasible_slots feasible coordinates, need ≥ K=$K"
+        return INFEASIBLE
+    end
+    if τ < 0
+        @debug "Infeasible: τ = $τ < 0 (L∞ radius must be nonnegative)."
+        return INFEASIBLE
+    end
+    return OPTIMAL
+end
+
+is_decomposition_invariant_oracle_simple(::KSparseBLMO) = true
+
+function rounding_hyperplane_heuristic(
+    tree::Bonobo.BnBTree,
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{KSparseLMO}},
+    x,
+)
+    z = copy(x)
+
+    K = tlmo.blmo.simple_lmo.K
+    τ = tlmo.blmo.simple_lmo.right_hand_side
+    nvars = tree.root.problem.nvars
+
+    int_idx = tree.branching_indices
+    cont_idx = setdiff(1:nvars, int_idx)
+
+    # Round integer variables
+    for idx in int_idx
+        τ_int = τ >= 0 ? floor(Int, τ) : ceil(Int, τ)
+        if abs(x[idx]) >= abs(τ) - 0.5
+            z[idx] = sign(x[idx]) * τ_int
+        else
+            z[idx] = round(x[idx])
+        end
+    end
+
+    #Compute budget usage (L₁)
+    total_L1 = norm(z, 1)
+    L1_limit = τ * K
+
+    #Handle cases
+    ##Case 1: Already feasible
+    if total_L1 <= L1_limit
+        @debug "Feasible: ||z||₁ = $(total_L1) ≤ τK = $(L1_limit). No adjustment needed."
+        return [z], false
+    end
+
+    ##Too large
+    @debug "L₁ budget exceeded: ||z||₁ = $(total_L1) > τK = $(L1_limit). Reducing integer vars first."
+
+    #decrease integer vars by 1 (toward zero)
+    while norm(z, 1) > L1_limit
+        z = reduce_from_max(z, tlmo.blmo.lower_bounds, int_idx)
+        # if all integer vars are minimal, we can then touch continuous vars if exist
+        if all(z[int_idx] .== tlmo.blmo.lower_bounds[int_idx]) && !isempty(cont_idx)
+            z = reduce_continuous!(z, cont_idx)
+        elseif all(z[int_idx] .== tlmo.blmo.lower_bounds[int_idx]) && isempty(cont_idx)
+            @debug "All integer vars at lower bounds and no continuous vars left; cannot reduce further."
+            break
+        end
+    end
+
+    return [z], false
+end
+
+
+#integer reduction function
+function reduce_from_max(z, lower_bounds, int_idx)
+    # choose the largest-in-magnitude integer variable
+    if isempty(int_idx)
+        return z
+    end
+    absvals = abs.(z[int_idx])
+    i = int_idx[argmax(absvals)]
+    if z[i] > 0
+        z[i] = max(lower_bounds[i], z[i] - 1)
+    elseif z[i] < 0
+        z[i] = min(-lower_bounds[i], z[i] + 1)
+    end
+    return z
+end
+
+
+#continuous reduction function
+function reduce_continuous!(z, cont_idx)
+    if isempty(cont_idx)
+        return z
+    end
+    # pick the largest-magnitude continuous var and shrink it slightly toward 0
+    i = cont_idx[argmax(abs.(z[cont_idx]))]
+    z[i] -= sign(z[i]) * 0.1 * abs(z[i])  # small decay
+    return z
+end
