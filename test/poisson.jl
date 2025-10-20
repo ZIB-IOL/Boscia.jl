@@ -183,14 +183,14 @@ n0g = 20
 pg = n0g
 
 # underlying true weights
-const w0g = 2 * rand(rng, Float64, pg) .- 1
+w0g = 2 * rand(rng, Float64, pg) .- 1
 # set 50 entries to 0
 for _ in 1:15
     w0g[rand(rng, 1:pg)] = 0
 end
-const b0g = 2 * rand(rng, Float64) - 1
-const X0g = 2 * rand(rng, Float64, n0g, pg) .- 1
-const y0g = map(1:n0g) do idx
+b0g = 2 * rand(rng, Float64) - 1
+X0g = 2 * rand(rng, Float64, n0g, pg) .- 1
+y0g = map(1:n0g) do idx
     a = dot(X0g[idx, :], w0g) + b0g
     return rand(Distributions.Poisson(exp(a)))
 end
