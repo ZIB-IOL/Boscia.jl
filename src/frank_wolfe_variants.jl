@@ -155,23 +155,24 @@ function solve_frank_wolfe(
     workspace=nothing,
     kwargs...,
 )
-    x, _, primal, dual_gap, status, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        active_set,
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        add_dropped_vertices=add_dropped_vertices,
-        use_extra_vertex_storage=use_extra_vertex_storage,
-        extra_vertex_storage=extra_vertex_storage,
-        callback=callback,
-        lazy=lazy,
-        sparsity_control=lazy_tolerance,
-        timeout=timeout,
-        verbose=verbose,
-    )
+    x, _, primal, dual_gap, status, _, active_set =
+        FrankWolfe.blended_pairwise_conditional_gradient(
+            f,
+            grad!,
+            lmo,
+            active_set,
+            line_search=line_search,
+            epsilon=epsilon,
+            max_iteration=max_iteration,
+            add_dropped_vertices=add_dropped_vertices,
+            use_extra_vertex_storage=use_extra_vertex_storage,
+            extra_vertex_storage=extra_vertex_storage,
+            callback=callback,
+            lazy=lazy,
+            sparsity_control=lazy_tolerance,
+            timeout=timeout,
+            verbose=verbose,
+        )
     return x, primal, dual_gap, status, active_set
 end
 
