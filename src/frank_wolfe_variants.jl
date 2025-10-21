@@ -252,7 +252,8 @@ function solve_frank_wolfe(
         @assert is_linear_feasible(lmo, x0)
     end
 
-    DICG_callback = make_callback(pre_computed_set)
+    # In case of the postprocessing, no callback is provided.
+    DICG_callback = callback !== nothing ? make_callback(pre_computed_set) : nothing
 
     x, _, primal, dual_gap, status, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
