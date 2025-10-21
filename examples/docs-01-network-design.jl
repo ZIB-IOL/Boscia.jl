@@ -1,36 +1,34 @@
-"""
-# Network Design Problem Example for Boscia.jl Documentation
-
-This script demonstrates solving a network design problem using Boscia.jl with two approaches:
-1. MOI-based LMO: Using MathOptInterface to model the feasible region
-2. Custom LMO: Using a customized Linear Minimization Oracle based on shortest path algorithms
-
-## Problem Description
-We solve a transportation network design problem where:
-- Some edges have been removed from the network
-- We decide which edges to restore (binary decision y[e])
-- Traffic flows are routed to minimize total travel time (with BPR congestion)
-- Flow conservation constraints must be satisfied
-- Linking constraints: x[e] <= M * y[e] (flow on removed edges only if restored)
-
-## Key Difference Between Approaches
-
-**IMPORTANT**: The two approaches solve DIFFERENT formulations of the same problem!
-
-### MOI-based LMO
-- Enforces linking constraints x[e] <= M*y[e] as HARD constraints in the MOI model
-- Objective: minimize BPR_cost(x) + restoration_cost(y)
-- Finds feasible solution satisfying all constraints exactly
-
-### Custom LMO  
-- Cannot encode linking constraints x[e] <= M*y[e] in the shortest-path oracle
-- Instead, adds PENALTY TERMS to the objective function
-- Objective: minimize BPR_cost(x) + restoration_cost(y) + ρ·∑max(0, x[e] - M*y[e])²
-- Uses penalty method to discourage constraint violations
-
-Because they optimize different objective functions, they may find different solutions!
-The penalty weight ρ controls the tradeoff between optimality and feasibility.
-"""
+# Network Design Problem Example
+#
+# This example demonstrates solving a network design problem using Boscia.jl with two approaches:
+# 1. MOI-based LMO: Using MathOptInterface to model the feasible region
+# 2. Custom LMO: Using a customized Linear Minimization Oracle based on shortest path algorithms
+#
+# ## Problem Description
+# We solve a transportation network design problem where:
+# - Some edges have been removed from the network
+# - We decide which edges to restore (binary decision y[e])
+# - Traffic flows are routed to minimize total travel time (with BPR congestion)
+# - Flow conservation constraints must be satisfied
+# - Linking constraints: x[e] <= M * y[e] (flow on removed edges only if restored)
+#
+# ## Key Difference Between Approaches
+#
+# **IMPORTANT**: The two approaches solve DIFFERENT formulations of the same problem!
+#
+# ### MOI-based LMO
+# - Enforces linking constraints x[e] <= M*y[e] as HARD constraints in the MOI model
+# - Objective: minimize BPR_cost(x) + restoration_cost(y)
+# - Finds feasible solution satisfying all constraints exactly
+#
+# ### Custom LMO  
+# - Cannot encode linking constraints x[e] <= M*y[e] in the shortest-path oracle
+# - Instead, adds PENALTY TERMS to the objective function
+# - Objective: minimize BPR_cost(x) + restoration_cost(y) + ρ·∑max(0, x[e] - M*y[e])²
+# - Uses penalty method to discourage constraint violations
+#
+# Because they optimize different objective functions, they may find different solutions!
+# The penalty weight ρ controls the tradeoff between optimality and feasibility.
 
 using Boscia
 using FrankWolfe
@@ -45,11 +43,11 @@ using HiGHS  # Open source, no license needed
 # using Gurobi  # Commercial, requires license
 # using SCIP  # Open source
 
-#########################################
-# Data Structures
-#########################################
+println("\nDocumentation Example 01: Network Design Problem")
 
-"""Simple graph structure with edge weights and demands"""
+# ## Data Structure
+
+# Simple graph structure with edge weights and demands
 mutable struct NetworkData
     num_nodes::Int
     num_edges::Int  
@@ -63,40 +61,71 @@ mutable struct NetworkData
     num_zones::Int
 end
 
-#########################################
-# Load Braess Paradox Example Network
-#########################################
+# ## Load Network
 
 function load_braess_network()
-    # Braess network: 4 nodes, 5 edges
-    # Edges: (1,3), (1,4), (3,2), (3,4), (4,2)
-    init_nodes = [1, 1, 3, 3, 4]
-    term_nodes = [3, 4, 2, 4, 2]
+    # Transportation network matching the purchasable edge diagram
+    # 2 sources (S1, S2) → 5 intermediate nodes → 1 destination (D)
+    # Total: 8 nodes
+    #
+    # IMPORTANT: Node numbering is constrained by the code structure
+    # The code requires zones 1..num_zones to BE nodes 1..num_zones
+    # So: Node 1=S1 (zone 1), Node 2=S2 (zone 2), Node 3=D (zone 3)
+    # Nodes 4-8 are the 5 intermediate nodes from the diagram
+    #
+    # Mapping from diagram to code:
+    # Diagram -> Code numbering
+    # S1 -> 1, S2 -> 2, D -> 3
+    # intermediate nodes 1,2,3,4,5 -> 4,5,6,7,8
+    #
+    # Network topology from your description:
+    # S1(1) → node_1(4)
+    # S2(2) → node_3(6)  
+    # node_1(4) → node_3(6)
+    # node_2(5) → node_1(4), D(3)
+    # node_3(6) → node_1(4), node_4(7)
+    # node_4(7) → node_3(6), node_5(8)
+    # node_5(8) → node_4(7), D(3)
+    # Optional edge: node_1(4) → node_2(5) [the purchasable dashed edge]
     
-    # Travel times: free_flow_time * (1 + b * (flow/capacity)^power)
-    free_flow_time = [0.00000001, 50.0, 50.0, 10.0, 0.00000001]
-    capacity = [1.0, 1.0, 1.0, 1.0, 1.0]
-    b = [1e9, 0.02, 0.02, 0.1, 1e9]
-    power = [1.0, 1.0, 1.0, 1.0, 1.0]
+    # List all edges
+    init_nodes = [1, 2, 4, 5, 5, 6, 6, 7, 7, 8, 8, 4]
+    term_nodes = [4, 6, 6, 4, 3, 4, 7, 6, 8, 7, 3, 5]
     
-    # Travel demand: 6 units from node 1 to node 2
-    travel_demand = [0.0 6.0; 0.0 0.0]
+    # Edge list:
+    # 1: S1→1, 2: S2→3, 3: 1→3, 4: 2→1, 5: 2→D,
+    # 6: 3→1, 7: 3→4, 8: 4→3, 9: 4→5, 10: 5→4, 11: 5→D, 12: 1→2 (optional)
     
-    return NetworkData(4, 5, init_nodes, term_nodes, free_flow_time, 
-                      capacity, b, power, travel_demand, 2)
+    # Travel times using BPR function
+    # Edge 5 (5→D) gets congested when both flows merge there without the shortcut
+    # Edge 12 (4→5, optional) provides an alternative that splits the load
+    # When edge 12 is not purchased, flows naturally separate to paths 5→D and 8→D
+    free_flow_time = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    capacity = [10.0, 10.0, 10.0, 10.0, 1.5, 10.0, 10.0, 10.0, 10.0, 10.0, 1.5, 10.0]
+    b = [0.1, 0.1, 0.1, 0.1, 3.0, 0.1, 0.1, 0.1, 0.1, 0.1, 3.0, 0.1]
+    power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    
+    # Travel demand with 3 zones
+    # Zone 1 (S1, node 1) → Zone 3 (D, node 3): 1 unit
+    # Zone 2 (S2, node 2) → Zone 3 (D, node 3): 1 unit
+    # Zone 3 (D) doesn't send flow
+    travel_demand = [0.0 0.0 1.0; 
+                     0.0 0.0 1.0;
+                     0.0 0.0 0.0]
+    
+    return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time, 
+                      capacity, b, power, travel_demand, 3)
 end
 
-#########################################
-# Shortest Path Dijkstra Implementation  
-#########################################
+# ## Shortest Path Dijkstra Implementation  
 
-"""Custom Dijkstra implementation for traffic assignment"""
+# Custom Dijkstra implementation for traffic assignment
 function traffic_dijkstra(graph, travel_time, origin, link_dic)
     state = Graphs.dijkstra_shortest_paths(graph, origin)
     return state
 end
 
-"""Add demand to flow vector following shortest path"""
+# Add demand to flow vector following shortest path
 function add_demand_to_path!(x, demand, state, origin, destination, link_dic, edge_list, num_zones)
     current = destination
     parent = -1
@@ -118,7 +147,7 @@ function add_demand_to_path!(x, demand, state, origin, destination, link_dic, ed
     end
 end
 
-"""All-or-nothing assignment: route all flow on shortest paths"""
+# All-or-nothing assignment: route all flow on shortest paths
 function all_or_nothing_assignment(travel_time_vector, net_data, graph, link_dic, edge_list)
     num_zones = net_data.num_zones
     edge_count = net_data.num_edges
@@ -143,11 +172,9 @@ function all_or_nothing_assignment(travel_time_vector, net_data, graph, link_dic
     return x
 end
 
-#########################################
-# Custom LMO using Shortest Path
-#########################################
+# ## Custom LMO using Shortest Path
 
-"""Custom Linear Minimization Oracle using shortest path computations"""
+# Custom Linear Minimization Oracle using shortest path computations
 struct ShortestPathLMO <: Boscia.SimpleBoundableLMO
     graph::Graphs.SimpleDiGraph{Int}
     net_data::NetworkData
@@ -186,11 +213,9 @@ function Boscia.is_simple_linear_feasible(lmo::ShortestPathLMO, x)
     return all(x .>= -1e-6)
 end
 
-#########################################
-# MOI Model Setup
-#########################################
+# ## MOI Model Setup
 
-"""Build MOI model with flow conservation and network design constraints"""
+# Build MOI model with flow conservation and network design constraints
 function build_moi_model(net_data, removed_edges, use_big_m=true)
     # Create optimizer
     optimizer = HiGHS.Optimizer()
@@ -338,11 +363,9 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
     return optimizer, edge_list
 end
 
-#########################################
-# Objective Function and Gradient
-#########################################
+# ## Objective Function and Gradient
 
-"""BPR (Bureau of Public Roads) travel time function and gradient (for MOI-based LMO)"""
+# BPR (Bureau of Public Roads) travel time function and gradient (for MOI-based LMO)
 function build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
@@ -421,17 +444,16 @@ function build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
     return f, grad!
 end
 
-"""BPR objective WITH penalty terms for linking constraints (for Custom LMO)
-
-For the Custom LMO, we cannot enforce x[dest,edge] <= M * y[edge] as hard constraints.
-Instead, we add penalty terms to the objective function to discourage violations:
-  penalty = rho * sum_i sum_dest max(0, x[dest,removed_edge_i] - M * y[i])^penalty_exponent
-
-Common choices:
-- penalty_exponent = 1: Linear penalty (L1)
-- penalty_exponent = 2: Quadratic penalty (L2, most common)
-- penalty_exponent > 2: Higher order penalties (stronger enforcement)
-"""
+# BPR objective WITH penalty terms for linking constraints (for Custom LMO)
+#
+# For the Custom LMO, we cannot enforce x[dest,edge] <= M * y[edge] as hard constraints.
+# Instead, we add penalty terms to the objective function to discourage violations:
+#   penalty = rho * sum_i sum_dest max(0, x[dest,removed_edge_i] - M * y[i])^penalty_exponent
+#
+# Common choices:
+# - penalty_exponent = 1: Linear penalty (L1)
+# - penalty_exponent = 2: Quadratic penalty (L2, most common)
+# - penalty_exponent > 2: Higher order penalties (stronger enforcement)
 function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
                                                     penalty_weight=1e6, penalty_exponent=2.0)
     num_zones = net_data.num_zones
@@ -558,115 +580,7 @@ function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost
     return f, grad!
 end
 
-#########################################
-# Main Solving Functions
-#########################################
-
-"""Solve network design using MOI-based LMO"""
-function solve_with_moi_lmo(net_data, removed_edges, cost_per_edge; 
-                            use_big_m=true, time_limit=60, verbose=true)
-    
-    println("\n" * "="^70)
-    println("Solving with MOI-based LMO (MIP solver models feasible region)")
-    println("="^70)
-    
-    # Build MOI model
-    optimizer, edge_list = build_moi_model(net_data, removed_edges, use_big_m)
-    
-    # Create Boscia LMO from MOI model
-    lmo = Boscia.MathOptBLMO(optimizer)
-    
-    # Build objective
-    f, grad! = build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
-    
-    # Solve with Boscia
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        verbose=verbose,
-        time_limit=time_limit,
-        print_iter=10,
-        fw_verbose=verbose
-    )
-    
-    return x, result
-end
-
-"""Solve network design using custom shortest-path LMO with bounded integer variables
-
-IMPORTANT: This approach uses a DIFFERENT objective function than the MOI-based approach!
-- MOI approach: Enforces x[e] <= M*y[e] as hard constraints in the model
-- Custom LMO: Adds penalty terms to the objective to discourage violations
-
-The penalty formulation is: f(x) + rho * sum max(0, x[e] - M*y[e])^penalty_exponent
-
-Parameters:
-- penalty_weight: Weight of penalty term (larger = stronger enforcement)
-- penalty_exponent: Exponent of penalty term (1=linear, 2=quadratic, etc.)
-"""
-function solve_with_custom_lmo(net_data, removed_edges, cost_per_edge; 
-                               time_limit=60, verbose=true, 
-                               penalty_weight=1e6, penalty_exponent=2.0)
-    
-    println("\n" * "="^70)
-    println("Solving with Custom LMO (shortest path oracle)")
-    println("Penalty weight: $penalty_weight, Penalty exponent: $penalty_exponent")
-    println("="^70)
-    
-    # Build graph
-    graph = Graphs.SimpleDiGraph(net_data.num_nodes)
-    edge_list = Tuple{Int,Int}[]
-    for i in 1:net_data.num_edges
-        Graphs.add_edge!(graph, net_data.init_nodes[i], net_data.term_nodes[i])
-        push!(edge_list, (net_data.init_nodes[i], net_data.term_nodes[i]))
-    end
-    
-    # Build sparse link dictionary
-    link_dic = sparse(net_data.init_nodes, net_data.term_nodes, 
-                     collect(1:net_data.num_edges))
-    
-    # Create custom LMO for continuous variables
-    custom_lmo = ShortestPathLMO(graph, net_data, link_dic, edge_list)
-    
-    # Set up integer bounds for Boscia
-    num_zones = net_data.num_zones
-    num_edges = net_data.num_edges
-    num_removed = length(removed_edges)
-    total_vars = num_zones * num_edges + num_edges + num_removed
-    
-    # Binary variables for network design (last num_removed variables)
-    int_vars = collect((num_zones * num_edges + num_edges + 1):total_vars)
-    
-    # Create bounds vectors for integer variables
-    lower_bounds = zeros(Float64, num_removed)  # Binary: lower bound = 0
-    upper_bounds = ones(Float64, num_removed)   # Binary: upper bound = 1
-    
-    # Wrap LMO with integer handling
-    bounded_lmo = Boscia.ManagedBoundedLMO(custom_lmo, lower_bounds, upper_bounds, int_vars, total_vars)
-    
-    # Build objective WITH PENALTY TERMS for linking constraints
-    # The Custom LMO cannot enforce x[e] <= M*y[e] constraints, so we add penalties
-    f, grad! = build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
-                                                          penalty_weight, penalty_exponent)
-    
-    # Solve with Boscia
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        bounded_lmo,
-        verbose=verbose,
-        time_limit=time_limit,
-        print_iter=10,
-        fw_verbose=verbose
-    )
-    
-    return x, result
-end
-
-#########################################
-# Helper Functions for Results
-#########################################
+# ## Helper Functions for Results
 
 function print_solution(x, net_data, removed_edges, edge_list, method_name)
     println("\n" * "-"^70)
@@ -677,6 +591,31 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
     
+    # Helper function to format node names
+    # Map code node numbers to diagram labels:
+    # 1→S1, 2→S2, 3→D, 4→1, 5→2, 6→3, 7→4, 8→5
+    function node_label(node)
+        if node == 1
+            return "S1"
+        elseif node == 2
+            return "S2"
+        elseif node == 3
+            return "D"
+        elseif node == 4
+            return "1"
+        elseif node == 5
+            return "2"
+        elseif node == 6
+            return "3"
+        elseif node == 7
+            return "4"
+        elseif node == 8
+            return "5"
+        else
+            return string(node)
+        end
+    end
+    
     # Extract design variables
     design_start = num_zones * num_edges + num_edges + 1
     design_vars = x[design_start:end]
@@ -684,7 +623,9 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     println("\nEdges to restore:")
     for (i, edge) in enumerate(removed_edges)
         status = design_vars[i] > 0.5 ? "RESTORE" : "KEEP CLOSED"
-        println("  Edge $edge: y = $(round(design_vars[i], digits=3)) → $status")
+        from_label = node_label(edge[1])
+        to_label = node_label(edge[2])
+        println("  Edge ($from_label → $to_label): y = $(round(design_vars[i], digits=3)) → $status")
     end
     
     # Extract aggregate flows
@@ -693,79 +634,134 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     for i in 1:num_edges
         flow = x[agg_start + i - 1]
         if flow > 1e-6
-            println("  Edge $(edge_list[i]): flow = $(round(flow, digits=3))")
+            from_label = node_label(edge_list[i][1])
+            to_label = node_label(edge_list[i][2])
+            println("  Edge ($from_label → $to_label): flow = $(round(flow, digits=3))")
         end
     end
 end
 
-#########################################
-# Main Execution
-#########################################
+# ## Example Execution
 
-function main()
-    println("="^70)
-    println("Network Design Problem - Boscia.jl Example")
-    println("="^70)
-    
-    # Load network
-    net_data = load_braess_network()
-    println("\nNetwork: Braess Paradox Example")
-    println("  Nodes: $(net_data.num_nodes)")
-    println("  Edges: $(net_data.num_edges)")
-    println("  OD Demand: Node 1 → Node 2 = $(net_data.travel_demand[1,2]) units")
-    
-    # Define removed edges (edges that need design decision)
-    removed_edges = [(3, 4)]  # Middle edge in Braess network
-    cost_per_edge = [50.0]  # Cost to restore each edge
-    
-    println("\nRemoved edges (need restoration decision): $removed_edges")
-    println("Cost to restore: $cost_per_edge")
-    
-    # Build edge list for display
-    edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) 
-                 for i in 1:net_data.num_edges]
-    
-    # Solve with MOI LMO
-    x_moi, result_moi = solve_with_moi_lmo(
-        net_data, removed_edges, cost_per_edge,
-        time_limit=60, verbose=true
-    )
-    print_solution(x_moi, net_data, removed_edges, edge_list, "MOI-based LMO")
-    
-    # Solve with Custom LMO  
-    x_custom, result_custom = solve_with_custom_lmo(
-        net_data, removed_edges, cost_per_edge,
-        time_limit=60, verbose=true, penalty_weight=1e2, penalty_exponent=1.6
-    )
-    print_solution(x_custom, net_data, removed_edges, edge_list, "Custom Shortest-Path LMO")
-    
-    println("\n" * "="^70)
-    println("Comparison of Results")
-    println("="^70)
-    println("MOI-based LMO (Hard Constraints):")
-    println("  Objective: $(result_moi[:primal_objective])")
-    println("  Time: $(result_moi[:total_time_in_sec]) seconds")
-    println("  Formulation: min BPR_cost(x) + restoration_cost(y)")
-    println("               s.t. x[e] <= M*y[e] (hard constraints)")
-    
-    println("\nCustom LMO (Penalty Method):")
-    println("  Objective: $(result_custom[:primal_objective])")
-    println("  Time: $(result_custom[:total_time_in_sec]) seconds")
-    println("  Formulation: min BPR_cost(x) + restoration_cost(y) + penalties")
-    println("               (penalties for violating x[e] <= M*y[e])")
-    
-    println("\n" * "-"^70)
-    println("IMPORTANT: These are DIFFERENT objective functions!")
-    println("The Custom LMO uses a penalized formulation because the shortest-path")
-    println("oracle cannot enforce the linking constraints x[e] <= M*y[e] directly.")
-    println("Different formulations → different solutions → different objectives.")
-    println("="^70)
-    
-    return x_moi, x_custom, result_moi, result_custom
+# Load network
+net_data = load_braess_network()
+println("\nNetwork: Two-Source Network with Purchasable Edge")
+println("  Nodes: $(net_data.num_nodes) (2 sources, 5 intermediate, 1 destination)")
+println("  Edges: $(net_data.num_edges)")
+println("  Sources: S1 (node 1), S2 (node 2)")
+println("  Destination: D (node 3)")
+println("  Intermediate nodes: 4, 5, 6, 7, 8")
+println("  Demand: 1 unit from each source (2 units total)")
+
+# Define removed edges (edges that need design decision)
+removed_edges = [(4, 5)]  # Optional edge from node_1 (intermediate node 4) to node_2 (intermediate node 5)
+cost_per_edge = [0.5]  # Cost to purchase the edge
+
+println("\nRemoved edges (need restoration decision): $removed_edges")
+println("Cost to restore: $cost_per_edge")
+
+# Build edge list for display
+edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) 
+             for i in 1:net_data.num_edges]
+
+# ## Solve with MOI-based LMO
+
+println("\n" * "="^70)
+println("Solving with MOI-based LMO (MIP solver models feasible region)")
+println("="^70)
+
+# Build MOI model
+optimizer, _ = build_moi_model(net_data, removed_edges, true)
+
+# Create Boscia LMO from MOI model
+lmo_moi = Boscia.MathOptBLMO(optimizer)
+
+# Build objective
+f_moi, grad_moi! = build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
+
+# Configure settings
+settings_moi = Boscia.create_default_settings()
+settings_moi.branch_and_bound[:verbose] = true
+
+# Solve with Boscia
+x_moi, _, result_moi = Boscia.solve(f_moi, grad_moi!, lmo_moi, settings=settings_moi)
+
+print_solution(x_moi, net_data, removed_edges, edge_list, "MOI-based LMO")
+
+# ## Solve with Custom LMO
+
+println("\n" * "="^70)
+println("Solving with Custom LMO (shortest path oracle)")
+penalty_weight = 1e3
+penalty_exponent = 1.5
+println("Penalty weight: $penalty_weight, Penalty exponent: $penalty_exponent")
+println("="^70)
+
+# Build graph
+graph = Graphs.SimpleDiGraph(net_data.num_nodes)
+edge_list_custom = Tuple{Int,Int}[]
+for i in 1:net_data.num_edges
+    Graphs.add_edge!(graph, net_data.init_nodes[i], net_data.term_nodes[i])
+    push!(edge_list_custom, (net_data.init_nodes[i], net_data.term_nodes[i]))
 end
 
-# Run the example
-if abspath(PROGRAM_FILE) == @__FILE__
-    x_moi, x_custom, result_moi, result_custom = main()
-end
+# Build sparse link dictionary
+link_dic = sparse(net_data.init_nodes, net_data.term_nodes, 
+                 collect(1:net_data.num_edges))
+
+# Create custom LMO for continuous variables
+custom_lmo = ShortestPathLMO(graph, net_data, link_dic, edge_list_custom)
+
+# Set up integer bounds for Boscia
+num_zones = net_data.num_zones
+num_edges = net_data.num_edges
+num_removed = length(removed_edges)
+total_vars = num_zones * num_edges + num_edges + num_removed
+
+# Binary variables for network design (last num_removed variables)
+int_vars = collect((num_zones * num_edges + num_edges + 1):total_vars)
+
+# Create bounds vectors for integer variables
+lower_bounds = zeros(Float64, num_removed)  # Binary: lower bound = 0
+upper_bounds = ones(Float64, num_removed)   # Binary: upper bound = 1
+
+# Wrap LMO with integer handling
+bounded_lmo = Boscia.ManagedBoundedLMO(custom_lmo, lower_bounds, upper_bounds, int_vars, total_vars)
+
+# Build objective WITH PENALTY TERMS for linking constraints
+f_custom, grad_custom! = build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
+                                                      penalty_weight, penalty_exponent)
+
+# Configure settings
+settings_custom = Boscia.create_default_settings()
+settings_custom.branch_and_bound[:verbose] = true
+
+# Solve with Boscia
+x_custom, _, result_custom = Boscia.solve(f_custom, grad_custom!, bounded_lmo, settings=settings_custom)
+
+print_solution(x_custom, net_data, removed_edges, edge_list, "Custom Shortest-Path LMO")
+
+# ## Comparison of Results
+
+println("\n" * "="^70)
+println("Comparison of Results")
+println("="^70)
+println("MOI-based LMO (Hard Constraints):")
+println("  Objective: $(result_moi[:primal_objective])")
+println("  Time: $(result_moi[:total_time_in_sec]) seconds")
+println("  Formulation: min BPR_cost(x) + restoration_cost(y)")
+println("               s.t. x[e] <= M*y[e] (hard constraints)")
+
+println("\nCustom LMO (Penalty Method):")
+println("  Objective: $(result_custom[:primal_objective])")
+println("  Time: $(result_custom[:total_time_in_sec]) seconds")
+println("  Formulation: min BPR_cost(x) + restoration_cost(y) + penalties")
+println("               (penalties for violating x[e] <= M*y[e])")
+
+println("\n" * "-"^70)
+println("IMPORTANT: These are DIFFERENT objective functions!")
+println("The Custom LMO uses a penalized formulation because the shortest-path")
+println("oracle cannot enforce the linking constraints x[e] <= M*y[e] directly.")
+println("Different formulations → different solutions → different objectives.")
+println("="^70)
 
