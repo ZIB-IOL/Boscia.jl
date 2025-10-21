@@ -30,7 +30,7 @@ n = 20
 p = 5 * n
 k = ceil(n / 5)
 group_size = convert(Int64, floor(p / k))
-M_g = 5.0
+const M_g = 5.0
 
 const lambda_0_g = 0.0
 const lambda_2_g = 0.0
