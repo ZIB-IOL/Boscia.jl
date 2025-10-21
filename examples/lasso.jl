@@ -29,13 +29,13 @@ rng = StableRNG(seed)
 n = 20
 p = 5 * n
 k = ceil(n / 5)
-group_size = convert(Int64, floor(p / k))
-const M_g = 5.0
-
+group_size = convert(Int64, 
+floor(p / k))
+const M_g_1 = 5.0
 const lambda_0_g = 0.0
 const lambda_2_g = 0.0
 const A_g = rand(rng, Float64, n, p)
-β_sol = rand(rng, Distributions.Uniform(-M_g, M_g), p)
+β_sol = rand(rng, Distributions.Uniform(-M_g_1, M_g_1), p)
 k_int = convert(Int64, k)
 
 for i in 1:k_int
@@ -52,11 +52,11 @@ for i in 1:p
 end
 k = p - k
 
-const groups = []
+const groups_2 = []
 for i in 1:(k_int-1)
-    push!(groups, ((i-1)*group_size+1):(i*group_size))
+    push!(groups_2, ((i-1)*group_size+1):(i*group_size))
 end
-push!(groups, ((k_int-1)*group_size+1):p)
+push!(groups_2, ((k_int-1)*group_size+1):p)
 
 @testset "Sparse Regression Group" begin
     o = SCIP.Optimizer()
@@ -72,12 +72,12 @@ push!(groups, ((k_int-1)*group_size+1):p)
     for i in 1:p
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M_g], [x[i], z[i]]), 0.0),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, M_g_1], [x[i], z[i]]), 0.0),
             MOI.GreaterThan(0.0),
         )
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M_g], [x[i], z[i]]), 0.0),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.([1.0, -M_g_1], [x[i], z[i]]), 0.0),
             MOI.LessThan(0.0),
         )
         # Indicator: x[i+p] = 1 => -M_g <= x[i] <= M_g
@@ -95,8 +95,8 @@ push!(groups, ((k_int-1)*group_size+1):p)
             ],
             [0.0, 0.0],
         )
-        MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(M_g)))
-        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-M_g)))
+        MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(M_g_1)))
+        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-M_g_1)))
     end
     MOI.add_constraint(
         o,
@@ -106,7 +106,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
     for i in 1:k_int
         MOI.add_constraint(
             o,
-            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size), z[groups[i]]), 0.0),
+            MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size), z[groups_2[i]]), 0.0),
             MOI.GreaterThan(1.0),
         )
     end
@@ -135,7 +135,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
     z = x[p+1:2p]
     @test sum(z) <= k
     for i in 1:k_int
-        @test sum(z[groups[i]]) >= 1
+        @test sum(z[groups_2[i]]) >= 1
     end
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @show f(x)

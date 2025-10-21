@@ -198,11 +198,13 @@ Ng = 5.0
 
 k = 10
 group_size = convert(Int64, floor(pg / k))
-const groups = []
+
+const groups_1 = []
+
 for i in 1:(k-1)
-    push!(groups, ((i-1)*group_size+1):(i*group_size))
+    push!(groups_1, ((i-1)*group_size+1):(i*group_size))
 end
-push!(groups, ((k-1)*group_size+1):pg)
+push!(groups_1, ((k-1)*group_size+1):pg)
 
 @testset "Sparse Group Poisson" begin
     o = SCIP.Optimizer()
@@ -241,7 +243,7 @@ push!(groups, ((k-1)*group_size+1):pg)
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ng))
     for i in 1:k
         #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size),x[groups[i]]), 0.0), MOI.GreaterThan(1.0))
-        MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
+        MOI.add_constraint(o, sum(z[groups_1[i]], init=0.0), MOI.GreaterThan(1.0))
     end
     lmo = FrankWolfe.MathOptLMO(o)
 
@@ -317,7 +319,7 @@ end
     MOI.add_constraint(o, b, MOI.GreaterThan(-Ng))
     for i in 1:k
         #MOI.add_constraint(o, MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(group_size),x[groups[i]]), 0.0), MOI.GreaterThan(1.0))
-        MOI.add_constraint(o, sum(z[groups[i]], init=0.0), MOI.GreaterThan(1.0))
+        MOI.add_constraint(o, sum(z[groups_1[i]], init=0.0), MOI.GreaterThan(1.0))
     end
     lmo = FrankWolfe.MathOptLMO(o)
     α = 1.3
