@@ -345,7 +345,8 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         v = compute_extreme_point(tree.root.problem.tlmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         verbose && println("Postprocessing")
-        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+        x, primal, dual_gap, fw_status, _ = solve_frank_wolfe(
+            tree.root.options[:variant],
             tree.root.problem.f,
             tree.root.problem.g,
             tree.root.problem.tlmo,
@@ -355,6 +356,9 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             verbose=verbose,
             max_iteration=max_iteration_post,
         )
+        if verbose
+            @show fw_status
+        end
 
         # update tree
         if primal < tree.incumbent
