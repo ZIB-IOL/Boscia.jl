@@ -52,7 +52,7 @@ for i in 1:p
 end
 k = p - k
 
-groups = []
+const groups = []
 for i in 1:(k_int-1)
     push!(groups, ((i-1)*group_size+1):(i*group_size))
 end
