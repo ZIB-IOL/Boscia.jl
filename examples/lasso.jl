@@ -30,7 +30,7 @@ n = 20
 p = 5 * n
 k = ceil(n / 5)
 group_size = convert(Int64, floor(p / k))
-M_g = 5.0
+const M_g = 5.0
 
 const lambda_0_g = 0.0
 const lambda_2_g = 0.0
@@ -52,7 +52,7 @@ for i in 1:p
 end
 k = p - k
 
-groups = []
+const groups = []
 for i in 1:(k_int-1)
     push!(groups, ((i-1)*group_size+1):(i*group_size))
 end
