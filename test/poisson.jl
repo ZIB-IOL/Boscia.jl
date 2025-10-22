@@ -167,7 +167,7 @@ end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
@@ -349,7 +349,7 @@ end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
