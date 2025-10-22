@@ -74,7 +74,7 @@ function compute_extreme_point(managed_lmo::ManagedBoundedLMO, d; kwargs...)
 end
 
 function is_decomposition_invariant_oracle(managed_lmo::ManagedBoundedLMO)
-    return is_decomposition_invariant_oracle(managed_lmo.lmo)
+    return is_decomposition_invariant_oracle_simple(managed_lmo.lmo)
 end
 
 # Provide FrankWolfe.compute_inface_extreme_point
@@ -217,7 +217,7 @@ end
 # Is a given point v linear feasible for the model?
 # That means does v satisfy all bounds and other linear constraints?
 function is_linear_feasible(managed_lmo::ManagedBoundedLMO, v::AbstractVector)
-    for (i, int_var) in enumerate(lmo.int_vars)
+    for (i, int_var) in enumerate(managed_lmo.int_vars)
         if !(
             managed_lmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ managed_lmo.upper_bounds[i])
         )
@@ -285,7 +285,7 @@ end
 
 ## Logs
 # Get solve time, number of nodes and number of iterations, if applicable.
-function get_lmo_solve_data(managed_lmo::ManagedBoundedLMO)
+function get_LMO_solve_data(managed_lmo::ManagedBoundedLMO)
     return managed_lmo.solving_time, 0.0, 0.0
 end
 
