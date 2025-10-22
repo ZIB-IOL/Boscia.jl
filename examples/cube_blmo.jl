@@ -30,13 +30,13 @@
 using Boscia
 using Bonobo
 using Dates
-
+using FrankWolfe
 """
     CubeBLMO
 
 A Bounded Linear Minimization Oracle over a cube.
 """
-mutable struct CubeBLMO <: Boscia.BoundedLinearMinimizationOracle
+mutable struct CubeBLMO <: FrankWolfe.LinearMinimizationOracle
     n::Int
     int_vars::Vector{Int}
     bounds::Boscia.IntegerBounds
@@ -188,6 +188,6 @@ function Boscia.is_valid_split(tree::Bonobo.BnBTree, blmo::CubeBLMO, vidx::Int)
 end
 
 ## Logs
-function Boscia.get_BLMO_solve_data(blmo::CubeBLMO)
+function Boscia.get_LMO_solve_data(blmo::CubeBLMO)
     return blmo.solving_time, 0.0, 0.0
 end
