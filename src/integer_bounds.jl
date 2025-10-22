@@ -14,6 +14,29 @@ end
 
 IntegerBounds() = IntegerBounds(Dict{Int,Float64}(), Dict{Int,Float64}())
 
+function IntegerBounds(lbs::AbstractVector{<:Real}, ubs::AbstractVector{<:Real}, int_vars::AbstractVector{<:Integer})
+    lower_bounds = Dict{Int,Float64}()
+    upper_bounds = Dict{Int,Float64}()
+    for idx in int_vars
+        lower_bounds[idx] = lbs[idx]
+        upper_bounds[idx] = ubs[idx]
+        #push!(lower_bounds, (idx, lbs[idx]))
+       # push!(upper_bounds, (idx, ubs[idx]))
+    end
+    return IntegerBounds(lower_bounds, upper_bounds)
+end
+
+function IntegerBounds(lb::Real, ub::Real, int_vars::AbstractVector{<:Integer})
+    lbs = fill(lb, length(int_vars))
+    ubs = fill(ub, length(int_vars))
+    return IntegerBounds(lbs, ubs, int_vars)
+end
+
+function IntegerBounds(lb::Real, ub::Real, m::Integer)
+    int_vars = collect(1:m)
+    return IntegerBounds(lb, ub, int_vars)
+end
+
 function Base.push!(ib::IntegerBounds, (idx, bound), sense::Symbol)
     if sense == :greaterthan
         ib.lower_bounds[idx] = bound
