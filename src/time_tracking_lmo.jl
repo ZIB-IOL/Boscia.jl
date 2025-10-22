@@ -62,6 +62,23 @@ end
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.lmo)
+    
+    # keep track of the solving data, since the in-face problem is solved using a new solver
+    MOI_attribute = Dict()
+    MOI_attribute[MOI.SolveTimeSec()] = 0.0
+    MOI_attribute[MOI.NodeCount()] = 0
+    MOI_attribute[MOI.SimplexIterations()] = 0
+
+    a = compute_inface_extreme_point(tlmo.lmo, direction, x; solve_data=MOI_attribute)
+
+    if !is_linear_feasible(tlmo, a)
+        @debug "Vertex not linear feasible $(a)"
+        @assert is_linear_feasible(tlmo, a)
+    end
+
+    push!(tlmo.optimizing_times, MOI_attribute[MOI.SolveTimeSec()])
+    push!(tlmo.optimizing_nodes, MOI_attribute[MOI.NodeCount()])
+    push!(tlmo.simplex_iterations, MOI_attribute[MOI.SimplexIterations()])
     a = compute_inface_extreme_point(tlmo.lmo, direction, x)
 
     if !is_linear_feasible(tlmo, a)
