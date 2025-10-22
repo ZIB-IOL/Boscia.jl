@@ -69,7 +69,7 @@ function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=
         @assert is_linear_feasible(tlmo, a)
     end
 
-    opt_times, numberofnodes, simplex_iterations = get_lmo_solve_data(tlmo.lmo)
+    opt_times, numberofnodes, simplex_iterations = get_LMO_solve_data(tlmo.lmo)
 
     push!(tlmo.optimizing_times, opt_times)
     push!(tlmo.optimizing_nodes, numberofnodes)
@@ -117,7 +117,7 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     end
     v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
-    opt_times, numberofnodes, simplex_iterations = get_lmo_solve_data(tlmo.lmo)
+    opt_times, numberofnodes, simplex_iterations = get_LMO_solve_data(tlmo.lmo)
 
     push!(tlmo.optimizing_times, opt_times)
     push!(tlmo.optimizing_nodes, numberofnodes)
