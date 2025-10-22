@@ -30,7 +30,7 @@ using StableRNGs
 using CombinatorialLinearOracles
 const CLO = CombinatorialLinearOracles
 
-println("\nDocumentation Example 02: Graph Isomorphism Prblem")
+println("\nDocumentation Example 02: Graph Isomorphism Problem")
 
 seed = rand(UInt64)
 @show seed
@@ -41,13 +41,27 @@ rng = StableRNG(seed)
 # matrix P and returns the permuted adjacency matrix B = P * A * P'.
 # The resulting graphs A and B are isomorphic, and P encodes the vertex
 # relabeling between them.
-function randomPermutation(A)
+function randomIsomorphic(A)
     n = size(A, 1)
     p = randperm(n)
     I = Matrix(LinearAlgebra.I, n, n)
     P = I[:, p]
     B = P * A * P'
     return B, P
+end
+
+# ## Generate a random non-isomorphic graph
+# Given an adjacency matrix A, this function randomly toggles one edge 
+# (adds or removes it) to create a new graph B. The resulting graph B 
+# is symmetric and typically non-isomorphic to A.
+function randomNonIsomorphic(A::AbstractMatrix)
+    B = copy(A)
+    n = size(B, 1)
+    i = rand(1:(n-1))
+    j = rand((i+1):n)
+    B[i, j] = 1 - B[i, j]
+    B[j, i] = B[i, j]
+    return B
 end
 
 # ## Neighborhood heuristic over the Birkhoff polytope
@@ -95,12 +109,20 @@ function random_k_neighbor_matrix(
 end
 
 # ## Graph data
-# For a self-contained example, we use the Petersen graph as A, and create B by a random permutation.
-A = Matrix(CSV.read("./Petersen.csv", DataFrame; header = false))
+# For this self-contained example, we use the Petersen graph as A.
+# We then create B either as an isomorphic graph via a random permutation,
+# or as a non-isomorphic graph by randomly toggling one edge.
+
+A = Matrix(CSV.read(joinpath(@__DIR__, "Petersen.csv"), DataFrame; header = false))
 A = sparse(A)
 n = size(A, 1)
-B, P = randomPermutation(Matrix(A))
+
+# --- Isomorphic case ---
+B, P = randomIsomorphic(Matrix(A))
 B = sparse(B)
+
+# --- Non-isomorphic case ---
+# B = randomNonIsomorphic(A)
 
 # ## Objective and gradient
 # We represent X as a vector x ∈ ℝ^{n^2}, reshaped into X ∈ ℝ^{n×n} in the routines.
@@ -188,8 +210,14 @@ settings.frank_wolfe[:max_fw_iter] = 1000
 x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
 
 # ## Certificate
-# If the graphs are isomorphic, the optimizer recovers a permutation matrix X with f(X)=0,
-# which satisfies B = X A X' and hence A ≈ X' B X.
+# If the graphs are isomorphic, the optimizer should recover a permutation
+# matrix X with objective value f(X) = 0, satisfying B = X * A * X'
+# (equivalently, A ≈ X' * B * X).
 X = reshape(x, n, n)
 @assert A ≈ X' * B * X
-println("Certificate verified: A ≈ X' * B * X")
+println("Certificate verified: graphs are isomorphic (A ≈ X' * B * X)")
+
+# If the graphs are not isomorphic, no perfect permutation exists,
+# and the optimization problem yields a positive lower bound.
+# @assert result[:dual_bound] > 0.0
+# println("Graphs are not isomorphic (lower bound > 0)")
