@@ -7,7 +7,7 @@ Requires
 
 - `f` oracle of the objective function.
 - `g` oracle of the gradient of the objective
-- `lmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `LinearMinimizationOracle` (see `blmo_interface.jl`).
+- `lmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `FrankWolfe.LinearMinimizationOracle` (see `blmo_interface.jl`).
 
 Returns
 
@@ -28,10 +28,16 @@ Optional settings
 function solve(
     f,
     grad!,
-    lmo::LinearMinimizationOracle;
+    lmo::FrankWolfe.LinearMinimizationOracle;
     settings=create_default_settings(),
     kwargs...,
 )
+    # For as long as MathOptBLMO is not yet deleted.
+    if lmo isa MathOptBLMO
+        println("Convert MathOptBLMO to MathOptLMO")
+        lmo = convert(MathOptLMO, lmo)
+    end
+
     build_heuristics(settings.heuristic)
     options = merge(
         settings.mode,
