@@ -95,11 +95,6 @@ test_instance = string("MPS ", example, " instance")
     settings.branch_and_bound[:time_limit] = 600
     settings.tolerances[:fw_epsilon] = 1e-1
     settings.tolerances[:min_node_fw_epsilon] = 1e-3
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings=settings,
-    )
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result[:raw_solution])
 end

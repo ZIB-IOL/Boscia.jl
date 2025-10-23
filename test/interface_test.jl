@@ -763,3 +763,88 @@ end
     @test Boscia.is_linear_feasible(o, vcat([0.5, 0.5], ones(n - 2)))
     @test Boscia.is_linear_feasible(o, vcat([0.0, 0.0], ones(n - 2)))
 end
+
+@testset "Float N test with ProbabilitySimplexSimpleBLMO" begin
+    n = 10
+    N = 24.5   #Float N
+    d = randn(n)
+    nint = 4
+
+    lb = zeros(nint)
+    ub = ones(nint) * 20.0
+
+    int_vars = collect(1:nint)
+
+    blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
+
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 9.7] #exactly equal to N
+
+
+    Q = Matrix(I, n, n)
+    b = -Q * x_feas
+
+    function f(x)
+        return 0.5 * x' * Q * x + b' * x
+    end
+
+    function grad!(storage, x)
+        return storage .= Q * x + b
+    end
+
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+
+    x, tlmo, result = Boscia.solve(f, grad!, blmo, lb, ub, int_vars, n; settings=settings)
+
+
+    @test length(x) == n
+    @test isfinite(f(x))
+    @test Boscia.is_simple_linear_feasible(blmo, x)
+
+
+    println("Solution x = ", x)
+    println("Objective f(x) = ", f(x))
+    println("Status = ", result[:status])
+end
+
+@testset "Float N test with UnitSimplexSimpleBLMO" begin
+    n = 10
+    N = 22.4   #Float N
+    d = randn(n)
+    nint = 3
+
+    lb = zeros(nint)
+    ub = ones(nint) * 10.0
+
+    int_vars = collect(1:nint)
+
+    blmo = Boscia.UnitSimplexSimpleBLMO(N)
+
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 0.6] #smaller than N
+
+    Q = Matrix(I, n, n)
+    b = -Q * x_feas
+
+    function f(x)
+        return 0.5 * x' * Q * x + b' * x
+    end
+
+    function grad!(storage, x)
+        return storage .= Q * x + b
+    end
+
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+
+    x, tlmo, result = Boscia.solve(f, grad!, blmo, lb, ub, int_vars, n; settings=settings)
+
+    @test length(x) == n
+    @test isfinite(f(x))
+    @test Boscia.is_simple_linear_feasible(blmo, x_feas)
+
+    println("Solution x = ", x)
+    println("Objective f(x) = ", f(x))
+    println("Status = ", result[:status])
+end

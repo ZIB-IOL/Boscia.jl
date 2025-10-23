@@ -127,11 +127,6 @@ settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:print_iter] = 500
 settings.branch_and_bound[:time_limit] = 300
 settings.heuristic[:custom_heuristics] = heuristics
-x, _, _ = Boscia.solve(
-    f,
-    grad!,
-    lmo,
-    settings=settings,
-)
+x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
 
 @show x
