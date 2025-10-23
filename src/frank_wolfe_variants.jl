@@ -156,7 +156,8 @@ function solve_frank_wolfe(
     workspace=nothing,
     kwargs...,
 )
-    x, _, primal, dual_gap, _, active_set = FrankWolfe.pairwise_frank_wolfe(
+    x, _, primal, dual_gap, status, _, active_set =
+    FrankWolfe.blended_pairwise_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -173,7 +174,7 @@ function solve_frank_wolfe(
         timeout=timeout,
         verbose=verbose,
     )
-    return x, primal, dual_gap, active_set
+    return x, primal, dual_gap, status, active_set
 end
 
 Base.print(io::IO, ::PairwiseFrankWolfe) = print(io, "Pairwise Frank-Wolfe")
