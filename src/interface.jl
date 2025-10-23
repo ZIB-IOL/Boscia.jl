@@ -189,6 +189,8 @@ function solve(
             branched_on=-1,
             branched_right=false,
             distance_to_int=0.0,
+            active_set_size=0,
+            discarded_set_size=0,
         ),
     )
 
