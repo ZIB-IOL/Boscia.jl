@@ -430,8 +430,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
     @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_blended, x_bpcg, atol=1e-6, rtol=1e-3)) == n
-    @test sum(isapprox.(x_pcg, x_pcg, atol=1e-6, rtol=1e-3)) == n
-    @test sum(isapprox.(x_bpcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_pcg, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_pcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_dicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
 end
