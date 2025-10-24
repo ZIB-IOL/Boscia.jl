@@ -36,7 +36,8 @@ A Bounded Linear Minimization Oracle that manages the bounds.
 - `int_vars` list of indices of the integer variables.
 - `solving_time` the time to evaluate `compute_extreme_point`.
 """
-mutable struct ManagedBoundedLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <: FrankWolfe.LinearMinimizationOracle
+mutable struct ManagedBoundedLMO{LMO<:FrankWolfe.LinearMinimizationOracle} <:
+               FrankWolfe.LinearMinimizationOracle
     lmo::LMO
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
@@ -219,7 +220,8 @@ end
 function is_linear_feasible(managed_lmo::ManagedBoundedLMO, v::AbstractVector)
     for (i, int_var) in enumerate(managed_lmo.int_vars)
         if !(
-            managed_lmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ managed_lmo.upper_bounds[i])
+            managed_lmo.lower_bounds[i] ≤ v[int_var] + 1e-6 ||
+            !(v[int_var] - 1e-6 ≤ managed_lmo.upper_bounds[i])
         )
             @debug(
                 "Variable: $(int_var) Vertex entry: $(v[int_var]) Lower bound: $(managed_lmo.lower_bounds[i]) Upper bound: $(managed_lmo.upper_bounds[i]))"

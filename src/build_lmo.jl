@@ -42,7 +42,7 @@ function build_LMO(
     # Upper bounds
     for c_idx in consUB_list
         if is_constraint_on_int_var(lmo, c_idx, int_vars)
-            v_idx = get_int_var(lmo, c_idx) 
+            v_idx = get_int_var(lmo, c_idx)
             if is_bound_in(lmo, c_idx, global_bounds.upper_bounds)
                 # Change
                 if is_bound_in(lmo, c_idx, node_bounds.upper_bounds)

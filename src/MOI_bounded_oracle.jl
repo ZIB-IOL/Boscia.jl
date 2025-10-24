@@ -112,10 +112,7 @@ end
 Get the list of lower bounds.
 """
 function get_lower_bound_list(lmo::FrankWolfe.MathOptLMO)
-    return MOI.get(
-        lmo.o,
-        MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}(),
-    )
+    return MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}())
 end
 
 """
@@ -490,10 +487,8 @@ function is_valid_split(tree::Bonobo.BnBTree, lmo::FrankWolfe.MathOptLMO, vidx::
     if int_var || bin_var
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
         u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
-        l_bound =
-            MOI.is_valid(lmo.o, l_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), l_idx) : nothing
-        u_bound =
-            MOI.is_valid(lmo.o, u_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), u_idx) : nothing
+        l_bound = MOI.is_valid(lmo.o, l_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), l_idx) : nothing
+        u_bound = MOI.is_valid(lmo.o, u_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), u_idx) : nothing
         if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
             @debug l_bound.lower, u_bound.upper
             return false

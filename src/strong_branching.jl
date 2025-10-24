@@ -1,6 +1,5 @@
 
-struct PartialStrongBranching{LMO<:LinearMinimizationOracle} <:
-       Bonobo.AbstractBranchStrategy
+struct PartialStrongBranching{LMO<:LinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
     max_iteration::Int
     solving_epsilon::Float64
     lmo::LMO

@@ -39,18 +39,17 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, time_ref, time_limit) = TimeTrack
 
 Constructor with just the blmo.
 """
-TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) =
-    TimeTrackingLMO(
-        lmo,
-        Float64[],
-        Int[],
-        Int[],
-        0,
-        int_vars,
-        time_ref,
-        isa(lmo, MathOptBLMO),
-        time_limit,
-    )
+TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) = TimeTrackingLMO(
+    lmo,
+    Float64[],
+    Int[],
+    Int[],
+    0,
+    int_vars,
+    time_ref,
+    isa(lmo, MathOptBLMO),
+    time_limit,
+)
 
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) =
     is_decomposition_invariant_oracle(tlmo.lmo)
