@@ -198,8 +198,19 @@ Available settings:
 function settings_postprocessing(; mode::Mode=Boscia.DEFAULT_MODE)
     use_postsolve = true
     max_iteration_post = 10000
+    epsilon_post = 1e-6
+    timeout_post = Inf
+    lazy_post = true
+    verbose_post = true
 
-    return Dict(:use_postsolve => use_postsolve, :max_iteration_post => max_iteration_post)
+    return Dict(
+        :use_postsolve => use_postsolve,
+        :max_iteration_post => max_iteration_post,
+        :epsilon_post => epsilon_post,
+        :timeout_post => timeout_post,
+        :lazy_post => lazy_post,
+        :verbose_post => verbose_post,
+    )
 end
 
 """

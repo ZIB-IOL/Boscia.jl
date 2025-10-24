@@ -358,9 +358,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             tree.root.problem.tlmo,
             active_set,
             line_search=tree.root.options[:line_search],
-            lazy=true,
-            verbose=verbose,
-            max_iteration=max_iteration_post,
+            lazy=tree.root.options[:lazy_post],
+            verbose=tree.root.options[:verbose_post] && verbose,
+            max_iteration=tree.root.options[:max_iteration_post],
+            epsilon=tree.root.options[:epsilon_post],
+            timeout=tree.root.options[:timeout_post],
         )
         if verbose
             @show fw_status
