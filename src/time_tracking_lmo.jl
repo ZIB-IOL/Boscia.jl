@@ -62,18 +62,23 @@ end
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
     free_model(tlmo.lmo)
-    a = compute_inface_extreme_point(tlmo.lmo, direction, x)
+
+    # keep track of the solving data, since the in-face problem is solved using a new solver
+    MOI_attribute = Dict()
+    MOI_attribute[MOI.SolveTimeSec()] = 0.0
+    MOI_attribute[MOI.NodeCount()] = 0
+    MOI_attribute[MOI.SimplexIterations()] = 0
+
+    a = compute_inface_extreme_point(tlmo.lmo, direction, x; solve_data=MOI_attribute)
 
     if !is_linear_feasible(tlmo, a)
         @debug "Vertex not linear feasible $(a)"
         @assert is_linear_feasible(tlmo, a)
     end
 
-    opt_times, numberofnodes, simplex_iterations = get_lmo_solve_data(tlmo.lmo)
-
-    push!(tlmo.optimizing_times, opt_times)
-    push!(tlmo.optimizing_nodes, numberofnodes)
-    push!(tlmo.simplex_iterations, simplex_iterations)
+    push!(tlmo.optimizing_times, MOI_attribute[MOI.SolveTimeSec()])
+    push!(tlmo.optimizing_nodes, MOI_attribute[MOI.NodeCount()])
+    push!(tlmo.simplex_iterations, MOI_attribute[MOI.SimplexIterations()])
 
     free_model(tlmo.lmo)
 
@@ -117,7 +122,7 @@ function FrankWolfe.compute_extreme_point(tlmo::TimeTrackingLMO, d; kwargs...)
     end
     v[tlmo.int_vars] = round.(v[tlmo.int_vars])
 
-    opt_times, numberofnodes, simplex_iterations = get_lmo_solve_data(tlmo.lmo)
+    opt_times, numberofnodes, simplex_iterations = get_LMO_solve_data(tlmo.lmo)
 
     push!(tlmo.optimizing_times, opt_times)
     push!(tlmo.optimizing_nodes, numberofnodes)

@@ -26,7 +26,7 @@ Given a direction d solves the problem
     `min_x d^T x`
 where x has to be an integer feasible point
 """
-function compute_extreme_point end
+#compute_extreme_point(lmo,d; kwargs...)
 
 """
 Read global bounds from the problem.
@@ -224,6 +224,7 @@ function get_LMO_solve_data(lmo::LinearMinimizationOracle)
     return 0.0, 0.0, 0.0
 end
 
+#=
 ## These DICG-specific functions are essential for Boscia to run with DICG.
 """
     is_decomposition_invariant_oracle(lmo::LinearMinimizationOracle)
@@ -274,3 +275,4 @@ function dicg_maximum_step(lmo::LinearMinimizationOracle, d, x)
         "To use DICG within Boscia, this function has to be implemented for $(typeof(lmo)).",
     )
 end
+=#

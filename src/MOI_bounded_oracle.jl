@@ -2,6 +2,8 @@
     MathOptBLMO{OT<:MOI.AbstractOptimizer} <: LinearMinimizationOracle
 
 LinearMinimizationOracle for solvers supporting MathOptInterface.
+
+WILL DEPRECATED!
 """
 
 # Store extra information of solving inface extrem points.
@@ -51,12 +53,14 @@ end
 
 Is implemented in the FrankWolfe package in file "moi_oracle.jl".
 """
+#=
 function compute_extreme_point(blmo::MathOptBLMO, d; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
     v = FrankWolfe.compute_extreme_point(lmo, d; kwargs)
     @assert blmo isa MathOptBLMO
     return v
 end
+=#
 
 """
     get_list_of_variables(blmo::MathOptBLMO)
@@ -64,8 +68,8 @@ end
 Get list of variables indices and the total number of variables. 
 If the problem has n variables, they are expected to contiguous and ordered from 1 to n.
 """
-function get_list_of_variables(blmo::MathOptBLMO)
-    v_indices = MOI.get(blmo.o, MOI.ListOfVariableIndices())
+function get_list_of_variables(lmo::FrankWolfe.MathOptLMO)
+    v_indices = MOI.get(lmo.o, MOI.ListOfVariableIndices())
     n = length(v_indices)
     if v_indices != MOI.VariableIndex.(1:n)
         error("Variables are expected to be contiguous and ordered from 1 to N")
@@ -78,8 +82,8 @@ end
 
 Get list of binary variables.
 """
-function get_binary_variables(blmo::MathOptBLMO)
-    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
+function get_binary_variables(lmo::FrankWolfe.MathOptLMO)
+    return MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
 end
 
 """
@@ -87,9 +91,9 @@ end
 
 Get list of integer variables.
 """
-function get_integer_variables(blmo::MathOptBLMO)
-    bin_var = get_binary_variables(blmo)
-    int_var = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+function get_integer_variables(lmo::FrankWolfe.MathOptLMO)
+    bin_var = get_binary_variables(lmo)
+    int_var = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
     return vcat(getproperty.(int_var, :value), getproperty.(bin_var, :value))
 end
 
@@ -98,7 +102,7 @@ end
 
 Get the index of the integer variable the bound is working on.
 """
-function get_int_var(blmo::MathOptBLMO, c_idx)
+function get_int_var(lmo::FrankWolfe.MathOptLMO, c_idx)
     return c_idx.value
 end
 
@@ -107,9 +111,9 @@ end
 
 Get the list of lower bounds.
 """
-function get_lower_bound_list(blmo::MathOptBLMO)
+function get_lower_bound_list(lmo::FrankWolfe.MathOptLMO)
     return MOI.get(
-        blmo.o,
+        lmo.o,
         MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.GreaterThan{Float64}}(),
     )
 end
@@ -119,8 +123,8 @@ end
 
 Get the list of upper bounds.
 """
-function get_upper_bound_list(blmo::MathOptBLMO)
-    return MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
+function get_upper_bound_list(lmo::FrankWolfe.MathOptLMO)
+    return MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.LessThan{Float64}}())
 end
 
 """
@@ -128,11 +132,11 @@ end
 
 Change the value of the bound c_idx.
 """
-function set_bound!(blmo::MathOptBLMO, c_idx, value, sense::Symbol)
+function set_bound!(lmo::FrankWolfe.MathOptLMO, c_idx, value, sense::Symbol)
     if sense == :lessthan
-        MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, MOI.LessThan(value))
+        MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, MOI.LessThan(value))
     elseif sense == :greaterthan
-        MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, MOI.GreaterThan(value))
+        MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, MOI.GreaterThan(value))
     else
         error("Allowed values for sense are :lessthan and :greaterthan!")
     end
@@ -143,8 +147,8 @@ end
 
 Read bound value for c_idx.
 """
-function get_bound(blmo::MathOptBLMO, c_idx, sense::Symbol)
-    return MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+function get_bound(lmo::FrankWolfe.MathOptLMO, c_idx, sense::Symbol)
+    return MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
 end
 
 """
@@ -152,7 +156,7 @@ end
 
 Check if the subject of the bound c_idx is an integer variable (recorded in int_vars).
 """
-function is_constraint_on_int_var(blmo::MathOptBLMO, c_idx, int_vars)
+function is_constraint_on_int_var(lmo::FrankWolfe.MathOptLMO, c_idx, int_vars)
     return c_idx.value in int_vars
 end
 
@@ -161,7 +165,7 @@ end
 
 To check if there is bound for the variable in the global or node bounds.
 """
-function is_bound_in(blmo::MathOptBLMO, c_idx, bounds)
+function is_bound_in(lmo::FrankWolfe.MathOptLMO, c_idx, bounds)
     return haskey(bounds, c_idx.value)
 end
 
@@ -170,9 +174,9 @@ end
 
 Delete bounds.
 """
-function delete_bounds!(blmo::MathOptBLMO, cons_delete)
+function delete_bounds!(lmo::FrankWolfe.MathOptLMO, cons_delete)
     for (d_idx, _) in cons_delete
-        MOI.delete(blmo.o, d_idx)
+        MOI.delete(lmo.o, d_idx)
     end
 end
 
@@ -181,11 +185,11 @@ end
 
 Add bound constraint.
 """
-function add_bound_constraint!(blmo::MathOptBLMO, key, value, sense::Symbol)
+function add_bound_constraint!(lmo::FrankWolfe.MathOptLMO, key, value, sense::Symbol)
     if sense == :lessthan
-        MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.LessThan(value))
+        MOI.add_constraint(lmo.o, MOI.VariableIndex(key), MOI.LessThan(value))
     elseif sense == :greaterthan
-        MOI.add_constraint(blmo.o, MOI.VariableIndex(key), MOI.GreaterThan(value))
+        MOI.add_constraint(lmo.o, MOI.VariableIndex(key), MOI.GreaterThan(value))
     end
 end
 
@@ -194,8 +198,8 @@ end
 
 Has variable a binary constraint?
 """
-function has_binary_constraint(blmo::MathOptBLMO, idx::Int)
-    consB_list = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
+function has_binary_constraint(lmo::FrankWolfe.MathOptLMO, idx::Int)
+    consB_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.ZeroOne}())
     for c_idx in consB_list
         if c_idx.value == idx
             return true, c_idx
@@ -209,8 +213,8 @@ end
 
 Does the variable have an integer constraint?
 """
-function has_integer_constraint(blmo::MathOptBLMO, idx::Int)
-    consB_list = MOI.get(blmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
+function has_integer_constraint(lmo::FrankWolfe.MathOptLMO, idx::Int)
+    consB_list = MOI.get(lmo.o, MOI.ListOfConstraintIndices{MOI.VariableIndex,MOI.Integer}())
     for c_idx in consB_list
         if c_idx.value == idx
             return true, c_idx
@@ -224,8 +228,8 @@ end
 
 Is a given point v linear feasible for the model?
 """
-function is_linear_feasible(blmo::MathOptBLMO, v::AbstractVector)
-    return is_linear_feasible(blmo.o, v)
+function is_linear_feasible(lmo::FrankWolfe.MathOptLMO, v::AbstractVector)
+    return is_linear_feasible(lmo.o, v)
 end
 function is_linear_feasible(o::MOI.ModelLike, v::AbstractVector)
     valvar(f) = v[f.value]
@@ -263,9 +267,9 @@ end
 """
 Is a given point v inface feasible for the model?
 """
-function is_inface_feasible(blmo::MathOptBLMO, a::AbstractVector, x::AbstractVector)
-    o2 = MOI.instantiate(typeof(blmo.o))
-    MOI.copy_to(o2, blmo.o)
+function is_inface_feasible(lmo::FrankWolfe.MathOptLMO, a::AbstractVector, x::AbstractVector)
+    o2 = MOI.instantiate(typeof(lmo.o))
+    MOI.copy_to(o2, lmo.o)
     MOI.set(o2, MOI.Silent(), true)
     return is_inface_feasible(o2, a, x)
 end
@@ -366,18 +370,18 @@ end
 
 Add explicit bounds for binary variables.
 """
-function explicit_bounds_binary_var(blmo::MathOptBLMO, global_bounds::IntegerBounds)
+function explicit_bounds_binary_var(lmo::FrankWolfe.MathOptLMO, global_bounds::IntegerBounds)
     # adding binary bounds explicitly
-    binary_variables = get_binary_variables(blmo)
+    binary_variables = get_binary_variables(lmo)
     for idx in binary_variables
         cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(idx.value)
-        if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx.value), MOI.LessThan(1.0))
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx.value), MOI.LessThan(1.0))
         end
-        @assert MOI.is_valid(blmo.o, cidx)
+        @assert MOI.is_valid(lmo.o, cidx)
         cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(idx.value)
-        if !MOI.is_valid(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, MOI.VariableIndex(idx.value), MOI.GreaterThan(0.0))
+        if !MOI.is_valid(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, MOI.VariableIndex(idx.value), MOI.GreaterThan(0.0))
         end
         global_bounds[idx.value, :greaterthan] = 0.0
         global_bounds[idx.value, :lessthan] = 1.0
@@ -389,14 +393,14 @@ end
 
 Read global bounds from the problem
 """
-function build_global_bounds(blmo::MathOptBLMO, integer_variables)
+function build_global_bounds(lmo::FrankWolfe.MathOptLMO, integer_variables)
     global_bounds = IntegerBounds()
     for idx in integer_variables
         for ST in (MOI.LessThan{Float64}, MOI.GreaterThan{Float64})
             cidx = MOI.ConstraintIndex{MOI.VariableIndex,ST}(idx)
             # Variable constraints to not have to be explicitly given, see Buchheim example
-            if MOI.is_valid(blmo.o, cidx)
-                s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
+            if MOI.is_valid(lmo.o, cidx)
+                s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
                 if ST == MOI.LessThan{Float64}
                     push!(global_bounds, (idx, s.upper), :lessthan)
                 else
@@ -405,18 +409,18 @@ function build_global_bounds(blmo::MathOptBLMO, integer_variables)
             end
         end
         cidx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.Interval{Float64}}(idx)
-        if MOI.is_valid(blmo.o, cidx)
+        if MOI.is_valid(lmo.o, cidx)
             x = MOI.VariableIndex(idx)
-            s = MOI.get(blmo.o, MOI.ConstraintSet(), cidx)
-            MOI.delete(blmo.o, cidx)
-            MOI.add_constraint(blmo.o, x, MOI.GreaterThan(s.lower))
-            MOI.add_constraint(blmo.o, x, MOI.LessThan(s.upper))
+            s = MOI.get(lmo.o, MOI.ConstraintSet(), cidx)
+            MOI.delete(lmo.o, cidx)
+            MOI.add_constraint(lmo.o, x, MOI.GreaterThan(s.lower))
+            MOI.add_constraint(lmo.o, x, MOI.LessThan(s.upper))
             push!(global_bounds, (idx, s.lower), :greaterthan)
             push!(global_bounds, (idx, s.upper), :lessthan)
         end
-        @assert !MOI.is_valid(blmo.o, cidx)
+        @assert !MOI.is_valid(lmo.o, cidx)
     end
-    explicit_bounds_binary_var(blmo, global_bounds)
+    explicit_bounds_binary_var(lmo, global_bounds)
     return global_bounds
 end
 
@@ -429,15 +433,15 @@ end
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
-function build_LMO_correct(blmo, node_bounds)
+function build_LMO_correct(lmo, node_bounds)
     for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
         for (idx, set) in list
             c_idx = MOI.ConstraintIndex{MOI.VariableIndex,typeof(set)}(idx)
-            @assert MOI.is_valid(blmo.o, c_idx)
-            set2 = MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+            @assert MOI.is_valid(lmo.o, c_idx)
+            set2 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
             if !(set == set2)
-                MOI.set(blmo.o, MOI.ConstraintSet(), c_idx, set)
-                set3 = MOI.get(blmo.o, MOI.ConstraintSet(), c_idx)
+                MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, set)
+                set3 = MOI.get(lmo.o, MOI.ConstraintSet(), c_idx)
                 @assert (set3 == set) "$((idx, set3, set))"
             end
         end
@@ -450,8 +454,8 @@ end
 
 Free model data from previous solve (if necessary).
 """
-function free_model(blmo::MathOptBLMO)
-    return free_model(blmo.o)
+function free_model(lmo::FrankWolfe.MathOptLMO)
+    return free_model(lmo.o)
 end
 
 # no-op by default
@@ -464,14 +468,14 @@ end
     
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
-function check_feasibility(blmo::MathOptBLMO)
+function check_feasibility(lmo::FrankWolfe.MathOptLMO)
     MOI.set(
-        blmo.o,
+        lmo.o,
         MOI.ObjectiveFunction{MOI.ScalarAffineFunction{Float64}}(),
         MOI.ScalarAffineFunction{Float64}([], 0.0),
     )
-    MOI.optimize!(blmo.o)
-    status = MOI.get(blmo.o, MOI.TerminationStatus())
+    MOI.optimize!(lmo.o)
+    status = MOI.get(lmo.o, MOI.TerminationStatus())
     return status
 end
 
@@ -480,16 +484,16 @@ end
 
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
-function is_valid_split(tree::Bonobo.BnBTree, blmo::MathOptBLMO, vidx::Int)
-    bin_var, _ = has_binary_constraint(blmo, vidx)
-    int_var, _ = has_integer_constraint(blmo, vidx)
+function is_valid_split(tree::Bonobo.BnBTree, lmo::FrankWolfe.MathOptLMO, vidx::Int)
+    bin_var, _ = has_binary_constraint(lmo, vidx)
+    int_var, _ = has_integer_constraint(lmo, vidx)
     if int_var || bin_var
         l_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.GreaterThan{Float64}}(vidx)
         u_idx = MOI.ConstraintIndex{MOI.VariableIndex,MOI.LessThan{Float64}}(vidx)
         l_bound =
-            MOI.is_valid(blmo.o, l_idx) ? MOI.get(blmo.o, MOI.ConstraintSet(), l_idx) : nothing
+            MOI.is_valid(lmo.o, l_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), l_idx) : nothing
         u_bound =
-            MOI.is_valid(blmo.o, u_idx) ? MOI.get(blmo.o, MOI.ConstraintSet(), u_idx) : nothing
+            MOI.is_valid(lmo.o, u_idx) ? MOI.get(lmo.o, MOI.ConstraintSet(), u_idx) : nothing
         if (l_bound !== nothing && u_bound !== nothing && l_bound.lower === u_bound.upper)
             @debug l_bound.lower, u_bound.upper
             return false
@@ -507,27 +511,27 @@ end
 
 Get solve time, number of nodes and number of simplex iterations.
 """
-function get_LMO_solve_data(blmo::MathOptBLMO)
-    if !isempty(blmo.inface_point_solve_data.MOI_attribute)
-        opt_times = blmo.inface_point_solve_data.MOI_attribute[MOI.SolveTimeSec()]
-        numberofnodes = blmo.inface_point_solve_data.MOI_attribute[MOI.NodeCount()]
-        simplex_iterations = blmo.inface_point_solve_data.MOI_attribute[MOI.SimplexIterations()]
-        empty!(blmo.inface_point_solve_data.MOI_attribute)
-    else
-        opt_times = MOI.get(blmo.o, MOI.SolveTimeSec())
-        numberofnodes = MOI.get(blmo.o, MOI.NodeCount())
-        simplex_iterations = MOI.get(blmo.o, MOI.SimplexIterations())
-    end
+function get_LMO_solve_data(lmo::FrankWolfe.MathOptLMO)
+    #if !isempty(lmo.inface_point_solve_data.MOI_attribute)
+    #    opt_times = lmo.inface_point_solve_data.MOI_attribute[MOI.SolveTimeSec()]
+    #    numberofnodes = lmo.inface_point_solve_data.MOI_attribute[MOI.NodeCount()]
+    #    simplex_iterations = lmo.inface_point_solve_data.MOI_attribute[MOI.SimplexIterations()]
+    #    empty!(blmo.inface_point_solve_data.MOI_attribute)
+    #else
+    opt_times = MOI.get(lmo.o, MOI.SolveTimeSec())
+    numberofnodes = MOI.get(lmo.o, MOI.NodeCount())
+    simplex_iterations = MOI.get(lmo.o, MOI.SimplexIterations())
+    #end
     return opt_times, numberofnodes, simplex_iterations
 end
 
 """
-    is_indicator_feasible(blmo::MathOptBLMO, v; atol=1e-6, rtol=1e-6)
+    is_indicator_feasible(lmo::FrankWolfe.MathOptLMO, v; atol=1e-6, rtol=1e-6)
 
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
-function is_indicator_feasible(blmo::MathOptBLMO, v; atol=1e-6, rtol=1e-6)
-    return is_indicator_feasible(blmo.o, v; atol, rtol)
+function is_indicator_feasible(lmo::FrankWolfe.MathOptLMO, v; atol=1e-6, rtol=1e-6)
+    return is_indicator_feasible(lmo.o, v; atol, rtol)
 end
 function is_indicator_feasible(o, x; atol=1e-6, rtol=1e-6)
     valvar(f) = x[f.value]
@@ -556,8 +560,8 @@ end
 
 Are indicator constraints present?
 """
-function indicator_present(blmo::MathOptBLMO)
-    for (_, S) in MOI.get(blmo.o, MOI.ListOfConstraintTypesPresent())
+function indicator_present(lmo::FrankWolfe.MathOptLMO)
+    for (_, S) in MOI.get(lmo.o, MOI.ListOfConstraintTypesPresent())
         if S <: MOI.Indicator
             return true
         end
@@ -570,26 +574,26 @@ end
 
 Get solving tolerance for the BLMO.
 """
-function get_tol(blmo::MathOptBLMO)
-    return get_tol(blmo.o)
+function get_tol(lmo::FrankWolfe.MathOptLMO)
+    return get_tol(lmo.o)
 end
 function get_tol(o::MOI.AbstractOptimizer)
     return 1e-06
 end
 
 """
-    find_best_solution(f::Function, blmo::MathOptBLMO, vars, domain_oracle)
+    find_best_solution(f::Function, lmo::FrankWolfe.MathOptLMO, vars, domain_oracle)
 
 Find best solution from the solving process.
 """
 function find_best_solution(
     tree::Bonobo.BnBTree,
     f::Function,
-    blmo::MathOptBLMO,
+    lmo::FrankWolfe.MathOptLMO,
     vars,
     domain_oracle,
 )
-    return find_best_solution(tree, f, blmo.o, vars, domain_oracle)
+    return find_best_solution(tree, f, lmo.o, vars, domain_oracle)
 end
 
 """
@@ -632,25 +636,25 @@ end
 List of all variable pointers. Depends on how you save your variables internally.
 Is used in `find_best_solution`.
 """
-function get_variables_pointers(blmo::MathOptBLMO, tree)
+function get_variables_pointers(lmo::FrankWolfe.MathOptLMO, tree)
     return [MOI.VariableIndex(var) for var in 1:(tree.root.problem.nvars)]
 end
 
 """
-     check_infeasible_vertex(blmo::MathOptBLMO, tree)
+     check_infeasible_vertex(lmo::FrankWolfe.MathOptLMO, tree)
 
 Deal with infeasible vertex if necessary, e.g. check what caused it etc.
 """
-function check_infeasible_vertex(blmo::MathOptBLMO, tree)
+function check_infeasible_vertex(lmo::FrankWolfe.MathOptLMO, tree)
     node = tree.nodes[tree.root.current_node_id[]]
     node_bounds = node.local_bounds
     for list in (node_bounds.lower_bounds, node_bounds.upper_bounds)
         for (idx, set) in list
             c_idx = MOI.ConstraintIndex{MOI.VariableIndex,typeof(set)}(idx)
-            @assert MOI.is_valid(state.tlmo.blmo.o, c_idx)
-            set2 = MOI.get(state.tlmo.blmo.o, MOI.ConstraintSet(), c_idx)
+            @assert MOI.is_valid(lmo.o, c_idx)
+            set2 = MOI.get(state.tlmo.lmo.o, MOI.ConstraintSet(), c_idx)
             if !(set == set2)
-                MOI.set(tlmo.blmo.o, MOI.ConstraintSet(), c_idx, set)
+                MOI.set(lmo.o, MOI.ConstraintSet(), c_idx, set)
                 set3 = MOI.get(tlmo.blmo.o, MOI.ConstraintSet(), c_idx)
                 @assert (set3 == set) "$((idx, set3, set))"
             end
@@ -666,14 +670,14 @@ Note that in constrast to the `ManagedBLMO` type, we filter out the integer and 
 """
 function Bonobo.get_branching_variable(
     tree::Bonobo.BnBTree,
-    branching::PartialStrongBranching{MathOptBLMO{OT}},
+    branching::PartialStrongBranching{FrankWolfe.MathOptLMO{OT}},
     node::Bonobo.AbstractNode,
 ) where {OT<:MOI.AbstractOptimizer}
     xrel = Bonobo.get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
     # copy problem and remove integer constraints
-    filtered_src = MOI.Utilities.ModelFilter(tree.root.problem.tlmo.blmo.o) do item
+    filtered_src = MOI.Utilities.ModelFilter(tree.root.problem.tlmo.lmo.o) do item
         if item isa Tuple
             (_, S) = item
             if S <: Union{MOI.Indicator,MOI.Integer,MOI.ZeroOne}
@@ -689,7 +693,7 @@ function Bonobo.get_branching_variable(
             @assert v1 == v2
         end
     end
-    relaxed_lmo = MathOptBLMO(branching.lmo.o)
+    relaxed_lmo = FrankWolfe.MathOptLMO(branching.lmo.o)
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
@@ -799,12 +803,8 @@ function Bonobo.get_branching_variable(
     return max_idx
 end
 
-
-function is_decomposition_invariant_oracle(blmo::MathOptBLMO)
-    return true
-end
-
-function compute_inface_extreme_point(blmo::MathOptBLMO, direction, x; kwargs...)
+#=
+function compute_inface_extreme_point(lmo::FrankWolfe.MathOptLMO, direction, x; kwargs...)
     MOI_attribute = Dict()
     MOI_attribute[MOI.SolveTimeSec()] = 0.0
     MOI_attribute[MOI.NodeCount()] = 0.0
@@ -826,12 +826,21 @@ function dicg_maximum_step(blmo::MathOptBLMO, direction, x; kwargs...)
     lmo = convert(FrankWolfe.MathOptLMO, blmo)
     return FrankWolfe.dicg_maximum_step(lmo, direction, x; kwargs...)
 end
+=#
 
+# Both of the following functions are for the continued support of the
+# deprecated Boscia.MathOptBLMO type.
 """
-The `solve`  function receiving a `FrankWolfe.MathOptLMO`. 
-Converts the lmo into an instance of `Boscia.MathOptBLMO` and calls the main `solve` function.
+The `solve`  function receiving a `Boscia.MathOptBLMO`. 
+Converts the lmo into an instance of `FrankWolfe.MathOptLMO` and calls the main `solve` function.
 """
-function solve(f, g, lmo::FrankWolfe.MathOptLMO; settings=create_default_settings(), kwargs...)
-    blmo = convert(MathOptBLMO, lmo)
-    return solve(f, g, blmo; settings=settings, kwargs...)
+function solve(f, g, blmo::MathOptBLMO; settings=create_default_settings(), kwargs...)
+    println("Call BLMO solve function")
+    lmo = convert(FrankWolfe.MathOptLMO, blmo)
+    return solve(f, g, lmo; settings=settings, kwargs...)
+end
+
+function PartialStrongBranching(max_iteration::Int, solving_epsilon::Float64, lmo::MathOptBLMO)
+    lmo = convert(FrankWolfe.MathOptLMO, lmo)
+    return PartialStrongBranching(max_iteration, solving_epsilon, lmo)
 end
