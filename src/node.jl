@@ -127,9 +127,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     left_distance = x[vidx] - floor(x[vidx])
     right_distance = ceil(x[vidx]) - x[vidx]
 
+    user_prune_left, user_prune_right = false, false
+
     if tree.root.options[:branch_callback] !== nothing
         if !tree.root.options[:branch_callback](tree, node, vidx)
-            dummy_node_info = (
+            user_prune_left, user_prune_right = (
                 active_set=node.active_set,
                 discarded_vertices=node.discarded_vertices,
                 local_bounds=node.local_bounds,
@@ -146,7 +148,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
                 branched_right=true,
                 distance_to_int=0.0,
             )
-            return Vector{typeof(dummy_node_info)}()
         end
     end
 
@@ -281,11 +282,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     domain_right = !isempty(active_set_right)
     domain_left = !isempty(active_set_left)
 
-    nodes = if !prune_left && !prune_right && domain_right && domain_left
+    nodes = if !prune_left && !prune_right && domain_right && domain_left && !user_prune_left && !user_prune_right
         [node_info_left, node_info_right]
-    elseif prune_left
+    elseif prune_left || user_prune_left
         [node_info_right]
-    elseif prune_right
+    elseif prune_right || user_prune_right
         [node_info_left]
     elseif domain_right # x_right in domain
         [node_info_right]

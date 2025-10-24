@@ -61,7 +61,7 @@ function build_birkhoff_mip(n)
         vec(sum(X, dims=2, init=MOI.ScalarAffineFunction{Float64}([], 0.0))),
         MOI.EqualTo(1.0),
     )
-    return Boscia.MathOptBLMO(o)
+    return FrankWolfe.MathOptLMO(o)
 end
 
  @testset "Birkhoff" begin

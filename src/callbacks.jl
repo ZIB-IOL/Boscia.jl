@@ -16,7 +16,7 @@ function build_FW_callback(
     time_limit;
     use_DICG=false,
 )
-    vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
+    vars = get_variables_pointers(tree.root.problem.tlmo.lmo, tree)
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     if !use_DICG
@@ -81,7 +81,7 @@ function process_FW_callback_logic(
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)
             @info "$(state.v)"
-            check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
+            check_infeasible_vertex(tree.root.problem.tlmo.lmo, tree)
             @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
         end
         if state.step_type != FrankWolfe.ST_SIMPLEXDESCENT && !is_integer_feasible(tree, state.v)
@@ -97,7 +97,7 @@ function process_FW_callback_logic(
             (best_v, best_val) = find_best_solution(
                 tree,
                 tree.root.problem.f,
-                tree.root.problem.tlmo.blmo,
+                tree.root.problem.tlmo.lmo,
                 vars,
                 tree.root.options[:domain_oracle],
             )

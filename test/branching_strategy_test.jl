@@ -409,7 +409,7 @@ const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
@@ -456,7 +456,7 @@ end
     end
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
-    MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.pstrong.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true

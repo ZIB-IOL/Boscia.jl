@@ -30,7 +30,7 @@ o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
 n = MOI.get(o, MOI.NumberOfVariables())
-blmo = Boscia.MathOptBLMO(o)
+blmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
 const vs = [Boscia.compute_extreme_point(blmo, randn(rng, n)) for _ in 1:20]

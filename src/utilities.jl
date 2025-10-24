@@ -27,7 +27,7 @@ end
 Check feasibility and boundedness
 """
 function check_feasibility(tlmo::TimeTrackingLMO)
-    return check_feasibility(tlmo.blmo)
+    return check_feasibility(tlmo.lmo)
 end
 
 
@@ -35,7 +35,7 @@ end
 Check if at a given index we have an integer constraint respectivily.
 """
 function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
+    return has_integer_constraint(tree.root.problem.tlmo.lmo, idx)
 end
 
 
@@ -43,7 +43,7 @@ end
 Check wether a split is valid. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
-    return is_valid_split(tree, tree.root.problem.tlmo.blmo, vidx)
+    return is_valid_split(tree, tree.root.problem.tlmo.lmo, vidx)
 end
 
 
@@ -144,10 +144,10 @@ end
 """
 Default starting point function which generates a random vertex
 """
-function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
-    n, _ = get_list_of_variables(blmo)
+function trivial_build_dicg_start_point(lmo::LinearMinimizationOracle)
+    n, _ = get_list_of_variables(lmo)
     d = ones(n)
-    x0 = FrankWolfe.compute_extreme_point(blmo, d)
+    x0 = FrankWolfe.compute_extreme_point(lmo, d)
     return x0
 end
 
@@ -162,18 +162,18 @@ function dicg_start_point_initialize(
         return FrankWolfe.get_active_set_iterate(active_set)
     end
     if pre_computed_set === nothing
-        x0 = build_dicg_start_point(lmo.blmo)
+        x0 = build_dicg_start_point(lmo.lmo)
     else
         if !isempty(pre_computed_set)
             # We pick a point by averaging the pre_computed_atoms as warm-start.  
             num_pre_computed_set = length(pre_computed_set)
             x0 = sum(pre_computed_set) / num_pre_computed_set
             if !domain_oracle(x0)
-                x0 = build_dicg_start_point(lmo.blmo)
+                x0 = build_dicg_start_point(lmo.lmo)
             end
         else
             # We pick a random point.
-            x0 = build_dicg_start_point(lmo.blmo)
+            x0 = build_dicg_start_point(lmo.lmo)
         end
     end
     return x0
