@@ -299,12 +299,13 @@ end
 
 function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
-    if !(sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N)
-        return INFEASIBLE
-    elseif length(int_vars) == n && !isinteger(sblmo.N)
-        return INFEASIBLE
-    else
+    if length(int_vars) == n && !isinteger(sblmo.N)
+        error("Invalid problem: all variables are integer but N is non-integer.")
+    end
+    if sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N
         return OPTIMAL
+    else
+        return INFEASIBLE
     end
 end
 
