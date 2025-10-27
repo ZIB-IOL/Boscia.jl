@@ -18,14 +18,11 @@
 # 1-positions in a permutation matrix to explore nearby vertices.
 
 using Boscia
+using Random
 using SparseArrays
-using LinearAlgebra
 using FrankWolfe
-using MAT
 using Bonobo
 using CSV
-using DataFrames
-using Random
 using StableRNGs
 using CombinatorialLinearOracles
 const CLO = CombinatorialLinearOracles
@@ -44,8 +41,7 @@ rng = StableRNG(seed)
 function randomIsomorphic(A)
     n = size(A, 1)
     p = randperm(n)
-    I = Matrix(LinearAlgebra.I, n, n)
-    P = I[:, p]
+    P = sparse(1:n, p, ones(Float64, n), n, n)
     B = P * A * P'
     return B, P
 end
@@ -112,16 +108,16 @@ end
 # For this self-contained example, we use the Petersen graph as A.
 # We then create B either as an isomorphic graph via a random permutation,
 # or as a non-isomorphic graph by randomly toggling one edge.
-
-A = Matrix(CSV.read(joinpath(@__DIR__, "Petersen.csv"), DataFrame; header = false))
-A = sparse(A)
+path = joinpath(@__DIR__, "Petersen.csv")
+rows = [collect(Int, r) for r in CSV.File(path; header = false, types = Int)]
+A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
 n = size(A, 1)
 
 # --- Isomorphic case ---
 B, P = randomIsomorphic(Matrix(A))
 B = sparse(B)
 
-# --- Non-isomorphic case ---
+# # --- Non-isomorphic case ---
 # B = randomNonIsomorphic(A)
 
 # ## Objective and gradient
@@ -133,7 +129,7 @@ B = sparse(B)
 # We return/accept vectorized storage for Boscia/Frank–Wolfe.
 function f(x)
     X = reshape(x, n, n)
-    R = X*A - B*X
+    R = X * A - B * X
     return sum(abs2, R)
 end
 
