@@ -17,6 +17,7 @@ using FrankWolfe
 using Statistics
 using Test
 using StableRNGs
+using PyPlot
 
 println("\nDocumentation Example 03: Optimal Design of Experiments")
 
@@ -27,7 +28,7 @@ rng = StableRNG(seed)
 # ## Experiment matrix and objectives
 
 # We generate the experiment matrix $A$ randomly.
-m = 80
+m = 50
 n = Int(floor(m / 10))
 N = round(Int, 1.5 * n)
 
@@ -246,7 +247,7 @@ settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:time_limit] = Inf
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 
-x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
+#x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
 
 settings = Boscia.create_default_settings()
 settings.branch_and_bound[:verbose] = false
@@ -268,6 +269,34 @@ settings.domain[:active_set] = copy(active_set) # this will be overwritten by Bo
 
 x_d, _, result_d = Boscia.solve(f_d, grad_d!, lmo, settings=settings)
 
-@show f_a(x_a), x_a
-@show f_d(x_d), x_d
+# ## Plotting the progress
+#=
+# Load plotting utilities
+include("plot_utilities.jl")
 
+# Create plots for A-criterion (if solved)
+if @isdefined(result_a)
+    filename_a = "oed_A_criterion_m$(m)_seed_$(seed).pdf"
+    fig_a = plot_bounds_progress(
+        result_a,
+        filename_a,
+        title_prefix="A-Criterion",
+        use_latex=true,
+        font_size=11,
+        linewidth=2,
+    )
+    display(fig_a)
+end
+
+# Create plots for D-criterion
+filename_d = "oed_D_criterion_m$(m)_seed_$(seed).pdf"
+fig_d = plot_bounds_progress(
+    result_d,
+    filename_d,
+    title_prefix="D-Criterion",
+    use_latex=true,
+    font_size=11,
+    linewidth=2,
+)
+display(fig_d)
+=#
