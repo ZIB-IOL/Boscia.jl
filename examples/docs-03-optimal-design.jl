@@ -247,7 +247,7 @@ settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:time_limit] = Inf
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 
-#x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
+x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
 
 settings = Boscia.create_default_settings()
 settings.branch_and_bound[:verbose] = false
