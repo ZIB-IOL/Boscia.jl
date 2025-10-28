@@ -285,7 +285,7 @@ function build_active_set_by_domain_oracle(
                     # Once we find a domain feasible point, we count the iteration
                     # and stop if we have not found a feasible point after 5 iterations..
                     if tree.root.options[:domain_oracle](state.x)
-                        if domain_counter > 5
+                        if domain_counter > tree.root.options[:depth_domain]
                             return false
                         end
                         domain_counter += 1
