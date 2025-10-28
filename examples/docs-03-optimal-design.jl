@@ -21,13 +21,13 @@ using StableRNGs
 println("\nDocumentation Example 03: Optimal Design of Experiments")
 
 seed = rand(UInt64)
-@show seed
+@show seed  #seed = 0x7be8a16f815cd122
 rng = StableRNG(seed)
 
 # ## Experiment matrix and objectives
 
 # We generate the experiment matrix $A$ randomly.
-m = 50
+m = 80
 n = Int(floor(m / 10))
 N = round(Int, 1.5 * n)
 
@@ -44,8 +44,9 @@ A = rand(D, m)'
 # ```math
 # f_a(x) = \text{Tr}|left(X(x)^{-1}/right)
 # ```
+μ = 1e-4
 function f_a(x)
-    X = transpose(A) * diagm(x) * A
+    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
     X = Symmetric(X)
     U = cholesky(X)
     X_inv = U \ I
@@ -53,7 +54,7 @@ function f_a(x)
 end
 
 function grad_a!(storage, x)
-    X = transpose(A) * diagm(x) * A
+    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
     X = Symmetric(X * X)
     F = cholesky(X)
     for i in 1:length(x)
@@ -90,7 +91,7 @@ end
 ub = floor(N/3)
 u = rand(rng, 1.0:ub, m)
 simplex_lmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
-blmo = Boscia.ManagedBoundedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
+lmo = Boscia.ManagedBoundedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
 
 
 # An issue arising from this is that the feasible region and the domain of the objectives don't completely overlap.
@@ -191,7 +192,7 @@ intial_bounds = Boscia.IntegerBounds(fill(0.0, m), u, collect(1:m))
 x0 = domain_point(intial_bounds)
 f_help(x) = 1 / 2 * LinearAlgebra.norm(x - x0)^2
 grad_help!(storage, x) = storage .= x - x0
-v0 = compute_extreme_point(blmo, collect(1.0:m))
+v0 = compute_extreme_point(lmo, collect(1.0:m))
 
 # We do not need to solve this problem to optimality.
 # However, we do not want to stop as soon as we reach the domain because this can lead to numerical issues later in the node solve.
@@ -202,7 +203,7 @@ function build_inner_callback()
         # Once we find a domain feasible point, we count the iteration
         # and stop if we have not found a feasible point after 5 iterations..
         if domain_oracle(state.x)
-            if domain_counter > 5
+            if domain_counter > 10
                 return false
             end
             domain_counter += 1
@@ -212,10 +213,10 @@ end
 
 inner_callback = build_inner_callback()
 
-x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+x, _, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
     f_help,
     grad_help!,
-    blmo,
+    lmo,
     v0,
     callback=inner_callback,
     lazy=true,
@@ -227,30 +228,45 @@ x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
 # As line search, we use the Secant method which receives the domain oracle as input.
 # We also set some heuristics to be used during the node solve by specifying a probability for each heuristic.
 settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:time_limit] = 10.0
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
+settings.domain[:depth_domain] = 10
 settings.heuristic[:hyperplane_aware_rounding_prob] = 0.7
 settings.heuristic[:rounding_lmo_01_prob] = 0.5
-settings.heuristic[:follow_gradient_prob] = 0.5
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant(domain_oracle=domain_oracle)
 settings.frank_wolfe[:lazy] = true
 
-x_a, _, _ = Boscia.solve(f_a, grad_a!, blmo, settings=settings)
+# First, we are calling the algorithm for a few seconds for precompilation.
+x_a, _, _ = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
+
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:time_limit] = Inf
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+
+x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
 
 settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:time_limit] = 10.0
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
+settings.domain[:depth_domain] = 10
 settings.heuristic[:hyperplane_aware_rounding_prob] = 0.7
 settings.heuristic[:rounding_lmo_01_prob] = 0.5
-settings.heuristic[:follow_gradient_prob] = 0.5
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant(domain_oracle=domain_oracle)
 settings.frank_wolfe[:lazy] = true
 
-x_d, _, _ = Boscia.solve(f_d, grad_d!, blmo, settings=settings)
+x_d, _, _ = Boscia.solve(f_d, grad_d!, lmo, settings=settings)
+
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:time_limit] = Inf
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+
+x_d, _, result_d = Boscia.solve(f_d, grad_d!, lmo, settings=settings)
 
 @show f_a(x_a), x_a
 @show f_d(x_d), x_d
