@@ -40,8 +40,6 @@ const MOI = MathOptInterface
 
 # For MIP solver, you can choose one of:
 using HiGHS  # Open source, no license needed
-# using Gurobi  # Commercial, requires license
-# using SCIP  # Open source
 
 println("\nDocumentation Example 01: Network Design Problem")
 
@@ -653,11 +651,11 @@ println("  Destination: D (node 3)")
 println("  Intermediate nodes: 4, 5, 6, 7, 8")
 println("  Demand: 1 unit from each source (2 units total)")
 
-# Define removed edges (edges that need design decision)
+# Define potentially purchasable edges (edges that need design decision)
 removed_edges = [(4, 5)]  # Optional edge from node_1 (intermediate node 4) to node_2 (intermediate node 5)
 cost_per_edge = [0.5]  # Cost to purchase the edge
 
-println("\nRemoved edges (need restoration decision): $removed_edges")
+println("\nPurchasable edges (need design decision): $removed_edges")
 println("Cost to restore: $cost_per_edge")
 
 # Build edge list for display
