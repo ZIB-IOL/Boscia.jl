@@ -106,11 +106,11 @@ function is_inface_feasible(blmo::ManagedBoundedLMO, a, x)
 end
 
 #Provide FrankWolfe.dicg_maximum_step
-function dicg_maximum_step(blmo::ManagedBoundedLMO, x, direction; kwargs...)
+function dicg_maximum_step(blmo::ManagedBoundedLMO, direction, x; kwargs...)
     return bounded_dicg_maximum_step(
         blmo.simple_lmo,
-        x,
         direction,
+        x,
         blmo.lower_bounds,
         blmo.upper_bounds,
         blmo.int_vars,
@@ -219,7 +219,7 @@ end
 function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
     for (i, int_var) in enumerate(blmo.int_vars)
         if !(
-            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 || !(v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
+            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 && (v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
         )
             @debug(
                 "Variable: $(int_var) Vertex entry: $(v[int_var]) Lower bound: $(blmo.lower_bounds[i]) Upper bound: $(blmo.upper_bounds[i]))"

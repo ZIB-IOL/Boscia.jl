@@ -223,14 +223,22 @@ function split_vertices_set!(
 end
 
 """
+When an active-set based FW variant is used:
 Build a new start point and active set in case the split active set
 does not lead to a domain feasible iterate.
 First, try filtering the active set by the domain oracle.
 If all vertices are domain infeasible, solve the projection problem
 1/2 * ||x - x*||_2^2 
 where x* is a domain- and bound-feasible point provided by the user.
+
+When a decomposition-invariant FW variant is used (DICG / BDICG):
+First, try to obtain a starting point by averaging the atoms in the
+`pre_computed_set` when warm-start is enabled. Otherwise, try the
+user-provided routine. If this is not provided, then generate a random
+feasible point, if possible.
 """
 function build_active_set_by_domain_oracle(
+    x,
     active_set::FrankWolfe.ActiveSet{T,R},
     tree,
     local_bounds::IntegerBounds,
@@ -273,21 +281,15 @@ function build_active_set_by_domain_oracle(
             x0 = tree.root.options[:find_domain_point](local_bounds)
         else
             # Random point is computed as starting point.
-            n, _ = get_list_of_variables(tree.root.problem.tlmo.lmo)
+            n = length(x)
             d = ones(n)
             x0 = FrankWolfe.compute_extreme_point(tree.root.problem.tlmo, d)
             @assert tree.root.options[:domain_oracle](x0)
         end
 
-        if x0 != nothing && !(
-            is_linear_feasible(tree.root.problem.tlmo, x0) || tree.root.options[:domain_oracle](x0)
-        )
-            error("Is not feasible")
-        end
         # If no feasible point is found, we prune the node.
         # Otherwise, the starting point is pushed into active set.
         x0 === nothing ? empty!(active_set) : (active_set = FrankWolfe.ActiveSet([(1.0, x0)]))
-        # x0 === nothing ? empty!(active_set) : (active_set.atoms[1] = x0)
         build_LMO(
             tree.root.problem.tlmo,
             tree.root.problem.integer_variable_bounds,
@@ -297,7 +299,6 @@ function build_active_set_by_domain_oracle(
         return active_set
     end
 
-    x = FrankWolfe.compute_active_set_iterate!(active_set)
     if !tree.root.options[:domain_oracle](x)
         # Filtering
         del_indices = BitSet()

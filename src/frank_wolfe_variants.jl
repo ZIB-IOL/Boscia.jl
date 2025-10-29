@@ -228,7 +228,7 @@ function solve_frank_wolfe(
 )
     x0, DICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
 
-    x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, status,  _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -248,7 +248,7 @@ function solve_frank_wolfe(
 
     clean_up_pre_computed_set!(lmo, pre_computed_set, x, frank_wolfe_variant)
 
-    return x, primal, dual_gap, pre_computed_set
+    return x, primal, dual_gap, status, pre_computed_set
 end
 
 Base.print(io::IO, ::DecompositionInvariantConditionalGradient) =
@@ -262,18 +262,18 @@ The Blended Decomposition-invariant Frank-Wolfe.
 """
 struct BlendedDecompositionInvariantConditionalGradient <: DecompositionInvariant
     use_strong_lazy::Bool
-    use_DICG_warm_start::Bool
+    use_BDICG_warm_start::Bool
     use_strong_warm_start::Bool
 end
 
 function BlendedDecompositionInvariantConditionalGradient(;
     use_strong_lazy=false,
-    use_DICG_warm_start=false,
+    use_BDICG_warm_start=false,
     use_strong_warm_start=false,
 )
     return BlendedDecompositionInvariantConditionalGradient(
         use_strong_lazy,
-        use_DICG_warm_start,
+        use_BDICG_warm_start,
         use_strong_warm_start,
     )
 end
@@ -303,7 +303,7 @@ function solve_frank_wolfe(
 
     x0, BDICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
 
-    x, _, primal, dual_gap, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, status, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -323,7 +323,7 @@ function solve_frank_wolfe(
 
     clean_up_pre_computed_set!(lmo, pre_computed_set, x, frank_wolfe_variant)
 
-    return x, primal, dual_gap, pre_computed_set
+    return x, primal, dual_gap, status, pre_computed_set
 end
 
 Base.print(io::IO, ::BlendedDecompositionInvariantConditionalGradient) =

@@ -259,8 +259,8 @@ If no such point can be constructed, return nothing.
 """
 function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, initial_ub)
     return function domain_point(local_bounds)
-        lb = initial_lb
-        ub = initial_ub
+        lb = copy(initial_lb)
+        ub = copy(initial_ub)
         for idx in int_vars
             if haskey(local_bounds.lower_bounds, idx)
                 lb[idx] = max(initial_lb[idx], local_bounds.lower_bounds[idx])
