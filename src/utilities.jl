@@ -141,42 +141,49 @@ function split_pre_computed_set!(
     return pre_computed_set_left, pre_computed_set_right
 end
 
-"""
-Default starting point function which generates a random vertex
-"""
-function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
-    n, _ = get_list_of_variables(blmo)
-    d = ones(n)
-    x0 = FrankWolfe.compute_extreme_point(blmo, d)
-    return x0
-end
-
-function dicg_start_point_initialize(
-    lmo::TimeTrackingLMO,
-    active_set::FrankWolfe.ActiveSet{T,R},
-    pre_computed_set,
-    build_dicg_start_point;
-    domain_oracle=_trivial_domain,
-) where {T,R}
-    if lmo.ncalls == 0
-        return FrankWolfe.get_active_set_iterate(active_set)
+function clean_up_pre_computed_set!(lmo, pre_computed_set, x, fw_variant)
+    # Nothing to do if no set or warm-start disabled
+    if pre_computed_set === nothing || !fw_variant.use_strong_warm_start
+        return
     end
-    if pre_computed_set === nothing
-        x0 = build_dicg_start_point(lmo.blmo)
-    else
-        if !isempty(pre_computed_set)
-            # We pick a point by averaging the pre_computed_atoms as warm-start.  
-            num_pre_computed_set = length(pre_computed_set)
-            x0 = sum(pre_computed_set) / num_pre_computed_set
-            if !domain_oracle(x0)
-                x0 = build_dicg_start_point(lmo.blmo)
-            end
-        else
-            # We pick a random point.
-            x0 = build_dicg_start_point(lmo.blmo)
+
+    # Collect indices of infeasible atoms
+    indices_to_delete = Int[]
+    @inbounds for idx in eachindex(pre_computed_set)
+        atom = pre_computed_set[idx]
+        if !is_inface_feasible(lmo, atom, x)
+            push!(indices_to_delete, idx)
         end
     end
-    return x0
+
+    # Remove in one go
+    deleteat!(pre_computed_set, indices_to_delete)
+
+    return true
+end
+
+function init_decomposition_invariant_state(
+    active_set,
+    pre_computed_set,
+    callback,
+    kwargs...,
+)
+    # We keep track of computed extreme points by creating logging callback.
+    function make_callback(pre_computed_set)
+        return function DICG_callback(state, kwargs...)
+            if !callback(state, pre_computed_set)
+                return false
+            end
+            return true
+        end
+    end
+
+    x0 = FrankWolfe.compute_active_set_iterate!(active_set)
+
+    # In case of the postprocessing, no callback is provided.
+    DICG_callback = callback !== nothing ? make_callback(pre_computed_set) : nothing
+
+    return (x0, DICG_callback)
 end
 
 """
@@ -228,6 +235,8 @@ function build_active_set_by_domain_oracle(
     tree,
     local_bounds::IntegerBounds,
     node;
+    pre_computed_set=nothing,
+    is_decomposition_invariant=false,
     atol=1e-5,
     rtol=1e-5,
 ) where {T,R}
@@ -246,72 +255,114 @@ function build_active_set_by_domain_oracle(
             node.local_bounds,
             tree.root.problem.integer_variables,
         )
-        active_set.empty!()
+        empty!(active_set)
         return active_set
     end
-    # Filtering
-    del_indices = BitSet()
-    for (idx, tup) in enumerate(active_set)
-        (λ, a) = tup
-        if !tree.root.options[:domain_oracle](a)
-            push!(del_indices, idx)
-        end
-    end
-    # At least one vertex is domain feasible.
-    if length(del_indices) < length(active_set.weights)
-        deleteat!(active_set, del_indices)
-        @assert !isempty(active_set)
-        FrankWolfe.active_set_renormalize!(active_set)
-        FrankWolfe.compute_active_set_iterate!(active_set)
-        # No vertex is domain feasible
-    else
-        x_star = tree.root.options[:find_domain_point](local_bounds)
-        # No domain feasible point can be build.
-        # Node can be pruned.
-        if x_star === nothing
-            deleteat!(active_set, del_indices)
-        else
-            inner_f(x) = 1 / 2 * LinearAlgebra.norm(x - x_star)^2
-
-            function inner_grad!(storage, x)
-                storage .= x - x_star
-                return storage
+    
+    if is_decomposition_invariant
+        x0 = nothing
+        # Obtain the starting point by warm-start
+        if pre_computed_set !== nothing && !isempty(pre_computed_set)
+            num = length(pre_computed_set)
+            x0 = sum(pre_computed_set) / num
+            if !tree.root.options[:domain_oracle](x0)
+                x0 = tree.root.options[:find_domain_point](local_bounds)
             end
+        elseif tree.root.options[:find_domain_point] !== nothing
+            # Obtain the starting point using user-provided routine. 
+            x0 = tree.root.options[:find_domain_point](local_bounds)
+        else
+            # Random point is computed as starting point.
+            n, _ = get_list_of_variables(tree.root.problem.tlmo.lmo)
+            d = ones(n)
+            x0 = FrankWolfe.compute_extreme_point(tree.root.problem.tlmo, d)
+            @assert tree.root.options[:domain_oracle](x0)
+        end
 
-            function build_inner_callback(tree)
-                # Count the iteration after entering the domain
-                domain_counter = 0
-                return function inner_callback(state, active_set, kwargs...)
-                    # Once we find a domain feasible point, we count the iteration
-                    # and stop if we have not found a feasible point after 5 iterations..
-                    if tree.root.options[:domain_oracle](state.x)
-                        if domain_counter > 5
-                            return false
+        if x0 != nothing && !(
+            is_linear_feasible(tree.root.problem.tlmo, x0) || tree.root.options[:domain_oracle](x0)
+        )
+            error("Is not feasible")
+        end
+        # If no feasible point is found, we prune the node.
+        # Otherwise, the starting point is pushed into active set.
+        x0 === nothing ? empty!(active_set) : (active_set = FrankWolfe.ActiveSet([(1.0, x0)]))
+        # x0 === nothing ? empty!(active_set) : (active_set.atoms[1] = x0)
+        build_LMO(
+            tree.root.problem.tlmo,
+            tree.root.problem.integer_variable_bounds,
+            node.local_bounds,
+            tree.root.problem.integer_variables,
+        )
+        return active_set
+    end
+
+    x = FrankWolfe.compute_active_set_iterate!(active_set)
+    if !tree.root.options[:domain_oracle](x)
+        # Filtering
+        del_indices = BitSet()
+        for (idx, tup) in enumerate(active_set)
+            (λ, a) = tup
+            if !tree.root.options[:domain_oracle](a)
+                push!(del_indices, idx)
+            end
+        end
+        # At least one vertex is domain feasible.
+        if length(del_indices) < length(active_set.weights)
+            deleteat!(active_set, del_indices)
+            @assert !isempty(active_set)
+            FrankWolfe.active_set_renormalize!(active_set)
+            FrankWolfe.compute_active_set_iterate!(active_set)
+            # No vertex is domain feasible
+        else
+            x_star = tree.root.options[:find_domain_point](local_bounds)
+            # No domain feasible point can be build.
+            # Node can be pruned.
+            if x_star === nothing
+                deleteat!(active_set, del_indices)
+            else
+                inner_f(x) = 1 / 2 * LinearAlgebra.norm(x - x_star)^2
+
+                function inner_grad!(storage, x)
+                    storage .= x - x_star
+                    return storage
+                end
+
+                function build_inner_callback(tree)
+                    # Count the iteration after entering the domain
+                    domain_counter = 0
+                    return function inner_callback(state, active_set, kwargs...)
+                        # Once we find a domain feasible point, we count the iteration
+                        # and stop if we have not found a feasible point after 5 iterations..
+                        if tree.root.options[:domain_oracle](state.x)
+                            if domain_counter > 5
+                                return false
+                            end
+                            domain_counter += 1
                         end
-                        domain_counter += 1
                     end
                 end
-            end
-            inner_callback = build_inner_callback(tree)
+                inner_callback = build_inner_callback(tree)
 
-            x, _, _, _, atoms_set = solve_frank_wolfe(
-                tree.root.options[:variant],
-                inner_f,
-                inner_grad!,
-                tree.root.problem.tlmo,
-                active_set,
-                callback=inner_callback,
-                lazy=true,
-            )
-            @assert tree.root.options[:domain_oracle](x)
+                x, _, _, atoms_set = solve_frank_wolfe(
+                    tree.root.options[:variant],
+                    inner_f,
+                    inner_grad!,
+                    tree.root.problem.tlmo,
+                    active_set,
+                    callback=inner_callback,
+                    lazy=true,
+                )
+                @assert tree.root.options[:domain_oracle](x)
+            end
         end
+        build_LMO(
+            tree.root.problem.tlmo,
+            tree.root.problem.integer_variable_bounds,
+            node.local_bounds,
+            tree.root.problem.integer_variables,
+        )
     end
-    build_LMO(
-        tree.root.problem.tlmo,
-        tree.root.problem.integer_variable_bounds,
-        node.local_bounds,
-        tree.root.problem.integer_variables,
-    )
     return active_set
 end
 

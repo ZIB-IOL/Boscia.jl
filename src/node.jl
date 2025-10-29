@@ -158,7 +158,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     #different ways to split active set
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -181,7 +181,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Sanity check
         @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
         @assert sum(active_set_left.weights .< 0) == 0
@@ -227,20 +227,27 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
-        # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
-        x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
-        x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+    # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+    x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
+    x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
 
-        if !tree.root.options[:domain_oracle](x_left)
-            active_set_left =
-                build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
-        end
-        if !tree.root.options[:domain_oracle](x_right)
-            active_set_right =
-                build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
-        end
-    end
+    active_set_left = build_active_set_by_domain_oracle(
+        active_set_left,
+        tree,
+        varbounds_left,
+        node;
+        pre_computed_set=pre_computed_set_left,
+        is_decomposition_invariant=typeof(tree.root.options[:variant]) <: DecompositionInvariant,
+    )
+
+    active_set_right = build_active_set_by_domain_oracle(
+        active_set_right,
+        tree,
+        varbounds_right,
+        node;
+        pre_computed_set=pre_computed_set_right,
+        is_decomposition_invariant=typeof(tree.root.options[:variant]) <: DecompositionInvariant,
+    )
 
     # update the LMO
     node_info_left = (
@@ -343,14 +350,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
-        # Check feasibility of the iterate
-        active_set = node.active_set
-        x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-        @assert is_linear_feasible(tree.root.problem.tlmo, x)
-        for (_, v) in node.active_set
-            @assert is_linear_feasible(tree.root.problem.tlmo, v)
-        end
+    # Check feasibility of the iterate
+    active_set = node.active_set
+    x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+    @assert is_linear_feasible(tree.root.problem.tlmo, x)
+    for (_, v) in node.active_set
+        @assert is_linear_feasible(tree.root.problem.tlmo, v)
     end
 
     if tree.root.options[:propagate_bounds] !== nothing
@@ -392,14 +397,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     else
         node.pre_computed_set = atoms_set
         node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
-        # update set of computed atoms and active set
-        if isa(x, AbstractVector)
-            node.pre_computed_set = atoms_set
-            node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
-        else
-            @debug "x is not a vector, returning NaN, x: $x"
-            return NaN, NaN
-        end
     end
 
     node.fw_time = Dates.now() - time_ref

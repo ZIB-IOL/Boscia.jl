@@ -10,6 +10,7 @@ It may also implement `build_frank_wolfe_workspace(x)` which creates a
 workspace structure that is passed as last argument to `solve_frank_wolfe`.
 """
 abstract type FrankWolfeVariant end
+abstract type DecompositionInvariant <: FrankWolfeVariant end
 
 # default printing for FrankWolfeVariant is just showing the type
 Base.print(io::IO, fw::FrankWolfeVariant) = print(io, split(string(typeof(fw)), ".")[end])
@@ -185,24 +186,21 @@ Base.print(io::IO, ::BlendedPairwiseConditionalGradient) =
 The Decomposition-invariant Frank-Wolfe. 
 
 """
-struct DecompositionInvariantConditionalGradient <: FrankWolfeVariant
+struct DecompositionInvariantConditionalGradient <: DecompositionInvariant
     use_strong_lazy::Bool
     use_DICG_warm_start::Bool
     use_strong_warm_start::Bool
-    build_dicg_start_point::Function
 end
 
 function DecompositionInvariantConditionalGradient(;
     use_strong_lazy=false,
     use_DICG_warm_start=false,
     use_strong_warm_start=false,
-    build_dicg_start_point=trivial_build_dicg_start_point,
 )
     return DecompositionInvariantConditionalGradient(
         use_strong_lazy,
         use_DICG_warm_start,
         use_strong_warm_start,
-        build_dicg_start_point,
     )
 end
 
@@ -228,34 +226,9 @@ function solve_frank_wolfe(
     domain_oracle=_trivial_domain,
     kwargs...,
 )
-    # We keep track of computed extreme points by creating logging callback.
-    function make_callback(pre_computed_set)
-        return function DICG_callback(state, kwargs...)
-            if !callback(state, pre_computed_set)
-                return false
-            end
-            return true
-        end
-    end
+    x0, DICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
 
-    x0 = dicg_start_point_initialize(
-        lmo,
-        active_set,
-        pre_computed_set,
-        frank_wolfe_variant.build_dicg_start_point;
-        domain_oracle=domain_oracle,
-    )
-
-    if x0 === nothing || !domain_oracle(x0)
-        return NaN, Inf, Inf, pre_computed_set
-    else
-        @assert is_linear_feasible(lmo, x0)
-    end
-
-    # In case of the postprocessing, no callback is provided.
-    DICG_callback = callback !== nothing ? make_callback(pre_computed_set) : nothing
-
-    x, _, primal, dual_gap, status, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -272,24 +245,89 @@ function solve_frank_wolfe(
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
     )
-    if pre_computed_set !== nothing
-        if frank_wolfe_variant.use_strong_warm_start
-            indices_to_delete = []
-            for idx in eachindex(pre_computed_set)
-                atom = pre_computed_set[idx]
-                if !is_inface_feasible(lmo, atom, x)
-                    push!(indices_to_delete, idx)
-                end
-            end
-            deleteat!(pre_computed_set, indices_to_delete)
-        end
-    end
 
-    return x, primal, dual_gap, status, pre_computed_set
+    clean_up_pre_computed_set!(lmo, pre_computed_set, x, frank_wolfe_variant)
+
+    return x, primal, dual_gap, pre_computed_set
 end
 
 Base.print(io::IO, ::DecompositionInvariantConditionalGradient) =
     print(io, "Decompostion-Invariant-Frank-Wolfe")
+
+"""
+   BDICG-Frank-Wolfe
+
+The Blended Decomposition-invariant Frank-Wolfe. 
+
+"""
+struct BlendedDecompositionInvariantConditionalGradient <: DecompositionInvariant
+    use_strong_lazy::Bool
+    use_DICG_warm_start::Bool
+    use_strong_warm_start::Bool
+end
+
+function BlendedDecompositionInvariantConditionalGradient(;
+    use_strong_lazy=false,
+    use_DICG_warm_start=false,
+    use_strong_warm_start=false,
+)
+    return BlendedDecompositionInvariantConditionalGradient(
+        use_strong_lazy,
+        use_DICG_warm_start,
+        use_strong_warm_start,
+    )
+end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::BlendedDecompositionInvariantConditionalGradient,
+    f,
+    grad!,
+    lmo,
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing,
+    callback=nothing,
+    lazy=false,
+    lazy_tolerance=2.0,
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing,
+    pre_computed_set=nothing,
+    domain_oracle=_trivial_domain,
+    kwargs...,
+)
+
+    x0, BDICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
+
+    x, _, primal, dual_gap, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
+        f,
+        grad!,
+        lmo,
+        x0;
+        line_search=line_search,
+        epsilon=epsilon,
+        max_iteration=max_iteration,
+        verbose=verbose,
+        timeout=timeout,
+        lazy=lazy,
+        use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
+        linesearch_workspace=workspace,
+        sparsity_control=lazy_tolerance,
+        callback=BDICG_callback,
+        extra_vertex_storage=pre_computed_set,
+    )
+
+    clean_up_pre_computed_set!(lmo, pre_computed_set, x, frank_wolfe_variant)
+
+    return x, primal, dual_gap, pre_computed_set
+end
+
+Base.print(io::IO, ::BlendedDecompositionInvariantConditionalGradient) =
+    print(io, "Blended-Decompostion-Invariant-Frank-Wolfe")
 
 """
 	Vanilla-Frank-Wolfe
