@@ -57,6 +57,10 @@ SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
 StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+CombinatorialLinearOracles = "0002e35e-4a6a-41c8-a2f5-6940c7e5949f"
+
 
 [targets]
-test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats", "StableRNGs", "Aqua", "Suppressor", "Graphs"]
+test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats", "StableRNGs", "Aqua", "Suppressor", "Graphs", "Bonobo", "CSV", "CombinatorialLinearOracles"]
