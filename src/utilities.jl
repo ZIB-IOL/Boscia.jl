@@ -162,12 +162,7 @@ function clean_up_pre_computed_set!(lmo, pre_computed_set, x, fw_variant)
     return true
 end
 
-function init_decomposition_invariant_state(
-    active_set,
-    pre_computed_set,
-    callback,
-    kwargs...,
-)
+function init_decomposition_invariant_state(active_set, pre_computed_set, callback, kwargs...)
     # We keep track of computed extreme points by creating logging callback.
     function make_callback(pre_computed_set)
         return function DICG_callback(state, kwargs...)
@@ -266,7 +261,7 @@ function build_active_set_by_domain_oracle(
         empty!(active_set)
         return active_set
     end
-    
+
     if is_decomposition_invariant
         x0 = nothing
         # Obtain the starting point by warm-start
