@@ -46,6 +46,7 @@ StableRNGs = "1"
 Statistics = "1.6"
 Suppressor = "0.2"
 Test = "1"
+CSV = "0.10"
 julia = "1.6"
 
 [extras]
