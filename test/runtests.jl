@@ -35,7 +35,11 @@ using Aqua
     for file in readdir(joinpath(@__DIR__, "../examples/"), join=true)
         filename = basename(file)
         if endswith(file, "jl") && !(filename in excluded_files)
-            include(file)
+            # Isolate each example in its own module to avoid global name clashes
+            m = Module()
+            # Provide a local include that resolves relative to this module
+            Core.eval(m, :(include(x) = Base.include(@__MODULE__, x)))
+            Base.include(m, file)
         end
     end
 
