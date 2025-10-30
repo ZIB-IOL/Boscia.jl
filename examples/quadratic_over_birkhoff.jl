@@ -5,6 +5,8 @@ using Random
 using SCIP
 using LinearAlgebra
 import MathOptInterface
+using CombinatorialLinearOracles
+const CLO = CombinatorialLinearOracles
 const MOI = MathOptInterface
 import HiGHS
 
@@ -70,7 +72,7 @@ end
     x = zeros(n, n)
     int_vars = collect(1:n^2)
     @testset "Birkhoff BLMO (BPCG)" begin
-        sblmo = Boscia.BirkhoffBLMO(n, collect(1:n^2))
+        sblmo = CLO.BirkhoffLMO(n, collect(1:n^2))
 
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
@@ -84,7 +86,7 @@ end
 
     x_dicg = zeros(n,n)
     @testset "Birkhoff BLMO (DICG)" begin
-        sblmo = Boscia.BirkhoffBLMO(n, collect(1:n^2))
+        sblmo = CLO.BirkhoffLMO(n, collect(1:n^2))
 
         lower_bounds = fill(0.0, n^2)
         upper_bounds = fill(1.0, n^2)
