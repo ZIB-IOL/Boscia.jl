@@ -148,7 +148,7 @@ function bounded_compute_extreme_point(lmo::ProbabilitySimplexLMO, d, lb, ub, in
 
     # Step 2: distribute remaining N
     for i in indices[perm]
-        rem = sblmo.N - sum(v)
+        rem = lmo.N - sum(v)
         if rem ≤ 1e-10
             break
         end
@@ -204,7 +204,7 @@ function bounded_compute_inface_extreme_point(
         end
     end
 
-    if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
+    if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
         return a
     end
 
@@ -212,7 +212,7 @@ function bounded_compute_inface_extreme_point(
     d_updated = d[non_fixed_idx]
     perm = sortperm(d_updated)
     sorted = non_fixed_idx[perm]
-    rem = sblmo.N - sum(a)
+    rem = lmo.N - sum(a)
 
 
     for i in sorted
@@ -223,8 +223,8 @@ function bounded_compute_inface_extreme_point(
         else
             a[i] += rem
         end
-        rem = sblmo.N - sum(a)
-        if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
+        rem = lmo.N - sum(a)
+        if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -261,7 +261,7 @@ function bounded_dicg_maximum_step(
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
             else
-                gamma_max = min(gamma_max, (sblmo.N - x[idx]) / -di)
+                gamma_max = min(gamma_max, (lmo.N - x[idx]) / -di)
             end
         end
 
