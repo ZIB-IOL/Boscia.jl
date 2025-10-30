@@ -142,6 +142,8 @@ end
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
+
+
 function bounded_compute_extreme_point(
     sblmo::ProbabilitySimplexSimpleBLMO,
     d,
@@ -154,19 +156,28 @@ function bounded_compute_extreme_point(
     indices = collect(1:length(d))
     perm = sortperm(d)
 
-    # The lower bounds always have to be met. 
+    # Step 1: satisfy integer lower bounds
     v[int_vars] = lb
 
+    # Step 2: distribute remaining N
     for i in indices[perm]
+        rem = sblmo.N - sum(v)
+        if rem ≤ 1e-10
+            break
+        end
+
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
+            add_int = min(ub[idx] - v[i], floor(rem))  # make sure it is int
+            v[i] += add_int
         else
-            v[i] += sblmo.N - sum(v)
+            v[i] += rem
         end
     end
+
     return v
 end
+
 
 """
 Fix the corresponding entries to the boudary based on the given x.
@@ -190,9 +201,10 @@ function bounded_compute_inface_extreme_point(
 
     for i in indices
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
+            idx = findfirst(==(i), int_vars)
             if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
+                a[i] = lb[idx]
             elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
@@ -200,15 +212,12 @@ function bounded_compute_inface_extreme_point(
         else
             if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            end
-            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-                a[i] = sblmo.N
+                a[i] = 0.0
             end
         end
     end
 
-    if sum(a) == sblmo.N
+    if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
         return a
     end
 
@@ -216,15 +225,19 @@ function bounded_compute_inface_extreme_point(
     d_updated = d[non_fixed_idx]
     perm = sortperm(d_updated)
     sorted = non_fixed_idx[perm]
+    rem = sblmo.N - sum(a)
+
 
     for i in sorted
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            add_int = min(ub[idx] - a[i], floor(rem))
+            a[i] += add_int
         else
-            a[i] += sblmo.N - sum(a)
+            a[i] += rem
         end
-        if sum(a) == sblmo.N
+        rem = sblmo.N - sum(a)
+        if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -250,12 +263,22 @@ function bounded_dicg_maximum_step(
     for idx in eachindex(x)
         di = direction[idx]
         if di > tol
-            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
+            else
+                gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
+            end
         elseif di < -tol
-            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
+            else
+                gamma_max = min(gamma_max, (sblmo.N - x[idx]) / -di)
+            end
         end
 
-        if gamma_max == 0.0
+        if isapprox(gamma_max, 0.0; atol=tol)
             return 0.0
         end
     end
@@ -263,7 +286,11 @@ function bounded_dicg_maximum_step(
 end
 
 function is_simple_linear_feasible(sblmo::ProbabilitySimplexSimpleBLMO, v)
-    if sum(v .≥ 0) < length(v)
+    # if sum(v .≥ 0) < length(v)
+    #     @debug "v has negative entries: $(v)"
+    #     return false
+    # end
+    if any(v .< -1e-8)
         @debug "v has negative entries: $(v)"
         return false
     end
@@ -272,10 +299,13 @@ end
 
 function check_feasibility(sblmo::ProbabilitySimplexSimpleBLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
+    if length(int_vars) == n && !isinteger(sblmo.N)
+        error("Invalid problem: all variables are integer but N is non-integer.")
+    end
     if sum(lb) ≤ sblmo.N ≤ sum(ub) + m * sblmo.N
         return OPTIMAL
     else
-        INFEASIBLE
+        return INFEASIBLE
     end
 end
 
@@ -364,7 +394,8 @@ function is_decomposition_invariant_oracle_simple(sblmo::UnitSimplexSimpleBLMO)
 end
 
 function is_simple_inface_feasible(sblmo::UnitSimplexSimpleBLMO, a, x, lb, ub, int_vars; kwargs...)
-    if isapprox(sum(x), N; atol=atol, rtol=rtol) && !isapprox(sum(a), N; atol=atol, rtol=rtol)
+    if isapprox(sum(x), sblmo.N; atol=atol, rtol=rtol) &&
+       !isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
         return false
     end
     return is_simple_inface_feasible_subroutine(sblmo, a, x, lb, ub, int_vars; kwargs)
@@ -392,11 +423,13 @@ function bounded_compute_extreme_point(sblmo::UnitSimplexSimpleBLMO, d, lb, ub, 
             idx = findfirst(x -> x == i, int_vars)
             v[i] += min(ub[idx] - lb[idx], sblmo.N - sum(v))
         else
-            v[i] += N - sum(v)
+            v[i] += sblmo.N - sum(v)
         end
     end
     return v
 end
+
+
 
 """
 For boundary entries of x, assign the corresponding boudary.
@@ -423,9 +456,10 @@ function bounded_compute_inface_extreme_point(
 
     for i in indices
         if i in int_vars
-            idx = findfirst(x -> x == i, int_vars)
+            idx = findfirst(==(i), int_vars)
             if isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
+                a[i] = lb[idx]
             elseif isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
                 a[i] = ub[idx]
@@ -433,15 +467,12 @@ function bounded_compute_inface_extreme_point(
         else
             if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
-            end
-            if isapprox(x[i], 0.0; atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-                a[i] = sblmo.N
+                a[i] = 0.0
             end
         end
     end
 
-    if sum(a) == sblmo.N
+    if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
         return a
     end
 
@@ -451,15 +482,19 @@ function bounded_compute_inface_extreme_point(
     perm = sortperm(d_updated[idx_neg])
     sorted_neg = idx_neg[perm]
     sorted = non_fixed_idx[sorted_neg]
+    rem = sblmo.N - sum(a)
+
 
     for i in sorted
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            a[i] += min(ub[idx] - lb[idx], sblmo.N - sum(a))
+            add_int = min(ub[idx] - a[i], floor(rem))
+            a[i] += add_int
         else
-            a[i] += sblmo.N - sum(a)
+            a[i] += rem
         end
-        if sum(a) == sblmo.N
+        rem = sblmo.N - sum(a)
+        if isapprox(sum(a), sblmo.N; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -486,12 +521,22 @@ function bounded_dicg_maximum_step(
     for idx in eachindex(x)
         di = direction[idx]
         if di > tol
-            gamma_max = min(gamma_max, (x[idx] - lb[idx]) / di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
+            else
+                gamma_max = min(gamma_max, (x[idx] - 0.0) / di)
+            end
         elseif di < -tol
-            gamma_max = min(gamma_max, (ub[idx] - x[idx]) / -di)
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
+            else
+                gamma_max = min(gamma_max, (sblmo.N - x[idx]) / -di)
+            end
         end
 
-        if gamma_max == 0.0
+        if isapprox(gamma_max, 0.0; atol=tol)
             return 0.0
         end
     end
