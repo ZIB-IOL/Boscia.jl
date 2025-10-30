@@ -173,7 +173,7 @@ end
 # ## Custom LMO using Shortest Path
 
 # Custom Linear Minimization Oracle using shortest path computations
-struct ShortestPathLMO <: Boscia.SimpleBoundableLMO
+struct ShortestPathLMO <: FrankWolfe.LinearMinimizationOracle
     graph::Graphs.SimpleDiGraph{Int}
     net_data::NetworkData
     link_dic::SparseMatrixCSC{Int, Int}
@@ -672,7 +672,7 @@ println("="^70)
 optimizer, _ = build_moi_model(net_data, removed_edges, true)
 
 # Create Boscia LMO from MOI model
-lmo_moi = Boscia.MathOptBLMO(optimizer)
+lmo_moi = FrankWolfe.MathOptLMO(optimizer)
 
 # Build objective
 f_moi, grad_moi! = build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
@@ -724,7 +724,7 @@ lower_bounds = zeros(Float64, num_removed)  # Binary: lower bound = 0
 upper_bounds = ones(Float64, num_removed)   # Binary: upper bound = 1
 
 # Wrap LMO with integer handling
-bounded_lmo = Boscia.ManagedBoundedLMO(custom_lmo, lower_bounds, upper_bounds, int_vars, total_vars)
+bounded_lmo = Boscia.ManagedLMO(custom_lmo, lower_bounds, upper_bounds, int_vars, total_vars)
 
 # Build objective WITH PENALTY TERMS for linking constraints
 f_custom, grad_custom! = build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 

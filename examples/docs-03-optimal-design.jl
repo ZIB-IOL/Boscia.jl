@@ -17,7 +17,6 @@ using FrankWolfe
 using Statistics
 using Test
 using StableRNGs
-using PyPlot
 
 println("\nDocumentation Example 03: Optimal Design of Experiments")
 
@@ -91,8 +90,8 @@ end
 # where $N$ is the budget for the experiments and $u$ are upper bounds.
 ub = floor(N/3)
 u = rand(rng, 1.0:ub, m)
-simplex_lmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
-lmo = Boscia.ManagedBoundedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
+simplex_lmo = Boscia.ProbabilitySimplexLMO(N)
+lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
 
 
 # An issue arising from this is that the feasible region and the domain of the objectives don't completely overlap.
@@ -271,6 +270,7 @@ x_d, _, result_d = Boscia.solve(f_d, grad_d!, lmo, settings=settings)
 
 # ## Plotting the progress
 #=
+using PyPlot
 # Load plotting utilities
 include("plot_utilities.jl")
 

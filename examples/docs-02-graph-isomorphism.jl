@@ -110,7 +110,7 @@ end
 # or as a non-isomorphic graph by randomly toggling one edge.
 path = joinpath(@__DIR__, "Petersen.csv")
 rows = [collect(Int, r) for r in CSV.File(path; header = false, types = Int)]
-A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
+const A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
 n = size(A, 1)
 
 # --- Isomorphic case ---
