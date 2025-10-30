@@ -72,31 +72,25 @@ end
     x = zeros(n, n)
     int_vars = collect(1:n^2)
     @testset "Birkhoff BLMO (BPCG)" begin
-        sblmo = CLO.BirkhoffLMO(n, collect(1:n^2))
-
-        lower_bounds = fill(0.0, n^2)
-        upper_bounds = fill(1.0, n^2)
+        lmo = CLO.BirkhoffLMO(n, collect(1:n^2))
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
-        x, _, result = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
         @test f(x) <= f(result[:raw_solution]) + 1e-6
-        @test Boscia.is_simple_linear_feasible(sblmo, x)
+        @test Boscia.is_linear_feasible(lmo, x)
     end
 
     x_dicg = zeros(n,n)
     @testset "Birkhoff BLMO (DICG)" begin
-        sblmo = CLO.BirkhoffLMO(n, collect(1:n^2))
-
-        lower_bounds = fill(0.0, n^2)
-        upper_bounds = fill(1.0, n^2)
+        lmo = CLO.BirkhoffLMO(n, collect(1:n^2))
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
         settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-        x_dicg, _, result_dicg = Boscia.solve(f, grad!, sblmo, lower_bounds, upper_bounds, int_vars, n^2, settings=settings)
+        x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, settings=settings)
         @test f(x_dicg) <= f(result_dicg[:raw_solution]) + 1e-6
-        @test Boscia.is_simple_linear_feasible(sblmo, x_dicg)
+        @test Boscia.is_linear_feasible(lmo, x_dicg)
     end
 
     x_mip = zeros(n,n)
