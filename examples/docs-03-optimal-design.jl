@@ -36,7 +36,7 @@ B = B' * B
 @assert isposdef(B)
 D = MvNormal(randn(rng, n), B)
 
-A = rand(D, m)'
+const A = rand(D, m)'
 @assert rank(A) == n
 
 # Next, we define the two criteria and their gradients.
