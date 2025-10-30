@@ -394,15 +394,18 @@ Available settings:
 - `domain_oracle` given a point `x`: returns `true` if `x` is in the domain of `f`, else false. Per default, it always returns `true`. In case of the non-trivial domain oracle, the initial point has to be domain feasible for `f` and can be set via the `active_set``. Additionally, the user has to provide a function `domain_point`, see below. Also, depending on the line search method, you might have to provide the domain oracle to it, too. The default line search Secant, for example, requires the domain oracle.
 - `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`. Only necessary for a non-trivial domain oracle.
 - `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
+- `depth_domain` The domain point is used to generate new starting points after branching by solving a projection problem. This parameter is used to control how far we move into the domain.
 """
 function settings_domain(; mode::Mode=Boscia.DEFAULT_MODE)
     domain_oracle = _trivial_domain
     find_domain_point = _trivial_domain_point
     active_set = nothing
+    depth_domain=5
 
-    return Dict{Symbol,Union{Nothing,Function,FrankWolfe.ActiveSet}}(
+    return Dict{Symbol,Union{Nothing,Function,FrankWolfe.ActiveSet,Int}}(
         :domain_oracle => domain_oracle,
         :find_domain_point => find_domain_point,
         :active_set => active_set,
+        :depth_domain => depth_domain,
     )
 end
