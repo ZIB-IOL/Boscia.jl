@@ -3,20 +3,20 @@
 
 Hypercube with lower and upper bounds implementing the `SimpleBoundableLMO` interface.
 """
-struct CubeSimpleLMO <: FrankWolfe.LinearMinimizationOracle
+struct CubeLMO <: FrankWolfe.LinearMinimizationOracle
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
     int_vars::Vector{Int}
 end
 
-const CubeSimpleBLMO = CubeSimpleLMO
+const CubeSimpleBLMO = CubeLMO
 
 """
      bounded_compute_extreme_point(sblmo::CubeSimpleLMO, d, lb, ub, int_vars; kwargs...)
 
 If the entry is positve, choose the lower bound. Else, choose the upper bound.
 """
-function bounded_compute_extreme_point(lmo::CubeSimpleLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(lmo::CubeLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
@@ -29,7 +29,7 @@ function bounded_compute_extreme_point(lmo::CubeSimpleLMO, d, lb, ub, int_vars; 
     return v
 end
 
-function is_simple_linear_feasible(lmo::CubeSimpleLMO, v)
+function is_simple_linear_feasible(lmo::CubeLMO, v)
     for i in setdiff(eachindex(v), lmo.int_vars)
         if !(lmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ lmo.upper_bounds[i]))
             @debug(
@@ -41,11 +41,11 @@ function is_simple_linear_feasible(lmo::CubeSimpleLMO, v)
     return true
 end
 
-function is_simple_inface_feasible(lmo::CubeSimpleLMO, a, x, lb, ub, int_vars; kwargs...)
+function is_simple_inface_feasible(lmo::CubeLMO, a, x, lb, ub, int_vars; kwargs...)
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
 end
 
-function is_decomposition_invariant_oracle_simple(lmo::CubeSimpleLMO)
+function is_decomposition_invariant_oracle_simple(lmo::CubeLMO)
     return true
 end
 
@@ -54,7 +54,7 @@ If the entry in x is at the boundary, choose the corresponding bound.
 Otherwise, if the entry in direction is positve, choose the lower bound. Else, choose the upper bound.
 """
 function bounded_compute_inface_extreme_point(
-    lmo::CubeSimpleLMO,
+    lmo::CubeLMO,
     d,
     x,
     lb,
@@ -91,7 +91,7 @@ end
 """
 Compute the maximum step size for each entry and return the minium of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(lmo::CubeSimpleLMO, direction, x, lb, ub, int_vars; kwargs...)
+function bounded_dicg_maximum_step(lmo::CubeLMO, direction, x, lb, ub, int_vars; kwargs...)
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
         di = direction[idx]
@@ -119,18 +119,18 @@ end
 
 The scaled probability simplex with `∑ x = N`.
 """
-struct ProbabilitySimplexSimpleLMO <: FrankWolfe.LinearMinimizationOracle
+struct ProbabilitySimplexLMO <: FrankWolfe.LinearMinimizationOracle
     N::Float64
 end
 
-const ProbabilitySimplexSimpleBLMO = ProbabilitySimplexSimpleLMO
+const ProbabilitySimplexSimpleBLMO = ProbabilitySimplexLMO
 
-function is_decomposition_invariant_oracle_simple(lmo::ProbabilitySimplexSimpleLMO)
+function is_decomposition_invariant_oracle_simple(lmo::ProbabilitySimplexLMO)
     return true
 end
 
 function is_simple_inface_feasible(
-    lmo::ProbabilitySimplexSimpleLMO,
+    lmo::ProbabilitySimplexLMO,
     a,
     x,
     lb,
@@ -142,12 +142,12 @@ function is_simple_inface_feasible(
 end
 
 """
-    bounded_compute_extreme_point(lmo::ProbabilitySimplexSimpleLMO, d, lb, ub, int_vars; kwargs...)
+    bounded_compute_extreme_point(lmo::ProbabilitySimplexLMO, d, lb, ub, int_vars; kwargs...)
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
 function bounded_compute_extreme_point(
-    lmo::ProbabilitySimplexSimpleLMO,
+    lmo::ProbabilitySimplexLMO,
     d,
     lb,
     ub,
@@ -177,7 +177,7 @@ Fix the corresponding entries to the boudary based on the given x.
 Assign the largest possible values to the unfixed entries corresponding to the smallest entries of d.
 """
 function bounded_compute_inface_extreme_point(
-    lmo::ProbabilitySimplexSimpleLMO,
+    lmo::ProbabilitySimplexLMO,
     d,
     x,
     lb,
@@ -240,7 +240,7 @@ end
 Compute the maximum step size for each entry and return the minium of all the possible step sizes.
 """
 function bounded_dicg_maximum_step(
-    lmo::ProbabilitySimplexSimpleLMO,
+    lmo::ProbabilitySimplexLMO,
     direction,
     x,
     lb,
@@ -266,7 +266,7 @@ function bounded_dicg_maximum_step(
     return gamma_max
 end
 
-function is_simple_linear_feasible(lmo::ProbabilitySimplexSimpleLMO, v)
+function is_simple_linear_feasible(lmo::ProbabilitySimplexLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
@@ -274,7 +274,7 @@ function is_simple_linear_feasible(lmo::ProbabilitySimplexSimpleLMO, v)
     return isapprox(sum(v), lmo.N, atol=1e-4, rtol=1e-2)
 end
 
-function check_feasibility(lmo::ProbabilitySimplexSimpleLMO, lb, ub, int_vars, n)
+function check_feasibility(lmo::ProbabilitySimplexLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
     if sum(lb) ≤ lmo.N ≤ sum(ub) + m * lmo.N
         return OPTIMAL
@@ -284,13 +284,13 @@ function check_feasibility(lmo::ProbabilitySimplexSimpleLMO, lb, ub, int_vars, n
 end
 
 """
-     rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleLMO}}, x) 
+     rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexLMO}}, x) 
 
 Hyperplane-aware rounding for the probability simplex.
 """
 function rounding_hyperplane_heuristic(
     tree::Bonobo.BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexSimpleLMO}},
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexLMO}},
     x,
 )
     z = copy(x)
@@ -355,21 +355,21 @@ function remove_from_max(x, lb, int_vars)
 end
 
 """
-    UnitSimplexSimpleLMO(N)
+    UnitSimplexLMO(N)
 
 The scaled unit simplex with `∑ x ≤ N`.
 """
-struct UnitSimplexSimpleLMO <: FrankWolfe.LinearMinimizationOracle
+struct UnitSimplexLMO <: FrankWolfe.LinearMinimizationOracle
     N::Float64
 end
 
-const UnitSimplexSimpleBLMO = UnitSimplexSimpleLMO
+const UnitSimplexSimpleBLMO = UnitSimplexLMO
 
-function is_decomposition_invariant_oracle_simple(lmo::UnitSimplexSimpleLMO)
+function is_decomposition_invariant_oracle_simple(lmo::UnitSimplexLMO)
     return true
 end
 
-function is_simple_inface_feasible(lmo::UnitSimplexSimpleLMO, a, x, lb, ub, int_vars; kwargs...)
+function is_simple_inface_feasible(lmo::UnitSimplexLMO, a, x, lb, ub, int_vars; kwargs...)
     if isapprox(sum(x), N; atol=atol, rtol=rtol) && !isapprox(sum(a), N; atol=atol, rtol=rtol)
         return false
     end
@@ -382,7 +382,7 @@ end
 For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
-function bounded_compute_extreme_point(lmo::UnitSimplexSimpleLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(lmo::UnitSimplexLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     # The wloer bounds always have to be met.
     v[int_vars] = lb
@@ -410,7 +410,7 @@ For all positive entries of d, assign the corresponding lower bound.
 For non-positive entries, assign largest possible value in increasing order.
 """
 function bounded_compute_inface_extreme_point(
-    lmo::UnitSimplexSimpleLMO,
+    lmo::UnitSimplexLMO,
     d,
     x,
     lb,
@@ -478,7 +478,7 @@ Compute the maximum step size for each entry and the sum of entries should satis
 Return the minium of all the possible step sizes.
 """
 function bounded_dicg_maximum_step(
-    lmo::UnitSimplexSimpleLMO,
+    lmo::UnitSimplexLMO,
     direction,
     x,
     lb,
@@ -510,7 +510,7 @@ function bounded_dicg_maximum_step(
     return gamma_max
 end
 
-function is_simple_linear_feasible(lmo::UnitSimplexSimpleLMO, v)
+function is_simple_linear_feasible(lmo::UnitSimplexLMO, v)
     if sum(v .≥ 0) < length(v)
         @debug "v has negative entries: $(v)"
         return false
@@ -518,7 +518,7 @@ function is_simple_linear_feasible(lmo::UnitSimplexSimpleLMO, v)
     return sum(v) ≤ lmo.N + 1e-3
 end
 
-function check_feasibility(lmo::UnitSimplexSimpleLMO, lb, ub, int_vars, n)
+function check_feasibility(lmo::UnitSimplexLMO, lb, ub, int_vars, n)
     if sum(lb) ≤ lmo.N
         return OPTIMAL
     else
@@ -527,13 +527,13 @@ function check_feasibility(lmo::UnitSimplexSimpleLMO, lb, ub, int_vars, n)
 end
 
 """
-    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleLMO}}, x) 
+    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexLMO}}, x) 
     
 Hyperplane-aware rounding for the unit simplex.
 """
 function rounding_hyperplane_heuristic(
     tree::Bonobo.BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexSimpleLMO}},
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexLMO}},
     x,
 )
     z = copy(x)
