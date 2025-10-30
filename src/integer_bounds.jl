@@ -14,14 +14,18 @@ end
 
 IntegerBounds() = IntegerBounds(Dict{Int,Float64}(), Dict{Int,Float64}())
 
-function IntegerBounds(lbs::AbstractVector{<:Real}, ubs::AbstractVector{<:Real}, int_vars::AbstractVector{<:Integer})
+function IntegerBounds(
+    lbs::AbstractVector{<:Real},
+    ubs::AbstractVector{<:Real},
+    int_vars::AbstractVector{<:Integer},
+)
     lower_bounds = Dict{Int,Float64}()
     upper_bounds = Dict{Int,Float64}()
     for idx in int_vars
         lower_bounds[idx] = lbs[idx]
         upper_bounds[idx] = ubs[idx]
         #push!(lower_bounds, (idx, lbs[idx]))
-       # push!(upper_bounds, (idx, ubs[idx]))
+        # push!(upper_bounds, (idx, ubs[idx]))
     end
     return IntegerBounds(lower_bounds, upper_bounds)
 end
