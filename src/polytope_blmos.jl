@@ -129,15 +129,7 @@ function is_decomposition_invariant_oracle_simple(lmo::ProbabilitySimplexLMO)
     return true
 end
 
-function is_simple_inface_feasible(
-    lmo::ProbabilitySimplexLMO,
-    a,
-    x,
-    lb,
-    ub,
-    int_vars;
-    kwargs...,
-)
+function is_simple_inface_feasible(lmo::ProbabilitySimplexLMO, a, x, lb, ub, int_vars; kwargs...)
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
 end
 
@@ -146,14 +138,7 @@ end
 
 Assign the largest possible values to the entries corresponding to the smallest entries of d.
 """
-function bounded_compute_extreme_point(
-    lmo::ProbabilitySimplexLMO,
-    d,
-    lb,
-    ub,
-    int_vars;
-    kwargs...,
-)
+function bounded_compute_extreme_point(lmo::ProbabilitySimplexLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     indices = collect(1:length(d))
     perm = sortperm(d)

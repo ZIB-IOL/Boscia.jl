@@ -400,7 +400,7 @@ function settings_domain(; mode::Mode=Boscia.DEFAULT_MODE)
     domain_oracle = _trivial_domain
     find_domain_point = _trivial_domain_point
     active_set = nothing
-    depth_domain=5
+    depth_domain = 5
 
     return Dict{Symbol,Union{Nothing,Function,FrankWolfe.ActiveSet,Int}}(
         :domain_oracle => domain_oracle,

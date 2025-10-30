@@ -34,7 +34,7 @@ N = round(Int, 1.5 * n)
 B = rand(rng, m, n)
 B = B' * B
 @assert isposdef(B)
-D = MvNormal(randn(rng, n), B)
+const D = MvNormal(randn(rng, n), B)
 
 const A = rand(D, m)'
 @assert rank(A) == n

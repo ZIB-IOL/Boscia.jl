@@ -282,20 +282,26 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     domain_right = !isempty(active_set_right)
     domain_left = !isempty(active_set_left)
 
-    nodes = if !prune_left && !prune_right && domain_right && domain_left && !user_prune_left && !user_prune_right
-        [node_info_left, node_info_right]
-    elseif prune_left || user_prune_left
-        [node_info_right]
-    elseif prune_right || user_prune_right
-        [node_info_left]
-    elseif domain_right # x_right in domain
-        [node_info_right]
-    elseif domain_left # x_left in domain
-        [node_info_left]
-    else
-        @warn "No childern nodes can be created."
-        Vector{typeof(node_info_left)}()
-    end
+    nodes =
+        if !prune_left &&
+           !prune_right &&
+           domain_right &&
+           domain_left &&
+           !user_prune_left &&
+           !user_prune_right
+            [node_info_left, node_info_right]
+        elseif prune_left || user_prune_left
+            [node_info_right]
+        elseif prune_right || user_prune_right
+            [node_info_left]
+        elseif domain_right # x_right in domain
+            [node_info_right]
+        elseif domain_left # x_left in domain
+            [node_info_left]
+        else
+            @warn "No childern nodes can be created."
+            Vector{typeof(node_info_left)}()
+        end
     return nodes
 end
 
