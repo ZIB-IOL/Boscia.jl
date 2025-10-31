@@ -130,25 +130,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     user_prune_left, user_prune_right = false, false
 
     if tree.root.options[:branch_callback] !== nothing
-        if !tree.root.options[:branch_callback](tree, node, vidx)
-            user_prune_left, user_prune_right = (
-                active_set=node.active_set,
-                discarded_vertices=node.discarded_vertices,
-                local_bounds=node.local_bounds,
-                level=node.level + 1,
-                fw_dual_gap_limit=node.fw_dual_gap_limit,
-                fw_time=node.fw_time,
-                global_tightenings=0,
-                local_tightenings=0,
-                local_potential_tightenings=0,
-                dual_gap=NaN,
-                pre_computed_set=node.pre_computed_set,
-                parent_lower_bound_base=lower_bound_base,
-                branched_on=vidx,
-                branched_right=true,
-                distance_to_int=0.0,
-            )
-        end
+        user_prune_left, user_prune_right = tree.root.options[:branch_callback](tree, node, vidx)
     end
 
     # In case of strong convexity, check if a child can be pruned

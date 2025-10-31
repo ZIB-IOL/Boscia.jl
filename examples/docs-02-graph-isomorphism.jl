@@ -155,7 +155,8 @@ function build_branch_callback()
         if lower_bound > 0.0 + eps()
             println("No need to branch here. Node lower bound already positive.")
         end
-        return !(lower_bound > 0.0 + eps())
+        valid_lower = lower_bound > 0.0 + eps()
+        return valid_lower, valid_lower
     end
 end
 
@@ -198,6 +199,7 @@ settings.branch_and_bound[:print_iter] = 10
 settings.branch_and_bound[:bnb_callback] = build_tree_callback()
 settings.branch_and_bound[:branch_callback] = build_branch_callback()
 settings.heuristic[:custom_heuristics] = [swap_heu]
+settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
 settings.frank_wolfe[:lazy] = true
 settings.frank_wolfe[:max_fw_iter] = 1000
