@@ -28,7 +28,7 @@ println("\nIndicator Tests")
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    blmo = Boscia.MathOptBLMO(o)
+    blmo = FrankWolfe.MathOptLMO(o)
 
     @test Boscia.indicator_present(blmo) == false
 

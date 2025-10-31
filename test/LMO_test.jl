@@ -41,7 +41,7 @@ rng = StableRNG(seed)
             MOI.add_constraint(o, xi, MOI.LessThan(5.0))
         end
     end
-    lmo = Boscia.MathOptBLMO(o)
+    lmo = FrankWolfe.MathOptLMO(o)
 
     global_bounds = Boscia.IntegerBounds()
     @test isempty(global_bounds)

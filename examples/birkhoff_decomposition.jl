@@ -122,7 +122,7 @@ x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
     lmo = build_birkhoff_lmo()
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:branching_strategy] = branching_strategy
