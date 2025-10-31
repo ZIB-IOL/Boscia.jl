@@ -100,8 +100,9 @@ lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
 # To address this problem, we first need to define a domain oracle tht given a point $x$ returns true if $x$ is feasible.
 # There are different ways to check domain feasibility, here we chose to test if the activated rows of $A$ are linearly independent and span the $\mathbb{R}^n$.
 function domain_oracle(x)
-    S = findall(x -> !iszero(x), x)
-    return length(S) >= n && rank(A[S, :]) == n
+    X = transpose(A) * diagm(x) * A
+    X = Symmetric(X)
+    return LinearAlgebra.isposdef(X)
 end
 
 # Even if we start Boscia with a domain feasible point, we might end up with domain infeasible points later in the tree.
