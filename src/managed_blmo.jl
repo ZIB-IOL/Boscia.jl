@@ -34,7 +34,8 @@ A Bounded Linear Minimization Oracle that manages the bounds.
 - `int_vars` list of indices of the integer variables.
 - `solving_time` the time to evaluate `compute_extreme_point`.
 """
-mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMinimizationOracle
+mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <:
+               BoundedLinearMinimizationOracle
     simple_lmo::SBLMO
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
@@ -44,15 +45,17 @@ mutable struct ManagedBoundedLMO{SBLMO<:SimpleBoundableLMO} <: BoundedLinearMini
 end
 
 function ManagedBoundedLMO(simple_lmo, lb, ub, int_vars::Vector{Int}, n::Int)
-    if length(lb) != length(ub) || length(ub) != length(int_vars) || length(lb) != length(int_vars)
+    if length(lb) != length(ub) ||
+       length(ub) != length(int_vars) ||
+       length(lb) != length(int_vars)
         error(
             "Supply lower and upper bounds for all integer variables. If there are no explicit bounds, set entry to Inf and -Inf, respectively. The entries have to match the entries of int_vars!",
         )
     end
     # Check that we have integer bounds
     for (i, _) in enumerate(int_vars)
-        @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
-        @assert isapprox(ub[i], round(ub[i]), atol=1e-6, rtol=1e-2)
+        @assert isapprox(lb[i], round(lb[i]), atol = 1e-6, rtol = 1e-2)
+        @assert isapprox(ub[i], round(ub[i]), atol = 1e-6, rtol = 1e-2)
     end
     return ManagedBoundedLMO(simple_lmo, lb, ub, int_vars, n, 0.0)
 end
@@ -219,7 +222,8 @@ end
 function is_linear_feasible(blmo::ManagedBoundedLMO, v::AbstractVector)
     for (i, int_var) in enumerate(blmo.int_vars)
         if !(
-            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 && (v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
+            blmo.lower_bounds[i] ≤ v[int_var] + 1e-6 &&
+            (v[int_var] - 1e-6 ≤ blmo.upper_bounds[i])
         )
             @debug(
                 "Variable: $(int_var) Vertex entry: $(v[int_var]) Lower bound: $(blmo.lower_bounds[i]) Upper bound: $(blmo.upper_bounds[i]))"
@@ -299,9 +303,9 @@ function solve(
     upper_bounds::Vector{Float64},
     int_vars::Vector{Int},
     n::Int;
-    settings=create_default_settings(),
+    settings = create_default_settings(),
     kwargs...,
 )
     blmo = ManagedBoundedLMO(sblmo, lower_bounds, upper_bounds, int_vars, n)
-    return solve(f, grad!, blmo, settings=settings, kwargs...)
+    return solve(f, grad!, blmo, settings = settings, kwargs...)
 end
