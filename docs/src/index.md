@@ -1,8 +1,11 @@
 # Boscia.jl
 
 [![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zib-iol.github.io/Boscia.jl/dev/)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zib-iol.github.io/Boscia.jl/stable/)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12720675.svg)](https://doi.org/10.5281/zenodo.12720675)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 A solver for Mixed-Integer Convex Optimization that uses Frank-Wolfe methods for convex relaxations and a branch-and-bound algorithm.
 
@@ -39,10 +42,6 @@ Pkg.add(url="https://github.com/ZIB-IOL/Boscia.jl", rev="main")
 
 For the installation of `SCIP.jl`, see [here](https://github.com/scipopt/SCIP.jl).
 Note, for Windows users, you do not need to download the SCIP binaries, you can also use the installer provided by SCIP.
-
-
-
-
 
 
 ## Getting started
@@ -84,41 +83,36 @@ function grad!(storage, x)
     @. storage = x-diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, verbose = true)
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
 Boscia Algorithm.
 
 Parameter settings.
 	 Tree traversal strategy: Move best bound
 	 Branching strategy: Most infeasible
+	 FrankWolfe variant: Blended Pairwise Conditional Gradient
+	 Line Search Method: Secant
+	 Lazification: true
+	 Lazification Tolerance: 2
 	 Absolute dual gap tolerance: 1.000000e-06
 	 Relative dual gap tolerance: 1.000000e-02
-	 Frank-Wolfe subproblem tolerance: 1.000000e-05
-	 Total number of varibales: 6
-	 Number of integer variables: 0
-	 Number of binary variables: 6
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   Iteration       Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec        FW (ms)       LMO (ms)  LMO (calls c)   FW (Its)   #ActiveSet  Discarded
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-*          1          2  -1.202020e-06   7.500000e-01   7.500012e-01            Inf   3.870000e-01   7.751938e+00            237              2              9         13            1          0
-         100         27   6.249998e-01   7.500000e-01   1.250002e-01   2.000004e-01   5.590000e-01   2.271914e+02              0              0            641          0            1          0
-         127          0   7.500000e-01   7.500000e-01   0.000000e+00   0.000000e+00   5.770000e-01   2.201040e+02              0              0            695          0            1          0
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	 Frank-Wolfe subproblem tolerance: 1.000000e-02
+	 Frank-Wolfe dual gap decay factor: 8.000000e-01
+	 Additional kwargs: 
+	 Total number of variables: 6
+	 Number of integer variables: 6
 
-Postprocessing
 
-Blended Pairwise Conditional Gradient Algorithm.
-MEMORY_MODE: FrankWolfe.InplaceEmphasis() STEPSIZE: Adaptive EPSILON: 1.0e-7 MAXITERATION: 10000 TYPE: Float64
-GRADIENTTYPE: Nothing LAZY: true lazy_tolerance: 2.0
-[ Info: In memory_mode memory iterates are written back into x0!
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Iter  Open          Bound      Incumbent      Gap (abs)      Gap (rel)       Time (s)      Nodes/sec      FW (ms)   LMO (ms)  LMO (calls c)   FW (its) #activeset  #shadow
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*     1     2   0.000000e+00   7.500000e-01   7.500000e-01            Inf   2.000000e-03   1.500000e+03            1          1              4          2        1        0
+    100    27   6.250000e-01   7.500000e-01   1.250000e-01   2.000000e-01   6.400000e-02   1.984375e+03            0          0            326          0        1        0
+    127     0   7.500000e-01   7.500000e-01   0.000000e+00   0.000000e+00   7.300000e-02   1.739726e+03            0          0            380          0        1        0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------------------------------------
-  Type     Iteration         Primal           Dual       Dual Gap           Time         It/sec     #ActiveSet
-----------------------------------------------------------------------------------------------------------------
-  Last             0   7.500000e-01   7.500000e-01   0.000000e+00   1.086583e-03   0.000000e+00              1
-----------------------------------------------------------------------------------------------------------------
-    PP             0   7.500000e-01   7.500000e-01   0.000000e+00   1.927792e-03   0.000000e+00              1
-----------------------------------------------------------------------------------------------------------------
 
 Solution Statistics.
 	 Solution Status: Optimal (tree empty)
@@ -128,9 +122,15 @@ Solution Statistics.
 
 Search Statistics.
 	 Total number of nodes processed: 127
-	 Total number of lmo calls: 699
-	 Total time (s): 0.58
-	 LMO calls / sec: 1205.1724137931035
-	 Nodes / sec: 218.96551724137933
-	 LMO calls / node: 5.503937007874016
+	 Total number of lmo calls: 380
+	 Total time (s): 0.074
+	 LMO calls / sec: 5135.135135135135
+	 Nodes / sec: 1716.2162162162163
+	 LMO calls / node: 2.9921259842519685
+
+	 Total number of global tightenings: 0
+	 Global tightenings / node: 0.0
+	 Total number of local tightenings: 0
+	 Local tightenings / node: 0.0
+	 Total number of potential local tightenings: 0
 ```
