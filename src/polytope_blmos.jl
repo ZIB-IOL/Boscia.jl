@@ -988,7 +988,7 @@ function is_simple_linear_feasible(sblmo::BirkhoffBLMO, v::AbstractVector)
             return false
         end
         # append by column ? row sum : column sum
-        if !isapprox(sum(v[i:n:n^2]), 1.0, atol=1e-6, rtol=1e-3)
+        if !isapprox(sum(v[i:n:(n^2)]), 1.0, atol=1e-6, rtol=1e-3)
             @debug "Row sum not 1: $(sum(v[i:n:n^2]))"
             return false
         end

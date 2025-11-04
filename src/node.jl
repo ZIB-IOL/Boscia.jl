@@ -133,7 +133,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
                 active_set=node.active_set,
                 discarded_vertices=node.discarded_vertices,
                 local_bounds=node.local_bounds,
-                level=node.level + 1,
+                level=(node.level + 1),
                 fw_dual_gap_limit=node.fw_dual_gap_limit,
                 fw_time=node.fw_time,
                 global_tightenings=0,

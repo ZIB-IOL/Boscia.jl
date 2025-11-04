@@ -228,7 +228,7 @@ function solve_frank_wolfe(
 )
     x0, DICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
 
-    x, _, primal, dual_gap, status,  _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, status, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -303,23 +303,24 @@ function solve_frank_wolfe(
 
     x0, BDICG_callback = init_decomposition_invariant_state(active_set, pre_computed_set, callback)
 
-    x, _, primal, dual_gap, status, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        x0;
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        verbose=verbose,
-        timeout=timeout,
-        lazy=lazy,
-        use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
-        linesearch_workspace=workspace,
-        sparsity_control=lazy_tolerance,
-        callback=BDICG_callback,
-        extra_vertex_storage=pre_computed_set,
-    )
+    x, _, primal, dual_gap, status, _ =
+        FrankWolfe.blended_decomposition_invariant_conditional_gradient(
+            f,
+            grad!,
+            lmo,
+            x0;
+            line_search=line_search,
+            epsilon=epsilon,
+            max_iteration=max_iteration,
+            verbose=verbose,
+            timeout=timeout,
+            lazy=lazy,
+            use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
+            linesearch_workspace=workspace,
+            sparsity_control=lazy_tolerance,
+            callback=BDICG_callback,
+            extra_vertex_storage=pre_computed_set,
+        )
 
     clean_up_pre_computed_set!(lmo, pre_computed_set, x, frank_wolfe_variant)
 
