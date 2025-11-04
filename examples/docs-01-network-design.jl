@@ -29,7 +29,6 @@
 #
 # Because they optimize different objective functions, they may find different solutions!
 # The penalty weight ρ controls the tradeoff between optimality and feasibility.
-
 using Boscia
 using FrankWolfe
 using Graphs
@@ -37,14 +36,11 @@ using SparseArrays
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
-
-# For MIP solver, you can choose one of:
-using HiGHS  # Open source, no license needed
+using HiGHS 
 
 println("\nDocumentation Example 01: Network Design Problem")
 
 # ## Data Structure
-
 # Simple graph structure with edge weights and demands
 mutable struct NetworkData
     num_nodes::Int
@@ -60,58 +56,39 @@ mutable struct NetworkData
 end
 
 # ## Load Network
+# Transportation network matching the purchasable edge diagram
+# 2 sources (S1, S2) → 5 intermediate nodes → 1 destination (D)
+# Total: 8 nodes
+#
+# IMPORTANT: Node numbering is constrained by the code structure
+# The code requires zones 1..num_zones to BE nodes 1..num_zones
+# So: Node 1=S1 (zone 1), Node 2=S2 (zone 2), Node 3=D (zone 3)
+# Nodes 4-8 are the 5 intermediate nodes from the diagram
+#
+# Mapping from diagram to code:
+# Diagram -> Code numbering
+# S1 -> 1, S2 -> 2, D -> 3
+# intermediate nodes 1,2,3,4,5 -> 4,5,6,7,8
+#
+# Network topology from your description:
+# S1(1) → node_1(4)
+# S2(2) → node_3(6)  
+# node_1(4) → node_3(6)
+# node_2(5) → node_1(4), D(3)
+# node_3(6) → node_1(4), node_4(7)
+# node_4(7) → node_3(6), node_5(8)
+# node_5(8) → node_4(7), D(3)
+# Optional edge: node_1(4) → node_2(5) [the purchasable dashed edge]
 
 function load_braess_network()
-    # Transportation network matching the purchasable edge diagram
-    # 2 sources (S1, S2) → 5 intermediate nodes → 1 destination (D)
-    # Total: 8 nodes
-    #
-    # IMPORTANT: Node numbering is constrained by the code structure
-    # The code requires zones 1..num_zones to BE nodes 1..num_zones
-    # So: Node 1=S1 (zone 1), Node 2=S2 (zone 2), Node 3=D (zone 3)
-    # Nodes 4-8 are the 5 intermediate nodes from the diagram
-    #
-    # Mapping from diagram to code:
-    # Diagram -> Code numbering
-    # S1 -> 1, S2 -> 2, D -> 3
-    # intermediate nodes 1,2,3,4,5 -> 4,5,6,7,8
-    #
-    # Network topology from your description:
-    # S1(1) → node_1(4)
-    # S2(2) → node_3(6)  
-    # node_1(4) → node_3(6)
-    # node_2(5) → node_1(4), D(3)
-    # node_3(6) → node_1(4), node_4(7)
-    # node_4(7) → node_3(6), node_5(8)
-    # node_5(8) → node_4(7), D(3)
-    # Optional edge: node_1(4) → node_2(5) [the purchasable dashed edge]
-    
-    # List all edges
     init_nodes = [1, 2, 4, 5, 5, 6, 6, 7, 7, 8, 8, 4]
     term_nodes = [4, 6, 6, 4, 3, 4, 7, 6, 8, 7, 3, 5]
-    
-    # Edge list:
-    # 1: S1→1, 2: S2→3, 3: 1→3, 4: 2→1, 5: 2→D,
-    # 6: 3→1, 7: 3→4, 8: 4→3, 9: 4→5, 10: 5→4, 11: 5→D, 12: 1→2 (optional)
-    
-    # Travel times using BPR function
-    # Edge 5 (5→D) gets congested when both flows merge there without the shortcut
-    # Edge 12 (4→5, optional) provides an alternative that splits the load
-    # When edge 12 is not purchased, flows naturally separate to paths 5→D and 8→D
     free_flow_time = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     capacity = [10.0, 10.0, 10.0, 10.0, 1.5, 10.0, 10.0, 10.0, 10.0, 10.0, 1.5, 10.0]
     b = [0.1, 0.1, 0.1, 0.1, 3.0, 0.1, 0.1, 0.1, 0.1, 0.1, 3.0, 0.1]
     power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-    
-    # Travel demand with 3 zones
-    # Zone 1 (S1, node 1) → Zone 3 (D, node 3): 1 unit
-    # Zone 2 (S2, node 2) → Zone 3 (D, node 3): 1 unit
-    # Zone 3 (D) doesn't send flow
-    travel_demand = [0.0 0.0 1.0; 
-                     0.0 0.0 1.0;
-                     0.0 0.0 0.0]
-    
-    return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time, 
+    travel_demand = [0.0 0.0 1.0; 0.0 0.0 1.0; 0.0 0.0 0.0]
+    return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time,
                       capacity, b, power, travel_demand, 3)
 end
 
@@ -135,9 +112,7 @@ function add_demand_to_path!(x, demand, state, origin, destination, link_dic, ed
         if parent != 0
             link_idx = link_dic[parent, current]
             if link_idx != 0
-                # Flow for this destination
                 x[(destination - 1) * edge_count + link_idx] += demand
-                # Aggregated flow
                 x[agg_start + link_idx] += demand
             end
         end
@@ -149,10 +124,7 @@ end
 function all_or_nothing_assignment(travel_time_vector, net_data, graph, link_dic, edge_list)
     num_zones = net_data.num_zones
     edge_count = net_data.num_edges
-    
-    # Extract aggregate flows from the variable vector
     travel_time = travel_time_vector[num_zones * edge_count + 1 : (num_zones + 1) * edge_count]
-    
     x = zeros(length(travel_time_vector))
     
     for origin in 1:num_zones
@@ -182,14 +154,8 @@ end
 
 function Boscia.bounded_compute_extreme_point(lmo::ShortestPathLMO, direction, 
                                                lower_bounds, upper_bounds, int_vars)
-    # For flow variables (continuous), we use shortest path
-    # For design variables (binary), we optimize based on the gradient direction
     x = all_or_nothing_assignment(direction, lmo.net_data, lmo.graph, 
                                   lmo.link_dic, lmo.edge_list)
-    
-    # Set design variables based on their contribution to the objective
-    # If gradient is negative, set to upper bound (restore edge is beneficial)
-    # If gradient is positive, set to lower bound (don't restore edge)
     for (i, var_idx) in enumerate(int_vars)
         if direction[var_idx] < 0
             x[var_idx] = upper_bounds[i]
@@ -197,62 +163,47 @@ function Boscia.bounded_compute_extreme_point(lmo::ShortestPathLMO, direction,
             x[var_idx] = lower_bounds[i]
         end
     end
-    
     return x
 end
 
 function Boscia.is_simple_linear_feasible(lmo::ShortestPathLMO, x)
-    # Check non-negativity of flows
     num_zones = lmo.net_data.num_zones
     num_edges = lmo.net_data.num_edges
-    
-    # Check flow conservation constraints would need more work
-    # For simplicity, we return true here assuming the LMO generates feasible points
     return all(x .>= -1e-6)
 end
 
 # ## MOI Model Setup
 
 # Build MOI model with flow conservation and network design constraints
+# Big-M formulation: x[dest, edge] <= M * y[edge]
+# When y=1 (restore), flow can be up to M
+# When y=0 (closed), flow must be 0
+# Indicator constraint: y[edge] = 0 => x[dest, edge] = 0
+# Note: Indicator constraints may not be supported by all solvers
 function build_moi_model(net_data, removed_edges, use_big_m=true)
-    # Create optimizer
     optimizer = HiGHS.Optimizer()
     MOI.set(optimizer, MOI.Silent(), true)
-    
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
-    
-    # Variables: flow per destination + aggregate flow per edge + binary design variables
     num_flow_vars = num_zones * num_edges  # x[dest, edge]
     num_agg_vars = num_edges  # x_agg[edge]
     num_design_vars = num_removed  # y[removed_edge] binary
-    
     total_vars = num_flow_vars + num_agg_vars + num_design_vars
-    
-    # Add variables
     x = MOI.add_variables(optimizer, num_flow_vars)
     x_agg = MOI.add_variables(optimizer, num_agg_vars)
     y = MOI.add_variables(optimizer, num_design_vars)
-    
-    # Set non-negativity constraints on flow variables
     for i in 1:num_flow_vars
         MOI.add_constraint(optimizer, x[i], MOI.GreaterThan(0.0))
     end
     for i in 1:num_agg_vars
         MOI.add_constraint(optimizer, x_agg[i], MOI.GreaterThan(0.0))
     end
-    
-    # Set binary constraints on design variables
     for i in 1:num_design_vars
         MOI.add_constraint(optimizer, y[i], MOI.ZeroOne())
     end
-    
-    # Build edge list and dictionaries
     edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) for i in 1:num_edges]
     edge_dict = Dict(edge_list[i] => i for i in eachindex(edge_list))
-    
-    # Build incoming/outgoing edge dictionaries
     incoming = Dict{Int, Vector{Int}}()
     outgoing = Dict{Int, Vector{Int}}()
     
@@ -267,74 +218,46 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
         end
         push!(incoming[dst], idx)
     end
-    
-    # Flow conservation constraints
-    # For each destination, for each node:
-    # - If node is the destination: sum(inflow) - sum(outflow) = total_demand_to_dest
-    # - Otherwise: sum(outflow) - sum(inflow) = demand_from_node_to_dest
     for dest in 1:num_zones
         for node in 1:net_data.num_nodes
             terms = MOI.ScalarAffineTerm{Float64}[]
-            
-            # Outgoing flow
             if haskey(outgoing, node)
                 for edge_idx in outgoing[node]
                     push!(terms, MOI.ScalarAffineTerm(1.0, x[(dest-1)*num_edges + edge_idx]))
                 end
             end
-            
-            # Incoming flow
             if haskey(incoming, node)
                 for edge_idx in incoming[node]
                     push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges + edge_idx]))
                 end
             end
-            
-            # RHS: flow conservation (constraint form is: outflow - inflow = rhs)
             if node == dest
-                # At destination: outflow - inflow = -total_demand (more inflow than outflow)
                 rhs = -sum(net_data.travel_demand[:, dest])
             elseif node <= num_zones
-                # At origin nodes: outflow - inflow = demand from this node to destination
                 rhs = net_data.travel_demand[node, dest]
             else
-                # At intermediate nodes: outflow - inflow = 0 (flow conservation)
                 rhs = 0.0
             end
-            
             MOI.add_constraint(optimizer, 
                              MOI.ScalarAffineFunction(terms, 0.0),
                              MOI.EqualTo(rhs))
         end
     end
-    
-    # Aggregation constraints: x_agg[e] = sum over destinations of x[dest,e]
     for edge_idx in 1:num_edges
         terms = [MOI.ScalarAffineTerm(1.0, x_agg[edge_idx])]
         for dest in 1:num_zones
             push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges + edge_idx]))
         end
-        
         MOI.add_constraint(optimizer,
                          MOI.ScalarAffineFunction(terms, 0.0),
                          MOI.EqualTo(0.0))
     end
-    
-    # Network design constraints
-    # y[edge] = 1 means restore edge (allow flow), y[edge] = 0 means keep closed (no flow)
-    # Big-M formulation: x[dest, edge] <= M * y[edge]
     max_flow = 1.5 * sum(net_data.travel_demand)
-    
     for (y_idx, edge) in enumerate(removed_edges)
         edge_idx = edge_dict[edge]
-        
         for dest in 1:num_zones
             var_idx = (dest - 1) * num_edges + edge_idx
-            
             if use_big_m
-                # Big-M formulation: x[dest, edge] <= M * y[edge]
-                # When y=1 (restore), flow can be up to M
-                # When y=0 (closed), flow must be 0
                 terms = [
                     MOI.ScalarAffineTerm(1.0, x[var_idx]),
                     MOI.ScalarAffineTerm(-max_flow, y[y_idx])
@@ -343,8 +266,6 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
                                  MOI.ScalarAffineFunction(terms, 0.0),
                                  MOI.LessThan(0.0))
             else
-                # Indicator constraint: y[edge] = 0 => x[dest, edge] = 0
-                # Note: Indicator constraints may not be supported by all solvers
                 indicator_func = MOI.VectorAffineFunction(
                     [
                         MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y[y_idx])),
@@ -357,224 +278,179 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
             end
         end
     end
-    
     return optimizer, edge_list
 end
 
 # ## Objective Function and Gradient
 
 # BPR (Bureau of Public Roads) travel time function and gradient (for MOI-based LMO)
+#
+# This function builds the objective function and gradient for the MOI-based approach.
+# The objective function computes:
+# - BPR travel time: t = t0 * (flow + b * flow^(power+1) / capacity^power / (power+1))
+# - Design cost: sum of cost_per_edge[i] * y[i] for each restored edge
+# - No penalty terms needed - constraints are enforced by the MOI model
+#
+# The gradient function computes derivatives of the objective with respect to:
+# - Aggregate flows: d/d(flow) of BPR function
+# - Design variables: cost_per_edge[i] for each restored edge
+#
+# Returns: (f, grad!) where f is the objective function and grad! is the gradient function
 function build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
-    
-    # Objective: sum of BPR travel times + cost of opening edges
-    # No penalty terms needed - constraints are enforced by the MOI model
     function f(x)
-        # Clip negative values (numerical safety)
         x = max.(x, 0.0)
-        
         total = 0.0
-        
-        # Extract aggregate flows
         agg_start = num_zones * num_edges + 1
         agg_end = num_zones * num_edges + num_edges
         x_agg = @view x[agg_start:agg_end]
-        
-        # BPR travel time: t = t0 * (flow + b * flow^(power+1) / capacity^power / (power+1))
         for i in 1:num_edges
             flow = x_agg[i]
             t0 = net_data.free_flow_time[i]
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            
             total += t0 * (flow + b * flow^(p + 1) / cap^p / (p + 1))
         end
-        
-        # Design cost
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
             total += cost_per_edge[i] * x[design_start + i - 1]
         end
-        
         return total
     end
-    
-    # Gradient
     function grad!(storage, x)
         x = max.(x, 0.0)
         fill!(storage, 0.0)
-        
         agg_start = num_zones * num_edges + 1
         agg_end = num_zones * num_edges + num_edges
         x_agg = @view x[agg_start:agg_end]
-        
-        # Gradient w.r.t. aggregate flows
         for i in 1:num_edges
             flow = x_agg[i]
             t0 = net_data.free_flow_time[i]
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            
-            # d/d(flow) of BPR function
             storage[agg_start + i - 1] = t0 * (1 + b * flow^p / cap^p)
         end
-        
-        # Propagate to disaggregate flows (same gradient)
         for dest in 1:num_zones
             for edge in 1:num_edges
                 storage[(dest - 1) * num_edges + edge] = storage[agg_start + edge - 1]
             end
         end
-        
-        # Gradient w.r.t. design variables
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
             storage[design_start + i - 1] = cost_per_edge[i]
         end
-        
         return storage
     end
-    
     return f, grad!
 end
 
 # BPR objective WITH penalty terms for linking constraints (for Custom LMO)
 #
-# For the Custom LMO, we cannot enforce x[dest,edge] <= M * y[edge] as hard constraints.
-# Instead, we add penalty terms to the objective function to discourage violations:
-#   penalty = rho * sum_i sum_dest max(0, x[dest,removed_edge_i] - M * y[i])^penalty_exponent
+# This function builds the objective function and gradient for the Custom LMO approach.
+# Since the shortest-path oracle cannot enforce linking constraints x[dest,edge] <= M * y[edge]
+# as hard constraints, we add penalty terms to the objective function to discourage violations.
 #
-# Common choices:
-# - penalty_exponent = 1: Linear penalty (L1)
-# - penalty_exponent = 2: Quadratic penalty (L2, most common)
-# - penalty_exponent > 2: Higher order penalties (stronger enforcement)
+# The objective function computes:
+# - BPR travel time: t = t0 * (flow + b * flow^(power+1) / capacity^power / (power+1))
+# - Design cost: sum of cost_per_edge[i] * y[i] for each restored edge
+# - Penalty terms: penalty_weight * sum_i sum_dest max(0, x[dest,removed_edge_i] - M * y[i])^penalty_exponent
+#
+# The gradient function computes derivatives of the objective with respect to:
+# - Aggregate flows: d/d(flow) of BPR function + penalty gradient w.r.t. flows
+# - Design variables: cost_per_edge[i] + penalty gradient w.r.t. design variables
+#
+# Parameters:
+# - penalty_weight: Weight of the penalty term (default: 1e6)
+# - penalty_exponent: Exponent for the penalty term (default: 2.0)
+#   - penalty_exponent = 1: Linear penalty (L1)
+#   - penalty_exponent = 2: Quadratic penalty (L2, most common)
+#   - penalty_exponent > 2: Higher order penalties (stronger enforcement)
+#
+# Returns: (f, grad!) where f is the objective function and grad! is the gradient function
 function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
                                                     penalty_weight=1e6, penalty_exponent=2.0)
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
-    
-    # Build dictionary mapping removed edges to their indices
     edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) for i in 1:num_edges]
     removed_edge_indices = [findfirst(e -> e == removed_edge, edge_list) 
                             for removed_edge in removed_edges]
-    
     max_flow = 1.5 * sum(net_data.travel_demand)
-    
-    # Objective: BPR travel times + design cost + PENALTY for constraint violations
     function f(x)
         x = max.(x, 0.0)
-        
         total = 0.0
-        
-        # Extract aggregate flows
         agg_start = num_zones * num_edges + 1
         agg_end = num_zones * num_edges + num_edges
         x_agg = @view x[agg_start:agg_end]
-        
-        # BPR travel time
         for i in 1:num_edges
             flow = x_agg[i]
             t0 = net_data.free_flow_time[i]
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            
             total += t0 * (flow + b * flow^(p + 1) / cap^p / (p + 1))
         end
-        
-        # Design cost
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
             total += cost_per_edge[i] * x[design_start + i - 1]
         end
-        
-        # PENALTY TERMS for linking constraints: x[dest,edge] <= M * y[edge]
         for (y_idx, edge_idx) in enumerate(removed_edge_indices)
             if edge_idx !== nothing
                 y_val = x[design_start + y_idx - 1]
-                
                 for dest in 1:num_zones
                     flow_idx = (dest - 1) * num_edges + edge_idx
                     flow_val = x[flow_idx]
-                    
-                    # Penalty for violating: flow <= M * y
-                    # If y=0, flow should be 0. If y=1, flow can be up to M.
                     violation = max(0.0, flow_val - max_flow * y_val)
                     total += penalty_weight * violation^penalty_exponent
                 end
             end
         end
-        
         return total
     end
-    
-    # Gradient with penalty terms
     function grad!(storage, x)
         x = max.(x, 0.0)
         fill!(storage, 0.0)
-        
         agg_start = num_zones * num_edges + 1
         agg_end = num_zones * num_edges + num_edges
         x_agg = @view x[agg_start:agg_end]
-        
-        # Gradient w.r.t. aggregate flows (BPR)
         for i in 1:num_edges
             flow = x_agg[i]
             t0 = net_data.free_flow_time[i]
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            
             storage[agg_start + i - 1] = t0 * (1 + b * flow^p / cap^p)
         end
-        
-        # Propagate to disaggregate flows
         for dest in 1:num_zones
             for edge in 1:num_edges
                 storage[(dest - 1) * num_edges + edge] = storage[agg_start + edge - 1]
             end
         end
-        
-        # Gradient w.r.t. design variables (restoration cost)
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
             storage[design_start + i - 1] = cost_per_edge[i]
         end
-        
-        # PENALTY GRADIENT for linking constraints
-        # Gradient of rho * violation^p is: rho * p * violation^(p-1) * d(violation)/d(var)
         for (y_idx, edge_idx) in enumerate(removed_edge_indices)
             if edge_idx !== nothing
                 y_val = x[design_start + y_idx - 1]
-                
                 for dest in 1:num_zones
                     flow_idx = (dest - 1) * num_edges + edge_idx
                     flow_val = x[flow_idx]
-                    
                     violation = max(0.0, flow_val - max_flow * y_val)
-                    
-                    if violation > 1e-10  # Avoid numerical issues at violation=0
-                        # Common term: rho * p * violation^(p-1)
+                    if violation > 1e-10
                         grad_coeff = penalty_weight * penalty_exponent * violation^(penalty_exponent - 1)
-                        
-                        # d(penalty)/d(flow) = grad_coeff * d(violation)/d(flow) = grad_coeff * 1
                         storage[flow_idx] += grad_coeff
-                        
-                        # d(penalty)/d(y) = grad_coeff * d(violation)/d(y) = grad_coeff * (-M)
                         storage[design_start + y_idx - 1] += grad_coeff * (-max_flow)
                     end
                 end
             end
         end
-        
         return storage
     end
-    
     return f, grad!
 end
 
@@ -584,14 +460,9 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
     println("\n" * "-"^70)
     println("Solution using $method_name")
     println("-"^70)
-    
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
-    
-    # Helper function to format node names
-    # Map code node numbers to diagram labels:
-    # 1→S1, 2→S2, 3→D, 4→1, 5→2, 6→3, 7→4, 8→5
     function node_label(node)
         if node == 1
             return "S1"
@@ -613,8 +484,6 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
             return string(node)
         end
     end
-    
-    # Extract design variables
     design_start = num_zones * num_edges + num_edges + 1
     design_vars = x[design_start:end]
     
@@ -625,8 +494,6 @@ function print_solution(x, net_data, removed_edges, edge_list, method_name)
         to_label = node_label(edge[2])
         println("  Edge ($from_label → $to_label): y = $(round(design_vars[i], digits=3)) → $status")
     end
-    
-    # Extract aggregate flows
     agg_start = num_zones * num_edges + 1
     println("\nAggregate flows on edges:")
     for i in 1:num_edges

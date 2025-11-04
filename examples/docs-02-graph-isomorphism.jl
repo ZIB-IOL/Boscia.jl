@@ -16,7 +16,6 @@
 #
 # We also add a simple neighborhood heuristic that (randomly) swaps two rows'
 # 1-positions in a permutation matrix to explore nearby vertices.
-
 using Boscia
 using Random
 using SparseArrays
@@ -32,7 +31,6 @@ println("\nDocumentation Example 02: Graph Isomorphism Problem")
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
-
 # ## Generate a random isomorphic graph
 # Given an adjacency matrix A, this function creates a random permutation
 # matrix P and returns the permuted adjacency matrix B = P * A * P'.
@@ -77,30 +75,21 @@ function random_k_neighbor_matrix(
     n = Int(sqrt(n0))
     P = reshape(P, n, n)
     new_P = copy(P)
-
     Ps = []
-
     for _ = 1:k
-        # Pick two distinct rows
         i, j = rand(1:n, 2)
         while i == j
             j = rand(1:n)
         end
-
-        # Find 1s in each row
         col_i = findfirst(x -> x == 1, new_P[i, :])
         col_j = findfirst(x -> x == 1, new_P[j, :])
-
-        # Swap the 1s across columns
         new_P[i, col_i] = 0
         new_P[i, col_j] = 1
         new_P[j, col_j] = 0
         new_P[j, col_i] = 1
-
-        new_p = use_mip ? vec(new_P) : sparsevec(vec(new_P))# Convert to proper SparseVector
+        new_p = use_mip ? vec(new_P) : sparsevec(vec(new_P))
         push!(Ps, new_p)
     end
-
     return Ps, false
 end
 

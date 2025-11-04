@@ -8,7 +8,6 @@
 # where each row of $A$ corresponds to an experiment.
 # For the D-criterion, the objective is the negative log determinant of the Fisher information matrix.
 # The objective associated with the A-criterion is the trace of the inverse of the Fisher information matrix.
-
 using Boscia
 using Random
 using Distributions
@@ -109,38 +108,36 @@ end
 # Observe that the vertices in the active set are not necessarily domain feasible.
 # Therefore, while branching, we can have initial points that are not domain feasible.
 # To address this, we need to define a domain point function that given the current node bounds returns a domain feasible point respecting the bounds, if possible. 
+# Find n linearly independent rows of A to build the starting point.
+function linearly_independent_rows(A; u=fill(1, size(A, 1)))
+S = []
+m, n = size(A)
+for i in 1:m
+    if iszero(u[i])
+        continue
+    end
+    S_i = vcat(S, i)
+    if rank(A[S_i, :]) == length(S_i)
+        S = S_i
+    end
+    if length(S) == n # we only n linearly independent points
+        return S
+    end
+end
+return S # then x= zeros(m) and x[S] = 1
+end
+# Add to the smallest value of x while respecting the upper bounds u.
+function add_to_min(x, u)
+perm = sortperm(x)
+for i in perm
+    if x[i] < u[i]
+        x[i] += 1
+        break
+    end
+end
+return x
+end
 function domain_point(local_bounds)
-    # Find n linearly independent rows of A to build the starting point.
-    function linearly_independent_rows(A; u=fill(1, size(A, 1)))
-        S = []
-        m, n = size(A)
-        for i in 1:m
-            if iszero(u[i])
-                continue
-            end
-            S_i = vcat(S, i)
-            if rank(A[S_i, :]) == length(S_i)
-                S = S_i
-            end
-            if length(S) == n # we only n linearly independent points
-                return S
-            end
-        end
-        return S # then x= zeros(m) and x[S] = 1
-    end
-
-    # Add to the smallest value of x while respecting the upper bounds u.
-    function add_to_min(x, u)
-        perm = sortperm(x)
-        for i in perm
-            if x[i] < u[i]
-                x[i] += 1
-                break
-            end
-        end
-        return x
-    end
-
     lb = fill(0.0, m)
     ub = copy(u)
     x = zeros(m)
@@ -152,17 +149,13 @@ function domain_point(local_bounds)
             ub[idx] = min(u[idx], local_bounds.upper_bounds[idx])
         end
     end
-    # Node itself infeasible
     if sum(lb) > N
         return nothing
     end
-    # No intersection between node and domain
     if !domain_oracle(ub)
         return nothing
     end
     x = lb
-
-    # build domain feasible point
     S = linearly_independent_rows(A, u=(.!(iszero.(ub))))
         while sum(x) <= N
             if sum(x) == N
@@ -201,8 +194,6 @@ v0 = compute_extreme_point(lmo, collect(1.0:m))
 function build_inner_callback()
     domain_counter = 0
     return function inner_callback(state, active_set, kwargs...)
-        # Once we find a domain feasible point, we count the iteration
-        # and stop if we have not found a feasible point after 5 iterations..
         if domain_oracle(state.x)
             if domain_counter > 10
                 return false
