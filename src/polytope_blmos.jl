@@ -1051,48 +1051,34 @@ with `τ` the `right_hand_side` parameter.
 The LMO results in a vector with the K largest absolute values
 of direction, taking values `-τ sign(x_i)`.
 """
-struct KSparseBLMO <: LinearMinimizationOracle
+struct KSparseBLMO <: SimpleBoundableLMO
     K::Int
     right_hand_side::Float64
 end
 
-function compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_vars; v=nothing, kwargs...)
-    K = min(lmo.K, length(direction))
-    K_indices = sortperm(direction[1:K], by=abs, rev=true)
-    K_values = direction[K_indices]
-    for idx in K+1:length(direction)
-        new_val = direction[idx]
-        # new greater value: shift everything right
-        if abs(new_val) > abs(K_values[1])
-            K_values[2:end] .= K_values[1:end-1]
-            K_indices[2:end] .= K_indices[1:end-1]
-            K_indices[1] = idx
-            K_values[1] = new_val
-            # new value in the interior
-        elseif abs(new_val) > abs(K_values[K])
-            # NOTE: not out of bound since unreachable with K=1
-            j = K - 1
-            while abs(new_val) > abs(K_values[j])
-                j -= 1
-            end
-            K_values[j+1:end] .= K_values[j:end-1]
-            K_indices[j+1:end] .= K_indices[j:end-1]
-            K_values[j+1] = new_val
-            K_indices[j+1] = idx
+function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_vars; v=nothing, kwargs...)
+    K=lmo.K
+    K_indices = sortperm(direction, by=abs, rev=true)
+    v = spzeros(Float64, length(direction))
+    rem = K * lmo.right_hand_side
+    for idx in K_indices
+
+        rem = K * lmo.right_hand_side - sum(abs,v)
+
+        if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
+            break
         end
-    end
-    v = spzeros(T, length(direction))
-    for (idx, val) in zip(K_indices, K_values)
+
         if idx in int_vars
-            lower_eff = ceil(max(lb[idx], -lmo.right_hand_side))
-            upper_eff = floor(min(ub[idx],  lmo.right_hand_side))
+            lower_eff = ceil(max(lb[idx], -lmo.right_hand_side, -rem))
+            upper_eff = floor(min(ub[idx], lmo.right_hand_side, rem))
         else
-            lower_eff = max(lb[idx], -lmo.right_hand_side)
-            upper_eff = min(ub[idx],  lmo.right_hand_side)
+            lower_eff = max(-rem, -lmo.right_hand_side)
+            upper_eff = min(rem,  lmo.right_hand_side)
         end
-        if val > 0
+        if direction[idx] > 0
             v[idx] = lower_eff
-        elseif val < 0
+        elseif direction[idx] < 0
             v[idx] = upper_eff
         else
             v[idx] = 0
@@ -1102,7 +1088,7 @@ function compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_vars; v=
 end
 
 function bounded_compute_inface_extreme_point(
-    lmo::KSparseBLMO,
+    sblmo::KSparseBLMO,
     direction,
     x,
     lb,
@@ -1113,8 +1099,8 @@ function bounded_compute_inface_extreme_point(
     kwargs...
 )
     n = length(direction)
-    rhs = lmo.right_hand_side
-    K = lmo.K
+    rhs = sblmo.right_hand_side
+    K = sblmo.K
 
     v = copy(x)
     fixed_vars = Int[]
@@ -1140,71 +1126,33 @@ function bounded_compute_inface_extreme_point(
         return v  # already at in-face extreme point
     end
 
-    # Determine how many free coordinates we can move
-    n_free = length(free_idx)
-    current_sparsity = count(!iszero, x)
-    K_free = max(0, min(K - current_sparsity, n_free))
-
-    if K_free == 0
-        return v  # cannot activate any new coordinate
-    end
-
-    # Select top-K_free by |direction[i]| among free_idx
-    d_free = direction[free_idx]
-    if n_free > K_free
-        K_values = similar(d_free, K_free)
-        K_indices = sortperm(d_free[1:K_free], by=abs, rev=true)
-        K_values .= d_free[K_indices]
-
-        for j in K_free+1:n_free
-            new_val = d_free[j]
-            if abs(new_val) > abs(K_values[1])
-                K_values[2:end] .= K_values[1:end-1]
-                K_indices[2:end] .= K_indices[1:end-1]
-                K_indices[1] = j
-                K_values[1] = new_val
-            elseif abs(new_val) > abs(K_values[K_free])
-                k = K_free - 1
-                while k >= 1 && abs(new_val) > abs(K_values[k])
-                    k -= 1
-                end
-                K_values[k+1:end] .= K_values[k:end-1]
-                K_indices[k+1:end] .= K_indices[k:end-1]
-                K_values[k+1] = new_val
-                K_indices[k+1] = j
-            end
-        end
-        active_idx = free_idx[K_indices]
-    else
-        active_idx = free_idx
-    end
-
     # Construct new in-face extreme point
-    for idx in active_idx
-        val = direction[idx]
-        lb_i, ub_i = lb[idx], ub[idx]
+    v = spzeros(Float64, length(direction))
+    v[free_idx] .= 0
+    rem = K * lmo.right_hand_side - sum(abs,v)
+    free_idx = sort(free_idx, by=i -> abs(direction[i]), rev=true)
+    for idx in free_idx
+        rem = K * rhs - sum(abs,v)
 
-        lower_eff = max(lb_i, -rhs)
-        upper_eff = min(ub_i,  rhs)
-        
-        if idx in int_vars
-            lower_eff = ceil(lower_eff)
-            upper_eff = floor(upper_eff)
+        if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
+            break
         end
 
-        if val > 0
+        if idx in int_vars
+            lower_eff = ceil(max(lb[idx], -rhs, -rem))
+            upper_eff = floor(min(ub[idx], rhs, rem))
+        else
+            lower_eff = max(-rem, -rhs)
+            upper_eff = min(rem,  rhs)
+        end
+        if direction[idx] > 0
             v[idx] = lower_eff
-        elseif val < 0
+        elseif direction[idx] < 0
             v[idx] = upper_eff
         else
-            if lb_i <= 0 <= ub_i
-                v[idx] = 0
-            else
-                v[idx] = abs(lb_i) < abs(ub_i) ? lb_i : ub_i
-            end
+            v[idx] = 0
         end
     end
-
     return v
 end
 
@@ -1250,7 +1198,7 @@ function is_simple_linear_feasible(sblmo::KSparseBLMO, v; int_vars=Int[], tol=1e
     K = sblmo.K
 
     l1_norm = sum(abs, v)
-    if l1_norm > K * τ
+    if l1_norm > K * τ + tol
         @debug "v violates sparsity constraint: ‖v‖₀ = $nnz_v > K = $K"
         return false
     end
@@ -1285,7 +1233,7 @@ is_decomposition_invariant_oracle_simple(::KSparseBLMO) = true
 
 function rounding_hyperplane_heuristic(
     tree::Bonobo.BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{KSparseLMO}},
+    tlmo::TimeTrackingLMO{ManagedBoundedLMO{KSparseBLMO}},
     x,
 )
     z = copy(x)
@@ -1373,13 +1321,13 @@ It is the convex hull of two scaled and shifted unit vectors for each axis (shif
 Lower and upper bounds are passed on as abstract vectors, possibly of different types.
 For the standard L1-ball, all lower and upper bounds would be -1 and 1.
 """
-struct DiamondLMO{T,N,VT1<:AbstractArray{T,N},VT2<:AbstractArray{T,N}} <: 
+struct DiamondLMO{T,N,VT1<:AbstractArray{T,N},VT2<:AbstractArray{T,N}} <: SimpleBoundableLMO
     lower_bounds::VT1
     upper_bounds::VT2
 end
 
 
-function compute_extreme_point(lmo::DiamondLMO, lb, ub, int_vars, direction; v=similar(lmo.lower_bounds), kwargs...)
+function bounded_compute_extreme_point(lmo::DiamondLMO, lb, ub, int_vars, direction; v=similar(lmo.lower_bounds), kwargs...)
     @inbounds for i in eachindex(lmo.lower_bounds)
         v[i] = (lmo.lower_bounds[i] + lmo.upper_bounds[i]) / 2
     end
@@ -1588,18 +1536,18 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
-struct KNormBallLMO <: LinearMinimizationOracle
+struct KNormBallLMO <: SimpleBoundableLMO
     K::Int
     right_hand_side::Float64
 end
 
-function compute_extreme_point(
+function bounded_compute_extreme_point(
     lmo::KNormBallLMO,
     lb, 
     ub, 
     int_vars,
     direction;
-    v=similar(direction),
+    v = zeros(Float64, length(direction)),
     kwargs...,
 ) 
     K = max(min(lmo.K, length(direction)), 1)
@@ -1610,13 +1558,15 @@ function compute_extreme_point(
         temp = -lmo.right_hand_side / K * sign(dir_val)
         
         if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
             if ub[i] < temp
-                temp = ub[i]
+                temp = ub[idx]
             elseif lb[i] > temp
-                temp = lb[i]
-            elseif sign(dir_val)>0
+                temp = lb[idx]
+            end
+            if sign(temp)>0
                 temp = floor(temp)
-            elseif sign(dir_val)<0
+            elseif sign(temp)<0
                 temp = ceil(temp)
             end
         end
@@ -1632,16 +1582,16 @@ function compute_extreme_point(
         rem = lmo.right_hand_side - sum(abs.(v1))
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if direction[idx] < 0
-                v1[i] = min(ub[idx], floor(rem))
-            elseif direction[idx] > 0
-                v1[i] = max(lb[idx], ceil(-rem))
+            if direction[i] < 0
+                v1[i] = floor(min(ub[idx], rem))
+            elseif direction[i] > 0
+                v1[i] = ceil(max(lb[idx], -rem))
             end
         else
-            if direction[idx] < 0
-                v1[i] = lmo.right_hand_side
-            elseif direction[idx] > 0
-                v1[i] = - lmo.right_hand_side
+            if direction[i] < 0
+                v1[i] = rem
+            elseif direction[i] > 0
+                v1[i] = -rem
             end
         end
     end
@@ -1703,13 +1653,15 @@ function bounded_compute_inface_extreme_point(
         dir_val = direction[idx]
         
         if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
             if ub[i] < temp
-                temp = ub[i]
+                temp = ub[idx]
             elseif lb[i] > temp
-                temp = lb[i]
-            elseif sign(dir_val)>0
+                temp = lb[idx]
+            end
+            if sign(temp)>0
                 temp = floor(temp)
-            elseif sign(dir_val)<0
+            elseif sign(temp)<0
                 temp = ceil(temp)
             end
         end
@@ -1720,20 +1672,21 @@ function bounded_compute_inface_extreme_point(
 
     perm = sortperm(abs.(direction); rev=true)
     perm = setdiff(perm, fixed_vars)
+    v1[perm] .= 0
     for i in perm
         rem = lmo.right_hand_side - sum(abs.(v1))
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if direction[idx] < 0
-                v1[i] = min(ub[idx], floor(rem))
-            elseif direction[idx] > 0
-                v1[i] = max(lb[idx], ceil(-rem))
+            if direction[i] < 0
+                v1[i] = floor(min(ub[idx], rem))
+            elseif direction[i] > 0
+                v1[i] = ceil(max(lb[idx], -rem))
             end
         else
-            if direction[idx] < 0
-                v1[i] = lmo.right_hand_side
-            elseif direction[idx] > 0
-                v1[i] = - lmo.right_hand_side
+            if direction[i] < 0
+                v1[i] = rem
+            elseif direction[i] > 0
+                v1[i] = -rem
             end
         end
     end
