@@ -341,7 +341,6 @@ Ns = 0.1
             storage[1:p] .-= 1 / n * ys[i] * xi
             storage[end] += 1 / n * (exp(a) - ys[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
