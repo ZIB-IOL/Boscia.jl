@@ -119,7 +119,7 @@ end
     g, grad! = build_d_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
-    domain_oracle = build_domain_oracle(Ex_mat, n)
+    domain_oracle = build_domain_oracle2(Ex_mat, n)
     domain_point =
         build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 

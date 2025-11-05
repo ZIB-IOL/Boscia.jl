@@ -336,10 +336,18 @@ Check if given point is in the domain of f, i.e. X = transpose(A) * diagm(x) * A
 positive definite using LinearAlgebra.isposdef.
 """
 function build_domain_oracle(A, n)
-    function domain_oracle(x)
+    return function domain_oracle(x)
         X = transpose(A) * diagm(x) * A
         X = Symmetric(X)
         return LinearAlgebra.isposdef(X)
+    end
+end
+
+function build_domain_oracle2(A, n)
+    return function domain_oracle(x)
+        X = transpose(A) * diagm(x) * A
+        X = Symmetric(X)
+        return minimum(eigvals(X)) > sqrt(eps())
     end
 end
 
