@@ -32,3 +32,5 @@ docs/src/index.md
 julia
 
 .vscode
+
+docs/src/examples/*.md
