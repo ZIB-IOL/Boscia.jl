@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Optimal Design of Experiments · Boscia.jl</title><meta name="title" content="Optimal Design of Experiments · Boscia.jl"/><meta property="og:title" content="Optimal Design of Experiments · Boscia.jl"/><meta property="twitter:title" content="Optimal Design of Experiments · Boscia.jl"/><meta name="description" content="Documentation for Boscia.jl."/><meta property="og:description" content="Documentation for Boscia.jl."/><meta property="twitter:description" content="Documentation for Boscia.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Boscia.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../basics/">How does it work?</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../docs-01-network-design/">Network Design Problem</a></li><li><a class="tocitem" href="../docs-02-graph-isomorphism/">Graph Isomorphism Problem</a></li><li class="is-active"><a class="tocitem" href>Optimal Design of Experiments</a><ul class="internal"><li><a class="tocitem" href="#Experiment-matrix-and-objectives"><span>Experiment matrix and objectives</span></a></li><li><a class="tocitem" href="#Domain-Issues"><span>Domain Issues</span></a></li><li><a class="tocitem" href="#Build-initial-start-point"><span>Build initial start point</span></a></li><li><a class="tocitem" href="#Plotting-the-progress"><span>Plotting the progress</span></a></li><li class="toplevel"><a class="tocitem" href="#Load-plotting-utilities"><span>Load plotting utilities</span></a></li><li class="toplevel"><a class="tocitem" href="#Create-plots-for-A-criterion-(if-solved)"><span>Create plots for A-criterion (if solved)</span></a></li><li class="toplevel"><a class="tocitem" href="#Create-plots-for-D-criterion"><span>Create plots for D-criterion</span></a></li></ul></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../reference/1_algorithms/">Algorithm Interface</a></li><li><a class="tocitem" href="../../reference/2_blmo_build/">The Bounded Linear Minimization Oracle (BLMO)</a></li><li><a class="tocitem" href="../../reference/custom/">Branch-and-Bound tree functionality</a></li><li><a class="tocitem" href="../../reference/fw_variant/">Frank-Wolfe Variants</a></li><li><a class="tocitem" href="../../reference/utilities/">Utilities</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Optimal Design of Experiments</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Optimal Design of Experiments</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl.git" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl/blob/main/examples/docs-03-optimal-design.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><p>Optimal Design of Experiments</p><p>This example shows the A-Optimal and D-Optimal Design of Experiments problems. To quantify information, we use the Fisher information matrix:</p><p class="math-container">\[X(x) = A&#39; * \text{diag}(x) * A\]</p><p>where each row of <span>$A$</span> corresponds to an experiment. For the D-criterion, the objective is the negative log determinant of the Fisher information matrix. The objective associated with the A-criterion is the trace of the inverse of the Fisher information matrix.</p><pre><code class="language- hljs">using Boscia
+using Random
+using Distributions
+using LinearAlgebra
+using FrankWolfe
+using Statistics
+using Test
+using StableRNGs
+
+println(&quot;\nDocumentation Example 03: Optimal Design of Experiments&quot;)
+
+seed = rand(UInt64)
+@show seed  #seed = 0x7be8a16f815cd122
+rng = StableRNG(seed)</code></pre><h2 id="Experiment-matrix-and-objectives"><a class="docs-heading-anchor" href="#Experiment-matrix-and-objectives">Experiment matrix and objectives</a><a id="Experiment-matrix-and-objectives-1"></a><a class="docs-heading-anchor-permalink" href="#Experiment-matrix-and-objectives" title="Permalink"></a></h2><p>We generate the experiment matrix <span>$A$</span> randomly.</p><pre><code class="language- hljs">m = 50
+n = Int(floor(m / 10))
+N = round(Int, 1.5 * n)
+
+B = rand(rng, m, n)
+B = B&#39; * B
+@assert isposdef(B)
+const D = MvNormal(randn(rng, n), B)
+
+const A = rand(D, m)&#39;
+@assert rank(A) == n</code></pre><p>Next, we define the two criteria and their gradients. The A-criterion is::</p><p class="math-container">\[f_a(x) = \text{Tr}|left(X(x)^{-1}/right)\]</p><pre><code class="language-julia hljs">μ = 1e-4
+function f_a(x)
+    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = Symmetric(X)
+    U = cholesky(X)
+    X_inv = U \ I
+    return LinearAlgebra.tr(X_inv)
+end
+
+function grad_a!(storage, x)
+    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = Symmetric(X * X)
+    F = cholesky(X)
+    for i in 1:length(x)
+        storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
+    end
+    return storage
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">grad_a! (generic function with 1 method)</code></pre><p>The D-criterion is:</p><p class="math-container">\[f_d(x) = -\log(\det(X(x)))\]</p><pre><code class="language-julia hljs">function f_d(x)
+    X = transpose(A) * diagm(x) * A
+    X = Symmetric(X)
+    return float(-log(det(X)))
+end
+
+function grad_d!(storage, x)
+    X = transpose(A) * diagm(x) * A
+    X = Symmetric(X)
+    F = cholesky(X)
+    for i in 1:length(x)
+        storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
+    end
+    return storage
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">grad_d! (generic function with 1 method)</code></pre><h2 id="Domain-Issues"><a class="docs-heading-anchor" href="#Domain-Issues">Domain Issues</a><a id="Domain-Issues-1"></a><a class="docs-heading-anchor-permalink" href="#Domain-Issues" title="Permalink"></a></h2><p>The feasible region is a scaled and truncated probability simplex.</p><p class="math-container">\[S = \{x \in \mathbb{R}^n, 0 \leq x \leq u, \sum_{i=1}^n x_i = N\}\]</p><p>where <span>$N$</span> is the budget for the experiments and <span>$u$</span> are upper bounds.</p><pre><code class="language- hljs">ub = floor(N/3)
+u = rand(rng, 1.0:ub, m)
+simplex_lmo = Boscia.ProbabilitySimplexLMO(N)
+lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)</code></pre><p>An issue arising from this is that the feasible region and the domain of the objectives don&#39;t completely overlap. Thus, we cannot start Boscia and by extension Frank-Wolfe at a random start point. Also, during the line search, we have to be careful to pick a step size that does not lead to the iterate leaving the domain. To address this problem, we first need to define a domain oracle tht given a point <span>$x$</span> returns true if <span>$x$</span> is feasible. There are different ways to check domain feasibility, here we chose to test if the activated rows of <span>$A$</span> are linearly independent and span the <span>$\mathbb{R}^n$</span>.</p><pre><code class="language-julia hljs">function domain_oracle(x)
+    X = transpose(A) * diagm(x) * A
+    X = Symmetric(X)
+    return LinearAlgebra.isposdef(X)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">domain_oracle (generic function with 1 method)</code></pre><p>Even if we start Boscia with a domain feasible point, we might end up with domain infeasible points later in the tree. Observe that the vertices in the active set are not necessarily domain feasible. Therefore, while branching, we can have initial points that are not domain feasible. To address this, we need to define a domain point function that given the current node bounds returns a domain feasible point respecting the bounds, if possible. Find n linearly independent rows of A to build the starting point.</p><pre><code class="language-julia hljs">function linearly_independent_rows(A; u=fill(1, size(A, 1)))
+S = []
+m, n = size(A)
+for i in 1:m
+    if iszero(u[i])
+        continue
+    end
+    S_i = vcat(S, i)
+    if rank(A[S_i, :]) == length(S_i)
+        S = S_i
+    end
+    if length(S) == n # we only n linearly independent points
+        return S
+    end
+end
+return S # then x= zeros(m) and x[S] = 1
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">linearly_independent_rows (generic function with 1 method)</code></pre><p>Add to the smallest value of x while respecting the upper bounds u.</p><pre><code class="language-julia hljs">function add_to_min(x, u)
+perm = sortperm(x)
+for i in perm
+    if x[i] &lt; u[i]
+        x[i] += 1
+        break
+    end
+end
+return x
+end
+function domain_point(local_bounds)
+    lb = fill(0.0, m)
+    ub = copy(u)
+    x = zeros(m)
+    for idx in 1:m
+        if haskey(local_bounds.lower_bounds, idx)
+            lb[idx] = max(0.0, local_bounds.lower_bounds[idx])
+        end
+        if haskey(local_bounds.upper_bounds, idx)
+            ub[idx] = min(u[idx], local_bounds.upper_bounds[idx])
+        end
+    end
+    if sum(lb) &gt; N
+        return nothing
+    end
+    if !domain_oracle(ub)
+        return nothing
+    end
+    x = lb
+    S = linearly_independent_rows(A, u=(.!(iszero.(ub))))
+        while sum(x) &lt;= N
+            if sum(x) == N
+                if domain_oracle(x)
+                    return x
+                else
+                    @warn &quot;Domain feasible point not found.&quot;
+                    return nothing
+                end
+            end
+            if !iszero(x[S] - ub[S])
+                y = add_to_min(x[S], ub[S])
+                x[S] = y
+            else
+                x = add_to_min(x, ub)
+            end
+        end
+    return x
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">domain_point (generic function with 1 method)</code></pre><p>Note that the domain point function does not necessarily have to return an integer point. The generated point is used to solve a min distance problem over the feasible region to move the current iterate closer to the domain. To that end, the domain point should not be at the boundary of the domain as this can lead to numerical issues later in the node solve.</p><h2 id="Build-initial-start-point"><a class="docs-heading-anchor" href="#Build-initial-start-point">Build initial start point</a><a id="Build-initial-start-point-1"></a><a class="docs-heading-anchor-permalink" href="#Build-initial-start-point" title="Permalink"></a></h2><p>We can use the same principal to generate an initial start point for Boscia. Note that Boscia expects the initial point to be given via an active set.</p><pre><code class="language- hljs">intial_bounds = Boscia.IntegerBounds(fill(0.0, m), u, collect(1:m))
+x0 = domain_point(intial_bounds)
+f_help(x) = 1 / 2 * LinearAlgebra.norm(x - x0)^2
+grad_help!(storage, x) = storage .= x - x0
+v0 = compute_extreme_point(lmo, collect(1.0:m))</code></pre><p>We do not need to solve this problem to optimality. However, we do not want to stop as soon as we reach the domain because this can lead to numerical issues later in the node solve. Therefore, we count the iteration after entering the domain and stop if we have not found a feasible point after 5 iterations.</p><pre><code class="language- hljs">function build_inner_callback()
+    domain_counter = 0
+    return function inner_callback(state, active_set, kwargs...)
+        if domain_oracle(state.x)
+            if domain_counter &gt; 10
+                return false
+            end
+            domain_counter += 1
+        end
+    end
+end
+
+inner_callback = build_inner_callback()
+
+x, _, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+    f_help,
+    grad_help!,
+    lmo,
+    v0,
+    callback=inner_callback,
+    lazy=true,
+)
+
+@show N, u</code></pre><p>Now we can use Boscia to solve the problem. As line search, we use the Secant method which receives the domain oracle as input. We also set some heuristics to be used during the node solve by specifying a probability for each heuristic.</p><pre><code class="language- hljs">settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:time_limit] = 10.0
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+settings.domain[:domain_oracle] = domain_oracle
+settings.domain[:find_domain_point] = domain_point
+settings.domain[:depth_domain] = 10
+settings.heuristic[:hyperplane_aware_rounding_prob] = 0.7
+settings.heuristic[:rounding_lmo_01_prob] = 0.5
+settings.frank_wolfe[:line_search] = FrankWolfe.Secant(domain_oracle=domain_oracle)
+settings.frank_wolfe[:lazy] = true</code></pre><p>First, we are calling the algorithm for a few seconds for precompilation.</p><pre><code class="language- hljs">x_a, _, _ = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
+
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:time_limit] = Inf
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+
+x_a, _, result_a = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
+
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:time_limit] = 10.0
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+settings.domain[:domain_oracle] = domain_oracle
+settings.domain[:find_domain_point] = domain_point
+settings.domain[:depth_domain] = 10
+settings.heuristic[:hyperplane_aware_rounding_prob] = 0.7
+settings.heuristic[:rounding_lmo_01_prob] = 0.5
+settings.frank_wolfe[:line_search] = FrankWolfe.Secant(domain_oracle=domain_oracle)
+settings.frank_wolfe[:lazy] = true
+
+x_d, _, _ = Boscia.solve(f_d, grad_d!, lmo, settings=settings)
+
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:time_limit] = Inf
+settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+
+x_d, _, result_d = Boscia.solve(f_d, grad_d!, lmo, settings=settings)</code></pre><h2 id="Plotting-the-progress"><a class="docs-heading-anchor" href="#Plotting-the-progress">Plotting the progress</a><a id="Plotting-the-progress-1"></a><a class="docs-heading-anchor-permalink" href="#Plotting-the-progress" title="Permalink"></a></h2><p>using PyPlot</p><h1 id="Load-plotting-utilities"><a class="docs-heading-anchor" href="#Load-plotting-utilities">Load plotting utilities</a><a id="Load-plotting-utilities-1"></a><a class="docs-heading-anchor-permalink" href="#Load-plotting-utilities" title="Permalink"></a></h1><p>include(&quot;plot_utilities.jl&quot;)</p><h1 id="Create-plots-for-A-criterion-(if-solved)"><a class="docs-heading-anchor" href="#Create-plots-for-A-criterion-(if-solved)">Create plots for A-criterion (if solved)</a><a id="Create-plots-for-A-criterion-(if-solved)-1"></a><a class="docs-heading-anchor-permalink" href="#Create-plots-for-A-criterion-(if-solved)" title="Permalink"></a></h1><p>if @isdefined(result<em>a)     filename</em>a = &quot;oed<em>A</em>criterion<em>mm</em>seed<em>seed.pdf&quot;     fig</em>a = plot<em>bounds</em>progress(         result<em>a,         filename</em>a,         title<em>prefix=&quot;A-Criterion&quot;,         use</em>latex=true,         font<em>size=11,         linewidth=2,     )     display(fig</em>a) end</p><h1 id="Create-plots-for-D-criterion"><a class="docs-heading-anchor" href="#Create-plots-for-D-criterion">Create plots for D-criterion</a><a id="Create-plots-for-D-criterion-1"></a><a class="docs-heading-anchor-permalink" href="#Create-plots-for-D-criterion" title="Permalink"></a></h1><p>filename<em>d = &quot;oed</em>D<em>criterion</em>m<span>$(m)_seed_$</span>(seed).pdf&quot; fig<em>d = plot</em>bounds<em>progress(     result</em>d,     filename<em>d,     title</em>prefix=&quot;D-Criterion&quot;,     use<em>latex=true,     font</em>size=11,     linewidth=2, ) display(fig_d)</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-02-graph-isomorphism/">« Graph Isomorphism Problem</a><a class="docs-footer-nextpage" href="../../reference/1_algorithms/">Algorithm Interface »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Wednesday 5 November 2025 16:52">Wednesday 5 November 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
