@@ -6,4 +6,4 @@ SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
 
 [compat]
 Documenter = "1.8"
-Literate = "3"
+Literate = "2"
