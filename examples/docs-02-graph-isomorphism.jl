@@ -1,15 +1,17 @@
-# Graph Isomorphism Problem
+# # Graph Isomorphism Problem
 #
 # This example shows how to use Boscia to certify whether two graphs are isomorphic.
-# We encode graph isomorphism via a permutation matrix X that reorders the vertices.
-# Given adjacency matrices A and B, the graphs are isomorphic iff there exists a
-# permutation matrix X such that:
-#   X * A = B * X
-# Equivalently, we consider the smooth objective
+# Given adjacency matrices A and B, the graphs are isomorphic if and only if there exists a
+# permutation matrix $X \in \mathcal{P}_n$ such that:
 # ```math
-#   f(X) = \| X A - B X \|_F^2,
+#   X * A = B * X
 # ```
-# which attains the value 0 exactly at an isomorphism. We solve over the Birkhoff
+# where $\mathcal{P}_n$ denotes the set of permutation matrices.
+# Equivalently, we consider the optimization problem
+# ```math
+#   \min_{X\in \mathcal{P}_n} f(X) = \| X A - B X \|_F^2,
+# ```
+# whose optimum is exactly 0 if and only if the graphs are isomorphic. We solve over the Birkhoff
 # polytope (convex hull of permutation matrices) with a branch-and-bound scheme
 # plus Frank–Wolfe in the nodes; the lower bound allows pruning, and a zero
 # incumbent certifies isomorphism.
