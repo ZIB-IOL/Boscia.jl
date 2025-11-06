@@ -49,9 +49,8 @@ const A = rand(D, m)'
 # f_a(x) = \text{Tr}\left(X(x)^{-1}\right)
 # ```
 # so the trace of the inverse of the Fisher information matrix.
-μ = 1e-4
 function f_a(x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
     U = cholesky(X)
     X_inv = U \ I
@@ -59,7 +58,7 @@ function f_a(x)
 end
 
 function grad_a!(storage, x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X * X)
     F = cholesky(X)
     for i in 1:length(x)
@@ -100,7 +99,8 @@ end
 # Thus, we cannot start Boscia, and by extension Frank-Wolfe, at an arbitrary start point. 
 # Additionally, we have to be careful not to leave the domain during computation of the step size for Frank-Wolfe in the line search.
 # To address this problem, we first need to define a domain oracle that given a point $x$ returns true if $x$ is feasible.
-# There are different ways to check domain feasibility, we choose to test if the associated Fisher information matrix is positive definite.
+# There are different ways to check domain feasibility, we choose to test if the minimum 
+# eigenvalue i strictly positive (up to numerical tolerance).
 ub = floor(N/3)
 u = rand(rng, 1.0:ub, m)
 simplex_lmo = Boscia.ProbabilitySimplexLMO(N)
@@ -109,7 +109,8 @@ lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
 function domain_oracle(x)
     X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
-    return LinearAlgebra.isposdef(X)
+    #return LinearAlgebra.isposdef(X)
+    return minimum(eigvals(X)) > sqrt(eps())
 end
 
 # Next, we have to ensure that the start points of the child nodes are also domain feasible.
@@ -234,7 +235,7 @@ _, _, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
 # As line search, we use the Secant method which receives the domain oracle as input.
 # We also set some heuristics to be used during the node solve by specifying a probability for each heuristic.
 settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:verbose] = true
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
@@ -248,8 +249,8 @@ x_a, _, _ = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
 
 
 settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = false
-settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+settings.branch_and_bound[:verbose] = true
+settings.domain[:active_set] = copy(active_set)
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
 settings.domain[:depth_domain] = 10
