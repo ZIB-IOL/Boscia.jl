@@ -1,4 +1,4 @@
-# Optimal Design of Experiments
+# # Optimal Design of Experiments
 #
 # This example shows the A-Optimal and D-Optimal Design of Experiments problems.
 # To quantify information, we use the Fisher information matrix: 
@@ -41,7 +41,7 @@ const A = rand(D, m)'
 # Next, we define the two criteria and their gradients.
 # The A-criterion is::
 # ```math
-# f_a(x) = \text{Tr}|left(X(x)^{-1}/right)
+# f_a(x) = \text{Tr}\left(X(x)^{-1}\right)
 # ```
 μ = 1e-4
 function f_a(x)
