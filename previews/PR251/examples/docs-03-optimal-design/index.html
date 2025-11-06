@@ -24,9 +24,8 @@ B = B&#39; * B
 const D = MvNormal(randn(rng, n), B)
 
 const A = rand(D, m)&#39;
-@assert rank(A) == n</code></pre><p>Next, we define the two criteria and their gradients. The A-criterion is defined as:</p><p class="math-container">\[f_a(x) = \text{Tr}\left(X(x)^{-1}\right)\]</p><p>so the trace of the inverse of the Fisher information matrix.</p><pre><code class="language-julia hljs">μ = 1e-4
-function f_a(x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+@assert rank(A) == n</code></pre><p>Next, we define the two criteria and their gradients. The A-criterion is defined as:</p><p class="math-container">\[f_a(x) = \text{Tr}\left(X(x)^{-1}\right)\]</p><p>so the trace of the inverse of the Fisher information matrix.</p><pre><code class="language-julia hljs">function f_a(x)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
     U = cholesky(X)
     X_inv = U \ I
@@ -34,7 +33,7 @@ function f_a(x)
 end
 
 function grad_a!(storage, x)
-    X = transpose(A) * diagm(x) * A + Matrix(μ * I, n, n)
+    X = transpose(A) * diagm(x) * A
     X = Symmetric(X * X)
     F = cholesky(X)
     for i in 1:length(x)
@@ -55,7 +54,7 @@ function grad_d!(storage, x)
         storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
     end
     return storage
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">grad_d! (generic function with 1 method)</code></pre><h2 id="Issue:-Restricted-function-domain"><a class="docs-heading-anchor" href="#Issue:-Restricted-function-domain">Issue: Restricted function domain</a><a id="Issue:-Restricted-function-domain-1"></a><a class="docs-heading-anchor-permalink" href="#Issue:-Restricted-function-domain" title="Permalink"></a></h2><p>The feasible region is a scaled and truncated probability simplex.</p><p class="math-container">\[\Delta = \left\{x \in \mathbb{R}^n, 0 \leq x \leq u, \sum_{i=1}^n x_i = N\right\}\]</p><p>where <span>$N$</span> is the budget and <span>$u$</span> are upper bounds.</p><p>An issue arising in OEDP is that the objective functions and their gradients are not well defined over the entire feasible region. Note that for both the A-criterion and D-criterion, the associated Fisher information matrix has to be positive definite. Thus, we cannot start Boscia, and by extension Frank-Wolfe, at an arbitrary start point. Additionally, we have to be careful not to leave the domain during computation of the step size for Frank-Wolfe in the line search. To address this problem, we first need to define a domain oracle that given a point <span>$x$</span> returns true if <span>$x$</span> is feasible. There are different ways to check domain feasibility, we choose to test if the associated Fisher information matrix is positive definite.</p><pre><code class="language- hljs">ub = floor(N/3)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">grad_d! (generic function with 1 method)</code></pre><h2 id="Issue:-Restricted-function-domain"><a class="docs-heading-anchor" href="#Issue:-Restricted-function-domain">Issue: Restricted function domain</a><a id="Issue:-Restricted-function-domain-1"></a><a class="docs-heading-anchor-permalink" href="#Issue:-Restricted-function-domain" title="Permalink"></a></h2><p>The feasible region is a scaled and truncated probability simplex.</p><p class="math-container">\[\Delta = \left\{x \in \mathbb{R}^n, 0 \leq x \leq u, \sum_{i=1}^n x_i = N\right\}\]</p><p>where <span>$N$</span> is the budget and <span>$u$</span> are upper bounds.</p><p>An issue arising in OEDP is that the objective functions and their gradients are not well defined over the entire feasible region. Note that for both the A-criterion and D-criterion, the associated Fisher information matrix has to be positive definite. Thus, we cannot start Boscia, and by extension Frank-Wolfe, at an arbitrary start point. Additionally, we have to be careful not to leave the domain during computation of the step size for Frank-Wolfe in the line search. To address this problem, we first need to define a domain oracle that given a point <span>$x$</span> returns true if <span>$x$</span> is feasible. There are different ways to check domain feasibility, we choose to test if the minimum eigenvalue i strictly positive (up to numerical tolerance).</p><pre><code class="language- hljs">ub = floor(N/3)
 u = rand(rng, 1.0:ub, m)
 simplex_lmo = Boscia.ProbabilitySimplexLMO(N)
 lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
@@ -63,7 +62,8 @@ lmo = Boscia.ManagedLMO(simplex_lmo, fill(0.0, m), u, collect(1:m), m)
 function domain_oracle(x)
     X = transpose(A) * diagm(x) * A
     X = Symmetric(X)
-    return LinearAlgebra.isposdef(X)
+    #return LinearAlgebra.isposdef(X)
+    return minimum(eigvals(X)) &gt; sqrt(eps())
 end</code></pre><p>Next, we have to ensure that the start points of the child nodes are also domain feasible. Observe that the vertices in the active set are not necessarily domain feasible. Therefore, while branching, we can have initial points that are not domain feasible. To address this, we need to define a domain point function that given the current node bounds returns a domain feasible point respecting the bounds, if possible. For OEDP, we start by setting <span>$x$</span> equal to the current lower bounds and finding n linearly independent rows of <span>$A$</span>. If <span>$x$</span> does not yet satisfy the knapsack constraint, we increase the values of <span>$X$</span>, first by sampling from the linearly independent rows and then by adding 1 to the smallest value of <span>$x$</span> while respecting the upper bounds <span>$u$</span>.</p><pre><code class="language-julia hljs">function linearly_independent_rows(A; u=fill(1, size(A, 1)))
 S = []
 m, n = size(A)
@@ -154,7 +154,7 @@ _, _, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
     callback=inner_callback,
     lazy=true,
 )</code></pre><h2 id="Calling-Boscia"><a class="docs-heading-anchor" href="#Calling-Boscia">Calling Boscia</a><a id="Calling-Boscia-1"></a><a class="docs-heading-anchor-permalink" href="#Calling-Boscia" title="Permalink"></a></h2><p>Now we have everything set up and ready to use Boscia to solve the problem. As line search, we use the Secant method which receives the domain oracle as input. We also set some heuristics to be used during the node solve by specifying a probability for each heuristic.</p><pre><code class="language- hljs">settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = false
+settings.branch_and_bound[:verbose] = true
 settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
@@ -168,8 +168,8 @@ x_a, _, _ = Boscia.solve(f_a, grad_a!, lmo, settings=settings)
 
 
 settings = Boscia.create_default_settings()
-settings.branch_and_bound[:verbose] = false
-settings.domain[:active_set] = copy(active_set) # this will be overwritten by Boscia during the solve
+settings.branch_and_bound[:verbose] = true
+settings.domain[:active_set] = copy(active_set)
 settings.domain[:domain_oracle] = domain_oracle
 settings.domain[:find_domain_point] = domain_point
 settings.domain[:depth_domain] = 10
@@ -178,4 +178,4 @@ settings.heuristic[:rounding_lmo_01_prob] = 0.5
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant(domain_oracle=domain_oracle)
 settings.frank_wolfe[:lazy] = true
 
-x_d, _, _ = Boscia.solve(f_d, grad_d!, lmo, settings=settings)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-02-graph-isomorphism/">« Graph Isomorphism Problem</a><a class="docs-footer-nextpage" href="../../reference/1_algorithms/">Algorithm Interface »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Thursday 6 November 2025 11:54">Thursday 6 November 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+x_d, _, _ = Boscia.solve(f_d, grad_d!, lmo, settings=settings)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-02-graph-isomorphism/">« Graph Isomorphism Problem</a><a class="docs-footer-nextpage" href="../../reference/1_algorithms/">Algorithm Interface »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.15.0 on <span class="colophon-date" title="Thursday 6 November 2025 13:11">Thursday 6 November 2025</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
