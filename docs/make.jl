@@ -1,3 +1,7 @@
+# Add the parent directory to LOAD_PATH so we can import Boscia
+# This doesn't modify Project.toml, keeping it clean like FrankWolfe.jl
+pushfirst!(LOAD_PATH, joinpath(@__DIR__, ".."))
+
 using Documenter, Boscia
 using SparseArrays
 using LinearAlgebra
