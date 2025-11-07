@@ -1,4 +1,4 @@
-# Network Design Problem Example
+# # Network Design Problem Example
 #
 # This example demonstrates solving a network design problem using Boscia.jl with two approaches:
 # 1. MOI-based LMO: Using MathOptInterface to model the feasible region
