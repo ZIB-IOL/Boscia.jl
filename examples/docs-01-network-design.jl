@@ -1,34 +1,16 @@
-# # Network Design Problem Example
+# # Network Design Problem
 #
-# This example demonstrates solving a network design problem using Boscia.jl with two approaches:
-# 1. MOI-based LMO: Using MathOptInterface to model the feasible region
-# 2. Custom LMO: Using a customized Linear Minimization Oracle based on shortest path algorithms
+# We demonstrate solving a network design problem using Boscia.jl.
+# For this example, the design cost is linear and the operating cost of the
+# network is modeled as a traffic assignment problem.
+# We solve the problem with two approaches based on the formulations in ["Network design for the traffic
+# assignment problem with mixed-integer Frank-Wolfe"](https://arxiv.org/abs/2402.00166) by Sharma et al.:
+# 1. Using [MathOptInterface.jl](https://github.com/jump-dev/MathOptInterface.jl) to model the feasible region
+# 2. A customized Linear Minimization Oracle based on shortest path algorithms
+
+# ## Imports and Setup
 #
-# ## Problem Description
-# We solve a transportation network design problem where:
-# - Some edges have been removed from the network
-# - We decide which edges to restore (binary decision y[e])
-# - Traffic flows are routed to minimize total travel time (with BPR congestion)
-# - Flow conservation constraints must be satisfied
-# - Linking constraints: x[e] <= M * y[e] (flow on removed edges only if restored)
-#
-# ## Key Difference Between Approaches
-#
-# **IMPORTANT**: The two approaches solve DIFFERENT formulations of the same problem!
-#
-# ### MOI-based LMO
-# - Enforces linking constraints x[e] <= M*y[e] as HARD constraints in the MOI model
-# - Objective: minimize BPR_cost(x) + restoration_cost(y)
-# - Finds feasible solution satisfying all constraints exactly
-#
-# ### Custom LMO  
-# - Cannot encode linking constraints x[e] <= M*y[e] in the shortest-path oracle
-# - Instead, adds PENALTY TERMS to the objective function
-# - Objective: minimize BPR_cost(x) + restoration_cost(y) + ρ·∑max(0, x[e] - M*y[e])²
-# - Uses penalty method to discourage constraint violations
-#
-# Because they optimize different objective functions, they may find different solutions!
-# The penalty weight ρ controls the tradeoff between optimality and feasibility.
+# We start by generating the network.
 using Boscia
 using FrankWolfe
 using Graphs
@@ -40,8 +22,7 @@ using HiGHS
 
 println("\nDocumentation Example 01: Network Design Problem")
 
-# ## Data Structure
-# Simple graph structure with edge weights and demands
+# The graph structure is shown below.
 mutable struct NetworkData
     num_nodes::Int
     num_edges::Int  
@@ -91,6 +72,34 @@ function load_braess_network()
     return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time,
                       capacity, b, power, travel_demand, 3)
 end
+# ## Problem Description
+# We solve a transportation network design problem where:
+# - Some edges have been removed from the network
+# - We decide which edges to restore (binary decision y[e])
+# - Traffic flows are routed to minimize total travel time (with BPR congestion)
+# - Flow conservation constraints must be satisfied
+# - Linking constraints: x[e] <= M * y[e] (flow on removed edges only if restored)
+#
+# ## Key Difference Between Approaches
+#
+# **IMPORTANT**: The two approaches solve DIFFERENT formulations of the same problem!
+#
+# ### MOI-based LMO
+# - Enforces linking constraints x[e] <= M*y[e] as HARD constraints in the MOI model
+# - Objective: minimize BPR_cost(x) + restoration_cost(y)
+# - Finds feasible solution satisfying all constraints exactly
+#
+# ### Custom LMO  
+# - Cannot encode linking constraints x[e] <= M*y[e] in the shortest-path oracle
+# - Instead, adds PENALTY TERMS to the objective function
+# - Objective: minimize BPR_cost(x) + restoration_cost(y) + ρ·∑max(0, x[e] - M*y[e])²
+# - Uses penalty method to discourage constraint violations
+#
+# Because they optimize different objective functions, they may find different solutions!
+# The penalty weight ρ controls the tradeoff between optimality and feasibility.
+
+
+
 
 # ## Shortest Path Dijkstra Implementation  
 
