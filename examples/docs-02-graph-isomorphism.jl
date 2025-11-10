@@ -37,7 +37,7 @@ rng = StableRNG(seed)
 # To create test instances, we provide two helper functions that construct
 # pairs of graphs with either matching or mismatching structure.
 #
-# **Isomorphic case.**  
+# **Isomorphic case:**  
 # Given an adjacency matrix A, we sample a permutation matrix P and form  
 # B = P A P′. This produces a graph that is isomorphic to A by construction.
 function randomIsomorphic(A)
@@ -48,7 +48,7 @@ function randomIsomorphic(A)
     return B, P
 end
 
-# **Non-isomorphic case.**  
+# **Non-isomorphic case:**  
 # To obtain a simple counterexample, we toggle a single undirected edge of A
 # to produce B. Such a small perturbation typically breaks isomorphism while
 # preserving symmetry of the adjacency matrix.
@@ -62,9 +62,7 @@ function randomNonIsomorphic(A::AbstractMatrix)
     return B
 end
 
-# ## Graph data
-#
-# For this example we work with the Petersen graph, provided as a CSV file
+# For this example, we work with the Petersen graph, provided as a CSV file
 # containing its adjacency matrix.  
 # After loading A, we generate an isomorphic graph B using the routine above.
 path = joinpath(@__DIR__, "Petersen.csv")
@@ -107,7 +105,7 @@ end
 
 # ## Linear Minimization Oracle (LMO)
 #
-# Optimization is carried out over the Birkhoff polytope, the convex hull of
+# The feasible region of the optimization is the Birkhoff polytope, the convex hull of
 # permutation matrices.  
 # We use the Birkhoff LMO provided by 
 # [CombinatorialLinearOracles](https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl), which
@@ -118,10 +116,10 @@ blmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))
 #
 # We define callback routines to steer the branch-and-bound process.
 #
-# **Branch callback.**  
+# **Branch callback:**  
 # At a given node, if the node’s lower bound is already strictly positive,
 # no permutation can achieve an objective value of zero in that subtree.
-# Such nodes can therefore be safely pruned.
+# On such nodes, we do not need to branch further..
 function build_branch_callback()
     return function (tree, node, vidx::Int)
         x = Bonobo.get_relaxed_values(tree, node)
@@ -135,10 +133,10 @@ function build_branch_callback()
     end
 end
 
-# **Tree callback.**  
-# The search terminates early under either of two conditions:
-# 1. The current incumbent reaches objective value 0, certifying isomorphism.
-# 2. The global tree lower bound becomes strictly positive, implying that no
+# **Tree callback:**  
+# The search can be terminated early under either of two conditions:
+# 1. The current incumbent reaches objective value of 0.0, certifying isomorphism.
+# 2. The lower bound of the B&B tree becomes strictly positive, implying that no
 #    permutation satisfies X A = B X, and thus the graphs are not isomorphic.
 function build_tree_callback()
     return function (tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update=false)
@@ -220,8 +218,6 @@ settings.frank_wolfe[:max_fw_iter] = 1000
 # X with objective value f(X) = 0.
 x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
-# ## Certificate
-#
 # A successful solve provides a permutation matrix X such that:
 #
 # ```math
@@ -234,7 +230,7 @@ X = reshape(x, n, n)
 println("Certificate verified: graphs are isomorphic (A ≈ X' * B * X)")
 
 
-# # Complement: Non-isomorphic case
+# ## Complement: Non-isomorphic case
 #
 # To certify non-isomorphism, we can replace B by a perturbed version (e.g., by toggling an edge).
 # In that case, no permutation satisfies X A = B X, and the optimization yields a strictly positive
@@ -243,12 +239,8 @@ println("Certificate verified: graphs are isomorphic (A ≈ X' * B * X)")
 # ```math
 # \text{dual bound} \;>\; 0 .
 # ```
-#
-# Example (uncomment to try):
-#
-# ```julia
-# B = randomNonIsomorphic(A)
-# x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
-# @assert result[:dual_bound] > 0.0
-# println("Graphs are not isomorphic (lower bound > 0)")
-# ```
+
+B = randomNonIsomorphic(A)
+x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
+@assert result[:dual_bound] > 0.0
+println("Graphs are not isomorphic (lower bound > 0)")
