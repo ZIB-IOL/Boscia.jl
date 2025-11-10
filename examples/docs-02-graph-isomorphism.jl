@@ -111,9 +111,10 @@ end
 # [CombinatorialLinearOracles](https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl), which
 # performs the required linear subproblem via the Hungarian algorithm.
 #
-# In CombinatorialLinearOracles, we implement the full LMO interface for the Birkhoff
-# polytope. This is necessary because Boscia’s default LMO handling, provided via
-# `ManagedLMO`, does not efficiently support additional bound information, such as
+# In [CombinatorialLinearOracles](https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl),
+# we implement the full LMO interface for the Birkhoff polytope.
+# The simpler approach using the `ManagedLMO` wrapper would not be able to
+# efficiently support additional bound information, such as
 # tracking and updating reduced matrices after entries of the permutation matrix have
 # been fixed. Without a structure-aware oracle, each call to compute an extreme point
 # would require rebuilding the reduced assignment problem, introducing avoidable
