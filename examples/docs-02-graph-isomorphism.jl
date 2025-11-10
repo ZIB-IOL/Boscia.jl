@@ -110,6 +110,20 @@ end
 # We use the Birkhoff LMO provided by 
 # [CombinatorialLinearOracles](https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl), which
 # performs the required linear subproblem via the Hungarian algorithm.
+#
+# In CombinatorialLinearOracles, we implement the full LMO interface for the Birkhoff
+# polytope. This is necessary because Boscia’s default LMO handling, provided via
+# `ManagedLMO`, does not efficiently support additional bound information, such as
+# tracking and updating reduced matrices after entries of the permutation matrix have
+# been fixed. Without a structure-aware oracle, each call to compute an extreme point
+# would require rebuilding the reduced assignment problem, introducing avoidable
+# overhead.
+#
+# The custom BirkhoffLMO avoids this by recording fixed indices and maintaining the
+# corresponding reduced assignment matrix. Linear minimization is then performed on
+# the reduced matrix via the Hungarian algorithm, and the resulting solution is
+# lifted back by adding the fixed entries. This ensures that node-specific
+# constraints are handled consistently and that each oracle call remains efficient.
 blmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))
 
 # ## Branching & pruning callbacks
