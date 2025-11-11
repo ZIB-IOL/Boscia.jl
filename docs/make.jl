@@ -22,17 +22,12 @@ function literate_directory(jl_dir, md_dir)
         filepath = joinpath(md_dir, filename)
         rm(filepath)
     end
-    
+
     # Process all .jl files that start with "docs"
     for filename in file_list(jl_dir, ".jl")
         if startswith(filename, "docs")
             filepath = joinpath(jl_dir, filename)
-            Literate.markdown(
-                filepath,
-                md_dir;
-                documenter=true,
-                flavor=Literate.DocumenterFlavor(),
-            )
+            Literate.markdown(filepath, md_dir; documenter=true, flavor=Literate.DocumenterFlavor())
         end
     end
     return nothing
