@@ -62,16 +62,7 @@ end
 # The example is a small network with 8 nodes.
 # Nodes 1 and 2 are the sources, node 3 is the destination, and nodes 4-8 are the intermediate nodes.
 # The network is a directed graph with 12 edges.
-# The edges are:
-# 1. 1 - 4
-# 2. 2 - 6
-# 3. 4 - 6
-# 4. 6 - 7
-# 5. 7 - 8
-# 6. 8 - 3
-# 7. 5 - 3
-# 8. 4 - 5 (optional edge)
-# Edge 8 will be the purchasable edge, i.e. an edge for which we have to
+# The edge from 4 to 5 will be the purchasable edge, i.e. an edge for which we have to
 # decide to restore it or keep it closed.
 # Travel demand is 1 unit from each source to the destination.
 function load_braess_network()
@@ -261,6 +252,7 @@ removed_edges = [(4, 5)]  # Optional edge from node_1 (intermediate node 4) to n
 cost_per_edge = [0.5]  # Cost to purchase the edge
 
 net_data = load_braess_network()
+
 optimizer, _ = build_moi_model(net_data, removed_edges, true)
 lmo_moi = FrankWolfe.MathOptLMO(optimizer)
 
@@ -272,6 +264,8 @@ settings_moi = Boscia.create_default_settings()
 settings_moi.branch_and_bound[:verbose] = true
 
 x_moi, _, result_moi = Boscia.solve(f_moi, grad_moi!, lmo_moi, settings=settings_moi)
+
+@show x_moi
 
 # ## Penalty formulation and custom LMO
 # 
@@ -496,3 +490,5 @@ settings_custom = Boscia.create_default_settings()
 settings_custom.branch_and_bound[:verbose] = true
 
 x_custom, _, result_custom = Boscia.solve(f_custom, grad_custom!, bounded_lmo, settings=settings_custom)
+
+@show x_custom
