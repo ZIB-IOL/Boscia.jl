@@ -34,3 +34,4 @@ julia
 .vscode
 
 docs/src/examples/*.md
+docs/src/examples/*.jl
