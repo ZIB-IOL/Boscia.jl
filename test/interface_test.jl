@@ -405,6 +405,12 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.PairwiseFrankWolfe()
+    x_pcg, _, result_pcg = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     settings.frank_wolfe[:fw_verbose] = false
     x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, settings=settings)
@@ -417,13 +423,15 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_pcg), f(result_pcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_bpcg), f(result_bpcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_dicg), f(result_dicg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_vfw), f(result_vfw[:raw_solution]), atol=1e-6, rtol=1e-3)
 
     @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_blended, x_bpcg, atol=1e-6, rtol=1e-3)) == n
-    @test sum(isapprox.(x_bpcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_pcg, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_pcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_dicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
 end
