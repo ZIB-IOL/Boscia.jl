@@ -299,8 +299,8 @@ function build_bnb_callback(
             tree.lb = tree_lb(tree)
             dual_gap = tree.incumbent - tree_lb(tree)
             push!(list_lb_cb, tree_lb(tree))
-            active_set_size = length(node.active_set)
-            discarded_set_size = length(node.discarded_vertices.storage)
+            active_set_size = node.active_set_size
+            discarded_set_size = node.discarded_set_size
             push!(list_active_set_size_cb, active_set_size)
             push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left = length(tree.nodes)
