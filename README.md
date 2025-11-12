@@ -1,6 +1,6 @@
 # Boscia.jl
 
-[![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
+[![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg?branch=main)](https://github.com/ZIB-IOL/Boscia.jl/actions)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zib-iol.github.io/Boscia.jl/dev/)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zib-iol.github.io/Boscia.jl/stable/)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
@@ -22,6 +22,10 @@ We also implemented simple polytopes like the hypercube, the unit simplex and th
 The paper presenting the package with mathematical explanations and numerous examples can be found here:
 
 > Convex mixed-integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
+
+A review and tutorial paper presenting the intuition behind the framework and showcasing its use on three examples can be found here:
+
+> Boscia.jl: A review and tutorial: [2511.01479](https://arxiv.org/abs/2511.01479)
 
 `Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems, [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree, and oracles optimizing linear functions over the feasible set, for instance calling [SCIP](https://scipopt.org) or any MOI-compatible solver to solve MIP subproblems.
 
@@ -83,7 +87,9 @@ function grad!(storage, x)
     @. storage = x-diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose = true))
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
 Boscia Algorithm.
 

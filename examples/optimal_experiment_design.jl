@@ -65,7 +65,7 @@ verbose = true
         build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
-    line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
+    line_search = FrankWolfe.Adaptive(domain_oracle=domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     settings = Boscia.create_default_settings()
@@ -80,7 +80,7 @@ verbose = true
     x, _, _ = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # proper run with MGLS and Adaptive
-    line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
+    line_search = FrankWolfe.Adaptive(domain_oracle=domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     settings = Boscia.create_default_settings()
@@ -119,12 +119,12 @@ end
     g, grad! = build_d_criterion(Ex_mat, build_safe=false)
     blmo = build_blmo(m, N, ub)
     heu = Boscia.Heuristic(Boscia.rounding_hyperplane_heuristic, 0.7, :hyperplane_aware_rounding)
-    domain_oracle = build_domain_oracle(Ex_mat, n)
+    domain_oracle = build_domain_oracle2(Ex_mat, n)
     domain_point =
         build_domain_point_function(domain_oracle, Ex_mat, N, collect(1:m), fill(0.0, m), ub)
 
     # precompile
-    line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
+    line_search = FrankWolfe.Adaptive(domain_oracle=domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     settings = Boscia.create_default_settings()
@@ -139,7 +139,7 @@ end
     x, _, _ = Boscia.solve(g, grad!, blmo, settings=settings)
 
     # proper run with MGLS and Adaptive
-    line_search = FrankWolfe.MonotonicGenericStepsize(FrankWolfe.Adaptive(), domain_oracle)
+    line_search = FrankWolfe.Adaptive(domain_oracle=domain_oracle)
     x0, active_set = build_start_point(Ex_mat, N, ub)
     z = greedy_incumbent(Ex_mat, N, ub)
     settings = Boscia.create_default_settings()
