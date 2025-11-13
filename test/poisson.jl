@@ -88,7 +88,6 @@ N = 1.0
             storage[1:p] .-= 1 / n0 * y0[i] * xi
             storage[end] += 1 / n0 * (exp(a) - y0[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
@@ -161,13 +160,12 @@ end
             storage[1:p] .-= 1 / n0 * y0[i] * xi
             storage[end] += 1 / n0 * (exp(a) - y0[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
@@ -268,7 +266,6 @@ push!(groups, ((k-1)*group_size+1):pg)
             storage[1:pg] .-= 1 / n0g * y0g[i] * xi
             storage[end] += 1 / n0g * (exp(a) - y0g[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
@@ -343,13 +340,12 @@ end
             storage[1:pg] .-= 1 / n0g * y0g[i] * xi
             storage[end] += 1 / n0g * (exp(a) - y0g[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true

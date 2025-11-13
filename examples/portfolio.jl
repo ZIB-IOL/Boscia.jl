@@ -58,7 +58,11 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, length(x)), 0.8, :follow_gradient)
+    heu = Boscia.Heuristic(
+        (tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree, blmo, x, length(x)),
+        0.8,
+        :follow_gradient,
+    )
     heuristics = [heu]
     # heuristics = []
 
