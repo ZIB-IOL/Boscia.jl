@@ -1081,7 +1081,7 @@ function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_
         elseif direction[idx] < 0
             v[idx] = upper_eff
         else
-            v[idx] = 0
+            v[idx] = clamp(0,lower_eff,upper_eff)
         end
     end
     return v
@@ -1150,7 +1150,7 @@ function bounded_compute_inface_extreme_point(
         elseif direction[idx] < 0
             v[idx] = upper_eff
         else
-            v[idx] = 0
+            v[idx] = clamp(0,lower_eff,upper_eff)
         end
     end
     return v
@@ -1320,50 +1320,63 @@ Polytope similar to a L1-ball with shifted bounds.
 It is the convex hull of two scaled and shifted unit vectors for each axis (shifted to the center of the polytope, i.e., the elementwise midpoint of the bounds).
 Lower and upper bounds are passed on as abstract vectors, possibly of different types.
 For the standard L1-ball, all lower and upper bounds would be -1 and 1.
+
+Here only implement l1norm now
 """
-struct DiamondLMO{T,N,VT1<:AbstractArray{T,N},VT2<:AbstractArray{T,N}} <: SimpleBoundableLMO
-    lower_bounds::VT1
-    upper_bounds::VT2
+struct DiamondBLMO <: SimpleBoundableLMO
+    lower_bounds::Vector{Float64}
+    upper_bounds::Vector{Float64}
 end
 
 
-function bounded_compute_extreme_point(lmo::DiamondLMO, lb, ub, int_vars, direction; v=similar(lmo.lower_bounds), kwargs...)
-    @inbounds for i in eachindex(lmo.lower_bounds)
-        v[i] = (lmo.lower_bounds[i] + lmo.upper_bounds[i]) / 2
+function bounded_compute_extreme_point(lmo::DiamondBLMO, direction, lb, ub, int_vars; kwargs...)
+    n = length(direction)
+    τ = lmo.upper_bounds[1]
+    v = zeros(eltype(direction), n)
+    perm = sortperm(abs.(direction); rev = true)
+
+    for i in int_vars
+        idx = findfirst(x -> x == i, int_vars)
+        if lb[idx] > 0
+            v[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v[i] = floor(ub[idx])
+        end
     end
-    idx = 0
-    lower = false
-    val = zero(eltype(direction))
-    if length(direction) != length(lmo.upper_bounds)
-        throw(DimensionMismatch())
-    end
-    @inbounds for i in eachindex(direction)
-        if i in int_var
-            scale_factor = min(floor(lmo.upper_bounds[i]) - ceil(lmo.lower_bounds[i]), ub[i]-lb[i])
+    
+    total_used = sum(abs.(v))
+
+    for i in perm
+        rem = τ - total_used
+        
+        if isapprox(rem, 0.0; atol=1e-6)
+            break
+        end
+
+        d = direction[i]
+        sgn = -sign(d)   # move opposite to gradient
+        step = sgn * rem
+
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if sgn > 0
+                v[i] = floor(min(step,ub[idx]))
+            elseif sgn < 0
+                v[i] = ceil(max(step, lb[idx]))
+            else
+                v[i] = clamp(0, ceil(lb[idx]), floor(ub[idx]))
+            end
         else
-            scale_factor = lmo.upper_bounds[i] - lmo.lower_bounds[i]
+            v[i] = step
         end
-        scaled_dir = direction[i] * scale_factor
-        if scaled_dir > val
-            val = scaled_dir
-            idx = i
-            lower = true
-        elseif -scaled_dir > val
-            val = -scaled_dir
-            idx = i
-            lower = false
-        end
+        total_used = sum(abs.(v))
     end
-    # compute midpoint for all coordinates, replace with extreme coordinate on one
-    # TODO use smarter array type if bounds are FillArrays
-    # handle zero direction
-    idx = max(idx, 1)
-    v[idx] = ifelse(lower, max(floor(lmo.lower_bounds[idx]),lb[idx]), min(ceil(lmo.upper_bounds[idx],up[idx])))
     return v
 end
 
+
 function bounded_compute_inface_extreme_point(
-    lmo::DiamondLMO,
+    lmo::DiamondBLMO,
     direction,
     x,
     lb,
@@ -1374,120 +1387,138 @@ function bounded_compute_inface_extreme_point(
     kwargs...
 )
     n = length(direction)
-    v = copy(x)
-    fixed_vars = Int[]
+    τ = lmo.upper_bounds[1]
 
-    # Identify fixed coordinates (already on the face boundary)
-    for i in 1:n
-        if i in int_vars
-            idx = findfirst(==(i), int_vars)
-            if isapprox(x[i], ceil(lb[idx]); atol=atol, rtol=rtol) ||
-            isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-            end
-            if isapprox(x[i], ceil(lmo.lower_bounds[idx]); atol=atol, rtol=rtol) ||
-                isapprox(x[i], floor(lmo.upper_bounds[idx]); atol=atol, rtol=rtol)
-                    push!(fixed_vars, i)
-            end
-        else
-            if isapprox(x[i], lmo.upper_bounds[idx]; atol=atol, rtol=rtol) ||
-            isapprox(x[i], lmo.lower_bounds[idx] ; atol=atol, rtol=rtol)
-                push!(fixed_vars, i)
-            end
-        end
-    end
-
+    fixed_vars = [i for i in 1:n if isapprox(x[i], lb[i]; atol=atol, rtol=rtol) ||
+                                     isapprox(x[i], ub[i]; atol=atol, rtol=rtol)]
     free_idx = setdiff(1:n, fixed_vars)
-    if isempty(free_idx)
-        return v  # already at in-face extreme point
-    end
+    isempty(free_idx) && return v
 
-    # Construct new in-face extreme point
-    @inbounds for i in eachindex(lmo.lower_bounds)
-        v[i] = (lmo.lower_bounds[i] + lmo.upper_bounds[i]) / 2
+    rem_global = max(τ - total_used, 0.0)
+    v = copy(x)
+
+    perm = free_idx[sortperm(abs.(direction[free_idx]); rev=true)]
+    rem = rem_global
+
+    intt = intersect(free_idx,int_vars)
+
+    for i in intt
+        idx = findfirst(x -> x == i, int_vars)
+        if lb[idx] > 0
+            v[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v[i] = floor(ub[idx])
+        end
     end
-    idx = 0
-    lower = false
-    val = zero(eltype(direction))
-    if length(direction) != length(lmo.upper_bounds)
-        throw(DimensionMismatch())
-    end
-    @inbounds for i in free_idx
-        if i in int_var
-            scale_factor = min(floor(lmo.upper_bounds[i]) - ceil(lmo.lower_bounds[i]), ub[i]-lb[i])
+    
+    total_used = sum(abs.(v))
+
+    for i in perm
+        rem = τ - total_used
+        
+        if isapprox(rem, 0.0; atol=1e-6)
+            break
+        end
+
+        d = direction[i]
+        sgn = -sign(d)   # move opposite to gradient
+        step = sgn * rem
+
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if sgn > 0
+                v[i] = floor(min(step,ub[idx]))
+            elseif sgn < 0
+                v[i] = ceil(max(step, lb[idx]))
+            else
+                v[i] = clamp(0, ceil(lb[idx]), floor(ub[idx]))
+            end
         else
-            scale_factor = lmo.upper_bounds[i] - lmo.lower_bounds[i]
+            v[i] = step
         end
-        scaled_dir = direction[i] * scale_factor
-        if scaled_dir > val
-            val = scaled_dir
-            idx = i
-            lower = true
-        elseif -scaled_dir > val
-            val = -scaled_dir
-            idx = i
-            lower = false
-        end
+        total_used = sum(abs.(v))
     end
-    # compute midpoint for all coordinates, replace with extreme coordinate on one
-    # TODO use smarter array type if bounds are FillArrays
-    # handle zero direction
-    idx = max(idx, 1)
-    v[idx] = ifelse(lower, max(floor(lmo.lower_bounds[idx]),lb[idx]), min(ceil(lmo.upper_bounds[idx],up[idx])))
 end
 
 function bounded_dicg_maximum_step(
-    sblmo::DiamondLMO,
-    direction,
-    x,
-    lb,
-    ub,
-    int_vars;
+    lmo::DiamondBLMO,
+    direction::AbstractVector,
+    x::AbstractVector,
+    lb::AbstractVector,
+    ub::AbstractVector,
+    int_vars::AbstractVector;
     tol=1e-6,
-    kwargs...,
+    kwargs...
 )
-    gamma_max = one(eltype(direction))
-    for idx in eachindex(x)
-        di = direction[idx]
-        if di > tol
-            if idx in int_vars
-                int_idx = findfirst(==(idx), int_vars)
-                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
-            else
-                gamma_max = min(gamma_max, (x[idx] - sblmo.lower_bounds[idx]) / di)
-            end
-        elseif di < -tol
-            if idx in int_vars
-                int_idx = findfirst(==(idx), int_vars)
-                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
-            else
-                gamma_max = min(gamma_max, (sblmo.upper_bounds[idx] - x[idx]) / -di)
-            end
-        end
+    n = length(direction)
+    @assert n == length(x) == length(lb) == length(ub) ==
+            length(lmo.lower_bounds) == length(lmo.upper_bounds)
 
-        if isapprox(gamma_max , 0.0; atol=tol)
+    eff_lb = similar(lb)
+    eff_ub = similar(ub)
+    is_int = falses(n)
+
+    for i in 1:n
+        is_int[i] = i in int_vars
+        if is_int[i]
+            eff_lb[i] = ceil(max(lb[i], lmo.lower_bounds[i]))
+            eff_ub[i] = floor(min(ub[i], lmo.upper_bounds[i]))
+        else
+            eff_lb[i] = max(lb[i], lmo.lower_bounds[i])
+            eff_ub[i] = min(ub[i], lmo.upper_bounds[i])
+        end
+    end
+
+    γmax = one(eltype(direction))
+    for i in 1:n
+        di = direction[i]
+        if di > tol
+            γmax = min(γmax, (x[i] - eff_lb[i]) / di)
+        elseif di < -tol
+            γmax = min(γmax, (eff_ub[i] - x[i]) / (-di))
+        end
+        if isapprox(γmax, 0.0; atol=tol)
             return 0.0
         end
     end
-    return max(gamma_max, 0.0)
+    return max(γmax, 0.0)
 end
 
-function is_simple_linear_feasible(sblmo::DiamondLMO, v; tol=1e-8)
+function is_simple_linear_feasible(sblmo::DiamondBLMO, v; tol=1e-8)
     lower = sblmo.lower_bounds
     upper = sblmo.upper_bounds
 
-    # Check box feasibility
-    for i in eachindex(v)
-        if v[i] < lower[i] - tol || v[i] > upper[i] + tol
-            @debug "Infeasible coordinate $i: v[i]=$(v[i]) not in [$(lower[i]), $(upper[i])]"
+    τ = sblmo.upper_bounds[1]
+
+    @inbounds for i in eachindex(v)
+        vi = v[i]
+
+        # reject NaN / Inf
+        if !isfinite(vi)
+            @debug "Infeasible coordinate $i: v[i] = $vi (not finite)"
             return false
         end
+
+        lo = lower[i]
+        hi = upper[i]
+
+        if vi < lo - tol || vi > hi + tol
+            @debug "Infeasible coordinate $i: v[i] = $(vi) not in [$(lo), $(hi)]"
+            return false
+        end
+    end
+
+    n1 = sum(abs.(v))
+
+    if n1 > τ + tol
+        @debug "Infeasible L1 norm: ||v||₁ = $n1 > τ = $τ"
+        return false
     end
 
     return true
 end
 
-function check_feasibility(sblmo::DiamondLMO, lb, ub, int_vars, n; tol=1e-8)
+function check_feasibility(sblmo::DiamondBLMO, lb, ub, int_vars, n; tol=1e-8)
     lower = sblmo.lower_bounds
     upper = sblmo.upper_bounds
 
@@ -1500,27 +1531,6 @@ function check_feasibility(sblmo::DiamondLMO, lb, ub, int_vars, n; tol=1e-8)
         end
     end
     return OPTIMAL
-end
-
-function rounding_hyperplane_heuristic(
-    tree::Bonobo.BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{DiamondLMO}},
-    x,
-)
-    z = copy(x)
-    lower = tlmo.blmo.lower_bounds
-    upper = tlmo.blmo.upper_bounds
-
-    int_idx = tree.branching_indices
-    cont_idx = setdiff(1:tree.root.problem.nvars, int_idx)
-
-    # Round integer variables
-    for idx in int_idx
-        z[idx] = round(x[idx])
-        z[idx] = clamp(z[idx], lower[idx], upper[idx])
-    end
-
-    return [z], false
 end
 
 """
@@ -1543,27 +1553,22 @@ end
 
 function bounded_compute_extreme_point(
     lmo::KNormBallLMO,
+    direction,
     lb, 
     ub, 
-    int_vars,
-    direction;
-    v = zeros(Float64, length(direction)),
+    int_vars;
     kwargs...,
 ) 
     K = max(min(lmo.K, length(direction)), 1)
-
     oinf = zero(eltype(direction))
+    v = zeros(eltype(direction),length(direction))
 
     @inbounds for (i, dir_val) in enumerate(direction)
         temp = -lmo.right_hand_side / K * sign(dir_val)
         
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if ub[i] < temp
-                temp = ub[idx]
-            elseif lb[i] > temp
-                temp = lb[idx]
-            end
+            temp = clamp(temp,lb[idx],ub[idx])
             if sign(temp)>0
                 temp = floor(temp)
             elseif sign(temp)<0
@@ -1577,9 +1582,24 @@ function bounded_compute_extreme_point(
     end
 
     v1 = zeros(length(direction))
-    perm = sortperm(abs.(direction))
+
+    for i in int_vars
+        idx = findfirst(x -> x == i, int_vars)
+        if lb[idx] > 0
+            v1[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v1[i] = floor(ub[idx])
+        end
+    end
+
+    perm = sortperm(abs.(direction);rev=true)
     for i in perm
         rem = lmo.right_hand_side - sum(abs.(v1))
+
+        if isapprox(rem, 0.0; atol=1e-6)
+            break
+        end
+
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
             if direction[i] < 0
@@ -1654,9 +1674,9 @@ function bounded_compute_inface_extreme_point(
         
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if ub[i] < temp
+            if ub[idx] < temp
                 temp = ub[idx]
-            elseif lb[i] > temp
+            elseif lb[idx] > temp
                 temp = lb[idx]
             end
             if sign(temp)>0
@@ -1673,8 +1693,23 @@ function bounded_compute_inface_extreme_point(
     perm = sortperm(abs.(direction); rev=true)
     perm = setdiff(perm, fixed_vars)
     v1[perm] .= 0
+
+    for i in intersect(perm,int_vars)
+        idx = findfirst(x -> x == i, int_vars)
+        if lb[idx] > 0
+            v1[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v1[i] = floor(ub[idx])
+        end
+    end
+
     for i in perm
         rem = lmo.right_hand_side - sum(abs.(v1))
+
+        if isapprox(rem, 0.0; atol=1e-6)
+            break
+        end
+
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
             if direction[i] < 0
