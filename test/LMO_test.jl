@@ -268,7 +268,8 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n / 4), n)
+sparsity = 0.3  
+x_sol = [rand() < sparsity ? 0 : rand(1:floor(Int, n / 4)) for _ in 1:n]
 diffi = x_sol + 0.3 * rand([-1, 1], n)
 
 @testset "KNormBall LMO" begin
@@ -279,8 +280,8 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
         @. storage = x - diffi
     end
 
-    K = 7
-    τ = 1.5 * norm(x_sol,Inf) 
+    K = count(!iszero, x_sol)
+    τ = 1.5 * norm(x_sol, Inf) * K
 
     sblmo = Boscia.KNormBallLMO(K, τ)
 

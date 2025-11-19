@@ -1258,14 +1258,15 @@ function bounded_compute_extreme_point(
 
     end
 
+    println("v:$v")
+    
     v1 = zeros(length(direction))
 
     for i in int_vars
-        idx = findfirst(x -> x == i, int_vars)
-        if lb[idx] > 0
-            v1[i] = ceil(lb[idx])
-        elseif ub[idx] < 0
-            v1[i] = floor(ub[idx])
+        if lb[i] > 0
+            v1[i] = ceil(lb[i])
+        elseif ub[i] < 0
+            v1[i] = floor(ub[i])
         end
     end
 
