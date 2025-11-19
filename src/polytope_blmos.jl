@@ -738,7 +738,16 @@ function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_
     K_indices = sortperm(direction, by=abs, rev=true)
     v = spzeros(Float64, length(direction))
     rem = K * lmo.right_hand_side
-    for idx in K_indices
+
+    for i in int_vars
+        if lb[i] > 0
+            v[int_vars[i]] = ceil(lb[i])
+        elseif ub[i] < 0
+            v[int_vars[i]] = floor(ub[i])
+        end
+    end
+
+    for i in K_indices
 
         rem = K * lmo.right_hand_side - sum(abs,v)
 
@@ -746,19 +755,20 @@ function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_
             break
         end
 
-        if idx in int_vars
-            lower_eff = ceil(max(lb[idx], -lmo.right_hand_side, -rem))
-            upper_eff = floor(min(ub[idx], lmo.right_hand_side, rem))
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            lower_eff = clamp(ceil(max(-lmo.right_hand_side, -rem)),ceil(lb[idx]),floor(ub[idx]))
+            upper_eff = clamp(floor(min(lmo.right_hand_side, rem)),ceil(lb[idx]),floor(ub[idx]))
         else
             lower_eff = max(-rem, -lmo.right_hand_side)
             upper_eff = min(rem,  lmo.right_hand_side)
         end
-        if direction[idx] > 0
-            v[idx] = lower_eff
-        elseif direction[idx] < 0
-            v[idx] = upper_eff
+        if direction[i] > 0
+            v[i] = lower_eff
+        elseif direction[i] < 0
+            v[i] = upper_eff
         else
-            v[idx] = clamp(0,lower_eff,upper_eff)
+            v[i] = clamp(0,lower_eff,upper_eff)
         end
     end
     return v
@@ -876,12 +886,12 @@ function is_simple_linear_feasible(sblmo::KSparseBLMO, v; int_vars=Int[], tol=1e
 
     l1_norm = sum(abs, v)
     if l1_norm > K * τ + tol
-        @debug "v violates sparsity constraint: ‖v‖₀ = $nnz_v > K = $K"
+        @debug "v violates sparsity constraint: ‖v‖₀ = $l1_norm > K*τ = $(K*τ)"
         return false
     end
 
     if any(abs.(v) .> τ + tol)
-        @debug "v violates bound constraint: some |vᵢ| > τ = $τ"
+        @debug "v violates bound constraint: some |vᵢ| > τ = $τ (v=$v)"
         return false
     end
 
@@ -1013,11 +1023,10 @@ function bounded_compute_extreme_point(lmo::DiamondBLMO, direction, lb, ub, int_
     perm = sortperm(abs.(direction); rev = true)
 
     for i in int_vars
-        idx = findfirst(x -> x == i, int_vars)
-        if lb[idx] > 0
-            v[i] = ceil(lb[idx])
-        elseif ub[idx] < 0
-            v[i] = floor(ub[idx])
+        if lb[i] > 0
+            v[int_vars[i]] = ceil(lb[i])
+        elseif ub[i] < 0
+            v[int_vars[i]] = floor(ub[i])
         end
     end
     
@@ -1037,9 +1046,9 @@ function bounded_compute_extreme_point(lmo::DiamondBLMO, direction, lb, ub, int_
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
             if sgn > 0
-                v[i] = floor(min(step,ub[idx]))
+                v[i] = clamp(floor(step), ceil(lb[idx]), floor(ub[idx]))
             elseif sgn < 0
-                v[i] = ceil(max(step, lb[idx]))
+                v[i] = clamp(ceil(step), ceil(lb[idx]), floor(ub[idx]))
             else
                 v[i] = clamp(0, ceil(lb[idx]), floor(ub[idx]))
             end
@@ -1080,11 +1089,10 @@ function bounded_compute_inface_extreme_point(
     intt = intersect(free_idx,int_vars)
 
     for i in intt
-        idx = findfirst(x -> x == i, int_vars)
-        if lb[idx] > 0
-            v[i] = ceil(lb[idx])
-        elseif ub[idx] < 0
-            v[i] = floor(ub[idx])
+        if lb[i] > 0
+            v[intt[i]] = ceil(lb[i])
+        elseif ub[i] < 0
+            v[intt[i]] = floor(ub[i])
         end
     end
     
@@ -1257,41 +1265,45 @@ function bounded_compute_extreme_point(
         oinf += dir_val * temp
 
     end
-
-    println("v:$v")
     
     v1 = zeros(length(direction))
 
     for i in int_vars
         if lb[i] > 0
-            v1[i] = ceil(lb[i])
+            v1[int_vars[i]] = ceil(lb[i])
         elseif ub[i] < 0
-            v1[i] = floor(ub[i])
+            v1[int_vars[i]] = floor(ub[i])
         end
     end
+    
+    total_used = sum(abs.(v))
 
-    perm = sortperm(abs.(direction);rev=true)
+    perm = sortperm(abs.(direction); rev=true)
+
     for i in perm
-        rem = lmo.right_hand_side - sum(abs.(v1))
-
+        rem = lmo.right_hand_side - total_used
+        
         if isapprox(rem, 0.0; atol=1e-6)
             break
         end
 
+        d = direction[i]
+        sgn = -sign(d)   # move opposite to gradient
+        step = sgn * rem
+
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            if direction[i] < 0
-                v1[i] = floor(min(ub[idx], rem))
-            elseif direction[i] > 0
-                v1[i] = ceil(max(lb[idx], -rem))
+            if sgn > 0
+                v1[i] = clamp(floor(step), ceil(lb[idx]), floor(ub[idx]))
+            elseif sgn < 0
+                v1[i] = clamp(ceil(step), ceil(lb[idx]), floor(ub[idx]))
+            else
+                v1[i] = clamp(0, ceil(lb[idx]), floor(ub[idx]))
             end
         else
-            if direction[i] < 0
-                v1[i] = rem
-            elseif direction[i] > 0
-                v1[i] = -rem
-            end
+            v1[i] = step
         end
+        total_used = sum(abs.(v1))
     end
 
     o1 = dot(v1, direction)
@@ -1373,11 +1385,10 @@ function bounded_compute_inface_extreme_point(
     v1[perm] .= 0
 
     for i in intersect(perm,int_vars)
-        idx = findfirst(x -> x == i, int_vars)
-        if lb[idx] > 0
-            v1[i] = ceil(lb[idx])
-        elseif ub[idx] < 0
-            v1[i] = floor(ub[idx])
+        if lb[i] > 0
+            v1[int_vars[i]] = ceil(lb[i])
+        elseif ub[i] < 0
+            v1[int_vars[i]] = floor(ub[i])
         end
     end
 

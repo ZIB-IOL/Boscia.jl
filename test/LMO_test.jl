@@ -287,9 +287,6 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
 
-    println("x= $x")
-    println("x_sol= $x_sol")
-
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
