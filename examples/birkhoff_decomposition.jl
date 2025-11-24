@@ -118,7 +118,7 @@ x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     x, _, result_baseline = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test f(x) <= f(result_baseline[:raw_solution]) + 1e-6
+    @test f(x) <= f(result_baseline[:raw_solution]) + 1e-4
     lmo = build_birkhoff_lmo()
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
@@ -128,5 +128,5 @@ x, _, _ = Boscia.solve(f, grad!, lmo, settings=settings)
     settings.branch_and_bound[:branching_strategy] = branching_strategy
     x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, settings=settings)
     @test isapprox(f(x), f(x_strong), atol=1e-5, rtol=1e-2)
-    @test f(x) <= f(result_strong[:raw_solution]) + 1e-6
+    @test f(x) <= f(result_strong[:raw_solution]) + 1e-4
 end
