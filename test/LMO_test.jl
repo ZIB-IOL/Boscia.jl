@@ -239,8 +239,23 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
 
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        fill(0.0, n),
+        fill(Inf64, n),
+        collect(1:n),
+        n,
+        settings=settings,
+    )
+
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
 n = 20
@@ -262,9 +277,22 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     sblmo = Boscia.DiamondBLMO(lower_bounds, upper_bounds)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        fill(0.0, n),
+        fill(Inf64, n),
+        collect(1:n),
+        n,
+        settings=settings,
+    )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
 n = 20
@@ -286,7 +314,6 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     sblmo = Boscia.KNormBallLMO(K, τ)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
-
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
