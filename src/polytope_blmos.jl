@@ -717,7 +717,124 @@ function rounding_hyperplane_heuristic(
     return [z], false
 end
 
-struct ReverseKnapsackLMO <: FrankWolfe.LinearMinimizationOracle
-    N::Float64
-    upper_bounds::Vector{Float64}
+"""
+    2normBallBLMO()
+
+BLMO denotes the L2normBall, It is unit ball which means R = 1
+"""
+
+struct L2normBallBLMO <: FrankWolfe.LinearMinimizationOracle
+end
+
+function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars; kwargs...)
+    max = abs(d[1])
+    max_idx = 1
+    idx = 0
+    for idx in int_vars
+        if abs(d[idx]) > max
+            max = -d[idx]
+            max_idx = idx
+        end
+        i = findfirst(x -> x == idx, int_vars)
+        if lb[i] > 0 
+            v = zeros(length(d))
+            v[idx] = 1
+            return v
+        elseif ub[i] < 0 
+            v = zeros(length(d))
+            v[idx] = -1
+            return v
+        end
+    end
+    v = -d
+    v[int_vars] .= 0
+    v = v ./ norm(v)
+    prod = dot(v,d)
+    if max < prod 
+        v = zeros(length(d))
+        v[max_idx] = 1
+    end
+    return v
+end
+
+function is_simple_linear_feasible(lmo::L2normBallBLMO, v)
+    if norm(v) > 1 + 1e-6
+        @debug "norm(v) : $(norm(v)) > 1"
+        return false
+    end
+    return true
+end
+
+function check_feasibility(lmo::L2normBallBLMO, lb, ub, int_vars, n)
+    if any(lb .> 1) || any(ub .< -1)
+        return INFEASIBLE
+    end
+    count = 0
+    for idx in 1:length(int_vars)
+        if !(lb[idx] <= 0 <= ub[idx])
+            count = count + 1
+        end
+        if count > 1 
+            return INFEASIBLE
+        end
+    end
+    return OPTIMAL
+end 
+
+"""
+    ConvexHullLMO(Vector{Vector{Float64}})
+
+Linear Minimization Oracle over the convex hull of a finite set of integer points.
+The extreme points are the integer vertices provided at construction.
+Primarily used for integer programming relaxations.
+"""
+
+struct ConvexHullLMO{T, V <: AbstractVector{T}} <: FrankWolfe.LinearMinimizationOracle
+    vertices::Vector{V}
+end
+
+function bounded_compute_extreme_point(
+    lmo::ConvexHullLMO,
+    direction::AbstractVector{T},
+    lb,
+    ub, 
+    int_vars;
+    kwargs...,
+) where {T}
+    # Find the integer vertex that minimizes the linear objective
+    min_val = Inf
+    best_vertex = lmo.vertices[1]
+    
+    @inbounds for vertex in lmo.vertices
+        val = dot(direction, vertex)
+        if val < min_val
+            min_val = val
+            best_vertex = vertex
+        end
+    end
+    
+    # Return as Float64 for compatibility with continuous optimization
+    return convert(Vector{Float64}, best_vertex)
+end
+
+function is_simple_linear_feasible(lmo::ConvexHullLMO, v)
+    return true
+end
+
+
+function check_feasibility(lmo::ConvexHullLMO, lb, ub, int_vars, n)
+    for vertex in lmo.vertices
+        is_feasible_vertex = true
+        
+        for i in 1:n 
+            if vertex[i] < lb[i] - eps(Float64) || vertex[i] > ub[i] + eps(Float64)
+                is_feasible_vertex = false
+                break
+            end
+        end
+        if is_feasible_vertex
+            return OPTIMAL
+        end
+    end
+    return INFEASIBLE
 end
