@@ -716,3 +716,8 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+struct ReverseKnapsackLMO <: FrankWolfe.LinearMinimizationOracle
+    N::Float64
+    upper_bounds::Vector{Float64}
+end
