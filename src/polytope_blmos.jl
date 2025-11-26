@@ -951,14 +951,21 @@ function rounding_hyperplane_heuristic(
     int_idx = tree.branching_indices
     cont_idx = setdiff(1:nvars, int_idx)
 
+    lb = tlmo.blmo.lower_bounds
+    ub = tlmo.blmo.upper_bounds
+
     # Round integer variables
     for idx in int_idx
         τ_int = τ >= 0 ? floor(Int, τ) : ceil(Int, τ)
+        
         if abs(x[idx]) >= abs(τ) - 0.5
-            z[idx] = sign(x[idx]) * τ_int
+            z_temp = sign(x[idx]) * τ_int
         else
-            z[idx] = round(x[idx])
+            z_temp = round(x[idx])
         end
+        
+        z[idx] = max(lb[idx], min(ub[idx], z_temp))
+        z[idx] = round(Int, z[idx]) 
     end
 
     #Compute budget usage (L₁)
@@ -976,12 +983,12 @@ function rounding_hyperplane_heuristic(
     @debug "L₁ budget exceeded: ||z||₁ = $(total_L1) > τK = $(L1_limit). Reducing integer vars first."
 
     #decrease integer vars by 1 (toward zero)
-    while norm(z, 1) > L1_limit
-        z = reduce_from_max(z, tlmo.blmo.lower_bounds, int_idx)
-        # if all integer vars are minimal, we can then touch continuous vars if exist
-        if all(z[int_idx] .== tlmo.blmo.lower_bounds[int_idx]) && !isempty(cont_idx)
+    while LinearAlgebra.norm(z, 1) > L1_limit
+        z = reduce_from_max(z, lb, ub, int_idx) 
+        
+        if all(z[int_idx] .== lb[int_idx]) && !isempty(cont_idx)
             z = reduce_continuous!(z, cont_idx)
-        elseif all(z[int_idx] .== tlmo.blmo.lower_bounds[int_idx]) && isempty(cont_idx)
+        elseif all(z[int_idx] .== lb[int_idx]) && isempty(cont_idx)
             @debug "All integer vars at lower bounds and no continuous vars left; cannot reduce further."
             break
         end
@@ -992,21 +999,26 @@ end
 
 
 #integer reduction function
-function reduce_from_max(z, lower_bounds, int_idx)
-    # choose the largest-in-magnitude integer variable
+function reduce_from_max(z, lower_bounds, upper_bounds, int_idx)
     if isempty(int_idx)
         return z
     end
+    
     absvals = abs.(z[int_idx])
     i = int_idx[argmax(absvals)]
+    
     if z[i] > 0
         z[i] = max(lower_bounds[i], z[i] - 1)
+        
     elseif z[i] < 0
-        z[i] = min(-lower_bounds[i], z[i] + 1)
+        z[i] = min(upper_bounds[i], z[i] + 1)
+        
     end
+    
+    z[i] = round(z[i]) 
+    
     return z
 end
-
 
 #continuous reduction function
 function reduce_continuous!(z, cont_idx)
