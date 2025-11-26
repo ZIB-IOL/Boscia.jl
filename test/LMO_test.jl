@@ -220,7 +220,7 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 end
 
 n = 20
-sparsity = 0.3  
+sparsity = 0.3
 x_sol = [rand() < sparsity ? 0 : rand(1:floor(Int, n / 4)) for _ in 1:n]
 diffi = x_sol + 0.3 * rand([-1, 1], n)
 
@@ -233,8 +233,8 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     end
 
     K = count(!iszero, x_sol)
-    τ = 1.5 * norm(x_sol, Inf) 
-    
+    τ = 1.5 * norm(x_sol, Inf)
+
     sblmo = Boscia.KSparseBLMO(K, τ)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
@@ -269,14 +269,14 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     function grad!(storage, x)
         @. storage = x - diffi
     end
-
     lower_bounds = fill(-sum(x_sol), n)
 
     upper_bounds = fill(sum(x_sol), n)
-    
+
     sblmo = Boscia.DiamondBLMO(lower_bounds, upper_bounds)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
+    settings = Boscia.create_default_settings()
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     x_dicg, _, result_dicg = Boscia.solve(
         f,
@@ -296,7 +296,7 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 end
 
 n = 20
-sparsity = 0.3  
+sparsity = 0.3
 x_sol = [rand() < sparsity ? 0 : rand(1:floor(Int, n / 4)) for _ in 1:n]
 diffi = x_sol + 0.3 * rand([-1, 1], n)
 

@@ -733,8 +733,16 @@ struct KSparseBLMO <: SimpleBoundableLMO
     right_hand_side::Float64
 end
 
-function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_vars; v=nothing, kwargs...)
-    K=lmo.K
+function bounded_compute_extreme_point(
+    lmo::KSparseBLMO,
+    direction,
+    lb,
+    ub,
+    int_vars;
+    v=nothing,
+    kwargs...,
+)
+    K = lmo.K
     K_indices = sortperm(direction, by=abs, rev=true)
     v = spzeros(Float64, length(direction))
 
@@ -749,7 +757,7 @@ function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_
 
     for i in K_indices
 
-        rem = K * lmo.right_hand_side - sum(abs,v)
+        rem = K * lmo.right_hand_side - sum(abs, v)
 
         if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
             break
@@ -757,18 +765,18 @@ function bounded_compute_extreme_point(lmo::KSparseBLMO, direction, lb, ub, int_
 
         if i in int_vars
             idx = findfirst(==(i), int_vars)
-            lower_eff = clamp(ceil(max(-lmo.right_hand_side, -rem)),ceil(lb[idx]),floor(ub[idx]))
-            upper_eff = clamp(floor(min(lmo.right_hand_side, rem)),ceil(lb[idx]),floor(ub[idx]))
+            lower_eff = clamp(ceil(max(-lmo.right_hand_side, -rem)), ceil(lb[idx]), floor(ub[idx]))
+            upper_eff = clamp(floor(min(lmo.right_hand_side, rem)), ceil(lb[idx]), floor(ub[idx]))
         else
             lower_eff = max(-rem, -lmo.right_hand_side)
-            upper_eff = min(rem,  lmo.right_hand_side)
+            upper_eff = min(rem, lmo.right_hand_side)
         end
         if direction[i] > 0
             v[i] = lower_eff
         elseif direction[i] < 0
             v[i] = upper_eff
         else
-            v[i] = clamp(0,lower_eff,upper_eff)
+            v[i] = clamp(0, lower_eff, upper_eff)
         end
     end
     return v
@@ -783,7 +791,7 @@ function bounded_compute_inface_extreme_point(
     int_vars;
     atol=1e-6,
     rtol=1e-4,
-    kwargs...
+    kwargs...,
 )
     n = length(direction)
     rhs = sblmo.right_hand_side
@@ -797,12 +805,12 @@ function bounded_compute_inface_extreme_point(
         if i in int_vars
             idx = findfirst(==(i), int_vars)
             if isapprox(x[i], ceil(lb[idx]); atol=atol, rtol=rtol) ||
-            isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
+               isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
             end
         else
             if isapprox(abs(x[i]), rhs; atol=atol, rtol=rtol) ||
-            isapprox(x[i], -rhs; atol=atol, rtol=rtol)
+               isapprox(x[i], -rhs; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
             end
         end
@@ -817,7 +825,7 @@ function bounded_compute_inface_extreme_point(
     v[free_idx] .= 0
     free_idx = sort(free_idx, by=i -> abs(direction[i]), rev=true)
 
-    for i in intersect(int_vars,free_idx)
+    for i in intersect(int_vars, free_idx)
         idx = findfirst(==(i), int_vars)
         if lb[idx] > 0
             v[i] = ceil(lb[idx])
@@ -828,7 +836,7 @@ function bounded_compute_inface_extreme_point(
 
     for i in free_idx
 
-        rem = K * sblmo.right_hand_side - sum(abs,v)
+        rem = K * sblmo.right_hand_side - sum(abs, v)
 
         if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
             break
@@ -836,18 +844,19 @@ function bounded_compute_inface_extreme_point(
 
         if i in int_vars
             idx = findfirst(==(i), int_vars)
-            lower_eff = clamp(ceil(max(-sblmo.right_hand_side, -rem)),ceil(lb[idx]),floor(ub[idx]))
-            upper_eff = clamp(floor(min(sblmo.right_hand_side, rem)),ceil(lb[idx]),floor(ub[idx]))
+            lower_eff =
+                clamp(ceil(max(-sblmo.right_hand_side, -rem)), ceil(lb[idx]), floor(ub[idx]))
+            upper_eff = clamp(floor(min(sblmo.right_hand_side, rem)), ceil(lb[idx]), floor(ub[idx]))
         else
             lower_eff = max(-rem, -sblmo.right_hand_side)
-            upper_eff = min(rem,  sblmo.right_hand_side)
+            upper_eff = min(rem, sblmo.right_hand_side)
         end
         if direction[i] > 0
             v[i] = lower_eff
         elseif direction[i] < 0
             v[i] = upper_eff
         else
-            v[i] = clamp(0,lower_eff,upper_eff)
+            v[i] = clamp(0, lower_eff, upper_eff)
         end
     end
     return v
@@ -870,7 +879,7 @@ function bounded_dicg_maximum_step(
             if idx in int_vars
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
-            else 
+            else
                 gamma_max = min(gamma_max, (x[idx] - (-sblmo.rhs)) / di)
             end
         elseif di < -tol
@@ -882,7 +891,7 @@ function bounded_dicg_maximum_step(
             end
         end
 
-        if isapprox(gamma_max , 0.0; atol=tol)
+        if isapprox(gamma_max, 0.0; atol=tol)
             return 0.0
         end
     end
@@ -1030,7 +1039,7 @@ function bounded_compute_extreme_point(lmo::DiamondBLMO, direction, lb, ub, int_
     n = length(direction)
     τ = lmo.upper_bounds[1]
     v = zeros(eltype(direction), n)
-    perm = sortperm(abs.(direction); rev = true)
+    perm = sortperm(abs.(direction); rev=true)
 
     for i in int_vars
         idx = findfirst(==(i), int_vars)
@@ -1040,12 +1049,12 @@ function bounded_compute_extreme_point(lmo::DiamondBLMO, direction, lb, ub, int_
             v[i] = floor(ub[idx])
         end
     end
-    
+
     total_used = sum(abs.(v))
 
     for i in perm
         rem = τ - total_used
-        
+
         if isapprox(rem, 0.0; atol=1e-6)
             break
         end
@@ -1081,7 +1090,7 @@ function bounded_compute_inface_extreme_point(
     int_vars;
     atol=1e-6,
     rtol=1e-4,
-    kwargs...
+    kwargs...,
 )
     n = length(direction)
     τ = lmo.upper_bounds[1]
@@ -1092,22 +1101,22 @@ function bounded_compute_inface_extreme_point(
         if i in int_vars
             idx = findfirst(==(i), int_vars)
             if isapprox(x[i], ceil(lb[idx]); atol=atol, rtol=rtol) ||
-            isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
+               isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
                 push!(fixed_idx, i)
             end
         else
             if isapprox(abs(x[i]), lmo.lower_bounds[i]; atol=atol, rtol=rtol) ||
-            isapprox(x[i], lmo.upper_bounds[i]; atol=atol, rtol=rtol)
+               isapprox(x[i], lmo.upper_bounds[i]; atol=atol, rtol=rtol)
                 push!(fixed_idx, i)
             end
         end
     end
 
-    free_idx = setdiff(1:n,fixed_idx)
+    free_idx = setdiff(1:n, fixed_idx)
     perm = free_idx[sortperm(abs.(direction[free_idx]); rev=true)]
     v[free_idx] .= 0
 
-    intt = intersect(free_idx,int_vars)
+    intt = intersect(free_idx, int_vars)
 
     for i in intt
         idx = findfirst(==(i), int_vars)
@@ -1121,7 +1130,7 @@ function bounded_compute_inface_extreme_point(
     for i in perm
         total_used = sum(abs.(v))
         rem = τ - total_used
-        
+
         if isapprox(rem, 0.0; atol=1e-6)
             break
         end
@@ -1154,11 +1163,15 @@ function bounded_dicg_maximum_step(
     ub::AbstractVector,
     int_vars::AbstractVector;
     tol=1e-6,
-    kwargs...
+    kwargs...,
 )
     n = length(direction)
-    @assert n == length(x) == length(lb) == length(ub) ==
-            length(lmo.lower_bounds) == length(lmo.upper_bounds)
+    @assert n ==
+            length(x) ==
+            length(lb) ==
+            length(ub) ==
+            length(lmo.lower_bounds) ==
+            length(lmo.upper_bounds)
 
     eff_lb = similar(lb)
     eff_ub = similar(ub)
@@ -1228,13 +1241,24 @@ function check_feasibility(sblmo::DiamondBLMO, lb, ub, int_vars, n; tol=1e-8)
     lower = sblmo.lower_bounds
     upper = sblmo.upper_bounds
 
-    for idx in int_vars
+    for idx in 1:length(int_vars)
         if lb[idx] >= upper[idx]
             return INFEASIBLE
         end
         if ub[idx] <= lower[idx]
             return INFEASIBLE
         end
+    end
+    sum = 0
+    for idx in 1:length(int_vars)
+        if lb[idx] > 0
+            sum = sum + lb[idx]
+        elseif ub[idx] < 0
+            sum = sum + abs(ub[idx])
+        end
+    end
+    if sum > upper[1]
+        return INFEASIBLE
     end
     return OPTIMAL
 end
@@ -1259,27 +1283,20 @@ struct KNormBallLMO <: SimpleBoundableLMO
     right_hand_side::Float64
 end
 
-function bounded_compute_extreme_point(
-    lmo::KNormBallLMO,
-    direction,
-    lb, 
-    ub, 
-    int_vars;
-    kwargs...,
-) 
+function bounded_compute_extreme_point(lmo::KNormBallLMO, direction, lb, ub, int_vars; kwargs...)
     K = max(min(lmo.K, length(direction)), 1)
     oinf = zero(eltype(direction))
-    v = zeros(eltype(direction),length(direction))
+    v = zeros(eltype(direction), length(direction))
 
     @inbounds for (i, dir_val) in enumerate(direction)
         temp = -lmo.right_hand_side / K * sign(dir_val)
-        
+
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            temp = clamp(temp,ceil(lb[idx]),floor(ub[idx]))
-            if sign(temp)>=0
+            temp = clamp(temp, ceil(lb[idx]), floor(ub[idx]))
+            if sign(temp) >= 0
                 temp = floor(temp)
-            elseif sign(temp)<0
+            elseif sign(temp) < 0
                 temp = ceil(temp)
             end
         end
@@ -1288,7 +1305,7 @@ function bounded_compute_extreme_point(
         oinf += dir_val * temp
 
     end
-    
+
     v1 = zeros(length(direction))
 
     for i in int_vars
@@ -1305,7 +1322,7 @@ function bounded_compute_extreme_point(
     for i in perm
         total_used = sum(abs.(v1))
         rem = lmo.right_hand_side - total_used
-        
+
         if isapprox(rem, 0.0; atol=1e-6)
             break
         end
@@ -1368,7 +1385,7 @@ function check_feasibility(lmo::KNormBallLMO, lb, ub, int_vars, n)
 
     #Is there x ∈ [lb,ub] such that ||x||_∞ ≤ τ/K
     r = τ / K
-    feas_by_linf = all(lb .≤ r) && all(-r .≤ ub) 
+    feas_by_linf = all(lb .≤ r) && all(-r .≤ ub)
 
     if feas_by_l1 || feas_by_linf
         return OPTIMAL
