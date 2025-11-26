@@ -728,7 +728,7 @@ with `τ` the `right_hand_side` parameter.
 The LMO results in a vector with the K largest absolute values
 of direction, taking values `-τ sign(x_i)`.
 """
-struct KSparseBLMO <: SimpleBoundableLMO
+struct KSparseBLMO <: FrankWolfe.LinearMinimizationOracle
     K::Int
     right_hand_side::Float64
 end
@@ -1029,7 +1029,7 @@ For the standard L1-ball, all lower and upper bounds would be -1 and 1.
 
 Here only implement l1norm now
 """
-struct DiamondBLMO <: SimpleBoundableLMO
+struct DiamondBLMO <: FrankWolfe.LinearMinimizationOracle
     lower_bounds::Vector{Float64}
     upper_bounds::Vector{Float64}
 end
@@ -1278,7 +1278,7 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
-struct KNormBallLMO <: SimpleBoundableLMO
+struct KNormBallLMO <: FrankWolfe.LinearMinimizationOracle
     K::Int
     right_hand_side::Float64
 end
