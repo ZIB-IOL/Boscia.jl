@@ -944,15 +944,15 @@ function rounding_hyperplane_heuristic(
 )
     z = copy(x)
 
-    K = tlmo.blmo.simple_lmo.K
-    τ = tlmo.blmo.simple_lmo.right_hand_side
+    K = tlmo.lmo.lmo.K
+    τ = tlmo.lmo.lmo.right_hand_side
     nvars = tree.root.problem.nvars
 
     int_idx = tree.branching_indices
     cont_idx = setdiff(1:nvars, int_idx)
 
-    lb = tlmo.blmo.lower_bounds
-    ub = tlmo.blmo.upper_bounds
+    lb = tlmo.lmo.lower_bounds
+    ub = tlmo.lmo.upper_bounds
 
     # Round integer variables
     for idx in int_idx

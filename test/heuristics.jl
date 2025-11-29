@@ -244,7 +244,8 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     sblmo = Boscia.KSparseBLMO(K, τ)
     settings = Boscia.create_default_settings()
     settings.heuristic[:probability_rounding_prob] = 0.6
-    settings.heuristic[:rounding_prob] = 0.0
+    settings.heuristic[:rounding_prob] = 0.5
+    settings.heuristic[:hyperplane_aware_rounding_prob] = 0.7
     x, _, result = Boscia.solve(
         f,
         grad!,
