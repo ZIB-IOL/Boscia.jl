@@ -723,8 +723,7 @@ end
 BLMO denotes the L2normBall, It is unit ball which means R = 1
 """
 
-struct L2normBallBLMO <: FrankWolfe.LinearMinimizationOracle
-end
+struct L2normBallBLMO <: FrankWolfe.LinearMinimizationOracle end
 
 function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars; kwargs...)
     max = abs(d[1])
@@ -736,11 +735,11 @@ function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars
             max_idx = idx
         end
         i = findfirst(x -> x == idx, int_vars)
-        if lb[i] > 0 
+        if lb[i] > 0
             v = zeros(length(d))
             v[idx] = 1
             return v
-        elseif ub[i] < 0 
+        elseif ub[i] < 0
             v = zeros(length(d))
             v[idx] = -1
             return v
@@ -749,8 +748,8 @@ function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars
     v = -d
     v[int_vars] .= 0
     v = v ./ norm(v)
-    prod = dot(v,d)
-    if max < prod 
+    prod = dot(v, d)
+    if max < prod
         v = zeros(length(d))
         v[max_idx] = 1
     end
@@ -774,12 +773,12 @@ function check_feasibility(lmo::L2normBallBLMO, lb, ub, int_vars, n)
         if !(lb[idx] <= 0 <= ub[idx])
             count = count + 1
         end
-        if count > 1 
+        if count > 1
             return INFEASIBLE
         end
     end
     return OPTIMAL
-end 
+end
 
 """
     ConvexHullLMO(Vector{Vector{Float64}})
@@ -789,17 +788,17 @@ The extreme points are the integer vertices provided at construction.
 Primarily used for integer programming relaxations.
 """
 
-struct ConvexHullLMO{T, V <: AbstractVector{T}} <: FrankWolfe.LinearMinimizationOracle
+struct ConvexHullLMO{T,V<:AbstractVector{T}} <: FrankWolfe.LinearMinimizationOracle
     vertices::Vector{V}
 end
 
-function proj_simplex!(λ::AbstractVector{T}) where T<:Real
+function proj_simplex!(λ::AbstractVector{T}) where {T<:Real}
     n = length(λ)
     u = sort(collect(λ); rev=true)
     cssv = cumsum(u)
     rho = findlast(i -> u[i] + (1 - cssv[i]) / i > 0, 1:n)
     if rho === nothing
-        fill!(λ, 1/n)
+        fill!(λ, 1 / n)
         return λ
     end
     theta = (cssv[rho] - 1) / rho
@@ -809,7 +808,7 @@ function proj_simplex!(λ::AbstractVector{T}) where T<:Real
     return λ
 end
 
-function vertices_matrix(vertices::Vector{<:AbstractVector{T}}) where T
+function vertices_matrix(vertices::Vector{<:AbstractVector{T}}) where {T}
     m = length(vertices)
     n = length(vertices[1])
     V = zeros(Float64, n, m)
@@ -819,7 +818,13 @@ function vertices_matrix(vertices::Vector{<:AbstractVector{T}}) where T
     return V
 end
 
-function try_convex_combination_in_box(vertices::Vector{<:AbstractVector}, lb::AbstractVector, ub::AbstractVector; tol=1e-8, max_iters=200)
+function try_convex_combination_in_box(
+    vertices::Vector{<:AbstractVector},
+    lb::AbstractVector,
+    ub::AbstractVector;
+    tol=1e-8,
+    max_iters=200,
+)
     m = length(vertices)
     if m == 0
         return nothing
@@ -854,7 +859,7 @@ function bounded_compute_extreme_point(
     lb,
     ub,
     int_vars;
-    kwargs...
+    kwargs...,
 ) where {T}
 
     verts = lmo.vertices
@@ -865,7 +870,8 @@ function bounded_compute_extreme_point(
         vfloat = Float64.(v)
         ok = true
         for i in 1:n
-            if vfloat[i] < Float64(lb[i]) - eps(Float64) || vfloat[i] > Float64(ub[i]) + eps(Float64)
+            if vfloat[i] < Float64(lb[i]) - eps(Float64) ||
+               vfloat[i] > Float64(ub[i]) + eps(Float64)
                 ok = false
                 break
             end
@@ -906,7 +912,8 @@ function bounded_compute_extreme_point(
     end
     # clip
     clipped = clamp.(best_v, Float64.(lb), Float64.(ub))
-    @warn "ConvexHullLMO: no single vertex or convex combination found inside [lb,ub]. Returning clipped best-vertex. This may cause degenerate branching if many vertices share same int value." clipped=clipped
+    @warn "ConvexHullLMO: no single vertex or convex combination found inside [lb,ub]. Returning clipped best-vertex. This may cause degenerate branching if many vertices share same int value." clipped =
+        clipped
     return clipped
 end
 
@@ -926,7 +933,8 @@ function check_feasibility(lmo::ConvexHullLMO, lb, ub, int_vars, n)
         vfloat = Float64.(v)
         ok = true
         for i in 1:n
-            if vfloat[i] < Float64(lb[i]) - eps(Float64) || vfloat[i] > Float64(ub[i]) + eps(Float64)
+            if vfloat[i] < Float64(lb[i]) - eps(Float64) ||
+               vfloat[i] > Float64(ub[i]) + eps(Float64)
                 ok = false
                 break
             end

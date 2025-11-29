@@ -222,46 +222,38 @@ end
 # Test for L2normBallBLMO
 @testset "L2normBall BLMO" begin
     n = 20
-    
+
     # Generate a solution inside the L2 ball (||x|| <= 1)
     x_sol = randn(rng, n)
-    x_sol = x_sol ./ (norm(x_sol) * 1.5)  
-    
+    x_sol = x_sol ./ (norm(x_sol) * 1.5)
+
     # Round some coordinates to integers for testing
     num_int = 5
     int_indices = sort(rand(rng, 1:n, num_int))
     for idx in int_indices
         x_sol[idx] = 0
     end
-    
+
     function f(x)
         return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
     end
-    
+
     function grad!(storage, x)
         @. storage = x - x_sol
     end
-    
+
     # Create L2normBallBLMO
     blmo = Boscia.L2normBallBLMO()
-    
+
     # Bounds: each variable in [-1, 1] due to L2 ball constraint
     lower_bounds = fill(-2.0, num_int)
     upper_bounds = fill(2.0, num_int)
-    
+
     # Some variables are integer
     int_vars = collect(int_indices)
-    
-    x, _, result = Boscia.solve(
-        f, 
-        grad!, 
-        blmo, 
-        lower_bounds, 
-        upper_bounds, 
-        int_vars, 
-        n
-    )
-    
+
+    x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+
     # Check objective value
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n  # Should improve or stay similar
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -271,46 +263,37 @@ end
 # Test for ConvexHullBLMO
 @testset "ConvexHull BLMO" begin
     n = 20
-    
+
     # Generate random integer vertices for the convex hull
     num_vertices = 30
     vertices = [rand(rng, 0:10, n) for _ in 1:num_vertices]
-    
+
     # Create a solution that is a convex combination of vertices
     # Pick a few vertices randomly
     num_active = 3
 
     x_sol = vertices[3]
-    
+
     # Add small perturbation
     diffi = x_sol + 0.3 * rand(rng, n) .* randn(rng, n)
-    
+
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
     end
-    
+
     function grad!(storage, x)
         @. storage = x - diffi
     end
-    
+
     # Create ConvexHullBLMO with the vertices
     blmo = Boscia.ConvexHullLMO(vertices)
-    
+
     # All variables are integer in the original problem
     int_vars = collect(1:n)
-    
-    x, _, result = Boscia.solve(
-        f, 
-        grad!, 
-        blmo, 
-        fill(0.0, n),
-        fill(1.0 * N, n),
-        int_vars, 
-        n
-    )
+
+    x, _, result = Boscia.solve(f, grad!, blmo, fill(0.0, n), fill(1.0 * N, n), int_vars, n)
 
     # Check that solution is close to target
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
-
