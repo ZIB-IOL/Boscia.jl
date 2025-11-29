@@ -1397,7 +1397,7 @@ function check_feasibility(lmo::KNormBallLMO, lb, ub, int_vars, n)
 
     #Is there x ∈ [lb,ub] such that ||x||_∞ ≤ τ/K
     r = τ / K
-    feas_by_linf = all(lb .≤ r) && all(-r .≤ ub)
+    feas_by_linf = all(lb .≤ r) || all(-r .≤ ub)
 
     if feas_by_l1 || feas_by_linf
         return OPTIMAL

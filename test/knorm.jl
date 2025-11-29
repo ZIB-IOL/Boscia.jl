@@ -9,11 +9,14 @@ using HiGHS
 using Printf
 using Dates
 using LinearAlgebra
+using Logging
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
 
-seed = 0x8df5dbb59cf49249
+global_logger(ConsoleLogger(stderr, Logging.Debug))
+
+seed = 0xcf5410064f2d81ca
 @show seed
 rng = StableRNG(seed)
 
