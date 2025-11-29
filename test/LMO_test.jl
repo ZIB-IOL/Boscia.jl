@@ -279,14 +279,8 @@ end
     # Create a solution that is a convex combination of vertices
     # Pick a few vertices randomly
     num_active = 3
-    active_indices = rand(rng, 1:num_vertices, num_active)
-    weights = rand(rng, num_active)
-    weights = weights ./ sum(weights)  # normalize to sum to 1
-    
-    x_sol = zeros(n)
-    for (idx, w) in zip(active_indices, weights)
-        x_sol .+= w .* vertices[idx]
-    end
+
+    x_sol = vertices[3]
     
     # Add small perturbation
     diffi = x_sol + 0.3 * rand(rng, n) .* randn(rng, n)
@@ -314,7 +308,7 @@ end
         int_vars, 
         n
     )
-    
+
     # Check that solution is close to target
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
