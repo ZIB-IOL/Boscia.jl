@@ -178,3 +178,10 @@ function Bonobo.get_solution(
     end
     return tree.solutions[result].solution
 end
+
+struct DepthFirstSearch <: AbstractTraverseStrategy
+end
+
+function Bonobo.get_next_node(tree::Bonobo.BnBTree, ::DepthFirstSearch)
+    
+end
