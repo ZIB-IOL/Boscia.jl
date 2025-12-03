@@ -291,7 +291,7 @@ end
     # All variables are integer in the original problem
     int_vars = collect(1:n)
 
-    x, _, result = Boscia.solve(f, grad!, blmo, fill(0.0, n), fill(1.0 * N, n), int_vars, n)
+    x, _, result = Boscia.solve(f, grad!, blmo, fill(0.0, n), fill(10.0, n), int_vars, n)
 
     # Check that solution is close to target
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
