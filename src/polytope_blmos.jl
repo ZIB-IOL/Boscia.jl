@@ -921,9 +921,10 @@ end
 function check_feasibility(sblmo::KSparseBLMO, lb, ub, int_vars, n; tol=1e-8)
     K = sblmo.K
     τ = sblmo.right_hand_side
+    n_int = length(lb)
 
     # ensure at least K feasible coordinates exist within [-τ, τ]
-    feasible_slots = count(i -> (lb[i] <= τ + tol) && (ub[i] >= -τ - tol), 1:n)
+    feasible_slots = count(i -> (lb[i] <= τ + tol) && (ub[i] >= -τ - tol), 1:n_int)
     if feasible_slots < K
         @debug "Infeasible: only $feasible_slots feasible coordinates, need ≥ K=$K"
         return INFEASIBLE
@@ -937,99 +938,6 @@ end
 
 is_decomposition_invariant_oracle_simple(::KSparseBLMO) = true
 
-function rounding_hyperplane_heuristic(
-    tree::Bonobo.BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{KSparseBLMO}},
-    x,
-)
-    z = copy(x)
-
-    K = tlmo.lmo.lmo.K
-    τ = tlmo.lmo.lmo.right_hand_side
-    nvars = tree.root.problem.nvars
-
-    int_idx = tree.branching_indices
-    cont_idx = setdiff(1:nvars, int_idx)
-
-    lb = tlmo.lmo.lower_bounds
-    ub = tlmo.lmo.upper_bounds
-
-    # Round integer variables
-    for idx in int_idx
-        τ_int = τ >= 0 ? floor(Int, τ) : ceil(Int, τ)
-
-        if abs(x[idx]) >= abs(τ) - 0.5
-            z_temp = sign(x[idx]) * τ_int
-        else
-            z_temp = round(x[idx])
-        end
-
-        z[idx] = max(lb[idx], min(ub[idx], z_temp))
-        z[idx] = round(Int, z[idx])
-    end
-
-    #Compute budget usage (L₁)
-    total_L1 = norm(z, 1)
-    L1_limit = τ * K
-
-    #Handle cases
-    ##Case 1: Already feasible
-    if total_L1 <= L1_limit
-        @debug "Feasible: ||z||₁ = $(total_L1) ≤ τK = $(L1_limit). No adjustment needed."
-        return [z], false
-    end
-
-    ##Too large
-    @debug "L₁ budget exceeded: ||z||₁ = $(total_L1) > τK = $(L1_limit). Reducing integer vars first."
-
-    #decrease integer vars by 1 (toward zero)
-    while LinearAlgebra.norm(z, 1) > L1_limit
-        z = reduce_from_max(z, lb, ub, int_idx)
-
-        if all(z[int_idx] .== lb[int_idx]) && !isempty(cont_idx)
-            z = reduce_continuous!(z, cont_idx)
-        elseif all(z[int_idx] .== lb[int_idx]) && isempty(cont_idx)
-            @debug "All integer vars at lower bounds and no continuous vars left; cannot reduce further."
-            break
-        end
-    end
-
-    return [z], false
-end
-
-
-#integer reduction function
-function reduce_from_max(z, lower_bounds, upper_bounds, int_idx)
-    if isempty(int_idx)
-        return z
-    end
-
-    absvals = abs.(z[int_idx])
-    i = int_idx[argmax(absvals)]
-
-    if z[i] > 0
-        z[i] = max(lower_bounds[i], z[i] - 1)
-
-    elseif z[i] < 0
-        z[i] = min(upper_bounds[i], z[i] + 1)
-
-    end
-
-    z[i] = round(z[i])
-
-    return z
-end
-
-#continuous reduction function
-function reduce_continuous!(z, cont_idx)
-    if isempty(cont_idx)
-        return z
-    end
-    # pick the largest-magnitude continuous var and shrink it slightly toward 0
-    i = cont_idx[argmax(abs.(z[cont_idx]))]
-    z[i] -= sign(z[i]) * 0.1 * abs(z[i])  # small decay
-    return z
-end
 
 """
     DiamondLMO(lower_bounds, upper_bounds)
