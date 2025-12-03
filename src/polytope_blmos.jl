@@ -726,14 +726,9 @@ BLMO denotes the L2normBall, It is unit ball which means R = 1
 struct L2normBallBLMO <: FrankWolfe.LinearMinimizationOracle end
 
 function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars; kwargs...)
-    max = abs(d[1])
-    max_idx = 1
-    idx = 0
+    max = 0
+    max_idx = 0
     for idx in int_vars
-        if abs(d[idx]) > max
-            max = -d[idx]
-            max_idx = idx
-        end
         i = findfirst(x -> x == idx, int_vars)
         if lb[i] > 0
             v = zeros(length(d))
@@ -743,15 +738,29 @@ function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars
             v = zeros(length(d))
             v[idx] = -1
             return v
+        elseif lb[i] == 0 && ub[i] == 0
+            continue
+        end
+        if abs(d[idx]) > max
+            max = abs(d[idx])
+            max_idx = idx
         end
     end
     v = -d
     v[int_vars] .= 0
-    v = v ./ norm(v)
-    prod = dot(v, d)
-    if max < prod
+    if isapprox(norm(v), 0.0; rtol=1e-6)
+        prod = 0
+    else
+        v = v ./ norm(v)
+        prod = dot(v, d)
+    end
+    if -max < prod
         v = zeros(length(d))
-        v[max_idx] = 1
+        if d[max_idx] < 0
+            v[max_idx] = 1
+        elseif d[max_idx] > 0
+            v[max_idx] = -1
+        end
     end
     return v
 end

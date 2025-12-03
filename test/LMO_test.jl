@@ -220,7 +220,7 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 end
 
 # Test for L2normBallBLMO
-@testset "L2normBall BLMO" begin
+@testset "L2normBall BLMO continuous" begin
     n = 20
 
     # Generate a solution inside the L2 ball (||x|| <= 1)
@@ -248,6 +248,41 @@ end
     # Bounds: each variable in [-1, 1] due to L2 ball constraint
     lower_bounds = fill(-2.0, num_int)
     upper_bounds = fill(2.0, num_int)
+
+    # Some variables are integer
+    int_vars = collect(int_indices)
+
+    x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+
+    # Check objective value
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n  # Should improve or stay similar
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+@testset "L2normBall BLMO integer" begin
+    n = 20
+
+    # Generate a solution inside the L2 ball (||x|| <= 1)
+    # Round some coordinates to integers for testing
+    num_int = 5
+    int_indices = sort(rand(rng, 1:n, num_int))
+    x_sol = zeros(n)
+    x_sol[int_indices[2]] = 1
+
+    function f(x)
+        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    end
+
+    function grad!(storage, x)
+        @. storage = x - x_sol
+    end
+
+    # Create L2normBallBLMO
+    blmo = Boscia.L2normBallBLMO()
+
+    # Bounds: each variable in [-1, 1] due to L2 ball constraint
+    lower_bounds = fill(-2.0, num_int)
+    upper_bounds = fill(3.0, num_int)
 
     # Some variables are integer
     int_vars = collect(int_indices)
