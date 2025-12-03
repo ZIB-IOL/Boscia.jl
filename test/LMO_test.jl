@@ -233,7 +233,7 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     end
 
     K = count(!iszero, x_sol)
-    τ = 1.5 * norm(x_sol, Inf)
+    τ = norm(x_sol, Inf)
 
     sblmo = Boscia.KSparseBLMO(K, τ)
 
