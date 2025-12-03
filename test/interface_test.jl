@@ -81,9 +81,9 @@ end
         @. storage = x - diffi
     end
 
-    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
-    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    branch_lmo = FrankWolfe.MathOptLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, branch_lmo)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
@@ -771,7 +771,7 @@ end
     @test Boscia.is_linear_feasible(o, vcat([0.0, 0.0], ones(n - 2)))
 end
 
-@testset "Float N test with ProbabilitySimplexSimpleBLMO" begin
+@testset "Float N test with ProbabilitySimplexLMO" begin
     n = 10
     N = 24.5   #Float N
     d = randn(n)
@@ -782,7 +782,7 @@ end
 
     int_vars = collect(1:nint)
 
-    blmo = Boscia.ProbabilitySimplexSimpleBLMO(N)
+    blmo = Boscia.ProbabilitySimplexLMO(N)
 
     x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 9.7] #exactly equal to N
 
