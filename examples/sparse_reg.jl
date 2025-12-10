@@ -49,7 +49,7 @@ const M = 2 * var(A)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i in p+1:2p
+    for i in (p+1):2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
@@ -68,19 +68,19 @@ const M = 2 * var(A)
     end
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[(p+1):2p]), 0.0),
         MOI.LessThan(k),
     )
     blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         xv = @view(x[1:p])
-        return norm(y - A * xv)^2 + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(xv)^2
+        return norm(y - A * xv)^2 + lambda_0 * sum(x[(p+1):2p]) + lambda_2 * norm(xv)^2
     end
 
     function grad!(storage, x)
         storage[1:p] .= 2 * (transpose(A) * A * x[1:p] - transpose(A) * y + lambda_2 * x[1:p])
-        storage[p+1:2p] .= lambda_0
+        storage[(p+1):2p] .= lambda_0
         return storage
     end
 
