@@ -15,7 +15,7 @@ using StableRNGs
 
 println("\nLMO Tests")
 
-seed = 0xf0517162ae5130d6
+seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
 
