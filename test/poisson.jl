@@ -79,7 +79,7 @@ N = 1.0
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n0
             xi = @view(X0[:, i])
@@ -97,7 +97,7 @@ N = 1.0
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
 end
 
 @testset "Hybrid branching poisson sparse regression" begin
@@ -151,7 +151,7 @@ end
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n0
             xi = @view(X0[:, i])
@@ -172,9 +172,9 @@ end
     settings.branch_and_bound[:branching_strategy] = branching_strategy
     settings.tolerances[:fw_epsilon] = 1e-3
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
 end
 
 n0g = 20
@@ -257,7 +257,7 @@ push!(groups, ((k-1)*group_size+1):pg)
         w = @view(θ[1:pg])
         b = θ[end]
         storage[1:pg] .= 2α .* w
-        storage[pg+1:2pg] .= 0
+        storage[(pg+1):2pg] .= 0
         storage[end] = 0
         for i in 1:n0g
             xi = @view(X0g[:, i])
@@ -273,7 +273,7 @@ push!(groups, ((k-1)*group_size+1):pg)
     settings.branch_and_bound[:verbose] = true
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2pg]) <= k
+    @test sum(x[(p+1):2pg]) <= k
 end
 
 
@@ -331,7 +331,7 @@ end
         w = @view(θ[1:pg])
         b = θ[end]
         storage[1:pg] .= 2α .* w
-        storage[pg+1:2pg] .= 0
+        storage[(pg+1):2pg] .= 0
         storage[end] = 0
         for i in 1:n0g
             xi = @view(X0g[:, i])
@@ -353,5 +353,5 @@ end
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2pg]) <= k
+    @test sum(x[(p+1):2pg]) <= k
 end

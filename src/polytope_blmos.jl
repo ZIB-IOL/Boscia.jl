@@ -923,14 +923,13 @@ function check_feasibility(sblmo::KSparseBLMO, lb, ub, int_vars, n; tol=1e-8)
     τ = sblmo.right_hand_side
     n_int = length(lb)
 
-    # ensure at least K feasible coordinates exist within [-τ, τ]
-    feasible_slots = count(i -> (lb[i] <= τ + tol) && (ub[i] >= -τ - tol), 1:n_int)
-    if feasible_slots < K
-        @debug "Infeasible: only $feasible_slots feasible coordinates, need ≥ K=$K"
-        return INFEASIBLE
+    for i in 1:n_int
+        v = clamp(τ, lb[i], ub[i])
+        if abs.(v) .> τ + tol
+            return INFEASIBLE
+        end
     end
     if τ < 0
-        @debug "Infeasible: τ = $τ < 0 (L∞ radius must be nonnegative)."
         return INFEASIBLE
     end
     return OPTIMAL
