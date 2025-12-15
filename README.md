@@ -1,6 +1,6 @@
 # Boscia.jl
 
-[![CI Build](https://github.com/ZIB-IOL/Boscia.jl/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/ZIB-IOL/Boscia.jl/actions/workflows/ci.yml?query=event%3Apush+branch%3Amain)
+[![CI Build](https://github.com/ZIB-IOL/Boscia.jl/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ZIB-IOL/Boscia.jl/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zib-iol.github.io/Boscia.jl/dev/)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zib-iol.github.io/Boscia.jl/stable/)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
