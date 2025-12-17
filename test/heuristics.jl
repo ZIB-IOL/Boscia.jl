@@ -19,7 +19,7 @@ seed = rand(UInt64)
 rng = StableRNG(seed)
 
 n = 20
-x_sol = rand(rng, 1:floor(Int, n / 4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 N = sum(x_sol)
 dir = vcat(fill(1, floor(Int, n / 2)), fill(-1, floor(Int, n / 2)), fill(0, mod(n, 2)))
 diffi = x_sol + 0.3 * dir
@@ -52,7 +52,7 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(rng, 1:floor(Int, n / 4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
 
 @testset "Hyperplane Aware Rounding - Unit Simplex" begin

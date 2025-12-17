@@ -140,7 +140,7 @@ end
 end
 
 n = 20
-x_sol = rand(rng, 1:floor(Int, n / 4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 N = sum(x_sol)
 dir = vcat(fill(1, floor(Int, n / 2)), fill(-1, floor(Int, n / 2)), fill(0, mod(n, 2)))
 diffi = x_sol + 0.3 * dir
@@ -178,7 +178,7 @@ diffi = x_sol + 0.3 * dir
 end
 
 n = 20
-x_sol = rand(rng, 1:floor(Int, n / 4), n)
+x_sol = rand(rng, 1:floor(Int, n/4), n)
 diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
 
 @testset "Unit Simplex LMO" begin
@@ -199,7 +199,7 @@ diffi = x_sol + 0.3 * rand(rng, [-1, 1], n)
 end
 
 n = 20
-x_sol = rand(1:floor(Int, n / 4), n)
+x_sol = rand(1:floor(Int, n/4), n)
 diffi = x_sol + 0.3 * rand([-1, 1], n)
 
 @testset "Reverse Knapsack LMO" begin
@@ -243,7 +243,7 @@ end
     end
 
     # Create L2normBallBLMO
-    blmo = Boscia.L2normBallBLMO()
+    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
 
     # Bounds: each variable in [-1, 1] due to L2 ball constraint
     lower_bounds = fill(-2.0, num_int)
@@ -259,72 +259,34 @@ end
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
-@testset "L2normBall BLMO integer 1" begin
+@testset "L2normBall BLMO integer" begin
     n = 20
-
-    # Generate a solution inside the L2 ball (||x|| <= 1)
-    # Round some coordinates to integers for testing
     num_int = 5
-    int_indices = sort(rand(rng, 1:n, num_int))
-    x_sol = zeros(n)
-    x_sol[int_indices[2]] = 1
 
-    function f(x)
-        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    for sign in (1, -1)
+        int_indices = sort(rand(rng, 1:n, num_int))
+
+        x_sol = zeros(n)
+        x_sol[int_indices[2]] = sign
+
+        function f(x)
+            return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+        end
+
+        function grad!(storage, x)
+            @. storage = x - x_sol
+        end
+
+        blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
+
+        lower_bounds = fill(-2.0, num_int)
+        upper_bounds = fill(3.0, num_int)
+
+        int_vars = collect(int_indices)
+
+        x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+
+        @test sum(isapprox.(x, x_sol; atol=1e-6, rtol=1e-2)) == n
+        @test isapprox(f(x), f(result[:raw_solution]); atol=1e-6, rtol=1e-3)
     end
-
-    function grad!(storage, x)
-        @. storage = x - x_sol
-    end
-
-    # Create L2normBallBLMO
-    blmo = Boscia.L2normBallBLMO()
-
-    # Bounds: each variable in [-1, 1] due to L2 ball constraint
-    lower_bounds = fill(-2.0, num_int)
-    upper_bounds = fill(3.0, num_int)
-
-    # Some variables are integer
-    int_vars = collect(int_indices)
-
-    x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
-
-    # Check objective value
-    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n  # Should improve or stay similar
-    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
-end
-
-@testset "L2normBall BLMO integer 2" begin
-    n = 20
-
-    # Generate a solution inside the L2 ball (||x|| <= 1)
-    # Round some coordinates to integers for testing
-    num_int = 5
-    int_indices = sort(rand(rng, 1:n, num_int))
-    x_sol = zeros(n)
-    x_sol[int_indices[2]] = -1
-
-    function f(x)
-        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
-    end
-
-    function grad!(storage, x)
-        @. storage = x - x_sol
-    end
-
-    # Create L2normBallBLMO
-    blmo = Boscia.L2normBallBLMO()
-
-    # Bounds: each variable in [-1, 1] due to L2 ball constraint
-    lower_bounds = fill(-2.0, num_int)
-    upper_bounds = fill(3.0, num_int)
-
-    # Some variables are integer
-    int_vars = collect(int_indices)
-
-    x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
-
-    # Check objective value
-    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n  # Should improve or stay similar
-    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end

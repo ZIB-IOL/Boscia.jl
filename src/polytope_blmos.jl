@@ -723,11 +723,17 @@ end
 BLMO denotes the L2normBall, It is unit ball which means R = 1
 """
 
-struct L2normBallBLMO <: FrankWolfe.LinearMinimizationOracle end
-
-function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.LpNormBallLMO{T,2},
+    d,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+) where {T}
     max = 0
     max_idx = 0
+    #the extreme point would be either a point with 1 in a integer entry or in the hyperplane in all integer entry equal to 0
     for idx in int_vars
         i = findfirst(x -> x == idx, int_vars)
         if lb[i] > 0
@@ -765,7 +771,7 @@ function bounded_compute_extreme_point(blmo::L2normBallBLMO, d, lb, ub, int_vars
     return v
 end
 
-function is_simple_linear_feasible(lmo::L2normBallBLMO, v)
+function is_simple_linear_feasible(lmo::FrankWolfe.LpNormBallLMO{T,2}, v) where {T}
     if norm(v) > 1 + 1e-6
         @debug "norm(v) : $(norm(v)) > 1"
         return false
@@ -773,14 +779,15 @@ function is_simple_linear_feasible(lmo::L2normBallBLMO, v)
     return true
 end
 
-function check_feasibility(lmo::L2normBallBLMO, lb, ub, int_vars, n)
+function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars, n) where {T}
     if any(lb .> 1) || any(ub .< -1)
         return INFEASIBLE
     end
     count = 0
+    #If there is at least two entry have to larger or equal to 1 than that is definitely infeasible
     for idx in 1:length(int_vars)
         if !(lb[idx] <= 0 <= ub[idx])
-            count = count + 1
+            count += count
         end
         if count > 1
             return INFEASIBLE
