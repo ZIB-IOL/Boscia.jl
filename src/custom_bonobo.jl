@@ -30,6 +30,7 @@ function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode};
     callback=(args...; kwargs...) -> (),
 )
+
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         lb, ub = Bonobo.evaluate_node!(tree, node)
