@@ -20,7 +20,6 @@ using Printf
 using Dates
 using MathOptInterface
 using SparseArrays
-using Hungarian
 import Statistics: mean
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
