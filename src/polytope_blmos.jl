@@ -728,20 +728,15 @@ with `τ` the `right_hand_side` parameter.
 The LMO results in a vector with the K largest absolute values
 of direction, taking values `-τ sign(x_i)`.
 """
-struct KSparseBLMO <: FrankWolfe.LinearMinimizationOracle
-    K::Int
-    right_hand_side::Float64
-end
-
 function bounded_compute_extreme_point(
-    lmo::KSparseBLMO,
+    lmo::FrankWolfe.KSparseLMO{T},
     direction,
     lb,
     ub,
     int_vars;
     v=nothing,
     kwargs...,
-)
+) where {T}
     K = lmo.K
     K_indices = sortperm(direction, by=abs, rev=true)
     v = spzeros(Float64, length(direction))
@@ -783,7 +778,7 @@ function bounded_compute_extreme_point(
 end
 
 function bounded_compute_inface_extreme_point(
-    sblmo::KSparseBLMO,
+    sblmo::FrankWolfe.KSparseLMO{T},
     direction,
     x,
     lb,
@@ -792,7 +787,7 @@ function bounded_compute_inface_extreme_point(
     atol=1e-6,
     rtol=1e-4,
     kwargs...,
-)
+) where {T}
     n = length(direction)
     rhs = sblmo.right_hand_side
     K = sblmo.K
@@ -863,7 +858,7 @@ function bounded_compute_inface_extreme_point(
 end
 
 function bounded_dicg_maximum_step(
-    sblmo::KSparseBLMO,
+    sblmo::FrankWolfe.KSparseLMO{T},
     direction,
     x,
     lb,
@@ -871,7 +866,7 @@ function bounded_dicg_maximum_step(
     int_vars;
     tol=1e-6,
     kwargs...,
-)
+) where {T}
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
         di = direction[idx]
@@ -899,7 +894,12 @@ function bounded_dicg_maximum_step(
     return max(gamma_max, 0.0)
 end
 
-function is_simple_linear_feasible(sblmo::KSparseBLMO, v; int_vars=Int[], tol=1e-8)
+function is_simple_linear_feasible(
+    sblmo::FrankWolfe.KSparseLMO{T},
+    v;
+    int_vars=Int[],
+    tol=1e-8,
+) where {T}
     τ = sblmo.right_hand_side
     K = sblmo.K
 
@@ -918,7 +918,7 @@ function is_simple_linear_feasible(sblmo::KSparseBLMO, v; int_vars=Int[], tol=1e
 end
 
 
-function check_feasibility(sblmo::KSparseBLMO, lb, ub, int_vars, n; tol=1e-8)
+function check_feasibility(sblmo::FrankWolfe.KSparseLMO{T}, lb, ub, int_vars, n; tol=1e-8) where {T}
     K = sblmo.K
     τ = sblmo.right_hand_side
     n_int = length(lb)
@@ -935,4 +935,4 @@ function check_feasibility(sblmo::KSparseBLMO, lb, ub, int_vars, n; tol=1e-8)
     return OPTIMAL
 end
 
-is_decomposition_invariant_oracle_simple(::KSparseBLMO) = true
+is_decomposition_invariant_oracle_simple(::FrankWolfe.KSparseLMO{T}) where {T} = true
