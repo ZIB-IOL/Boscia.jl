@@ -47,8 +47,9 @@ function Bonobo.get_branching_variable(
                     end
                 end
                 @assert !isempty(active_set)
+                try
                 FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _ =
+                _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
@@ -57,7 +58,15 @@ function Bonobo.get_branching_variable(
                         verbose=false,
                         epsilon=branching.solving_epsilon,
                         max_iteration=branching.max_iteration,
+                        trajectory=true,
                     )
+                catch e
+                    println(e)
+                    stacktrace(e)
+                    print(branching.lmo.o)
+                    print(traj_data[1][end])
+                    error("MOI LMO failed in the strong branching step")
+                end
                 left_relaxed = primal_relaxed - dual_gap_relaxed
             else
                 @debug "Left non-optimal status $(status)"
@@ -91,8 +100,9 @@ function Bonobo.get_branching_variable(
                     @info [active_set.atoms[idx] for idx in eachindex(active_set)]
                     error("Empty active set, unreachable")
                 end
+                try
                 FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _ =
+                _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
                     FrankWolfe.blended_pairwise_conditional_gradient(
                         tree.root.problem.f,
                         tree.root.problem.g,
@@ -101,7 +111,15 @@ function Bonobo.get_branching_variable(
                         verbose=false,
                         epsilon=branching.solving_epsilon,
                         max_iteration=branching.max_iteration,
+                        trajectory=true,
                     )
+                catch e
+                    println(e)
+                    stacktrace(e)
+                    print(branching.lmo.o)
+                    print(traj_data[1][end])
+                    error("MOI LMO failed in the strong branching step")
+                end
                 right_relaxed = primal_relaxed - dual_gap_relaxed
             else
                 @debug "Right non-optimal status $(status)"
