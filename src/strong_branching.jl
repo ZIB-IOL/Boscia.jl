@@ -48,18 +48,18 @@ function Bonobo.get_branching_variable(
                 end
                 @assert !isempty(active_set)
                 try
-                FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
-                    FrankWolfe.blended_pairwise_conditional_gradient(
-                        tree.root.problem.f,
-                        tree.root.problem.g,
-                        branching.lmo,
-                        active_set,
-                        verbose=false,
-                        epsilon=branching.solving_epsilon,
-                        max_iteration=branching.max_iteration,
-                        trajectory=true,
-                    )
+                    FrankWolfe.active_set_renormalize!(active_set)
+                    _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
+                        FrankWolfe.blended_pairwise_conditional_gradient(
+                            tree.root.problem.f,
+                            tree.root.problem.g,
+                            branching.lmo,
+                            active_set,
+                            verbose=false,
+                            epsilon=branching.solving_epsilon,
+                            max_iteration=branching.max_iteration,
+                            trajectory=true,
+                        )
                 catch e
                     println(e)
                     stacktrace(e)
@@ -101,18 +101,18 @@ function Bonobo.get_branching_variable(
                     error("Empty active set, unreachable")
                 end
                 try
-                FrankWolfe.active_set_renormalize!(active_set)
-                _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
-                    FrankWolfe.blended_pairwise_conditional_gradient(
-                        tree.root.problem.f,
-                        tree.root.problem.g,
-                        branching.lmo,
-                        active_set,
-                        verbose=false,
-                        epsilon=branching.solving_epsilon,
-                        max_iteration=branching.max_iteration,
-                        trajectory=true,
-                    )
+                    FrankWolfe.active_set_renormalize!(active_set)
+                    _, _, primal_relaxed, dual_gap_relaxed, _, traj_data, _ =
+                        FrankWolfe.blended_pairwise_conditional_gradient(
+                            tree.root.problem.f,
+                            tree.root.problem.g,
+                            branching.lmo,
+                            active_set,
+                            verbose=false,
+                            epsilon=branching.solving_epsilon,
+                            max_iteration=branching.max_iteration,
+                            trajectory=true,
+                        )
                 catch e
                     println(e)
                     stacktrace(e)
