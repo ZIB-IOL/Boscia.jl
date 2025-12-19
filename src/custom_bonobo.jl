@@ -179,9 +179,54 @@ function Bonobo.get_solution(
     return tree.solutions[result].solution
 end
 
-struct DepthFirstSearch <: AbstractTraverseStrategy
+struct DepthFirstSearch <: Bonobo.AbstractTraverseStrategy
+    favor_right::Bool
 end
 
-function Bonobo.get_next_node(tree::Bonobo.BnBTree, ::DepthFirstSearch)
-    
+DepthFirstSearch() = DepthFirstSearch(true)
+
+function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::DepthFirstSearch)
+    node_queue = tree.node_queue
+    nodes = tree.nodes
+
+    # For favored branch side (e.g. right if strategy.favor_right == true)
+    favored_id = nothing
+    favored_level = -1
+    favored_lb = Inf  # we maximize level, then minimize lb
+
+    # For unfavored side
+    unfavored_id = nothing
+    unfavored_lb = Inf          # we minimize lb
+
+    for id in keys(node_queue)
+
+        # temporary fix: skip stale IDs
+        if !haskey(nodes, id)
+            continue
+        end
+
+        node = nodes[id]
+
+        if node.branched_right == strategy.favor_right
+            # Favored: maximize depth, tie-break by smaller lb
+            if node.level > favored_level || (node.level == favored_level && node.lb < favored_lb)
+                favored_level = node.level
+                favored_lb = node.lb
+                favored_id = id
+            end
+        else
+            # Unfavored: choose smallest lb
+            if node.lb < unfavored_lb
+                unfavored_lb = node.lb
+                unfavored_id = id
+            end
+        end
+    end
+
+    if favored_id !== nothing
+        return nodes[favored_id]
+    end
+
+    return nodes[unfavored_id]
 end
+
