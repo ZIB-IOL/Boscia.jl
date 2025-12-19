@@ -229,4 +229,3 @@ function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::DepthFirstSearch)
 
     return nodes[unfavored_id]
 end
-
