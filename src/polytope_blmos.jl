@@ -716,3 +716,82 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+"""
+    2normBallBLMO()
+
+BLMO denotes the L2normBall, It is unit ball which means R = 1
+"""
+
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.LpNormBallLMO{T,2},
+    d,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+) where {T}
+    max = 0
+    max_idx = 0
+    #the extreme point would be either a point with 1 in a integer entry or in the hyperplane in all integer entry equal to 0
+    for idx in int_vars
+        i = findfirst(x -> x == idx, int_vars)
+        if lb[i] > 0
+            v = zeros(length(d))
+            v[idx] = 1
+            return v
+        elseif ub[i] < 0
+            v = zeros(length(d))
+            v[idx] = -1
+            return v
+        elseif lb[i] == 0 && ub[i] == 0
+            continue
+        end
+        if abs(d[idx]) > max
+            max = abs(d[idx])
+            max_idx = idx
+        end
+    end
+    v = -d
+    v[int_vars] .= 0
+    if isapprox(norm(v), 0.0; rtol=1e-6)
+        prod = 0
+    else
+        v = v ./ norm(v)
+        prod = dot(v, d)
+    end
+    if -max < prod
+        v = zeros(length(d))
+        if d[max_idx] < 0
+            v[max_idx] = 1
+        elseif d[max_idx] > 0
+            v[max_idx] = -1
+        end
+    end
+    return v
+end
+
+function is_simple_linear_feasible(lmo::FrankWolfe.LpNormBallLMO{T,2}, v) where {T}
+    if norm(v) > 1 + 1e-6
+        @debug "norm(v) : $(norm(v)) > 1"
+        return false
+    end
+    return true
+end
+
+function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars, n) where {T}
+    if any(lb .> 1) || any(ub .< -1)
+        return INFEASIBLE
+    end
+    count = 0
+    #If there is at least two entry have to larger or equal to 1 than that is definitely infeasible
+    for idx in 1:length(int_vars)
+        if !(lb[idx] <= 0 <= ub[idx])
+            count += count
+        end
+        if count > 1
+            return INFEASIBLE
+        end
+    end
+    return OPTIMAL
+end
