@@ -730,7 +730,14 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
-function bounded_compute_extreme_point(lmo::FrankWolfe.KNormBallLMO, direction, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.KNormBallLMO,
+    direction,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
     K = max(min(lmo.K, length(direction)), 1)
     oinf = zero(eltype(direction))
     v = zeros(eltype(direction), length(direction))
