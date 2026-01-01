@@ -235,7 +235,7 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
     K = count(!iszero, x_sol)
     τ = 1.5 * norm(x_sol, Inf) * K
 
-    sblmo = Boscia.KNormBallLMO(K, τ)
+    sblmo = FrankWolfe.KNormBallLMO(K, τ)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(Inf64, n), collect(1:n), n)
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n

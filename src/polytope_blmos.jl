@@ -730,12 +730,7 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
-struct KNormBallLMO <: FrankWolfe.LinearMinimizationOracle
-    K::Int
-    right_hand_side::Float64
-end
-
-function bounded_compute_extreme_point(lmo::KNormBallLMO, direction, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(lmo::FrankWolfe.KNormBallLMO, direction, lb, ub, int_vars; kwargs...)
     K = max(min(lmo.K, length(direction)), 1)
     oinf = zero(eltype(direction))
     v = zeros(eltype(direction), length(direction))
@@ -804,7 +799,7 @@ function bounded_compute_extreme_point(lmo::KNormBallLMO, direction, lb, ub, int
     return v
 end
 
-function is_simple_linear_feasible(lmo::KNormBallLMO, v)
+function is_simple_linear_feasible(lmo::KFrankWolfe.KNormBallLMO, v)
     τ = lmo.right_hand_side
     K = lmo.K
 
@@ -820,7 +815,7 @@ function is_simple_linear_feasible(lmo::KNormBallLMO, v)
     return true
 end
 
-function check_feasibility(lmo::KNormBallLMO, lb, ub, int_vars, n)
+function check_feasibility(lmo::FrankWolfe.KNormBallLMO, lb, ub, int_vars, n)
     τ = lmo.right_hand_side
     K = lmo.K
 
@@ -828,8 +823,7 @@ function check_feasibility(lmo::KNormBallLMO, lb, ub, int_vars, n)
     #The minimum L₁ norm does not exceed τ
     @inbounds for i in eachindex(lb, ub)
         li, ui = lb[i], ub[i]
-        if li ≤ 0.0 ≤ ui
-        else
+        if !(li ≤ 0.0 ≤ ui)
             l1_min += min(abs(li), abs(ui))
         end
     end
