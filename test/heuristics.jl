@@ -219,8 +219,3 @@ diffi = x_sol + 0.3 * dir
     @test sum(isapprox.(x[int_vars], x_sol[int_vars], atol=1e-6, rtol=1e-2)) == m
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
-
-n = 20
-sparsity = 0.3
-x_sol = [rand() < sparsity ? 0 : rand(1:floor(Int, n / 4)) for _ in 1:n]
-n_int = 17
