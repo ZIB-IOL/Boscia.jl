@@ -799,7 +799,7 @@ function bounded_compute_extreme_point(lmo::FrankWolfe.KNormBallLMO, direction, 
     return v
 end
 
-function is_simple_linear_feasible(lmo::KFrankWolfe.KNormBallLMO, v)
+function is_simple_linear_feasible(lmo::FrankWolfe.KNormBallLMO, v)
     τ = lmo.right_hand_side
     K = lmo.K
 
