@@ -9,11 +9,6 @@ using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
 
-println("\nTraverse Strategy Tests")
-
-verbose = true
-
-
 function build_examples(o, n, seed)
     Random.seed!(seed)
     A = let
@@ -21,7 +16,7 @@ function build_examples(o, n, seed)
         A' * A
     end
 
-    @assert isposdef(A) == true
+    @assert isposdef(A)
 
     y = Random.rand(Bool, n) * 0.6 .+ 0.3
 
