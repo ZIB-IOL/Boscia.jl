@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Graph Isomorphism Problem · Boscia.jl</title><meta name="title" content="Graph Isomorphism Problem · Boscia.jl"/><meta property="og:title" content="Graph Isomorphism Problem · Boscia.jl"/><meta property="twitter:title" content="Graph Isomorphism Problem · Boscia.jl"/><meta name="description" content="Documentation for Boscia.jl."/><meta property="og:description" content="Documentation for Boscia.jl."/><meta property="twitter:description" content="Documentation for Boscia.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Boscia.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../basics/">How does it work?</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../docs-01-network-design/">Network Design Problem</a></li><li class="is-active"><a class="tocitem" href>Graph Isomorphism Problem</a><ul class="internal"><li><a class="tocitem" href="#Imports-and-graph-generation-utilities"><span>Imports and graph generation utilities</span></a></li><li><a class="tocitem" href="#Objective-and-gradient"><span>Objective and gradient</span></a></li><li><a class="tocitem" href="#Linear-Minimization-Oracle-(LMO)"><span>Linear Minimization Oracle (LMO)</span></a></li><li><a class="tocitem" href="#Branching-and-pruning-callbacks"><span>Branching &amp; pruning callbacks</span></a></li><li><a class="tocitem" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope"><span>Neighborhood heuristic over the Birkhoff polytope</span></a></li><li><a class="tocitem" href="#Solver-configuration-and-solve-call"><span>Solver configuration and solve call</span></a></li><li><a class="tocitem" href="#Complement:-Non-isomorphic-case"><span>Complement: Non-isomorphic case</span></a></li></ul></li><li><a class="tocitem" href="../docs-03-optimal-design/">Optimal Design of Experiments</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../reference/1_algorithms/">Algorithm Interface</a></li><li><a class="tocitem" href="../../reference/2_blmo_build/">The Bounded Linear Minimization Oracle (BLMO)</a></li><li><a class="tocitem" href="../../reference/custom/">Branch-and-Bound tree functionality</a></li><li><a class="tocitem" href="../../reference/fw_variant/">Frank-Wolfe Variants</a></li><li><a class="tocitem" href="../../reference/utilities/">Utilities</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Graph Isomorphism Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Graph Isomorphism Problem</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl.git" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ZIB-IOL/Boscia.jl/blob/main/examples/docs-02-graph-isomorphism.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Graph-Isomorphism-Problem"><a class="docs-heading-anchor" href="#Graph-Isomorphism-Problem">Graph Isomorphism Problem</a><a id="Graph-Isomorphism-Problem-1"></a><a class="docs-heading-anchor-permalink" href="#Graph-Isomorphism-Problem" title="Permalink"></a></h1><p>This example shows how to use Boscia to certify whether two graphs are isomorphic. Given adjacency matrices A and B, the graphs are isomorphic if and only if there exists a permutation matrix <span>$X \in \mathcal{P}_n$</span> such that:</p><p class="math-container">\[  X * A = B * X\]</p><p>where <span>$\mathcal{P}_n$</span> denotes the set of permutation matrices. Equivalently, we consider the optimization problem</p><p class="math-container">\[  \min_{X\in \mathcal{P}_n} f(X) = \| X A - B X \|_F^2,\]</p><p>whose optimum is exactly 0 if and only if the graphs are isomorphic. We solve over the Birkhoff polytope (convex hull of permutation matrices) with a branch-and-bound scheme plus Frank–Wolfe in the nodes; the lower bound allows pruning, and a zero incumbent certifies isomorphism.</p><h2 id="Imports-and-graph-generation-utilities"><a class="docs-heading-anchor" href="#Imports-and-graph-generation-utilities">Imports and graph generation utilities</a><a id="Imports-and-graph-generation-utilities-1"></a><a class="docs-heading-anchor-permalink" href="#Imports-and-graph-generation-utilities" title="Permalink"></a></h2><p>We begin by importing the packages used in this example.</p><pre><code class="language- hljs">using Boscia
+using Random
+using SparseArrays
+using FrankWolfe
+using Bonobo
+using CSV
+using StableRNGs
+using CombinatorialLinearOracles
+const CLO = CombinatorialLinearOracles
+
+println(&quot;\nDocumentation Example 02: Graph Isomorphism Problem&quot;)
+
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)</code></pre><p>To create test instances, we provide two helper functions that construct pairs of graphs with either matching or mismatching structure.</p><p><strong>Isomorphic case:</strong> Given an adjacency matrix A, we sample a permutation matrix P and form B = P A P′. This produces a graph that is isomorphic to A by construction.</p><pre><code class="language-julia hljs">function randomIsomorphic(A)
+    n = size(A, 1)
+    p = randperm(n)
+    P = sparse(1:n, p, ones(Float64, n), n, n)
+    B = P * A * P&#39;
+    return B, P
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">randomIsomorphic (generic function with 1 method)</code></pre><p><strong>Non-isomorphic case:</strong> To obtain a simple counterexample, we toggle a single undirected edge of A to produce B. Such a small perturbation typically breaks isomorphism while preserving symmetry of the adjacency matrix.</p><pre><code class="language-julia hljs">function randomNonIsomorphic(A::AbstractMatrix)
+    B = copy(A)
+    n = size(B, 1)
+    i = rand(1:(n-1))
+    j = rand((i+1):n)
+    B[i, j] = 1 - B[i, j]
+    B[j, i] = B[i, j]
+    return B
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">randomNonIsomorphic (generic function with 1 method)</code></pre><p>For this example, we work with the Petersen graph, provided as a CSV file containing its adjacency matrix. After loading A, we generate an isomorphic graph B using the routine above.</p><pre><code class="language- hljs">path = joinpath(@__DIR__, &quot;Petersen.csv&quot;)
+rows = [collect(Int, r) for r in CSV.File(path; header=false, types=Int)]
+const A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
+n = size(A, 1)
+
+B, P = randomIsomorphic(Matrix(A))
+B = sparse(B)</code></pre><h2 id="Objective-and-gradient"><a class="docs-heading-anchor" href="#Objective-and-gradient">Objective and gradient</a><a id="Objective-and-gradient-1"></a><a class="docs-heading-anchor-permalink" href="#Objective-and-gradient" title="Permalink"></a></h2><p>To measure how well a matrix X satisfies the relation X A = B X, we minimize the Frobenius norm of the mismatch:</p><p class="math-container">\[f(X) = \lVert X A - B X \rVert_F^{2}.\]</p><p>The gradient has the form</p><p class="math-container">\[\nabla f(X)
+  = 2\,(X A - B X)\,A^{\top}
+    - 2\,B^{\top}(X A - B X).\]</p><p>In the implementation, X is stored in vectorized form for compatibility with the solver.</p><pre><code class="language-julia hljs">function f(x)
+    X = reshape(x, n, n)
+    R = X * A - B * X
+    return sum(abs2, R)
+end
+
+function grad!(storage, x)
+    X = reshape(x, n, n)
+    grad_matrix = 2 * (X * A - B * X) * A&#39; - 2 * B&#39; * (X * A - B * X)
+    return storage .= vec(grad_matrix)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">grad! (generic function with 1 method)</code></pre><h2 id="Linear-Minimization-Oracle-(LMO)"><a class="docs-heading-anchor" href="#Linear-Minimization-Oracle-(LMO)">Linear Minimization Oracle (LMO)</a><a id="Linear-Minimization-Oracle-(LMO)-1"></a><a class="docs-heading-anchor-permalink" href="#Linear-Minimization-Oracle-(LMO)" title="Permalink"></a></h2><p>The feasible region of the optimization is the Birkhoff polytope, the convex hull of permutation matrices. We use the Birkhoff LMO provided by <a href="https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl">CombinatorialLinearOracles</a>, which performs the required linear subproblem via the Hungarian algorithm.</p><p>In <a href="https://github.com/ZIB-IOL/CombinatorialLinearOracles.jl">CombinatorialLinearOracles</a>, we implement the full LMO interface for the Birkhoff polytope. The simpler approach using the <code>ManagedLMO</code> wrapper would not be able to efficiently support additional bound information, such as tracking and updating reduced matrices after entries of the permutation matrix have been fixed. Without a structure-aware oracle, each call to compute an extreme point would require rebuilding the reduced assignment problem, introducing avoidable overhead.</p><p>The custom BirkhoffLMO avoids this by recording fixed indices and maintaining the corresponding reduced assignment matrix. Linear minimization is then performed on the reduced matrix via the Hungarian algorithm, and the resulting solution is lifted back by adding the fixed entries. This ensures that node-specific constraints are handled consistently and that each oracle call remains efficient.</p><pre><code class="language- hljs">blmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))</code></pre><h2 id="Branching-and-pruning-callbacks"><a class="docs-heading-anchor" href="#Branching-and-pruning-callbacks">Branching &amp; pruning callbacks</a><a id="Branching-and-pruning-callbacks-1"></a><a class="docs-heading-anchor-permalink" href="#Branching-and-pruning-callbacks" title="Permalink"></a></h2><p>We define callback routines to steer the branch-and-bound process.</p><p><strong>Branch callback:</strong> At a given node, if the node’s lower bound is already strictly positive, no permutation can achieve an objective value of zero in that subtree. On such nodes, we do not need to branch further..</p><pre><code class="language-julia hljs">function build_branch_callback()
+    return function (tree, node, vidx::Int)
+        x = Bonobo.get_relaxed_values(tree, node)
+        primal = tree.root.problem.f(x)
+        lower_bound = primal - node.dual_gap
+        if lower_bound &gt; 0.0 + eps()
+            println(&quot;No need to branch here. Node lower bound already positive.&quot;)
+        end
+        valid_lower = lower_bound &gt; 0.0 + eps()
+        return valid_lower, valid_lower
+    end
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">build_branch_callback (generic function with 1 method)</code></pre><p><strong>Tree callback:</strong> The search can be terminated early under either of two conditions:</p><ol><li>The current incumbent reaches objective value of 0.0, certifying isomorphism.</li><li>The lower bound of the B&amp;B tree becomes strictly positive, implying that no permutation satisfies X A = B X, and thus the graphs are not isomorphic.</li></ol><pre><code class="language-julia hljs">function build_tree_callback()
+    return function (tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update=false)
+        if isapprox(tree.incumbent, 0.0, atol=eps())
+            tree.root.problem.solving_stage = Boscia.USER_STOP
+            println(&quot;Optimal solution found.&quot;)
+        end
+        if Boscia.tree_lb(tree::Bonobo.BnBTree) &gt; 0.0 + eps()
+            tree.root.problem.solving_stage = Boscia.USER_STOP
+            println(&quot;Tree lower bound already positive. No solution possible.&quot;)
+        end
+    end
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">build_tree_callback (generic function with 1 method)</code></pre><h2 id="Neighborhood-heuristic-over-the-Birkhoff-polytope"><a class="docs-heading-anchor" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope">Neighborhood heuristic over the Birkhoff polytope</a><a id="Neighborhood-heuristic-over-the-Birkhoff-polytope-1"></a><a class="docs-heading-anchor-permalink" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope" title="Permalink"></a></h2><p>We include a simple neighborhood heuristic that generates a few alternative permutations around the current incumbent. This provides additional candidates that the solver may consider during the search.</p><p>We generate k = ⌊√n⌋ neighbor candidates during each invocation of the heuristic.</p><pre><code class="language- hljs">function random_k_neighbor_matrix(
+    tree::Bonobo.BnBTree,
+    blmo::Boscia.TimeTrackingLMO,
+    x,
+    k::Int,
+    use_mip=false,
+)
+    P = tree.incumbent_solution.solution
+    n0 = size(P, 1)
+    n = Int(sqrt(n0))
+    P = reshape(P, n, n)
+    new_P = copy(P)
+    Ps = []
+    for _ in 1:k
+        i, j = rand(1:n, 2)
+        while i == j
+            j = rand(1:n)
+        end
+        col_i = findfirst(x -&gt; x == 1, new_P[i, :])
+        col_j = findfirst(x -&gt; x == 1, new_P[j, :])
+        new_P[i, col_i] = 0
+        new_P[i, col_j] = 1
+        new_P[j, col_j] = 0
+        new_P[j, col_i] = 1
+        new_p = use_mip ? vec(new_P) : sparsevec(vec(new_P))
+        push!(Ps, new_p)
+    end
+    return Ps, false
+end
+
+k = Int(round(sqrt(n)))
+swap_heu = Boscia.Heuristic(
+    (tree, blmo, x) -&gt; random_k_neighbor_matrix(tree, blmo, x, k, false),
+    1.0,
+    :swap,
+)</code></pre><h2 id="Solver-configuration-and-solve-call"><a class="docs-heading-anchor" href="#Solver-configuration-and-solve-call">Solver configuration and solve call</a><a id="Solver-configuration-and-solve-call-1"></a><a class="docs-heading-anchor-permalink" href="#Solver-configuration-and-solve-call" title="Permalink"></a></h2><p>We configure Boscia with the problem-specific callbacks, the swap-based neighborhood heuristic, and a decomposition-invariant Frank-Wolfe method using a secant line search.</p><pre><code class="language- hljs">settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:print_iter] = 10
+settings.branch_and_bound[:bnb_callback] = build_tree_callback()
+settings.branch_and_bound[:branch_callback] = build_branch_callback()
+settings.heuristic[:custom_heuristics] = [swap_heu]
+settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
+settings.frank_wolfe[:lazy] = true
+settings.frank_wolfe[:max_fw_iter] = 1000</code></pre><p>We now call <code>Boscia.solve</code> with the objective, gradient, and Birkhoff LMO. If A and B are isomorphic, the solver should identify a permutation matrix X with objective value f(X) = 0.</p><pre><code class="language- hljs">x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)</code></pre><p>A successful solve provides a permutation matrix X such that:</p><p class="math-container">\[A \approx X^{\top} B X .\]</p><p>This equality certifies that the two graphs are isomorphic.</p><pre><code class="language- hljs">X = reshape(x, n, n)
+@assert A ≈ X&#39; * B * X
+println(&quot;Certificate verified: graphs are isomorphic (A ≈ X&#39; * B * X)&quot;)</code></pre><h2 id="Complement:-Non-isomorphic-case"><a class="docs-heading-anchor" href="#Complement:-Non-isomorphic-case">Complement: Non-isomorphic case</a><a id="Complement:-Non-isomorphic-case-1"></a><a class="docs-heading-anchor-permalink" href="#Complement:-Non-isomorphic-case" title="Permalink"></a></h2><p>To certify non-isomorphism, we can replace B by a perturbed version (e.g., by toggling an edge). In that case, no permutation satisfies X A = B X, and the optimization yields a strictly positive lower bound:</p><p class="math-container">\[\text{dual bound} \;&gt;\; 0 .\]</p><pre><code class="language- hljs">B = randomNonIsomorphic(A)
+x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
+@assert result[:dual_bound] &gt; 0.0
+println(&quot;Graphs are not isomorphic (lower bound &gt; 0)&quot;)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-01-network-design/">« Network Design Problem</a><a class="docs-footer-nextpage" href="../docs-03-optimal-design/">Optimal Design of Experiments »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Thursday 8 January 2026 01:08">Thursday 8 January 2026</span>. Using Julia version 1.10.10.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
