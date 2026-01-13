@@ -117,7 +117,7 @@ function Bonobo.optimize!(
         )
         callback(tree, dummy_node, node_infeasible=true)
     end
-    return Bonobo.sort_solutions!(tree.solutions, tree.sense)
+    return Bonobo.sort_solutions!(tree.solutions)
 end
 
 function Bonobo.update_best_solution!(

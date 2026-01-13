@@ -19,11 +19,11 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
-    depth::T
+    depth::Int
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub),T(std.depth))
+    return NodeInfo(std.id, T(std.lb), T(std.ub),std.depth)
 end
 
 """
@@ -36,7 +36,7 @@ abstract type AbstractFrankWolfeNode <: Bonobo.AbstractNode end
 
 A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
 
-`std` stores the id, lower and upper bound of the node.
+`std` stores the id, lower, upper bound and Depth of the node.
 `active_set` store the active set structure.
 `local_bounds` instead of storing the complete LMO, it just stores the bounds specific to THIS node.
     All other integer bounds are stored in the root.
@@ -249,7 +249,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         distance_to_int=left_distance,
         active_set_size=0,
         discarded_set_size=0,
-        depth = node.std.depth + 1
     )
     node_info_right = (
         active_set=active_set_right,
@@ -268,7 +267,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         distance_to_int=right_distance,
         active_set_size=0,
         discarded_set_size=0,
-        depth = node.std.depth + 1
     )
 
     domain_right = !isempty(active_set_right)

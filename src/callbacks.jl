@@ -347,14 +347,14 @@ function build_bnb_callback(
             else
                 LMO_calls = list_lmo_calls_cb[end]
             end
-            if length(lmo_calls_per_layer) < node.level
+            if length(lmo_calls_per_layer) < node.std.depth
                 push!(lmo_calls_per_layer, [LMO_calls])
                 push!(active_set_size_per_layer, [active_set_size])
                 push!(discarded_set_size_per_layer, [discarded_set_size])
             else
-                push!(lmo_calls_per_layer[node.level], LMO_calls)
-                push!(active_set_size_per_layer[node.level], active_set_size)
-                push!(discarded_set_size_per_layer[node.level], discarded_set_size)
+                push!(lmo_calls_per_layer[node.std.depth], LMO_calls)
+                push!(active_set_size_per_layer[node.std.depth], active_set_size)
+                push!(discarded_set_size_per_layer[node.std.depth], discarded_set_size)
             end
 
             # add tightenings
@@ -372,7 +372,7 @@ function build_bnb_callback(
         end
 
         if Bonobo.terminated(tree)
-            Bonobo.sort_solutions!(tree.solutions, tree.sense)
+            Bonobo.sort_solutions!(tree.solutions) 
             x = Bonobo.get_solution(tree)
             # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
             if x === nothing
