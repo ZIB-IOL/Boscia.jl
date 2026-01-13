@@ -23,7 +23,7 @@ mutable struct NodeInfo{T<:Real}
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub),std.depth)
+    return NodeInfo(std.id, T(std.lb), T(std.ub), std.depth)
 end
 
 """

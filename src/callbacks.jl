@@ -372,7 +372,7 @@ function build_bnb_callback(
         end
 
         if Bonobo.terminated(tree)
-            Bonobo.sort_solutions!(tree.solutions) 
+            Bonobo.sort_solutions!(tree.solutions)
             x = Bonobo.get_solution(tree)
             # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
             if x === nothing
