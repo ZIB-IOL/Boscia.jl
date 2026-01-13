@@ -255,7 +255,7 @@ function build_bnb_callback(
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
-            push!(node_level, node.level)
+            push!(node_level, node.std.depth)
             iteration += 1
             if tree.lb == -Inf && isempty(tree.nodes)
                 tree.lb = node.lb

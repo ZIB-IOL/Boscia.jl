@@ -19,10 +19,11 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
+    depth::T
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub))
+    return NodeInfo(std.id, T(std.lb), T(std.ub),T(std.depth))
 end
 
 """
@@ -61,7 +62,6 @@ mutable struct FrankWolfeNode{
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
-    level::Int
     fw_dual_gap_limit::Float64
     fw_time::Millisecond
     global_tightenings::Int
@@ -85,7 +85,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -98,7 +97,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -238,7 +236,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -252,12 +249,12 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         distance_to_int=left_distance,
         active_set_size=0,
         discarded_set_size=0,
+        depth = node.std.depth + 1
     )
     node_info_right = (
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -271,6 +268,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         distance_to_int=right_distance,
         active_set_size=0,
         discarded_set_size=0,
+        depth = node.std.depth + 1
     )
 
     domain_right = !isempty(active_set_right)
