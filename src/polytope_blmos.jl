@@ -718,10 +718,11 @@ function rounding_hyperplane_heuristic(
 end
 
 """
-    2normBallBLMO()
+    FrankWolfe.LpNormBallLMO{T,2}
 
-BLMO denotes the L2normBall, It is unit ball which means R = 1
+BLMO denotes the only unit L2normBall, It is unit ball which means R = 1
 """
+const _L2norm_BALL_DOC = nothing
 
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.LpNormBallLMO{T,2},

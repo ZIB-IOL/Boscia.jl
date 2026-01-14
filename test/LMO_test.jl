@@ -227,13 +227,6 @@ end
     x_sol = randn(rng, n)
     x_sol = x_sol ./ (norm(x_sol) * 1.5)
 
-    # Round some coordinates to integers for testing
-    num_int = 5
-    int_indices = sort(rand(rng, 1:n, num_int))
-    for idx in int_indices
-        x_sol[idx] = 0
-    end
-
     function f(x)
         return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
     end
@@ -246,8 +239,8 @@ end
     blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
 
     # Bounds: each variable in [-1, 1] due to L2 ball constraint
-    lower_bounds = fill(-2.0, num_int)
-    upper_bounds = fill(2.0, num_int)
+    lower_bounds = fill(-1.0, num_int)
+    upper_bounds = fill(1.0, num_int)
 
     # Some variables are integer
     int_vars = collect(int_indices)
@@ -279,8 +272,8 @@ end
 
         blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
 
-        lower_bounds = fill(-2.0, num_int)
-        upper_bounds = fill(3.0, num_int)
+        lower_bounds = fill(-1.0, num_int)
+        upper_bounds = fill(1.0, num_int)
 
         int_vars = collect(int_indices)
 
