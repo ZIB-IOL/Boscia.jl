@@ -106,7 +106,6 @@ function Bonobo.optimize!(
             FrankWolfe.ActiveSet([(1.0, y)]),
             vertex_storage,
             IntegerBounds(),
-            1,
             1e-3,
             Millisecond(0),
             0,
