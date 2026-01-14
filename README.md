@@ -1,6 +1,6 @@
 # Boscia.jl
 
-[![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg?branch=main)](https://github.com/ZIB-IOL/Boscia.jl/actions)
+[![Build Status](https://github.com/ZIB-IOL/Boscia.jl/workflows/CI/badge.svg)](https://github.com/ZIB-IOL/Boscia.jl/actions)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zib-iol.github.io/Boscia.jl/dev/)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zib-iol.github.io/Boscia.jl/stable/)
 [![Coverage](https://codecov.io/gh/ZIB-IOL/Boscia.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ZIB-IOL/Boscia.jl)
