@@ -727,7 +727,7 @@ It solves the linear minimization problem over the Euclidean unit ball.
 
 You can use it with the helpers in this package for integer-constrained Frank-Wolfe optimization.
 """
-const L2BallLMO = FrankWolfe.LpNormBallLMO{Float64,2} 
+const L2BallLMO = FrankWolfe.LpNormBallLMO{Float64,2}
 
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.LpNormBallLMO{T,2},
