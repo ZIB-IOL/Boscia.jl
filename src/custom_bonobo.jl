@@ -102,7 +102,7 @@ function Bonobo.optimize!(
         y = Bonobo.get_solution(tree)
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(y)[], 1)
         dummy_node = FrankWolfeNode(
-            NodeInfo(-1, Inf, Inf),
+            NodeInfo(-1, Inf, Inf, 0),
             FrankWolfe.ActiveSet([(1.0, y)]),
             vertex_storage,
             IntegerBounds(),
