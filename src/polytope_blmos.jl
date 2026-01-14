@@ -718,11 +718,16 @@ function rounding_hyperplane_heuristic(
 end
 
 """
-    FrankWolfe.LpNormBallLMO{T,2}
+# FrankWolfe.LpNormBallLMO{T,2}
 
-BLMO denotes the only unit L2normBall, It is unit ball which means R = 1
+Unit L2-norm ball linear minimization oracle (BLMO).
+
+This type is defined in the `FrankWolfe` package.  
+It solves the linear minimization problem over the Euclidean unit ball.
+
+You can use it with the helpers in this package for integer-constrained Frank-Wolfe optimization.
 """
-const _L2norm_BALL_DOC = nothing
+const L2BallLMO = FrankWolfe.LpNormBallLMO{Float64,2} 
 
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.LpNormBallLMO{T,2},
