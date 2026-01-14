@@ -730,7 +730,7 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
-const _KNORM_BALL_DOC = nothing
+const KNormBallBLMO = FrankWolfe.KNormBallLMO
 
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.KNormBallLMO,
@@ -832,7 +832,7 @@ function check_feasibility(lmo::FrankWolfe.KNormBallLMO, lb, ub, int_vars, n)
     #The minimum L₁ norm does not exceed τ
     @inbounds for i in eachindex(lb, ub)
         li, ui = lb[i], ub[i]
-        if !(li ≤ 0.0 ≤ ui)
+        if li > 0.0 || ui < 0.0
             l1_min += min(abs(li), abs(ui))
         end
     end
