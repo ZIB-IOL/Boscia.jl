@@ -728,6 +728,8 @@ with `τ` the `right_hand_side` parameter.
 The LMO results in a vector with the K largest absolute values
 of direction, taking values `-τ sign(x_i)`.
 """
+const KSparseBLMO = FrankWolfe.KSparseLMO
+
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.KSparseLMO{T},
     direction,
