@@ -718,18 +718,13 @@ function rounding_hyperplane_heuristic(
 end
 
 """
-    KSparseLMO{T}(K::Int, right_hand_side::T)
+    bounded_compute_extreme_point(lmo::KSparseLMO, direction, lb, ub, int_vars)
 
-LMO for the K-sparse polytope:
-```
-C = B_1(τK) ∩ B_∞(τ)
-```
-with `τ` the `right_hand_side` parameter.
-The LMO results in a vector with the K largest absolute values
-of direction, taking values `-τ sign(x_i)`.
+Compute an extreme point of a K-sparse LMO along a given direction.  
+
+Compute an extreme point of a K-sparse LMO using a greedy strategy:  
+integer variables are fixed first, then the remaining entries are filled greedily according to the largest absolute values in `direction`, respecting the K-sparse and bounds constraints.
 """
-const KSparseBLMO = FrankWolfe.KSparseLMO
-
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.KSparseLMO{T},
     direction,
@@ -859,6 +854,13 @@ function bounded_compute_inface_extreme_point(
     return v
 end
 
+"""
+    bounded_dicg_maximum_step(sblmo::KSparseLMO, direction, x, lb, ub, int_vars; tol=1e-6)
+
+Compute the maximum feasible step size `γ` along `direction` from point `x`  
+for the K-sparse LMO, respecting integer and continuous bounds.  
+The step is limited by hitting either the bounds or the K-sparse LMO constraints.
+"""
 function bounded_dicg_maximum_step(
     sblmo::FrankWolfe.KSparseLMO{T},
     direction,
