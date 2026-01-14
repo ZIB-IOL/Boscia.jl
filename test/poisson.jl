@@ -91,15 +91,10 @@ N = 1.0
         return storage
     end
 
-<<<<<<< HEAD
-    x, _, result =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
-=======
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:time_limit] = 120
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
->>>>>>> main
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -172,20 +167,11 @@ end
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
     MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
-<<<<<<< HEAD
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-    )
-=======
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     settings.branch_and_bound[:branching_strategy] = branching_strategy
     settings.tolerances[:fw_epsilon] = 1e-3
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
->>>>>>> main
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -283,13 +269,9 @@ push!(groups, ((k-1)*group_size+1):pg)
         return storage
     end
 
-<<<<<<< HEAD
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
-=======
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = true
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
->>>>>>> main
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k
 end
