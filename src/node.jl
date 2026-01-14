@@ -73,6 +73,8 @@ mutable struct FrankWolfeNode{
     branched_on::Int
     branched_right::Bool
     distance_to_int::Float64
+    active_set_size::Int
+    discarded_set_size::Int
 end
 
 
@@ -108,6 +110,8 @@ FrankWolfeNode(
     -1,
     false,
     0.0,
+    0,
+    0,
 )
 
 
@@ -119,6 +123,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices.storage)
+
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -242,6 +250,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=false,
         distance_to_int=left_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
     node_info_right = (
         active_set=active_set_right,
@@ -259,6 +269,8 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=true,
         distance_to_int=right_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
 
     domain_right = !isempty(active_set_right)
