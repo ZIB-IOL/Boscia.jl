@@ -716,3 +716,227 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+"""
+    bounded_compute_extreme_point(lmo::KSparseLMO, direction, lb, ub, int_vars)
+
+Compute an extreme point of a K-sparse LMO along a given direction.  
+
+Compute an extreme point of a K-sparse LMO using a greedy strategy:  
+integer variables are fixed first, then the remaining entries are filled greedily according to the largest absolute values in `direction`, respecting the K-sparse and bounds constraints.
+"""
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.KSparseLMO{T},
+    direction,
+    lb,
+    ub,
+    int_vars;
+    v=nothing,
+    kwargs...,
+) where {T}
+    K = lmo.K
+    K_indices = sortperm(direction, by=abs, rev=true)
+    v = spzeros(Float64, length(direction))
+
+    for i in int_vars
+        idx = findfirst(==(i), int_vars)
+        if lb[idx] > 0
+            v[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v[i] = floor(ub[idx])
+        end
+    end
+
+    for i in K_indices
+
+        rem = K * lmo.right_hand_side - sum(abs, v)
+
+        if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
+            break
+        end
+
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            lower_eff = clamp(ceil(max(-lmo.right_hand_side, -rem)), ceil(lb[idx]), floor(ub[idx]))
+            upper_eff = clamp(floor(min(lmo.right_hand_side, rem)), ceil(lb[idx]), floor(ub[idx]))
+        else
+            lower_eff = max(-rem, -lmo.right_hand_side)
+            upper_eff = min(rem, lmo.right_hand_side)
+        end
+        if direction[i] > 0
+            v[i] = lower_eff
+        elseif direction[i] < 0
+            v[i] = upper_eff
+        else
+            v[i] = clamp(0, lower_eff, upper_eff)
+        end
+    end
+    return v
+end
+
+function bounded_compute_inface_extreme_point(
+    sblmo::FrankWolfe.KSparseLMO{T},
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+) where {T}
+    n = length(direction)
+    rhs = sblmo.right_hand_side
+    K = sblmo.K
+
+    v = copy(x)
+    fixed_vars = Int[]
+
+    # Identify fixed coordinates (already on the face boundary)
+    for i in 1:n
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            if isapprox(x[i], ceil(lb[idx]); atol=atol, rtol=rtol) ||
+               isapprox(x[i], floor(ub[idx]); atol=atol, rtol=rtol)
+                push!(fixed_vars, i)
+            end
+        else
+            if isapprox(abs(x[i]), rhs; atol=atol, rtol=rtol) ||
+               isapprox(x[i], -rhs; atol=atol, rtol=rtol)
+                push!(fixed_vars, i)
+            end
+        end
+    end
+
+    free_idx = setdiff(1:n, fixed_vars)
+    if isempty(free_idx)
+        return v  # already at in-face extreme point
+    end
+
+    # Construct new in-face extreme point
+    v[free_idx] .= 0
+    free_idx = sort(free_idx, by=i -> abs(direction[i]), rev=true)
+
+    for i in intersect(int_vars, free_idx)
+        idx = findfirst(==(i), int_vars)
+        if lb[idx] > 0
+            v[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v[i] = floor(ub[idx])
+        end
+    end
+
+    for i in free_idx
+
+        rem = K * sblmo.right_hand_side - sum(abs, v)
+
+        if isapprox(rem, 0.0; atol=1e-6, rtol=1e-8)
+            break
+        end
+
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            lower_eff =
+                clamp(ceil(max(-sblmo.right_hand_side, -rem)), ceil(lb[idx]), floor(ub[idx]))
+            upper_eff = clamp(floor(min(sblmo.right_hand_side, rem)), ceil(lb[idx]), floor(ub[idx]))
+        else
+            lower_eff = max(-rem, -sblmo.right_hand_side)
+            upper_eff = min(rem, sblmo.right_hand_side)
+        end
+        if direction[i] > 0
+            v[i] = lower_eff
+        elseif direction[i] < 0
+            v[i] = upper_eff
+        else
+            v[i] = clamp(0, lower_eff, upper_eff)
+        end
+    end
+    return v
+end
+
+"""
+    bounded_dicg_maximum_step(sblmo::KSparseLMO, direction, x, lb, ub, int_vars; tol=1e-6)
+
+Compute the maximum feasible step size `γ` along `direction` from point `x`  
+for the K-sparse LMO, respecting integer and continuous bounds.  
+The step is limited by hitting either the bounds or the K-sparse LMO constraints.
+"""
+function bounded_dicg_maximum_step(
+    sblmo::FrankWolfe.KSparseLMO{T},
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    tol=1e-6,
+    kwargs...,
+) where {T}
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if di > tol
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (x[idx] - lb[int_idx]) / di)
+            else
+                gamma_max = min(gamma_max, (x[idx] - (-sblmo.rhs)) / di)
+            end
+        elseif di < -tol
+            if idx in int_vars
+                int_idx = findfirst(==(idx), int_vars)
+                gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
+            else
+                gamma_max = min(gamma_max, (sblmo.rhs - x[idx]) / -di)
+            end
+        end
+
+        if isapprox(gamma_max, 0.0; atol=tol)
+            return 0.0
+        end
+    end
+
+    return max(gamma_max, 0.0)
+end
+
+function is_simple_linear_feasible(
+    sblmo::FrankWolfe.KSparseLMO{T},
+    v;
+    int_vars=Int[],
+    tol=1e-8,
+) where {T}
+    τ = sblmo.right_hand_side
+    K = sblmo.K
+
+    l1_norm = sum(abs, v)
+    if l1_norm > K * τ + tol
+        @debug "v violates sparsity constraint: ‖v‖₀ = $l1_norm > K*τ = $(K*τ)"
+        return false
+    end
+
+    if any(abs.(v) .> τ + tol)
+        @debug "v violates bound constraint: some |vᵢ| > τ = $τ (v=$v)"
+        return false
+    end
+
+    return true
+end
+
+
+function check_feasibility(sblmo::FrankWolfe.KSparseLMO{T}, lb, ub, int_vars, n; tol=1e-8) where {T}
+    K = sblmo.K
+    τ = sblmo.right_hand_side
+    n_int = length(lb)
+
+    for i in 1:n_int
+        v = clamp(τ, lb[i], ub[i])
+        if abs.(v) .> τ + tol
+            return INFEASIBLE
+        end
+    end
+    if τ < 0
+        return INFEASIBLE
+    end
+    return OPTIMAL
+end
+
+is_decomposition_invariant_oracle_simple(::FrankWolfe.KSparseLMO{T}) where {T} = true

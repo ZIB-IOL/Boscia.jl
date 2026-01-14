@@ -256,6 +256,6 @@ println("Certificate verified: graphs are isomorphic (A ≈ X' * B * X)")
 # ```
 
 B = randomNonIsomorphic(A)
-x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
+x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 @assert result[:dual_bound] > 0.0
 println("Graphs are not isomorphic (lower bound > 0)")
