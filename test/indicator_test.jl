@@ -11,6 +11,8 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 
+println("\nIndicator Tests")
+
 @testset "Indicators" begin
     n = 5
     o = SCIP.Optimizer()
@@ -26,7 +28,7 @@ const MOIU = MOI.Utilities
         MOI.add_constraint(o, z[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, z[i], MOI.ZeroOne())
     end
-    blmo = Boscia.MathOptBLMO(o)
+    blmo = FrankWolfe.MathOptLMO(o)
 
     @test Boscia.indicator_present(blmo) == false
 

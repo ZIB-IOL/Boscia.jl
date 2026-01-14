@@ -19,10 +19,11 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
+    depth::Int
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub))
+    return NodeInfo(std.id, T(std.lb), T(std.ub), std.depth)
 end
 
 """
@@ -35,7 +36,7 @@ abstract type AbstractFrankWolfeNode <: Bonobo.AbstractNode end
 
 A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
 
-`std` stores the id, lower and upper bound of the node.
+`std` stores the id, lower, upper bound and Depth of the node.
 `active_set` store the active set structure.
 `local_bounds` instead of storing the complete LMO, it just stores the bounds specific to THIS node.
     All other integer bounds are stored in the root.
@@ -61,7 +62,6 @@ mutable struct FrankWolfeNode{
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
-    level::Int
     fw_dual_gap_limit::Float64
     fw_time::Millisecond
     global_tightenings::Int
@@ -73,6 +73,8 @@ mutable struct FrankWolfeNode{
     branched_on::Int
     branched_right::Bool
     distance_to_int::Float64
+    active_set_size::Int
+    discarded_set_size::Int
 end
 
 
@@ -83,7 +85,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -96,7 +97,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -108,6 +108,8 @@ FrankWolfeNode(
     -1,
     false,
     0.0,
+    0,
+    0,
 )
 
 
@@ -119,6 +121,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices.storage)
+
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -127,6 +133,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     left_distance = x[vidx] - floor(x[vidx])
     right_distance = ceil(x[vidx]) - x[vidx]
 
+    user_prune_left, user_prune_right = false, false
+
+    if tree.root.options[:branch_callback] !== nothing
+        user_prune_left, user_prune_right = tree.root.options[:branch_callback](tree, node, vidx)
+    end
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = if !tree.root.options[:no_pruning]
@@ -225,7 +236,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -237,12 +247,13 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=false,
         distance_to_int=left_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
     node_info_right = (
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -254,25 +265,33 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=true,
         distance_to_int=right_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
 
     domain_right = !isempty(active_set_right)
     domain_left = !isempty(active_set_left)
 
-    nodes = if !prune_left && !prune_right && domain_right && domain_left
-        [node_info_left, node_info_right]
-    elseif prune_left
-        [node_info_right]
-    elseif prune_right
-        [node_info_left]
-    elseif domain_right # x_right in domain
-        [node_info_right]
-    elseif domain_left # x_left in domain
-        [node_info_left]
-    else
-        @warn "No childern nodes can be created."
-        Vector{typeof(node_info_left)}()
-    end
+    nodes =
+        if !prune_left &&
+           !prune_right &&
+           domain_right &&
+           domain_left &&
+           !user_prune_left &&
+           !user_prune_right
+            [node_info_left, node_info_right]
+        elseif prune_left || user_prune_left
+            [node_info_right]
+        elseif prune_right || user_prune_right
+            [node_info_left]
+        elseif domain_right # x_right in domain
+            [node_info_right]
+        elseif domain_left # x_left in domain
+            [node_info_left]
+        else
+            @warn "No childern nodes can be created."
+            Vector{typeof(node_info_left)}()
+        end
     return nodes
 end
 
@@ -350,7 +369,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
-    x, primal, dual_gap, atoms_set = solve_frank_wolfe(
+    x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
@@ -370,6 +389,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
     )
+
+    if tree.root.options[:fw_verbose]
+        @show fw_status
+    end
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
         # update active set of the node

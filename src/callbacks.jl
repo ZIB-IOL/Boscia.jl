@@ -16,7 +16,7 @@ function build_FW_callback(
     time_limit;
     use_DICG=false,
 )
-    vars = get_variables_pointers(tree.root.problem.tlmo.blmo, tree)
+    vars = get_variables_pointers(tree.root.problem.tlmo.lmo, tree)
     # variable to only fetch heuristics when the counter increases
     ncalls = -1
     if !use_DICG
@@ -81,7 +81,7 @@ function process_FW_callback_logic(
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)
             @info "$(state.v)"
-            check_infeasible_vertex(tree.root.problem.tlmo.blmo, tree)
+            check_infeasible_vertex(tree.root.problem.tlmo.lmo, tree)
             @assert is_linear_feasible(tree.root.problem.tlmo, state.v)
         end
         if state.step_type != FrankWolfe.ST_SIMPLEXDESCENT && !is_integer_feasible(tree, state.v)
@@ -97,7 +97,7 @@ function process_FW_callback_logic(
             (best_v, best_val) = find_best_solution(
                 tree,
                 tree.root.problem.f,
-                tree.root.problem.tlmo.blmo,
+                tree.root.problem.tlmo.lmo,
                 vars,
                 tree.root.options[:domain_oracle],
             )
@@ -255,7 +255,7 @@ function build_bnb_callback(
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
-            push!(node_level, node.level)
+            push!(node_level, node.std.depth)
             iteration += 1
             if tree.lb == -Inf && isempty(tree.nodes)
                 tree.lb = node.lb
@@ -299,8 +299,8 @@ function build_bnb_callback(
             tree.lb = tree_lb(tree)
             dual_gap = tree.incumbent - tree_lb(tree)
             push!(list_lb_cb, tree_lb(tree))
-            active_set_size = length(node.active_set)
-            discarded_set_size = length(node.discarded_vertices.storage)
+            active_set_size = node.active_set_size
+            discarded_set_size = node.discarded_set_size
             push!(list_active_set_size_cb, active_set_size)
             push!(list_discarded_set_size_cb, discarded_set_size)
             nodes_left = length(tree.nodes)
@@ -347,14 +347,14 @@ function build_bnb_callback(
             else
                 LMO_calls = list_lmo_calls_cb[end]
             end
-            if length(lmo_calls_per_layer) < node.level
+            if length(lmo_calls_per_layer) < node.std.depth
                 push!(lmo_calls_per_layer, [LMO_calls])
                 push!(active_set_size_per_layer, [active_set_size])
                 push!(discarded_set_size_per_layer, [discarded_set_size])
             else
-                push!(lmo_calls_per_layer[node.level], LMO_calls)
-                push!(active_set_size_per_layer[node.level], active_set_size)
-                push!(discarded_set_size_per_layer[node.level], discarded_set_size)
+                push!(lmo_calls_per_layer[node.std.depth], LMO_calls)
+                push!(active_set_size_per_layer[node.std.depth], active_set_size)
+                push!(discarded_set_size_per_layer[node.std.depth], discarded_set_size)
             end
 
             # add tightenings
@@ -372,7 +372,7 @@ function build_bnb_callback(
         end
 
         if Bonobo.terminated(tree)
-            Bonobo.sort_solutions!(tree.solutions, tree.sense)
+            Bonobo.sort_solutions!(tree.solutions)
             x = Bonobo.get_solution(tree)
             # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
             if x === nothing
@@ -392,6 +392,7 @@ function build_bnb_callback(
                 else
                     @assert isapprox(tree.incumbent, primal_value)
                 end
+                @assert isapprox(tree.incumbent, primal_value)
             end
 
             result[:number_nodes] = tree.num_nodes

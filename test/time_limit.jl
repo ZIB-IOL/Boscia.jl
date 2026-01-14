@@ -16,6 +16,8 @@ import MathOptSetDistances
 const MOD = MathOptSetDistances
 using StableRNGs
 
+println("\nTime Limit Test")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -61,12 +63,10 @@ time_limit = 30.0
     end
 
     start_time = Dates.now()
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=time_limit),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = time_limit
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     time_taken = float(Dates.value(Dates.now() - start_time)) / 1000
     @test sum(ai' * x) <= bi + 1e-3
     @test f(x) <= f(result[:raw_solution]) + 1e-6
