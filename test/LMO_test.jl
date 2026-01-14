@@ -227,6 +227,13 @@ end
     x_sol = randn(rng, n)
     x_sol = x_sol ./ (norm(x_sol) * 1.5)
 
+    # Round some coordinates to integers for testing
+    num_int = 3
+    int_indices = sort(rand(rng, 1:n, num_int))
+    for idx in int_indices
+        x_sol[idx] = 0
+    end
+
     function f(x)
         return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
     end
