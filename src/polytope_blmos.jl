@@ -718,7 +718,7 @@ function rounding_hyperplane_heuristic(
 end
 
 """
-    KNormBallLMO{T}(K::Int, right_hand_side::T)
+    FrankWolfe.KNormBallLMO{T}(K::Int, right_hand_side::T)
 
 LMO with feasible set being the K-norm ball in the sense of
 [2010.07243](https://arxiv.org/abs/2010.07243),
@@ -730,6 +730,8 @@ C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 with `τ` the `right_hand_side` parameter. The K-norm is defined as
 the sum of the largest `K` absolute entries in a vector.
 """
+const _KNORM_BALL_DOC = nothing
+
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.KNormBallLMO,
     direction,
