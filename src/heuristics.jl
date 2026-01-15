@@ -181,7 +181,7 @@ function probability_rounding(
 
     # check for feasibility and boundedness
     status = check_feasibility(tlmo)
-    if status == MOI.INFEASIBLE || status == MOI.DUAL_INFEASIBLE
+    if status == INFEASIBLE || status == UNBOUNDED
         @debug "LMO state in the probability rounding heuristic: $(status)"
         # reset LMO to node state
         build_LMO(
