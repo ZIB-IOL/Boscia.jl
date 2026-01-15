@@ -351,7 +351,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE
-        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.level - 1))
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1))
         if μ < tree.root.options[:smoothing_min]
             μ = tree.root.options[:smoothing_min]
         end
