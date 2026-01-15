@@ -390,7 +390,7 @@ function build_bnb_callback(
                 if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
                     @warn "Incumbent is not equal to primal value: $(tree.incumbent) != $(primal_value)"
                 else
-                    @assert isapprox(tree.incumbent, primal_value)
+                    @assert isapprox(tree.incumbent, primal_value) "tree.incumbent = $(tree.incumbent) and primal_value = $(primal_value)"
                 end
                 @assert isapprox(tree.incumbent, primal_value)
             end
