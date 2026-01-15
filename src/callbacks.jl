@@ -378,7 +378,13 @@ function build_bnb_callback(
             if x === nothing
                 @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
             end
-            primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
+            primal_value = if x === nothing
+                Inf
+            elseif tree.root.options[:mode] == SMOOTHING_MODE
+                tree.root.options[:original_objective](x)
+            else
+                tree.root.problem.f(x)
+            end
             # deactivate postsolve if there is no solution
             tree.root.options[:use_postsolve] =
                 x === nothing ? false : tree.root.options[:use_postsolve]
