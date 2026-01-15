@@ -60,6 +60,12 @@ function solve(
         settings.smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
+    if options[:mode] == SMOOTHING_MODE
+        merge!(options, Dict(:original_objective => f))
+        merge!(options, Dict(:sub_grad! => grad!))
+        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start])
+    end
+    
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
         if !is_decomposition_invariant_oracle(lmo)
             error("DICG within Boscia is not implemented for $(typeof(lmo)).")
