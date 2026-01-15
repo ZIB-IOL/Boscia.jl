@@ -438,12 +438,6 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     smoothing_min_valid = false
     generate_smoothing_objective = nothing
 
-    if mode == SMOOTHING_MODE && generate_smoothing_objective === nothing
-        error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
-    end
-    if generate_smoothing_objective !== nothing && mode != SMOOTHING_MODE
-        @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
-    end
     return Dict(
         :smoothing_start => smoothing_start,
         :smoothing_min => smoothing_min,

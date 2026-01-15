@@ -40,6 +40,12 @@ function solve(
         println("Convert MathOptBLMO to MathOptLMO")
         lmo = convert(MathOptLMO, lmo)
     end
+    if settings.mode[:mode] == SMOOTHING_MODE && settings.smoothing[:generate_smoothing_objective] === nothing
+        error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
+    end
+    if settings.smoothing[:generate_smoothing_objective] !== nothing && settings.mode[:mode] != SMOOTHING_MODE
+        @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
+    end
 
     build_heuristics(settings.heuristic)
     options = merge(
