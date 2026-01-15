@@ -285,7 +285,6 @@ function check_feasibility(lmo::ProbabilitySimplexLMO, lb, ub, int_vars, n)
     if length(int_vars) == n && !isinteger(lmo.N)
         error("Invalid problem: all variables are integer but N is non-integer.")
     end
-    @show sum(lb), lmo.N, sum(ub) + m * lmo.N
     if sum(lb) ≤ lmo.N ≤ sum(ub) + m * lmo.N
         return OPTIMAL
     else
