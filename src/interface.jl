@@ -51,6 +51,7 @@ function solve(
         settings.heuristic,
         settings.tightening,
         settings.domain,
+        settings.smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient

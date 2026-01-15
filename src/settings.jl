@@ -13,6 +13,7 @@ function create_default_settings(; mode::Mode=Boscia.DEFAULT_MODE)
         heuristic=settings_heuristic(mode=mode),
         tightening=settings_tightening(mode=mode),
         domain=settings_domain(mode=mode),
+        smoothing=settings_smoothing(mode=mode),
         mode=Dict(:mode => mode),
     )
 end
