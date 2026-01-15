@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nMPS Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -28,10 +30,10 @@ o = SCIP.Optimizer()
 MOI.copy_to(o, src)
 MOI.set(o, MOI.Silent(), true)
 n = MOI.get(o, MOI.NumberOfVariables())
-lmo = FrankWolfe.MathOptLMO(o)
+blmo = FrankWolfe.MathOptLMO(o)
 
 #trick to push the optimum towards the interior
-const vs = [FrankWolfe.compute_extreme_point(lmo, randn(rng, n)) for _ in 1:20]
+const vs = [Boscia.compute_extreme_point(blmo, randn(rng, n)) for _ in 1:20]
 # done to avoid one vertex being systematically selected
 unique!(vs)
 filter!(vs) do v
@@ -58,6 +60,8 @@ function grad!(storage, x)
 end
 
 @testset "MPS 22433 instance" begin
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
     @test f(x) <= f(result[:raw_solution])
 end

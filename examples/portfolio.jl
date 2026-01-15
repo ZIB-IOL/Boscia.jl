@@ -8,6 +8,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nPortfolio Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -45,7 +47,7 @@ const Mi = (Ai + Ai') / 2
         MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(n), x), 0.0),
         MOI.GreaterThan(1.0),
     )
-    lmo = FrankWolfe.MathOptLMO(o)
+    blmo = Boscia.MathOptBLMO(o)
 
     function f(x)
         return 1 / 2 * Ωi * dot(x, Mi, x) - dot(ri, x)
@@ -56,14 +58,23 @@ const Mi = (Ai + Ai') / 2
         return storage
     end
 
-    heu  = Boscia.Heuristic((tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree,blmo,x, length(x)), 0.8, :follow_gradient)
+    heu = Boscia.Heuristic(
+        (tree, blmo, x) -> Boscia.follow_gradient_heuristic(tree, blmo, x, length(x)),
+        0.8,
+        :follow_gradient,
+    )
     heuristics = [heu]
     # heuristics = []
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
-    x_heu, _, result_heu = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=600),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=heuristics))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 120
+    x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 600
+    settings.heuristic[:custom_heuristics] = heuristics
+    x_heu, _, result_heu = Boscia.solve(f, grad!, blmo, settings=settings)
 
     @test dot(ai, x_heu) <= bi + 1e-2
     @test f(x_heu) <= f(result[:raw_solution]) + 1e-6
