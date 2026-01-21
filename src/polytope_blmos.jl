@@ -798,7 +798,7 @@ end
 function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars, n) where {T}
     if lmo.right_hand_side != 1
         println("right_hand_side > 1: cannot handle this case now")
-        return INFEASIBLE 
+        return INFEASIBLE
     end
 
     if any(lb .> 1) || any(ub .< -1)
@@ -815,39 +815,4 @@ function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars,
         end
     end
     return OPTIMAL
-end
-
-@testset "L2normBall BLMO rhs > 1 triggers infeasible" begin
-    n = 10
-    num_int = 3
-
-    rng = Random.default_rng()
-    int_indices = sort(rand(rng, 1:n, num_int))
-
-    x_sol = zeros(n)
-    x_sol[int_indices[1]] = 1.0
-
-    function f(x)
-        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
-    end
-
-    function grad!(storage, x)
-        @. storage = x - x_sol
-    end
-
-    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.5)  
-
-    lower_bounds = fill(-1.0, num_int)
-    upper_bounds = fill(1.0, num_int)
-    int_vars = collect(int_indices)
-
-    result = try
-        x, _, sol = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
-        false  
-    catch e
-        println("Caught error as expected: ", e)
-        true   
-    end
-
-    @test result == true
 end

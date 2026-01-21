@@ -309,7 +309,7 @@ end
         @. storage = x - x_sol
     end
 
-    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.5)  
+    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.5)
 
     lower_bounds = fill(-1.0, num_int)
     upper_bounds = fill(1.0, num_int)
@@ -317,10 +317,10 @@ end
 
     result = try
         x, _, sol = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
-        false 
+        false
     catch e
         println("Caught error as expected: ", e)
-        true   
+        true
     end
 
     @test result == true
