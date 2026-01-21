@@ -8,6 +8,7 @@ import Bonobo
 using HiGHS
 using Printf
 using Dates
+using LinearAlgebra
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
@@ -216,4 +217,111 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+# Test for L2normBallBLMO
+@testset "L2normBall BLMO continuous" begin
+    n = 20
+
+    # Generate a solution inside the L2 ball (||x|| <= 1)
+    x_sol = randn(rng, n)
+    x_sol = x_sol ./ (norm(x_sol) * 1.5)
+
+    # Round some coordinates to integers for testing
+    num_int = 3
+    int_indices = sort(rand(rng, 1:n, num_int))
+    for idx in int_indices
+        x_sol[idx] = 0
+    end
+
+    function f(x)
+        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    end
+
+    function grad!(storage, x)
+        @. storage = x - x_sol
+    end
+
+    # Create L2normBallBLMO
+    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
+
+    # Bounds: each variable in [-1, 1] due to L2 ball constraint
+    lower_bounds = fill(-1.0, num_int)
+    upper_bounds = fill(1.0, num_int)
+
+    # Some variables are integer
+    int_vars = collect(int_indices)
+
+    x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+
+    # Check objective value
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n  # Should improve or stay similar
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+@testset "L2normBall BLMO integer" begin
+    n = 20
+    num_int = 5
+
+    for sign in (1, -1)
+        int_indices = sort(rand(rng, 1:n, num_int))
+
+        x_sol = zeros(n)
+        x_sol[int_indices[2]] = sign
+
+        function f(x)
+            return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+        end
+
+        function grad!(storage, x)
+            @. storage = x - x_sol
+        end
+
+        blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.0)
+
+        lower_bounds = fill(-1.0, num_int)
+        upper_bounds = fill(1.0, num_int)
+
+        int_vars = collect(int_indices)
+
+        x, _, result = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+
+        @test sum(isapprox.(x, x_sol; atol=1e-6, rtol=1e-2)) == n
+        @test isapprox(f(x), f(result[:raw_solution]); atol=1e-6, rtol=1e-3)
+    end
+end
+
+@testset "L2normBall BLMO rhs > 1 triggers infeasible" begin
+    n = 10
+    num_int = 3
+
+    rng = Random.default_rng()
+    int_indices = sort(rand(rng, 1:n, num_int))
+
+    x_sol = zeros(n)
+    x_sol[int_indices[1]] = 1.0
+
+    function f(x)
+        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    end
+
+    function grad!(storage, x)
+        @. storage = x - x_sol
+    end
+
+    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.5)
+
+    lower_bounds = fill(-1.0, num_int)
+    upper_bounds = fill(1.0, num_int)
+    int_vars = collect(int_indices)
+
+    result = try
+        x, _, sol = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+        false
+    catch e
+        println("Caught error as expected: ", e)
+        true
+    end
+
+    @test result == true
 end

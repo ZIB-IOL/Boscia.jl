@@ -716,3 +716,103 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+"""
+# FrankWolfe.LpNormBallLMO{T,2}
+
+Unit L2-norm ball linear minimization oracle (BLMO).
+
+This type is defined in the `FrankWolfe` package.  
+It solves the linear minimization problem over the Euclidean unit ball.
+
+You can use it with the helpers in this package for integer-constrained Frank-Wolfe optimization.
+
+# bounded_compute_extreme_point
+
+Compute an extreme point of an L2-norm unit ball under integer constraints.
+
+The function returns a vector `v` that maximizes `dot(v, d)` over the L2 unit ball,
+while respecting integer variable bounds (`lb`, `ub`).  
+
+- For integer variables, if bounds force ±1, return that vertex immediately.
+- Otherwise, choose the integer index with largest |d[i]| and assign ±1 if it improves the objective.
+- Continuous variables follow the negative gradient direction and are normalized to unit L2-norm.
+- Integer entries not assigned ±1 are set to zero in the continuous hyperplane.
+"""
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.LpNormBallLMO{T,2},
+    d,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+) where {T}
+    max = 0
+    max_idx = 0
+    #the extreme point would be either a point with 1 in a integer entry or in the hyperplane in all integer entry equal to 0
+    for idx in int_vars
+        i = findfirst(x -> x == idx, int_vars)
+        if lb[i] > 0
+            v = zeros(length(d))
+            v[idx] = 1
+            return v
+        elseif ub[i] < 0
+            v = zeros(length(d))
+            v[idx] = -1
+            return v
+        elseif lb[i] == 0 && ub[i] == 0
+            continue
+        end
+        if abs(d[idx]) > max
+            max = abs(d[idx])
+            max_idx = idx
+        end
+    end
+    v = -d
+    v[int_vars] .= 0
+    if isapprox(norm(v), 0.0; rtol=1e-6)
+        prod = 0
+    else
+        v = v ./ norm(v)
+        prod = dot(v, d)
+    end
+    if -max < prod
+        v = zeros(length(d))
+        if d[max_idx] < 0
+            v[max_idx] = 1
+        elseif d[max_idx] > 0
+            v[max_idx] = -1
+        end
+    end
+    return v
+end
+
+function is_simple_linear_feasible(lmo::FrankWolfe.LpNormBallLMO{T,2}, v) where {T}
+    if norm(v) > 1 + 1e-6
+        @debug "norm(v) : $(norm(v)) > 1"
+        return false
+    end
+    return true
+end
+
+function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars, n) where {T}
+    if lmo.right_hand_side != 1
+        println("right_hand_side > 1: cannot handle this case now")
+        return INFEASIBLE
+    end
+
+    if any(lb .> 1) || any(ub .< -1)
+        return INFEASIBLE
+    end
+    count = 0
+    #If there is at least two entry have to larger or equal to 1 than that is definitely infeasible
+    for idx in 1:length(int_vars)
+        if !(lb[idx] <= 0 <= ub[idx])
+            count += count
+        end
+        if count > 1
+            return INFEASIBLE
+        end
+    end
+    return OPTIMAL
+end
