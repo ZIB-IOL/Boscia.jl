@@ -726,9 +726,19 @@ This type is defined in the `FrankWolfe` package.
 It solves the linear minimization problem over the Euclidean unit ball.
 
 You can use it with the helpers in this package for integer-constrained Frank-Wolfe optimization.
-"""
-const L2BallLMO = FrankWolfe.LpNormBallLMO{Float64,2}
 
+# bounded_compute_extreme_point
+
+Compute an extreme point of an L2-norm unit ball under integer constraints.
+
+The function returns a vector `v` that maximizes `dot(v, d)` over the L2 unit ball,
+while respecting integer variable bounds (`lb`, `ub`).  
+
+- For integer variables, if bounds force ±1, return that vertex immediately.
+- Otherwise, choose the integer index with largest |d[i]| and assign ±1 if it improves the objective.
+- Continuous variables follow the negative gradient direction and are normalized to unit L2-norm.
+- Integer entries not assigned ±1 are set to zero in the continuous hyperplane.
+"""
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.LpNormBallLMO{T,2},
     d,
@@ -786,6 +796,11 @@ function is_simple_linear_feasible(lmo::FrankWolfe.LpNormBallLMO{T,2}, v) where 
 end
 
 function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars, n) where {T}
+    if lmo.right_hand_side != 1
+        println("right_hand_side > 1: cannot handle this case now")
+        return INFEASIBLE 
+    end
+
     if any(lb .> 1) || any(ub .< -1)
         return INFEASIBLE
     end
@@ -800,4 +815,39 @@ function check_feasibility(lmo::FrankWolfe.LpNormBallLMO{T,2}, lb, ub, int_vars,
         end
     end
     return OPTIMAL
+end
+
+@testset "L2normBall BLMO rhs > 1 triggers infeasible" begin
+    n = 10
+    num_int = 3
+
+    rng = Random.default_rng()
+    int_indices = sort(rand(rng, 1:n, num_int))
+
+    x_sol = zeros(n)
+    x_sol[int_indices[1]] = 1.0
+
+    function f(x)
+        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    end
+
+    function grad!(storage, x)
+        @. storage = x - x_sol
+    end
+
+    blmo = FrankWolfe.LpNormBallLMO{Float64,2}(1.5)  
+
+    lower_bounds = fill(-1.0, num_int)
+    upper_bounds = fill(1.0, num_int)
+    int_vars = collect(int_indices)
+
+    result = try
+        x, _, sol = Boscia.solve(f, grad!, blmo, lower_bounds, upper_bounds, int_vars, n)
+        false  
+    catch e
+        println("Caught error as expected: ", e)
+        true   
+    end
+
+    @test result == true
 end
