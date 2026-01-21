@@ -724,8 +724,6 @@ Compute an extreme point of the K-norm ball using a greedy strategy.
 Two candidates are constructed (ℓ∞-type and ℓ1-type), and the one minimizing
 the inner product with `direction` is returned, respecting bounds and integrality.
 """
-const KNormBallBLMO = FrankWolfe.KNormBallLMO
-
 function bounded_compute_extreme_point(
     lmo::FrankWolfe.KNormBallLMO,
     direction,
