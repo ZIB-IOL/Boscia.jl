@@ -41,7 +41,7 @@ Available settings:
 - `bnb_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
 - `branch_callback` an optional callback called before branching. Receives the tree, the node and the branching variable index as input. Expected output is a pair of boolean values indicating whether the left and right child should be pruned. `false`indicates prune the child, `true` indicates keep the child.
 - `no_pruning` if `true`, no pruning of nodes is performed. Per default, nodes are pruned if they have a lower bound which is worse than the best known solution. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
-- `ignore_lower_bound` if `true`, the lower bound obtain by Frank-Wolfe is ignored and in the logs, only Inf will be printed. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
+- `ignore_lower_bound` if `true`, the lower bound obtain by Frank-Wolfe is ignored and in the logs, only `-Inf` will be printed. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
 - `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO, performance might improve by disabling this option. Per default, this is `true`.
 """
