@@ -88,7 +88,9 @@ function Bonobo.optimize!(
         updated = Bonobo.update_best_solution!(tree, node)
         if updated
             Bonobo.bound!(tree, node.id)
-            if isapprox(tree.incumbent, tree.lb; atol=tree.options.atol, rtol=tree.options.rtol)
+            # Only break early if we're not ignoring the lower bound
+            if !tree.root.options[:ignore_lower_bound] &&
+               isapprox(tree.incumbent, tree.lb; atol=tree.options.atol, rtol=tree.options.rtol)
                 break
             end
         end
