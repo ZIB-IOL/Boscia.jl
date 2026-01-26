@@ -340,6 +340,9 @@ function Bonobo.terminated(tree::Bonobo.BnBTree{<:FrankWolfeNode})
     if tree.root.problem.solving_stage in (TIME_LIMIT_REACHED, NODE_LIMIT_REACHED, USER_STOP)
         return true
     end
+    if tree.root.options[:ignore_lower_bound]
+        return false
+    end
     absgap = tree.incumbent - tree.lb
     if absgap ≤ tree.options.abs_gap_limit
         return true
