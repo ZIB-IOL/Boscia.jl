@@ -452,7 +452,7 @@ end
 
 
     function perform_strong_branch(tree, node)
-        return node.level <= length(tree.root.problem.integer_variables) / 3
+        return node.std.depth <= length(tree.root.problem.integer_variables) / 3
     end
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)

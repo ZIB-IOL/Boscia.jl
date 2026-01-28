@@ -1,6 +1,6 @@
 name = "Boscia"
 uuid = "36b166db-dac5-4d05-b36a-e6c4cef071c9"
-version = "0.2.4"
+version = "0.2.5"
 authors = ["ZIB IOL"]
 
 [deps]
@@ -25,7 +25,7 @@ BosciaSCIPExt = "SCIP"
 
 [compat]
 Aqua = "0.8"
-Bonobo = "=0.1.4"
+Bonobo = "0.1.5"
 CSV = "0.10"
 CombinatorialLinearOracles = "0.1.2"
 Dates = "1.6"

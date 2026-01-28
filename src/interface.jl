@@ -133,11 +133,10 @@ function solve(
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
-        NodeInfo(1, f(v), f(v)),
+        NodeInfo(1, f(v), f(v), 1),
         options[:active_set],
         vertex_storage,
         IntegerBounds(),
-        1,
         1e-3,
         Millisecond(0),
         0,
@@ -183,7 +182,6 @@ function solve(
             active_set=options[:active_set],
             discarded_vertices=vertex_storage,
             local_bounds=IntegerBounds(),
-            level=1,
             fw_dual_gap_limit=options[:fw_epsilon],
             fw_time=Millisecond(0),
             global_tightenings=0,
