@@ -720,6 +720,8 @@ end
 """
     bounded_compute_extreme_point(lmo::KSparseLMO, direction, lb, ub, int_vars)
 
+    KSparse: C = B_1(τK) ∩ B_∞(τ)
+
 Compute an extreme point of a K-sparse LMO along a given direction.  
 
 Compute an extreme point of a K-sparse LMO using a greedy strategy:  
@@ -898,6 +900,11 @@ function bounded_dicg_maximum_step(
     return max(gamma_max, 0.0)
 end
 
+"""
+    is_simple_linear_feasible(sblmo::KSparseLMO, x, int_vars; tol=1e-8)
+
+If L1 norm is larger than K * τ or Infinite norm is larger than τ, than the point is not feasible.
+"""
 function is_simple_linear_feasible(
     sblmo::FrankWolfe.KSparseLMO{T},
     v;
@@ -921,17 +928,26 @@ function is_simple_linear_feasible(
     return true
 end
 
+"""
+    check_feasibility(sblmo::KSparseLMO, lb, ub, int_vars, n; tol=1e-8)
 
+    If the absolute value of lb or ub is already larger than τ, or the sum of each dimensions is larger than K * τ then there is no feasible point in this region.
+"""
 function check_feasibility(sblmo::FrankWolfe.KSparseLMO{T}, lb, ub, int_vars, n; tol=1e-8) where {T}
     K = sblmo.K
     τ = sblmo.right_hand_side
     n_int = length(lb)
+    sum = 0
 
     for i in 1:n_int
         v = clamp(τ, lb[i], ub[i])
+        sum += abs.(v)
         if abs.(v) .> τ + tol
             return INFEASIBLE
         end
+    end
+    if sum > K * τ + tol
+        return INFEASIBLE
     end
     if τ < 0
         return INFEASIBLE
