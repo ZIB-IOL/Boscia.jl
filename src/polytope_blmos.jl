@@ -716,3 +716,141 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+"""
+    bounded_compute_extreme_point(lmo::FrankWolfe.KNormBallLMO, direction, lb, ub, int_vars)
+    
+    Knorm: C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
+
+Compute an extreme point of the K-norm ball using a greedy strategy.
+Two candidates are constructed (ℓ∞-type and ℓ1-type), and the one minimizing
+the inner product with `direction` is returned, respecting bounds and integrality.
+"""
+function bounded_compute_extreme_point(
+    lmo::FrankWolfe.KNormBallLMO,
+    direction,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
+    K = max(min(lmo.K, length(direction)), 1)
+    oinf = zero(eltype(direction))
+    v = zeros(eltype(direction), length(direction))
+
+    @inbounds for (i, dir_val) in enumerate(direction)
+        temp = -lmo.right_hand_side / K * sign(dir_val)
+
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            temp = clamp(temp, ceil(lb[idx]), floor(ub[idx]))
+            if sign(temp) >= 0
+                temp = floor(temp)
+            elseif sign(temp) < 0
+                temp = ceil(temp)
+            end
+        end
+
+        v[i] = temp
+        oinf += dir_val * temp
+
+    end
+
+    v1 = zeros(length(direction))
+
+    for i in int_vars
+        idx = findfirst(x -> x == i, int_vars)
+        if lb[idx] > 0
+            v1[i] = ceil(lb[idx])
+        elseif ub[idx] < 0
+            v1[i] = floor(ub[idx])
+        end
+    end
+
+    perm = sortperm(abs.(direction); rev=true)
+
+    for i in perm
+        total_used = sum(abs.(v1))
+        rem = lmo.right_hand_side - total_used
+
+        if isapprox(rem, 0.0; atol=1e-6)
+            break
+        end
+
+        d = direction[i]
+        sgn = -sign(d)   # move opposite to gradient
+        step = sgn * rem
+
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if sgn > 0
+                v1[i] = clamp(floor(step), ceil(lb[idx]), floor(ub[idx]))
+            elseif sgn < 0
+                v1[i] = clamp(ceil(step), ceil(lb[idx]), floor(ub[idx]))
+            else
+                v1[i] = clamp(0, ceil(lb[idx]), floor(ub[idx]))
+            end
+        else
+            v1[i] = step
+        end
+    end
+
+    o1 = dot(v1, direction)
+    if o1 < oinf
+        @. v = v1
+    end
+    return v
+end
+
+"""
+    is_simple_linear_feasible(lmo, v)
+
+Check if `v` lies in the L₁-ball of radius τ or L∞-ball of radius τ/K.
+
+if `v` satisfies either ball constraint then return true
+"""
+function is_simple_linear_feasible(lmo::FrankWolfe.KNormBallLMO, v)
+    τ = lmo.right_hand_side
+    K = lmo.K
+
+    #falls into one of B1(τ) or B∞(τ/K)
+    if any(isnan, v)
+        @debug "v contains NaN: $(v)"
+        return false
+    end
+    if !((sum(abs, v) <= τ + 1e-8) || (maximum(abs.(v)) <= τ / K + 1e-8))
+        @debug "1 norm : $(sum(abs, v)) > τ :$τ and max norm: $(maximum(abs.(v))) > τ / K : $(τ / K)"
+        return false
+    end
+    return true
+end
+
+"""
+    check_feasibility(lmo, lb, ub, int_vars, n)
+
+Check if there exists a vector within `[lb, ub]` satisfying L₁ or L∞ constraints.
+"""
+function check_feasibility(lmo::FrankWolfe.KNormBallLMO, lb, ub, int_vars, n)
+    τ = lmo.right_hand_side
+    K = lmo.K
+
+    l1_min = 0.0
+    #The minimum L₁ norm does not exceed τ
+    @inbounds for i in eachindex(lb, ub)
+        li, ui = lb[i], ub[i]
+        if li > 0.0 || ui < 0.0
+            l1_min += min(abs(li), abs(ui))
+        end
+    end
+    feas_by_l1 = (l1_min ≤ τ + 1e-8)
+
+    #Is there x ∈ [lb,ub] such that ||x||_∞ ≤ τ/K
+    r = τ / K
+    feas_by_linf = all(lb .≤ r) || all(-r .≤ ub)
+
+    if feas_by_l1 || feas_by_linf
+        return OPTIMAL
+    else
+        return INFEASIBLE
+    end
+end
