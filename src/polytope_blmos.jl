@@ -937,17 +937,12 @@ function check_feasibility(sblmo::FrankWolfe.KSparseLMO{T}, lb, ub, int_vars, n;
     K = sblmo.K
     τ = sblmo.right_hand_side
     n_int = length(lb)
-    sum = 0
 
     for i in 1:n_int
         v = clamp(τ, lb[i], ub[i])
-        sum += abs.(v)
         if abs.(v) .> τ + tol
             return INFEASIBLE
         end
-    end
-    if sum > K * τ + tol
-        return INFEASIBLE
     end
     if τ < 0
         return INFEASIBLE
