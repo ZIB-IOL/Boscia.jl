@@ -719,6 +719,8 @@ end
 
 """
     bounded_compute_extreme_point(lmo::FrankWolfe.KNormBallLMO, direction, lb, ub, int_vars)
+    
+    Knorm: C_{K,τ} = conv { B_1(τ) ∪ B_∞(τ / K) }
 
 Compute an extreme point of the K-norm ball using a greedy strategy.
 Two candidates are constructed (ℓ∞-type and ℓ1-type), and the one minimizing
@@ -800,6 +802,13 @@ function bounded_compute_extreme_point(
     return v
 end
 
+"""
+    is_simple_linear_feasible(lmo, v)
+
+Check if `v` lies in the L₁-ball of radius τ or L∞-ball of radius τ/K.
+
+if `v` satisfies either ball constraint then return true
+"""
 function is_simple_linear_feasible(lmo::FrankWolfe.KNormBallLMO, v)
     τ = lmo.right_hand_side
     K = lmo.K
@@ -816,6 +825,11 @@ function is_simple_linear_feasible(lmo::FrankWolfe.KNormBallLMO, v)
     return true
 end
 
+"""
+    check_feasibility(lmo, lb, ub, int_vars, n)
+
+Check if there exists a vector within `[lb, ub]` satisfying L₁ or L∞ constraints.
+"""
 function check_feasibility(lmo::FrankWolfe.KNormBallLMO, lb, ub, int_vars, n)
     τ = lmo.right_hand_side
     K = lmo.K
