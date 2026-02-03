@@ -122,9 +122,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         error("Splitting on the same index as parent! Abort!")
     end
 
-    node.active_set_size = length(node.active_set)
-    node.discarded_set_size = length(node.discarded_vertices.storage)
-
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -300,6 +297,9 @@ Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # check that local bounds and global tightening don't conflict
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices)
+
     for (j, ub) in tree.root.global_tightenings.upper_bounds
         if !haskey(node.local_bounds.lower_bounds, j)
             continue

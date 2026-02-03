@@ -111,14 +111,6 @@ function process_FW_callback_logic(
 
     node = tree.nodes[tree.root.current_node_id[]]
 
-    if active_set != nothing
-        node.active_set_size = length(active_set)
-    end
-
-    if use_DICG && pre_computed_set != nothing
-        node.discarded_set_size = length(pre_computed_set)
-    end
-
     if (state.primal - state.dual_gap > tree.incumbent + 1e-2) &&
        tree.num_nodes != 1 &&
        state.t > min_fw_iterations
