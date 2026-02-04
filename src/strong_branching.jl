@@ -203,7 +203,7 @@ function strong_up_to_depth(
     max_depth::Int,
     alternative=Bonobo.MOST_INFEASIBLE(),
 )
-    perform_strong_while_depth(_, node) = node.level <= max_depth
+    perform_strong_while_depth(_, node) = node.std.depth <= max_depth
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, lmo),
         perform_strong_while_depth,

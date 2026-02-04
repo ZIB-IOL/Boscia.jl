@@ -102,11 +102,10 @@ function Bonobo.optimize!(
         y = Bonobo.get_solution(tree)
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(y)[], 1)
         dummy_node = FrankWolfeNode(
-            NodeInfo(-1, Inf, Inf),
+            NodeInfo(-1, Inf, Inf, 0),
             FrankWolfe.ActiveSet([(1.0, y)]),
             vertex_storage,
             IntegerBounds(),
-            1,
             1e-3,
             Millisecond(0),
             0,
@@ -117,7 +116,7 @@ function Bonobo.optimize!(
         )
         callback(tree, dummy_node, node_infeasible=true)
     end
-    return Bonobo.sort_solutions!(tree.solutions, tree.sense)
+    return Bonobo.sort_solutions!(tree.solutions)
 end
 
 function Bonobo.update_best_solution!(

@@ -19,10 +19,11 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
+    depth::Int
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub))
+    return NodeInfo(std.id, T(std.lb), T(std.ub), std.depth)
 end
 
 """
@@ -35,7 +36,7 @@ abstract type AbstractFrankWolfeNode <: Bonobo.AbstractNode end
 
 A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
 
-`std` stores the id, lower and upper bound of the node.
+`std` stores the id, lower, upper bound and Depth of the node.
 `active_set` store the active set structure.
 `local_bounds` instead of storing the complete LMO, it just stores the bounds specific to THIS node.
     All other integer bounds are stored in the root.
@@ -61,7 +62,6 @@ mutable struct FrankWolfeNode{
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
-    level::Int
     fw_dual_gap_limit::Float64
     fw_time::Millisecond
     global_tightenings::Int
@@ -85,7 +85,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -98,7 +97,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -238,7 +236,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -257,7 +254,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
