@@ -53,7 +53,6 @@ end
     time_limit = 60
 
     settings = Boscia.create_default_settings()
-    settings.branch_and_bound[:verbose] = verbose
     settings.branch_and_bound[:time_limit] = time_limit
     x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
@@ -76,7 +75,6 @@ end
         f, grad!, lmo = build_examples(o, dimension, seed)
 
         settings = Boscia.create_default_settings()
-        settings.branch_and_bound[:verbose] = verbose
         settings.branch_and_bound[:time_limit] = time_limit
         settings.branch_and_bound[:traverse_strategy] = Boscia.DepthFirstSearch(false)
         x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)

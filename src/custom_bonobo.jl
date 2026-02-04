@@ -191,8 +191,8 @@ function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::DepthFirstSearch)
 
     # For favored branch side (e.g. right if strategy.favor_right == true)
     favored_id = -1
-    favored_level = -1
-    favored_lb = Inf  # we maximize level, then minimize lb
+    favored_depth = -1
+    favored_lb = Inf  # we maximize depth, then minimize lb
 
     # For unfavored side
     unfavored_id = -1
@@ -209,8 +209,8 @@ function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::DepthFirstSearch)
 
         if node.branched_right == strategy.favor_right
             # Favored: maximize depth, tie-break by smaller lb
-            if node.level > favored_level || (node.level == favored_level && node.lb < favored_lb)
-                favored_level = node.level
+            if node.depth > favored_depth || (node.depth == favored_depth && node.lb < favored_lb)
+                favored_depth = node.depth
                 favored_lb = node.lb
                 favored_id = id
             end
