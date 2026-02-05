@@ -27,7 +27,7 @@ end
 Check feasibility and boundedness
 """
 function check_feasibility(tlmo::TimeTrackingLMO)
-    return check_feasibility(tlmo.blmo)
+    return check_feasibility(tlmo.lmo)
 end
 
 
@@ -35,7 +35,7 @@ end
 Check if at a given index we have an integer constraint respectivily.
 """
 function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
+    return has_integer_constraint(tree.root.problem.tlmo.lmo, idx)
 end
 
 
@@ -43,7 +43,7 @@ end
 Check wether a split is valid. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
-    return is_valid_split(tree, tree.root.problem.tlmo.blmo, vidx)
+    return is_valid_split(tree, tree.root.problem.tlmo.lmo, vidx)
 end
 
 
@@ -141,11 +141,15 @@ function split_pre_computed_set!(
     return pre_computed_set_left, pre_computed_set_right
 end
 
-function clean_up_pre_computed_set!(lmo, pre_computed_set, x, fw_variant)
-    # Nothing to do if no set or warm-start disabled
-    if pre_computed_set === nothing || !fw_variant.use_strong_warm_start
-        return
-    end
+"""
+Default starting point function which generates a random vertex
+"""
+function trivial_build_dicg_start_point(lmo::LinearMinimizationOracle)
+    n, _ = get_list_of_variables(lmo)
+    d = ones(n)
+    x0 = FrankWolfe.compute_extreme_point(lmo, d)
+    return x0
+end
 
     # Collect indices of infeasible atoms
     indices_to_delete = Int[]
@@ -155,21 +159,19 @@ function clean_up_pre_computed_set!(lmo, pre_computed_set, x, fw_variant)
             push!(indices_to_delete, idx)
         end
     end
-
-    # Remove in one go
-    deleteat!(pre_computed_set, indices_to_delete)
-
-    return true
-end
-
-function init_decomposition_invariant_state(active_set, pre_computed_set, callback, kwargs...)
-    # We keep track of computed extreme points by creating logging callback.
-    function make_callback(pre_computed_set)
-        return function DICG_callback(state, kwargs...)
-            if !callback(state, pre_computed_set)
-                return false
+    if pre_computed_set === nothing
+        x0 = build_dicg_start_point(lmo.lmo)
+    else
+        if !isempty(pre_computed_set)
+            # We pick a point by averaging the pre_computed_atoms as warm-start.  
+            num_pre_computed_set = length(pre_computed_set)
+            x0 = sum(pre_computed_set) / num_pre_computed_set
+            if !domain_oracle(x0)
+                x0 = build_dicg_start_point(lmo.lmo)
             end
-            return true
+        else
+            # We pick a random point.
+            x0 = build_dicg_start_point(lmo.lmo)
         end
     end
 
@@ -324,17 +326,15 @@ function build_active_set_by_domain_oracle(
                     return storage
                 end
 
-                function build_inner_callback(tree)
-                    # Count the iteration after entering the domain
-                    domain_counter = 0
-                    return function inner_callback(state, active_set, kwargs...)
-                        # Once we find a domain feasible point, we count the iteration
-                        # and stop if we have not found a feasible point after 5 iterations..
-                        if tree.root.options[:domain_oracle](state.x)
-                            if domain_counter > 5
-                                return false
-                            end
-                            domain_counter += 1
+            function build_inner_callback(tree)
+                # Count the iteration after entering the domain
+                domain_counter = 0
+                return function inner_callback(state, active_set, kwargs...)
+                    # Once we find a domain feasible point, we count the iteration
+                    # and stop if we have not found a feasible point after 5 iterations..
+                    if tree.root.options[:domain_oracle](state.x)
+                        if domain_counter > tree.root.options[:depth_domain]
+                            return false
                         end
                     end
                 end

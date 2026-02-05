@@ -132,6 +132,55 @@ end
 Base.print(io::IO, ::BlendedConditionalGradient) = print(io, "Blended Conditional Gradient")
 
 """
+    Pairwise FrankWolfe
+"""
+
+struct PairwiseFrankWolfe <: FrankWolfeVariant end
+
+function solve_frank_wolfe(
+    frank_wolfe_variant::PairwiseFrankWolfe,
+    f,
+    grad!,
+    lmo,
+    active_set;
+    line_search::FrankWolfe.LineSearchMethod=FrankWolfe.Secant(),
+    epsilon=1e-7,
+    max_iteration=10000,
+    add_dropped_vertices=false,
+    use_extra_vertex_storage=false,
+    extra_vertex_storage=nothing,
+    callback=nothing,
+    lazy=false,
+    lazy_tolerance=2.0,
+    timeout=Inf,
+    verbose=false,
+    workspace=nothing,
+    kwargs...,
+)
+    x, _, primal, dual_gap, status, _, active_set =
+        FrankWolfe.blended_pairwise_conditional_gradient(
+            f,
+            grad!,
+            lmo,
+            active_set,
+            line_search=line_search,
+            epsilon=epsilon,
+            max_iteration=max_iteration,
+            add_dropped_vertices=add_dropped_vertices,
+            use_extra_vertex_storage=use_extra_vertex_storage,
+            extra_vertex_storage=extra_vertex_storage,
+            callback=callback,
+            lazy=lazy,
+            sparsity_control=lazy_tolerance,
+            timeout=timeout,
+            verbose=verbose,
+        )
+    return x, primal, dual_gap, status, active_set
+end
+
+Base.print(io::IO, ::PairwiseFrankWolfe) = print(io, "Pairwise Frank-Wolfe")
+
+"""
 	Blended Pairwise Conditional Gradient
 """
 struct BlendedPairwiseConditionalGradient <: FrankWolfeVariant end

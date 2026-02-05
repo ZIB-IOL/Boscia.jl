@@ -81,9 +81,9 @@ end
         @. storage = x - diffi
     end
 
-    blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
-    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    branch_lmo = FrankWolfe.MathOptLMO(HiGHS.Optimizer())
+    branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, branch_lmo)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
@@ -341,7 +341,6 @@ Ns = 0.1
             storage[1:p] .-= 1 / n * ys[i] * xi
             storage[end] += 1 / n * (exp(a) - ys[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
@@ -406,6 +405,12 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.PairwiseFrankWolfe()
+    x_pcg, _, result_pcg = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     settings.frank_wolfe[:fw_verbose] = false
     x_dicg, _, result_dicg = Boscia.solve(f, grad!, lmo, settings=settings)
@@ -425,6 +430,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
     @test isapprox(f(x_afw), f(result_afw[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_blended), f(result_blended[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_pcg), f(result_pcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_bpcg), f(result_bpcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_dicg), f(result_dicg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_bdicg), f(result_bdicg[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -432,7 +438,8 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
     @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_blended, x_bpcg, atol=1e-6, rtol=1e-3)) == n
-    @test sum(isapprox.(x_bpcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_pcg, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_pcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_dicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_bdicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
@@ -864,4 +871,89 @@ end
     @test Boscia.is_linear_feasible(o, vcat([1.0, 0.5], ones(n - 2)))
     @test Boscia.is_linear_feasible(o, vcat([0.5, 0.5], ones(n - 2)))
     @test Boscia.is_linear_feasible(o, vcat([0.0, 0.0], ones(n - 2)))
+end
+
+@testset "Float N test with ProbabilitySimplexLMO" begin
+    n = 10
+    N = 24.5   #Float N
+    d = randn(n)
+    nint = 4
+
+    lb = zeros(nint)
+    ub = ones(nint) * 20.0
+
+    int_vars = collect(1:nint)
+
+    blmo = Boscia.ProbabilitySimplexLMO(N)
+
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 9.7] #exactly equal to N
+
+
+    Q = Matrix(I, n, n)
+    b = -Q * x_feas
+
+    function f(x)
+        return 0.5 * x' * Q * x + b' * x
+    end
+
+    function grad!(storage, x)
+        return storage .= Q * x + b
+    end
+
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+
+    x, tlmo, result = Boscia.solve(f, grad!, blmo, lb, ub, int_vars, n; settings=settings)
+
+
+    @test length(x) == n
+    @test isfinite(f(x))
+    @test Boscia.is_simple_linear_feasible(blmo, x)
+
+
+    println("Solution x = ", x)
+    println("Objective f(x) = ", f(x))
+    println("Status = ", result[:status])
+end
+
+@testset "Float N test with UnitSimplexSimpleBLMO" begin
+    n = 10
+    N = 22.4   #Float N
+    d = randn(n)
+    nint = 3
+
+    lb = zeros(nint)
+    ub = ones(nint) * 10.0
+
+    int_vars = collect(1:nint)
+
+    blmo = Boscia.UnitSimplexSimpleBLMO(N)
+
+    x_feas = [1.0, 2.0, 0.0, 2.0, 0.0, 0.0, 4.2, 1.5, 4.1, 0.6] #smaller than N
+
+    Q = Matrix(I, n, n)
+    b = -Q * x_feas
+
+    function f(x)
+        return 0.5 * x' * Q * x + b' * x
+    end
+
+    function grad!(storage, x)
+        return storage .= Q * x + b
+    end
+
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:time_limit] = 10.0
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+
+    x, tlmo, result = Boscia.solve(f, grad!, blmo, lb, ub, int_vars, n; settings=settings)
+
+    @test length(x) == n
+    @test isfinite(f(x))
+    @test Boscia.is_simple_linear_feasible(blmo, x_feas)
+
+    println("Solution x = ", x)
+    println("Objective f(x) = ", f(x))
+    println("Status = ", result[:status])
 end
