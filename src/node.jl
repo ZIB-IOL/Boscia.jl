@@ -147,7 +147,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     #different ways to split active set
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -170,7 +170,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Sanity check
         @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
         @assert sum(active_set_left.weights .< 0) == 0
@@ -216,7 +216,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
         x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
         x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
@@ -340,7 +340,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
         active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
