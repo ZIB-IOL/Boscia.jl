@@ -332,7 +332,7 @@ Ns = 0.1
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n
             xi = @view(Xs[:, i])
@@ -348,13 +348,13 @@ Ns = 0.1
     settings.branch_and_bound[:verbose] = false
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
     @test f(x) <= f(result[:raw_solution])
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:start_solution] = x
     x2, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test sum(x2[p+1:2p]) <= k
+    @test sum(x2[(p+1):2p]) <= k
     @test f(x2) == f(x)
 end
 
@@ -641,8 +641,18 @@ end
     @test isapprox(f(x_bdicg_lazy), f(result_bdicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_dicg_no), f(result_dicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_bdicg_no), f(result_bdicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_dicg_warm_start), f(result_dicg_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_bdicg_warm_start), f(result_bdicg_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(
+        f(x_dicg_warm_start),
+        f(result_dicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_bdicg_warm_start),
+        f(result_bdicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
     @test sum(isapprox.(x_dicg_lazy, x_dicg_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_bdicg_lazy, x_bdicg_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_dicg_lazy, x_dicg_warm_start, atol=1e-6, rtol=1e-2)) == n
@@ -701,8 +711,18 @@ end
     @test isapprox(f(x_bdicg_lazy), f(result_bdicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_dicg_no), f(result_dicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(f(x_bdicg_no), f(result_bdicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_dicg_warm_start), f(result_dicg_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_bdicg_warm_start), f(result_bdicg_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(
+        f(x_dicg_warm_start),
+        f(result_dicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_bdicg_warm_start),
+        f(result_bdicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
     @test sum(isapprox.(x_dicg_lazy, x_dicg_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_bdicg_lazy, x_bdicg_no, atol=1e-6, rtol=1e-2)) == n
     @test sum(isapprox.(x_dicg_lazy, x_dicg_warm_start, atol=1e-6, rtol=1e-2)) == n
@@ -751,14 +771,16 @@ end
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] =
         Boscia.DecompositionInvariantConditionalGradient(use_warm_start=true)
-    x_dicg_weak_warm_start, _, result_dicg_weak_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_weak_warm_start, _, result_dicg_weak_warm_start =
+        Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] =
         Boscia.BlendedDecompositionInvariantConditionalGradient(use_warm_start=true)
-    x_bdicg_weak_warm_start, _, result_bdicg_weak_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_bdicg_weak_warm_start, _, result_bdicg_weak_warm_start =
+        Boscia.solve(f, grad!, lmo, settings=settings)
 
     # testing for strong warm_start
     settings = Boscia.create_default_settings()

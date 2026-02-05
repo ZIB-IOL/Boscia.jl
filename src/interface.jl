@@ -124,8 +124,7 @@ function solve(
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     pre_computed_set =
-        if typeof(options[:variant]) <: DecompositionInvariant &&
-           options[:variant].use_warm_start
+        if typeof(options[:variant]) <: DecompositionInvariant && options[:variant].use_warm_start
             [v]
         else
             nothing
