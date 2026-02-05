@@ -50,9 +50,9 @@ function solve(
         settings.domain,
     )
     merge!(options, Dict(:heu_ncalls => 0))
-    if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
+    if typeof(options[:variant]) <: DecompositionInvariant
         if !is_decomposition_invariant_oracle(lmo)
-            error("DICG within Boscia is not implemented for $(typeof(lmo)).")
+            error("DICG/BDICG within Boscia is not implemented for $(typeof(lmo)).")
         end
     end
     if options[:verbose]
@@ -124,8 +124,7 @@ function solve(
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
 
     pre_computed_set =
-        if typeof(options[:variant]) == DecompositionInvariantConditionalGradient &&
-           options[:variant].use_DICG_warm_start
+        if typeof(options[:variant]) <: DecompositionInvariant && options[:variant].use_warm_start
             [v]
         else
             nothing
@@ -261,7 +260,7 @@ function solve(
         options[:min_fw_iterations],
         time_ref,
         options[:time_limit],
-        use_DICG=typeof(options[:variant]) == DecompositionInvariantConditionalGradient,
+        use_DICG=typeof(options[:variant]) <: DecompositionInvariant,
     )
 
     tree.root.options[:callback] = fw_callback
