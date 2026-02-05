@@ -450,7 +450,7 @@ function solve_frank_wolfe(
     return x, primal, dual_gap, status, pre_computed_set
 end
 
-Base.print(io::IO, ::DecompositionInvariantConditionalGradient) =
+Base.print(io::IO, ::BlendedDecompositionInvariantConditionalGradient) =
     print(io, "BlendedDecompostion-Invariant-Frank-Wolfe")
 
 """
