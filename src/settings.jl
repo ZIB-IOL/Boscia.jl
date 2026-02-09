@@ -437,6 +437,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     smoothing_decay = 0.9
     smoothing_min_valid = false
     generate_smoothing_objective = nothing
+    use_sub_grad_info = false
 
     return Dict{Symbol,Union{Nothing,Function,Float64,Bool}}(
         :smoothing_start => smoothing_start,
@@ -444,6 +445,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :smoothing_decay => smoothing_decay,
         :smoothing_min_valid => smoothing_min_valid,
         :generate_smoothing_objective => generate_smoothing_objective,
+        :use_sub_grad_info => use_sub_grad_info,
     )
 end
 
