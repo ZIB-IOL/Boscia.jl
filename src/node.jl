@@ -413,15 +413,15 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
         sub_grad = []
         tree.root.options[:sub_grad!](sub_grad, x)
-        max_dual_gap = 0.0
-        for i in 1:length(sub_grad)
-            v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
-            dual_gap_sub = dot(sub_grad, x - v_sub)
-            max_dual_gap = max(max_dual_gap, dual_gap_sub)
+        min_dual_gap = Inf
+        for i in eachindex(sub_grad)
+            v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad[i])
+            dual_gap_sub = dot(sub_grad[i], x - v_sub)
+            min_dual_gap = min(min_dual_gap, dual_gap_sub)
         end
         #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
        # dual_gap = dot(sub_grad, x - v_sub)
-       dual_gap = max_dual_gap
+       dual_gap = min_dual_gap
     end
 
     node.fw_time = Dates.now() - time_ref
