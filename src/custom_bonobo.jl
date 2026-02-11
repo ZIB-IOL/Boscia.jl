@@ -45,17 +45,6 @@ function Bonobo.optimize!(
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if !tree.root.options[:no_pruning] && node.lb >= tree.incumbent
-            Bonobo.close_node!(tree, node)
-            callback(
-                tree,
-                node;
-                worse_than_incumbent=true,
-                lb_update=isapprox(node.lb, tree.incumbent),
-            )
-            continue
-        end
-
-        if node.lb >= tree.incumbent
             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
             if isa(tree.options.branch_strategy, Boscia.Hierarchy) ||
                isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
@@ -75,6 +64,14 @@ function Bonobo.optimize!(
                     tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
                 end
             end
+            Bonobo.close_node!(tree, node)
+            callback(
+                tree,
+                node;
+                worse_than_incumbent=true,
+                lb_update=isapprox(node.lb, tree.incumbent),
+            )
+            continue
         end
 
         tree.node_queue[node.id] = (node.lb, node.id)
