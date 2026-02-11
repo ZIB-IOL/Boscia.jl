@@ -354,9 +354,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         # Check feasibility of the iterate
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
         if is_linear_feasible(tree.root.problem.tlmo, x)
-        @assert is_linear_feasible(tree.root.problem.tlmo, x)
-        for (_, v) in node.active_set
-            @assert is_linear_feasible(tree.root.problem.tlmo, v)
+            @assert is_linear_feasible(tree.root.problem.tlmo, x)
+            for (_, v) in node.active_set
+                @assert is_linear_feasible(tree.root.problem.tlmo, v)
             end
         else
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
