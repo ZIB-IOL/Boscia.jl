@@ -86,8 +86,6 @@ function split_vertices_set!(
         if !is_bound_feasible(local_bounds, a)
             @info "removed"
             @debug"removed: $(a) local bounds: $(local_bounds)"
-            @show a
-            @show local_bounds
             push!(left_del_indices, idx)
             continue
         end
