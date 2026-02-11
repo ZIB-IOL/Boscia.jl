@@ -101,8 +101,8 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    @assert !isempty(active_set) "Left active set is empty: x_i=$(x[var])"
-    @assert !isempty(right_as) "Right active set is empty: x_i=$(x[var])"
+    @assert !isempty(active_set) "Left active set is empty: x_i=$(x[var]) right active set: $(right_as.atoms)"
+    @assert !isempty(right_as) "Right active set is empty: x_i=$(x[var]) left active set: $(active_set.atoms)"
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
