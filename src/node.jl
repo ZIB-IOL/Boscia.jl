@@ -147,7 +147,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     #different ways to split active set
-    if floor(x[vidx]) == ceil(x[vidx]) && tree.root.options[:branching_strategy] == BRANCH_ALL()
+    if isapprox(floor(x[vidx]), ceil(x[vidx])) && tree.root.options[:branching_strategy] == BRANCH_ALL()
         active_set_left, active_set_right = node.active_set, node.active_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
     elseif typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
