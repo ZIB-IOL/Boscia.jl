@@ -12,8 +12,8 @@ using FrankWolfe
     rhs = 3.0
 
     direction = randn(n)
-    lb = fill(-7.0, n)
-    ub = fill(7.0, n)
+    lb = fill(-7.0, 3)
+    ub = fill(-2.0, 3)
     int_vars = [2, 5, 7]
 
     # --- LMO ---
@@ -25,7 +25,7 @@ using FrankWolfe
     model = Model(HiGHS.Optimizer)
 
     # variables v with bounds
-    @variable(model, lb[i] <= v[i=1:n] <= ub[i])
+    @variable(model, v[i=1:n])
 
     # integer variables
     for i in int_vars
@@ -35,6 +35,10 @@ using FrankWolfe
     @variable(model, abs_v[i=1:n] >= 0)
 
     for i in 1:n
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            @constraint(model, lb[idx] <= v[i] <= ub[idx])
+        end
         @constraint(model, abs_v[i] <= rhs)
         @constraint(model, abs_v[i] >= v[i])
         @constraint(model, abs_v[i] >= -v[i])
@@ -58,12 +62,11 @@ end
     K = 5
     rhs = 3.0
 
-    direction = [-1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    lb = fill(-7.0, n)
-    ub = fill(7.0, n)
+    direction = randn(n)
+    lb = fill(1.0, 3)
+    ub = fill(7.0, 3)
     int_vars = [2, 5, 7]
     x = zeros(n)
-    x[1] = 3.0
 
     # --- LMO ---
     lmo = FrankWolfe.KSparseLMO(K, rhs)
@@ -74,7 +77,7 @@ end
     model = Model(HiGHS.Optimizer)
 
     # variables v with bounds
-    @variable(model, lb[i] <= v[i=1:n] <= ub[i])
+    @variable(model, v[i=1:n])
 
     # integer variables
     for i in int_vars
@@ -84,6 +87,10 @@ end
     @variable(model, abs_v[i=1:n] >= 0)
 
     for i in 1:n
+        if i in int_vars
+            idx = findfirst(==(i), int_vars)
+            @constraint(model, lb[idx] <= v[i] <= ub[idx])
+        end
         @constraint(model, abs_v[i] <= rhs)
         @constraint(model, abs_v[i] >= v[i])
         @constraint(model, abs_v[i] >= -v[i])

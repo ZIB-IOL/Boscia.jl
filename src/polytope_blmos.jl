@@ -806,7 +806,7 @@ function bounded_compute_inface_extreme_point(
                 push!(fixed_vars, i)
             end
         else
-            if isapprox(abs(x[i]), rhs; atol=atol, rtol=rtol) ||
+            if isapprox(x[i], rhs; atol=atol, rtol=rtol) ||
                isapprox(x[i], -rhs; atol=atol, rtol=rtol)
                 push!(fixed_vars, i)
             end
@@ -946,9 +946,6 @@ function check_feasibility(sblmo::FrankWolfe.KSparseLMO{T}, lb, ub, int_vars, n;
         if abs.(v) .> τ + tol
             return INFEASIBLE
         end
-    end
-    if τ < 0
-        return INFEASIBLE
     end
     return OPTIMAL
 end
