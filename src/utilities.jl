@@ -77,6 +77,7 @@ function split_vertices_set!(
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
     right_as = FrankWolfe.ActiveSet{T,R,T}([], [], similar(active_set.x))
+    @show active_set.atoms
 
     # indices to remove later from the left active set
     left_del_indices = BitSet()
@@ -101,8 +102,8 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    @assert !isempty(active_set) "Left active set is empty: x[$var]=$(x[var]) right active set: $(right_as.atoms)"
-    @assert !isempty(right_as) "Right active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms)"
+    @assert !isempty(active_set) "Left active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
+    @assert !isempty(right_as) "Right active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
