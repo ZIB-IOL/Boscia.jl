@@ -182,3 +182,40 @@ function Bonobo.get_solution(
     end
     return tree.solutions[result].solution
 end
+
+# ============== New branching strategy ==============#
+struct BRANCH_ALL <: Bonobo.AbstractBranchStrategy end
+
+function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, ::BRANCH_ALL, node::Bonobo.AbstractNode)
+    gb = tree.root.problem.integer_variable_bounds
+    most_infeas_idx = Bonobo.get_branching_variable(tree, Bonobo.MOST_INFEASIBLE(), node)
+
+    # Helper: is variable idx fixed in this node? (effective lb == effective ub)
+    function is_fixed(idx)
+        lb = get(gb.lower_bounds, idx, -Inf)
+        ub = get(gb.upper_bounds, idx, Inf)
+        if haskey(node.local_bounds.lower_bounds, idx) || haskey(node.local_bounds.upper_bounds, idx)
+            lb = get(node.local_bounds.lower_bounds, idx, lb)
+            ub = get(node.local_bounds.upper_bounds, idx, ub)
+        end
+        return lb == ub
+    end
+
+    # If most-infeasible returned a variable, use it only if it is not fixed in this node
+    if most_infeas_idx != -1 && is_fixed(most_infeas_idx)
+        most_infeas_idx = -1
+    end
+
+    if most_infeas_idx != -1
+        return most_infeas_idx
+    end
+
+    # Fallback: first integer variable that is not fixed in this node
+    for idx in tree.root.problem.integer_variables
+        is_fixed(idx) && continue
+        return idx
+    end
+
+    # All variables are fixed; no branching variable
+    return -1
+end
