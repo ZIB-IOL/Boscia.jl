@@ -297,9 +297,6 @@ Computes the relaxation at that node
 """
 function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     # check that local bounds and global tightening don't conflict
-    node.active_set_size = length(node.active_set)
-    node.discarded_set_size = length(node.discarded_vertices)
-
     for (j, ub) in tree.root.global_tightenings.upper_bounds
         if !haskey(node.local_bounds.lower_bounds, j)
             continue
@@ -433,6 +430,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if tree.root.options[:ignore_lower_bound]
         return -Inf, NaN
     end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices)
 
     return lower_bound, NaN
 end

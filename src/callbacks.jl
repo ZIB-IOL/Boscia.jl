@@ -109,8 +109,6 @@ function process_FW_callback_logic(
         end
     end
 
-    node = tree.nodes[tree.root.current_node_id[]]
-
     if (state.primal - state.dual_gap > tree.incumbent + 1e-2) &&
        tree.num_nodes != 1 &&
        state.t > min_fw_iterations
