@@ -5,6 +5,12 @@ function dual_tightening(tree, node, x, dual_gap)
     if tree.root.options[:dual_tightening] && isfinite(tree.incumbent)
         grad = similar(x)
         tree.root.problem.g(grad, x)
+        gradients = [grad]
+        if tree.root.options[:use_sub_grad_info] && tree.root.options[:mode] == SMOOTHING_MODE
+            sub_grad = []
+            tree.root.options[:sub_grad!](sub_grad, x)
+            gradients = vcat(gradients, sub_grad)
+        end
         num_tightenings = 0
         num_potential_tightenings = 0
         μ = tree.root.options[:strong_convexity]
@@ -30,7 +36,8 @@ function dual_tightening(tree, node, x, dual_gap)
                 # variable already fixed
                 continue
             end
-            gj = grad[j]
+            grads_j = [gradients[i][j] for i in eachindex(gradients)]
+            gj = argmax(abs, grads_j)
             if ≈(x[j], lb, atol=tree.options.atol, rtol=tree.options.rtol)
                 if !isapprox(gj, 0, atol=1e-5)
                     num_potential_tightenings += 1
