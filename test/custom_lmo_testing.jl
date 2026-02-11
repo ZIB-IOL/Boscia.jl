@@ -9,7 +9,7 @@ using FrankWolfe
 @testset "LMO vs MOI on the same feasible region - K" begin
     n = 10
     K = 5
-    rhs = 3.0
+    rhs = 4.0
 
     direction = randn(n)
     lb = fill(-7.0, 3)
