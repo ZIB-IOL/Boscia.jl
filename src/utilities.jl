@@ -77,7 +77,6 @@ function split_vertices_set!(
 ) where {T,R}
     x = FrankWolfe.get_active_set_iterate(active_set)
     right_as = FrankWolfe.ActiveSet{T,R,T}([], [], similar(active_set.x))
-    @show active_set.atoms
 
     # indices to remove later from the left active set
     left_del_indices = BitSet()
