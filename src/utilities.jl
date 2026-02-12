@@ -200,12 +200,12 @@ function split_vertices_set!(
             push!(left_del_indices, idx)
             continue
         end
-        if haskey(local_bounds.upper_bounds, var) && floor(x[var]) == local_bounds.upper_bounds[var] 
+        if floor(x[var]) == tree.root.problem.integer_variable_bounds.upper_bounds[var]
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
             continue
-        elseif haskey(local_bounds.lower_bounds, var) && ceil(x[var]) == local_bounds.lower_bounds[var]
+        elseif ceil(x[var]) == tree.root.problem.integer_variable_bounds.lower_bounds[var]
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
             push!(left_as.storage, vertex)
             push!(left_del_indices, idx)
