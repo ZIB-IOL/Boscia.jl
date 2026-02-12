@@ -92,6 +92,65 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
 
+@testset "Hypersimplex" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    int_vars = collect(1:(n÷2))
+    @testset "K $K radius $radius" for K in (1, 2, n ÷ 2), radius in (3.0, 5.0)
+        for lmo in
+            (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
+            for _ in 1:10
+                K = 2
+                radius = 3.0
+                lmo = FrankWolfe.HyperSimplexLMO(K, radius)
+                direction = randn(n)
+                # compute extreme point with zero-one
+                lbs = zeros(n ÷ 2)
+                ubs = ones(n ÷ 2)
+                v0 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test sum(v0) <= K
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v0) == K
+                end
+                @test maximum(v0) <= radius
+                for (i, idx) in enumerate(int_vars)
+                    if v0[idx] > 0
+                        @test lbs[i] <= v0[idx] <= ubs[i]
+                    end
+                end
+                # set some variables bounds
+                lbs = zeros(n ÷ 2)
+                ubs = ones(n ÷ 2)
+                idxmin = 3
+                direction[idxmin] = minimum(direction) - 1
+                i = findfirst(==(idxmin), int_vars)
+                ubs[i] = 0
+                v1 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                # test upper bound respected
+                @test v1[idxmin] == 0
+                idxmax = 4
+                direction[idxmax] = maximum(direction) + 1
+                v2 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test v2[idxmax] == 0
+                i = findfirst(==(idxmax), int_vars)
+                lbs[i] = 1
+                v3 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test v3[idxmax] == 1
+                @test sum(v3) <= K
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v3) == max(K, sum(lbs))
+                end
+            end
+        end
+    end
+end
+
+
 @testset "BLMO - Strong Branching" begin
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
