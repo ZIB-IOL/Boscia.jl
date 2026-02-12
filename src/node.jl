@@ -364,6 +364,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             grad = similar(x)
             v = compute_extreme_point(tree.root.problem.tlmo, grad)
             @debug "initial point v linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, v)) v: $(v)"
+            @debug "local bounds: $(node.local_bounds)"
             node.active_set = FrankWolfe.ActiveSet([(1.0, v)])
         end
     else
