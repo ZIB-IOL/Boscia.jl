@@ -412,6 +412,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
+        print_fw_iter=tree.root.options[:print_fw_iter],
     )
 
     if tree.root.options[:fw_verbose]

@@ -125,6 +125,7 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
     fw_verbose = false
     lazy = true
     lazy_tolerance = 2
+    print_fw_iter=1000
 
     return Dict(
         :variant => variant,
@@ -135,6 +136,7 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
         :fw_verbose => fw_verbose,
         :lazy => lazy,
         :lazy_tolerance => lazy_tolerance,
+        :print_fw_iter => print_fw_iter,
     )
 end
 
