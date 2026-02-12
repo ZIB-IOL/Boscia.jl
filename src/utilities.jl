@@ -200,15 +200,16 @@ function split_vertices_set!(
             push!(left_del_indices, idx)
             continue
         end
-        if floor(x[var]) == tree.root.problem.integer_variable_bounds.upper_bounds[var]
+        if isapprox(floor(x[var]), ceil(x[var]), atol=atol, rtol=rtol) 
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
-            push!(right_as.storage, vertex)
-            push!(left_del_indices, idx)
-            continue
-        elseif ceil(x[var]) == tree.root.problem.integer_variable_bounds.lower_bounds[var]
-            @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
-            # keep everything on the left
-            continue
+            if floor(x[var]) == tree.root.problem.integer_variable_bounds.upper_bounds[var]
+                push!(right_as.storage, vertex)
+                push!(left_del_indices, idx)
+                continue
+                elseif ceil(x[var]) == tree.root.problem.integer_variable_bounds.lower_bounds[var]
+                # keep everything on the left
+                continue
+            end
         elseif vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
