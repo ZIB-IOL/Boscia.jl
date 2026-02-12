@@ -391,6 +391,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
+    @debug "active set: $(node.active_set)"
+
     x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
         tree.root.problem.f,
