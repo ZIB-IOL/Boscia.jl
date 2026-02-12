@@ -100,9 +100,10 @@ end
         @. storage = x - diffi
     end
 
-    int_vars = collect(1:(n ÷ 2))
+    int_vars = collect(1:(n÷2))
     @testset "K $K radius $radius" for K in (1, 2, n ÷ 2), radius in (3.0, 5.0)
-        for lmo in (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
+        for lmo in
+            (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
             for _ in 1:10
                 K = 2
                 radius = 3.0

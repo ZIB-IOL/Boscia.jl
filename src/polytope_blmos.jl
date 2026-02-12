@@ -717,7 +717,14 @@ function rounding_hyperplane_heuristic(
     return [z], false
 end
 
-function bounded_compute_extreme_point(lmo::Union{FrankWolfe.UnitHyperSimplexLMO, FrankWolfe.HyperSimplexLMO}, direction, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(
+    lmo::Union{FrankWolfe.UnitHyperSimplexLMO,FrankWolfe.HyperSimplexLMO},
+    direction,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
     K = _compute_k_hypersimplex(lmo, direction)
     @assert isinteger(lmo.radius)
     v = spzeros(length(direction))
@@ -763,4 +770,5 @@ function is_simple_linear_feasible(lmo::FrankWolfe.UnitHyperSimplexLMO, v)
 end
 
 _compute_k_hypersimplex(lmo::FrankWolfe.HyperSimplexLMO, direction) = lmo.K
-_compute_k_hypersimplex(lmo::FrankWolfe.UnitHyperSimplexLMO, direction) = min(lmo.K, length(direction), sum(<(0), direction))
+_compute_k_hypersimplex(lmo::FrankWolfe.UnitHyperSimplexLMO, direction) =
+    min(lmo.K, length(direction), sum(<(0), direction))
