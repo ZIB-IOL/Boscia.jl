@@ -207,8 +207,7 @@ function split_vertices_set!(
             continue
         elseif ceil(x[var]) == tree.root.problem.integer_variable_bounds.lower_bounds[var]
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
-            push!(left_as.storage, vertex)
-            push!(left_del_indices, idx)
+            # keep everything on the left
             continue
         elseif vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
             push!(right_as.storage, vertex)
