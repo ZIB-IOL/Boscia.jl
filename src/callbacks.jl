@@ -126,6 +126,8 @@ function process_FW_callback_logic(
     end
 
     node = tree.nodes[tree.root.current_node_id[]]
+    @show node.active_set
+    @show node.discarded_vertices
     if length(node.active_set) > 1 &&
        !isempty(tree.nodes) &&
        min_number_lower <= length(values(tree.nodes))
