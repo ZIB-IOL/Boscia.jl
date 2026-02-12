@@ -77,10 +77,6 @@ function process_FW_callback_logic(
         @assert sum(active_set.weights .< 0) == 0
     end
 
-    node = tree.nodes[tree.root.current_node_id[]]
-    @show node.active_set
-    @show node.discarded_vertices
-
     # TODO deal with vertices becoming infeasible with conflicts
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)
