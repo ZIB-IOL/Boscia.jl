@@ -182,6 +182,10 @@ end
 
 """
 Split a discarded vertices set between left and right children.
+Uses the same left/right bound convention as get_branching_nodes_info:
+- Left child: var ≤ new_bound_left
+- Right child: var ≥ new_bound_right
+Works for both fractional and integer x[var] (e.g. BRANCH_ALL when solution is already integer).
 """
 function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
@@ -192,33 +196,45 @@ function split_vertices_set!(
     atol=1e-5,
     rtol=1e-5,
 ) where {T}
+    gb = tree.root.problem.integer_variable_bounds
+    lb_global = get(gb.lower_bounds, var, -Inf)
+    ub_global = get(gb.upper_bounds, var, Inf)
+    x_var = x[var]
+
+    # Same convention as in node.jl get_branching_nodes_info: three cases
+    # (1) x at global lower bound → left var ≤ lb, right var ≥ lb+1
+    # (2) x at global upper bound → left var ≤ ub-1, right var ≥ ub
+    # (3) else: x fractional or integer in (lb, ub) → left var ≤ floor(x), right var ≥ ceil(x)
+    #    When x is integer in the middle, floor(x) == ceil(x) == k, so left var ≤ k, right var ≥ k
+    new_bound_left, new_bound_right = if isapprox(lb_global, x_var, atol=atol, rtol=rtol)
+        floor(x_var), floor(x_var) + 1
+    elseif isapprox(ub_global, x_var, atol=atol, rtol=rtol)
+        ceil(x_var) - 1, ceil(x_var)
+    else
+        # Covers both fractional x and integer x strictly between lb and ub
+        floor(x_var), ceil(x_var)
+    end
+
     right_as = FrankWolfe.DeletedVertexStorage{T}(T[], discarded_set.return_kth)
-    # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
         if !is_bound_feasible(local_bounds, vertex)
             push!(left_del_indices, idx)
             continue
         end
-        if isapprox(floor(x[var]), ceil(x[var]), atol=atol, rtol=rtol) 
-            @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
-            if floor(x[var]) == tree.root.problem.integer_variable_bounds.upper_bounds[var]
-                push!(right_as.storage, vertex)
-                push!(left_del_indices, idx)
-                continue
-                elseif ceil(x[var]) == tree.root.problem.integer_variable_bounds.lower_bounds[var]
-                # keep everything on the left
-                continue
-            end
-        elseif vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
+        v_var = vertex[var]
+        # Left child: var ≤ new_bound_left. Right child: var ≥ new_bound_right.
+        # When new_bound_left == new_bound_right (integer x in the middle), vertex[var]==k is
+        # feasible for both; we assign it to the left only (first branch below).
+        if v_var < new_bound_left || isapprox(v_var, new_bound_left, atol=atol, rtol=rtol)
+            # Feasible for left (and only left when new_bound_left < new_bound_right)
+            continue
+        elseif v_var > new_bound_right || isapprox(v_var, new_bound_right, atol=atol, rtol=rtol)
+            # Feasible for right only
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
-        elseif vertex[var] <= floor(x[var]) ||
-               isapprox(vertex[var], floor(x[var]), atol=atol, rtol=rtol)
-            # keep in left, don't add to right
-        else #floor(x[var]) < vertex[var] < ceil(x[var])
-            # if you are in middle, delete from the left and do not add to the right!
-            @warn "Attention! Vertex in the middle."
+        else
+            # new_bound_left < v_var < new_bound_right: feasible for neither (e.g. fractional vertex)
             push!(left_del_indices, idx)
         end
     end
