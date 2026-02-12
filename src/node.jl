@@ -353,6 +353,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Check feasibility of the iterate
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+        @debug "initial point x linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, x))"
         if is_linear_feasible(tree.root.problem.tlmo, x)
             @assert is_linear_feasible(tree.root.problem.tlmo, x)
             for (_, v) in node.active_set
@@ -362,8 +363,12 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
             grad = similar(x)
             v = compute_extreme_point(tree.root.problem.tlmo, grad)
+            @debug "initial point v linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, v))"
             node.active_set = FrankWolfe.ActiveSet([(1.0, v)])
         end
+    else
+        x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+        @assert is_linear_feasible(tree.root.problem.tlmo, x)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE
