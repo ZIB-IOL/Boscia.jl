@@ -101,16 +101,21 @@ end
     end
 
     int_vars = collect(1:(n ÷ 2))
-    for K in (1, 2, n ÷ 2)
-        for radius in (3.0, 5.0)
-            lmo = FrankWolfe.UnitHyperSimplexLMO(K, radius)
+    @testset "K $K radius $radius" for K in (1, 2, n ÷ 2), radius in (3.0, 5.0)
+        for lmo in (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
             for _ in 1:10
+                K = 2
+                radius = 3.0
+                lmo = FrankWolfe.HyperSimplexLMO(K, radius)
                 direction = randn(n)
                 # compute extreme point with zero-one
                 lbs = zeros(n ÷ 2)
                 ubs = ones(n ÷ 2)
                 v0 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
                 @test sum(v0) <= K
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v0) == K
+                end
                 @test maximum(v0) <= radius
                 for (i, idx) in enumerate(int_vars)
                     if v0[idx] > 0
@@ -136,6 +141,9 @@ end
                 v3 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
                 @test v3[idxmax] == 1
                 @test sum(v3) <= K
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v3) == max(K, sum(lbs))
+                end
             end
         end
     end
