@@ -114,6 +114,7 @@ end
                 ubs = ones(n ÷ 2)
                 v0 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
                 @test sum(v0) <= K
+                @test Boscia.is_simple_linear_feasible(lmo, v0)
                 if lmo isa FrankWolfe.HyperSimplexLMO
                     @test sum(v0) == K
                 end
@@ -131,11 +132,13 @@ end
                 i = findfirst(==(idxmin), int_vars)
                 ubs[i] = 0
                 v1 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test Boscia.is_simple_linear_feasible(lmo, v1)
                 # test upper bound respected
                 @test v1[idxmin] == 0
                 idxmax = 4
                 direction[idxmax] = maximum(direction) + 1
                 v2 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test Boscia.is_simple_linear_feasible(lmo, v2)
                 @test v2[idxmax] == 0
                 i = findfirst(==(idxmax), int_vars)
                 lbs[i] = 1
@@ -145,6 +148,10 @@ end
                 if lmo isa FrankWolfe.HyperSimplexLMO
                     @test sum(v3) == max(K, sum(lbs))
                 end
+                @test Boscia.is_simple_linear_feasible(lmo, v3)
+                v_wrong = 1.0 * v3
+                v_wrong[1] = K + 1
+                @test !Boscia.is_simple_linear_feasible(lmo, v_wrong)
             end
         end
     end

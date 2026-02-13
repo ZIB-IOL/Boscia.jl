@@ -758,7 +758,19 @@ function bounded_compute_extreme_point(
 end
 
 function is_simple_linear_feasible(lmo::FrankWolfe.UnitHyperSimplexLMO, v)
-    if sum(v) <= lmo.K
+    if sum(v) > lmo.K
+        return false
+    end
+    for i in eachindex(v)
+        if v[i] < 0 || v[i] > lmo.radius
+            return false
+        end
+    end
+    return true
+end
+
+function is_simple_linear_feasible(lmo::FrankWolfe.HyperSimplexLMO, v)
+    if sum(v) != lmo.K
         return false
     end
     for i in eachindex(v)
