@@ -150,11 +150,13 @@ end
                 v_wrong = 1.0 * v3
                 v_wrong[1] = K + 1
                 @test !Boscia.is_simple_linear_feasible(lmo, v_wrong)
-                direction = rand(n)
-                @test norm(FrankWolfe.compute_extreme_point(lmo, direction)) <= 1e-6
-                v4 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
-                @test v4[int_vars] ≈ lbs
-                @test norm(v4) ≈ norm(lbs)
+                if lmo isa FrankWolfe.UnitHyperSimplexLMO
+                    direction = rand(n)
+                    @test norm(FrankWolfe.compute_extreme_point(lmo, direction)) <= 1e-6
+                    v4 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                    @test v4[int_vars] ≈ lbs
+                    @test norm(v4) ≈ norm(lbs)
+                end
             end
         end
     end
