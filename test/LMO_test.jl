@@ -11,6 +11,7 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
+using LinearAlgebra
 
 println("\nLMO Tests")
 
@@ -105,9 +106,6 @@ end
         for lmo in
             (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
             for _ in 1:10
-                K = 2
-                radius = 3.0
-                lmo = FrankWolfe.HyperSimplexLMO(K, radius)
                 direction = randn(n)
                 # compute extreme point with zero-one
                 lbs = zeros(n ÷ 2)
@@ -152,6 +150,13 @@ end
                 v_wrong = 1.0 * v3
                 v_wrong[1] = K + 1
                 @test !Boscia.is_simple_linear_feasible(lmo, v_wrong)
+                if lmo isa FrankWolfe.UnitHyperSimplexLMO
+                    direction = rand(n)
+                    @test norm(FrankWolfe.compute_extreme_point(lmo, direction)) <= 1e-6
+                    v4 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                    @test v4[int_vars] ≈ lbs
+                    @test norm(v4) ≈ norm(lbs)
+                end
             end
         end
     end
