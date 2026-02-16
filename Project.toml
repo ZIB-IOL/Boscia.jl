@@ -1,6 +1,6 @@
 name = "Boscia"
 uuid = "36b166db-dac5-4d05-b36a-e6c4cef071c9"
-version = "0.2.7"
+version = "0.2.8"
 authors = ["ZIB IOL"]
 
 [deps]
