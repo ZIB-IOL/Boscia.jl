@@ -729,11 +729,11 @@ function bounded_compute_extreme_point(
     @assert isinteger(lmo.radius)
     v = spzeros(length(direction))
     if maximum(lb) > 0
-        @assert sum(lb) <= K
+        @assert sum(lb) <= lmo.K
         for (idx, i) in enumerate(int_vars)
             v[i] = lb[idx]
         end
-        if sum(lb) == K
+        if sum(lb) >= K
             return v
         end
     end
