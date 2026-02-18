@@ -27,7 +27,7 @@ rng = StableRNG(seed)
 # z_i ∈ {0,1} for i = 1,..,p 
 
 n = 20
-p = 5 * n
+p = 2 * n
 k = ceil(n / 5)
 group_size = convert(Int64, floor(p / k))
 const M_g = 5.0
