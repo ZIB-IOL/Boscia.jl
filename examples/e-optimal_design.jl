@@ -16,12 +16,14 @@ using Dates
 using SCIP
 using MathOptInterface
 const MOI = MathOptInterface
+using Hypatia
+using JuMP
 
 #ENV["JULIA_DEBUG"] = "Boscia"
 
 # ============== Parameters ==============
 seed = 5
-m = 10
+m = 100
 n = Int(floor(sqrt(m)))
 corr = false
 N = Int(floor(1.5 * n * log(n)))
@@ -83,7 +85,7 @@ function build_e_criterion(A)
         return storage
     end
 
-#=    function generate_smoothing_function(μ)
+   function generate_smoothing_function(μ)
         function f_mu(x)
             X = inf_matrix(x)
             λ = eigvals(X)
@@ -95,23 +97,6 @@ function build_e_criterion(A)
             λ, V = eigen(X)
             frac = -1 / exp(LogExpFunctions.logsumexp(-λ ./ μ))
             storage .= frac * sum(LogExpFunctions.xexpy.((A * V[:, j]).^2, -λ[j] / μ) for j in 1:n)
-            return storage
-        end
-        return f_mu, grad_mu!
-    end=#
-
-    function generate_smoothing_function(μ)
-        function f_mu(x)
-            X = -inf_matrix(x)
-            λ = eigvals(X)
-            return μ * LogExpFunctions.logsumexp(λ ./ μ) - μ * log(n)
-        end
-
-        function grad_mu!(storage, x)
-            X = -inf_matrix(x)
-            λ, V = eigen(X)
-            frac = -1 / exp(LogExpFunctions.logsumexp(λ ./ μ))
-            storage .= frac * sum(LogExpFunctions.xexpy.((A * V[:, j]).^2, λ[j] / μ) for j in 1:n)
             return storage
         end
         return f_mu, grad_mu!
@@ -145,6 +130,149 @@ end
 lmo = build_blmo(m, N, ub)
 #lmo = build_moi_lmo(m, N, ub)
 
+
+# =============== Exclusion criterion ==============
+function set_objective_and_solve!(
+    model::JuMP.Model,
+    sense::MOI.OptimizationSense,
+    objective_expr,
+)
+    JuMP.set_objective_sense(model, sense)
+    JuMP.set_objective_function(model, objective_expr)
+    JuMP.optimize!(model)
+    return model
+end
+
+function model_exclusion(A, m, n, UB, LB, M; u=fill(1.0, m), x=fill(0.0, m))
+    fixed_indices = Int64[]
+    opt = optimizer_with_attributes(Hypatia.Optimizer, MOI.Silent() => true)
+    model = Model(opt)
+    @variable(model, Z[1:n, 1:n])
+    @constraint(model, sum(Z[i,i] for i in 1:n) == 1)
+    @constraint(model, Z in PSDCone())
+    for i in 1:m
+        @constraint(model, M * A[i, :]' * Z * A[i, :] <= UB)
+    end
+   
+    for i in 1:m
+        if x[i] != 0.0 || u[i] == 0.0
+            continue
+        end
+        objective = M * A[i, :]' * Z * A[i, :] 
+        set_objective_and_solve!(model, MOI.MAX_SENSE, objective)
+        obj = objective_value(model)
+        #@show i, obj, LB
+        if obj <= LB
+            push!(fixed_indices, i)
+        end
+    end
+   # @show fixed_indices
+    return model, fixed_indices
+end
+
+function exclusion_criterion(A, N, m, generate_smoothing_function, sub_grad!)
+    M = Float64(N) #1.0 # 1.0
+    ex_lmo = FrankWolfe.ProbabilitySimplexLMO(M)
+    gradient = rand(m)
+    x0 = FrankWolfe.compute_extreme_point(ex_lmo, gradient)
+    f_ex, grad_ex! = generate_smoothing_function(1e-1)
+    y, _, primal, dual_gap, _, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
+        f_ex, 
+        grad_ex!, 
+        ex_lmo, 
+        x0; 
+        epsilon=1e-5,#1e-1, #max(1e-7, exp10(-m/10)), 
+        verbose=true
+    )
+
+    @show y
+
+    X = A' * diagm(y) * A
+    λ, V = eigen(X)
+    λ_min = minimum(λ)
+    tolerance = max(1e-10 * abs(λ_min), 1e-10)
+    mult = count(λ_i -> abs(λ_i - λ_min) <= tolerance, λ)
+    sub_grads = []
+    sub_grad!(sub_grads, y)
+    fx = -f(y)
+    @assert isapprox(fx, minimum(λ), atol=1e-6) "fx: $(fx) minimum(λ): $(minimum(λ))"
+
+    W = Symmetric(sum(V[:, j] * V[:, j]' for j in 1:mult)) #+ I(n)
+
+    @show minimum(eigvals(W))
+    
+    W -= n/2 * minimum(eigvals(W)) * I(n)
+    W = 1/LinearAlgebra.tr(W) * W 
+
+    UB = M * maximum(A[j,:]' * W * A[j,:] for j in 1:m)
+    @show UB
+
+    sub_dual_gap = Inf
+    for sub_grad in sub_grads
+        v_sub = FrankWolfe.compute_extreme_point(ex_lmo, sub_grad)
+        sub_dual_gap = min(sub_dual_gap, dot(sub_grad, y - v_sub))
+    end
+    lower_bound = fx # + sub_dual_gap
+    @show fx, sub_dual_gap, lower_bound, UB
+
+    _, fixed_indices = model_exclusion(A, m, n, UB, lower_bound, M)
+
+    @show length(fixed_indices), fixed_indices
+    ub[fixed_indices] .= 0.0
+    lmo = build_blmo(m, N, ub)
+    return lmo
+end
+
+function build_bnb_callback(A, N, f, sub_grad!)
+    return function bnb_callback(tree,
+        node;
+        worse_than_incumbent=false,
+        node_infeasible=false,
+        lb_update=false,)
+        m, n = size(A)
+        if node.depth > m/10
+            return
+        end
+        u = fill(1.0, m)
+        for i in tree.root.problem.integer_variables
+            ub = get(node.local_bounds.upper_bounds, i, Inf)
+            lb = get(node.local_bounds.lower_bounds, i, -Inf)
+            if ub == 0.0 || lb == 1.0
+                u[i] = 0.0
+            end
+        end
+        x = node.active_set.x 
+        X = A' * diagm(x) * A
+        λ, V = eigen(X)
+        λ_min = minimum(λ)
+        tolerance = max(1e-10 * abs(λ_min), 1e-10)
+        mult = count(λ_i -> abs(λ_i - λ_min) <= tolerance, λ)
+        #sub_grads = []
+        #sub_grad!(sub_grads, y)
+        fx = -f(x)
+        #@assert isapprox(fx, minimum(λ), atol=1e-6) "fx: $(fx) minimum(λ): $(minimum(λ))"
+
+        W = Symmetric(sum(V[:, j] * V[:, j]' for j in 1:mult)) #+ I(n)
+        #@show minimum(eigvals(W))
+        W -= n/2 * minimum(eigvals(W)) * I(n)
+        W = 1/LinearAlgebra.tr(W) * W 
+
+        #W = 1/n * I(n)
+
+        #@assert isposdef(W) && isapprox(LinearAlgebra.tr(W), 1, atol=1e-6) "Trace of W is not 1: 
+        #    Tr W = $(LinearAlgebra.tr(W)) or W not positive definite: $(isposdef(W)) min eig: $(minimum(eigvals(W)))"
+
+        UB = N * maximum(A[j,:]' * W * A[j,:] for j in 1:m)
+        _, fixed_indices = model_exclusion(A, m, n, UB, fx, N, u=u, x=x)
+
+        for i in fixed_indices
+            node.local_bounds.upper_bounds[i] = 0.0
+        end
+    end
+end
+
+#lmo = exclusion_criterion(A, N, m, generate_smoothing_function, sub_grad!)
+bnb_callback = build_bnb_callback(A, N, f, sub_grad!)
 # ============== Heuristics ==============
 function linearly_independent_rows(A, m, n_target)
     S = Int[]
@@ -372,27 +500,26 @@ end
 push!(custom_heu, Boscia.Heuristic(build_greedy_fedorov_heuristic(A, N, 10), 0.4, :fedorov))
 
 # ============== Settings ==============
-#branching_strategy = Bonobo.MOST_INFEASIBLE()
-branching_strategy = Boscia.BRANCH_ALL()
+branching_strategy = Bonobo.MOST_INFEASIBLE()
+#branching_strategy = Boscia.BRANCH_ALL()
 settings = Boscia.create_default_settings(mode=Boscia.SMOOTHING_MODE)
 settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:time_limit] = time_limit
-settings.branch_and_bound[:node_limit] = 2^(m + 1) - 1
 settings.branch_and_bound[:use_shadow_set] = true
 settings.branch_and_bound[:branching_strategy] = branching_strategy
-#settings.branch_and_bound[:start_solution] = [0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
-settings.branch_and_bound[:print_iter] = 1
+settings.branch_and_bound[:print_iter] = 10
+settings.branch_and_bound[:bnb_callback] = bnb_callback
 
 settings.tolerances[:rel_dual_gap] = 5e-2
 settings.tolerances[:fw_epsilon] = 1e-3
 settings.tolerances[:min_node_fw_epsilon] = 1e-7
 
 settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
-settings.smoothing[:smoothing_start] = 5.0 #m/20
-settings.smoothing[:smoothing_min] = 0.1#1e-2
+settings.smoothing[:smoothing_start] = m/20
+settings.smoothing[:smoothing_min] = max(exp10(-m/10), 1e-5)
 settings.smoothing[:smoothing_min_valid] = false
 settings.smoothing[:smoothing_decay] = 0.9
-settings.smoothing[:use_sub_grad_info] = false
+settings.smoothing[:use_sub_grad_info] = true
 
 settings.frank_wolfe[:max_fw_iter] = 1000
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
@@ -406,9 +533,6 @@ settings.tightening[:global_dual_tightening] = true
 settings.heuristic[:hyperplane_aware_rounding_prob] = 0.0
 settings.heuristic[:follow_gradient_prob] = 0.7
 settings.heuristic[:follow_gradient_steps] = n
-#settings.heuristic[:rounding_lmo_01_prob] = 0.8
-#settings.heuristic[:probability_rounding_prob] = 0.8
-settings.heuristic[:rounding_prob] = 1.0
 settings.heuristic[:custom_heuristics] = custom_heu
 
 # ============== Solve ==============
