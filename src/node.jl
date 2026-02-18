@@ -417,6 +417,43 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @show fw_status
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x)
+        @info "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
+        @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
+        @debug "New smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
+
+        #v = compute_extreme_point(tree.root.problem.tlmo, x)
+        #active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        #@debug "v: $(v)" 
+
+        x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
+            tree.root.options[:variant],
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.tlmo,
+            node.active_set;
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_fw_iter],
+            line_search=tree.root.options[:line_search],
+            lazy=tree.root.options[:lazy],
+            lazy_tolerance=tree.root.options[:lazy_tolerance],
+            add_dropped_vertices=tree.root.options[:use_shadow_set],
+            use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:callback],
+            verbose=tree.root.options[:fw_verbose],
+            timeout=tree.root.options[:fw_timeout],
+            pre_computed_set=node.pre_computed_set,
+            domain_oracle=domain_oracle,
+            print_fw_iter=tree.root.options[:print_fw_iter],
+        )
+        @debug "x: $(x)" 
+    end
+
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
         # update active set of the node
         node.active_set = atoms_set
