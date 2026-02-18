@@ -803,6 +803,8 @@ function bounded_compute_extreme_point(
     lb,
     ub,
     int_vars;
+    atol=1e-6,
+    rtol=1e-4,
     v=nothing,
     kwargs...,
 ) where {T}
