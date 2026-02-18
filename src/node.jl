@@ -366,10 +366,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             @debug "initial point v linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, v)) v: $(v)"
             @debug "local bounds: $(node.local_bounds)"
             node.active_set = FrankWolfe.ActiveSet([(1.0, v)])
+            @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
-    else
-        x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-        @assert is_linear_feasible(tree.root.problem.tlmo, x)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE
