@@ -442,7 +442,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     use_sub_grad_info = false
     max_restart_fw_iter = 1000
 
-    return Dict{Symbol,Union{Nothing,Function,Float64,Bool}}(
+    return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
         :smoothing_start => smoothing_start,
         :smoothing_min => smoothing_min,
         :smoothing_decay => smoothing_decay,
