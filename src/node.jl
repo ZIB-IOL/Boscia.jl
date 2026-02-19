@@ -437,7 +437,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             tree.root.problem.tlmo,
             node.active_set;
             epsilon=node.fw_dual_gap_limit,
-            max_iteration=tree.root.options[:max_fw_iter],
+            max_iteration=tree.root.options[:max_restart_fw_iter],
             line_search=tree.root.options[:line_search],
             lazy=tree.root.options[:lazy],
             lazy_tolerance=tree.root.options[:lazy_tolerance],
