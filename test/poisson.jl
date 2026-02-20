@@ -13,6 +13,8 @@ using Dates
 using Test
 using StableRNGs
 
+println("\nPoisson Tests")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -86,12 +88,13 @@ N = 1.0
             storage[1:p] .-= 1 / n0 * y0[i] * xi
             storage[end] += 1 / n0 * (exp(a) - y0[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
-    x, _, result =
-        Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=120))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 120
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -157,20 +160,18 @@ end
             storage[1:p] .-= 1 / n0 * y0[i] * xi
             storage[end] += 1 / n0 * (exp(a) - y0[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    settings.tolerances[:fw_epsilon] = 1e-3
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test sum(x[p+1:2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2p]) <= k
@@ -180,14 +181,14 @@ n0g = 20
 pg = n0g
 
 # underlying true weights
-const w0g = 2 * rand(rng, Float64, pg) .- 1
+w0g = 2 * rand(rng, Float64, pg) .- 1
 # set 50 entries to 0
 for _ in 1:15
     w0g[rand(rng, 1:pg)] = 0
 end
-const b0g = 2 * rand(rng, Float64) - 1
-const X0g = 2 * rand(rng, Float64, n0g, pg) .- 1
-const y0g = map(1:n0g) do idx
+b0g = 2 * rand(rng, Float64) - 1
+X0g = 2 * rand(rng, Float64, n0g, pg) .- 1
+y0g = map(1:n0g) do idx
     a = dot(X0g[idx, :], w0g) + b0g
     return rand(Distributions.Poisson(exp(a)))
 end
@@ -195,7 +196,7 @@ Ng = 5.0
 
 k = 10
 group_size = convert(Int64, floor(pg / k))
-groups = []
+const groups = []
 for i in 1:(k-1)
     push!(groups, ((i-1)*group_size+1):(i*group_size))
 end
@@ -265,11 +266,12 @@ push!(groups, ((k-1)*group_size+1):pg)
             storage[1:pg] .-= 1 / n0g * y0g[i] * xi
             storage[end] += 1 / n0g * (exp(a) - y0g[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k
 end
@@ -338,20 +340,17 @@ end
             storage[1:pg] .-= 1 / n0g * y0g[i] * xi
             storage[end] += 1 / n0g * (exp(a) - y0g[i])
         end
-        storage ./= norm(storage)
         return storage
     end
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test sum(x[p+1:2pg]) <= k

@@ -1,22 +1,25 @@
 # Interface.jl
 
 """
-    solve(f, g, blmo::BoundedLinearMinimizationOracle; ...)
+    solve(f, g, lmo::LinearMinimizationOracle; ...)
 
 Requires
 
 - `f` oracle of the objective function.
 - `g` oracle of the gradient of the objective
-- `blmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `BoundedLinearMinimizationOracle` (see `blmo_interface.jl`).
+- `lmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `FrankWolfe.LinearMinimizationOracle` (see `blmo_interface.jl`).
 
 Returns
 
 - `x` the best solution found.
-- `tlmo` the BLMO wrapped in a TimeTrackingLMO instance.
+- `tlmo` the LMO wrapped in a TimeTrackingLMO instance.
 - `result` a dictionary containg the statistics like number of nodes, total solving etc. It also contains information for plotting progress plots like the lower and upper bound progress.
 
 Optional settings
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
+If a different mode is supplied, default settings will be set according to the chosen mode. 
+If you want to change the default parameter settings, please provide the mode to the settings constructor!
 - `settings_bnb` dictionary of settings for the branch-and-bound algorithm. Created via `settings_bnb()`.
 - `settings_frank_wolfe` dictionary of settings for the Frank-Wolfe algorithm. Created via `settings_frank_wolfe()`.
 - `settings_tolerances` dictionary of settings for the tolerances. Created via `settings_tolerances()`.
@@ -28,30 +31,44 @@ Optional settings
 function solve(
     f,
     grad!,
-    blmo::BoundedLinearMinimizationOracle;
-    mode::Mode=DEFAULT_MODE,
-    settings_bnb=settings_bnb(mode=mode),
-    settings_frank_wolfe=settings_frank_wolfe(mode=mode),
-    settings_tolerances=settings_tolerances(mode=mode),
-    settings_postprocessing=settings_postprocessing(mode=mode),
-    settings_heuristic=settings_heuristic(mode=mode),
-    settings_tightening=settings_tightening(mode=mode),
-    settings_domain=settings_domain(mode=mode),
+    lmo::FrankWolfe.LinearMinimizationOracle;
+    settings=create_default_settings(),
     kwargs...,
 )
+    # For as long as MathOptBLMO is not yet deleted.
+    if lmo isa MathOptBLMO
+        println("Convert MathOptBLMO to MathOptLMO")
+        lmo = convert(MathOptLMO, lmo)
+    end
+    if settings.mode[:mode] == SMOOTHING_MODE && settings.smoothing[:generate_smoothing_objective] === nothing
+        error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
+    end
+    if settings.smoothing[:generate_smoothing_objective] !== nothing && settings.mode[:mode] != SMOOTHING_MODE
+        @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
+    end
+
+    build_heuristics(settings.heuristic)
     options = merge(
-        settings_bnb,
-        settings_frank_wolfe,
-        settings_tolerances,
-        settings_postprocessing,
-        settings_heuristic,
-        settings_tightening,
-        settings_domain,
+        settings.mode,
+        settings.branch_and_bound,
+        settings.frank_wolfe,
+        settings.tolerances,
+        settings.postprocessing,
+        settings.heuristic,
+        settings.tightening,
+        settings.domain,
+        settings.smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
+    if options[:mode] == SMOOTHING_MODE
+        merge!(options, Dict(:original_objective => f))
+        merge!(options, Dict(:sub_grad! => grad!))
+        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start])
+    end
+    
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
-        if !is_decomposition_invariant_oracle(blmo)
-            error("DICG within Boscia is not implemented for $(typeof(blmo)).")
+        if !is_decomposition_invariant_oracle(lmo)
+            error("DICG within Boscia is not implemented for $(typeof(lmo)).")
         end
     end
     if options[:verbose]
@@ -71,15 +88,22 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", options[:rel_dual_gap])
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", options[:fw_epsilon])
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", options[:dual_gap_decay_factor])
+        if options[:mode] == SMOOTHING_MODE
+            println("\t Smoothing Mode")
+            println("\t\t Start smoothing parameter: $(options[:smoothing_start])")
+            println("\t\t Minimum smoothing parameter: $(options[:smoothing_min])")
+            println("\t\t Smoothing parameter decay factor: $(options[:smoothing_decay])")
+            println("\t\t Minimum smoothing parameter valid: $(options[:smoothing_min_valid])")
+        end
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
-    n, _ = get_list_of_variables(blmo)
+    n, _ = get_list_of_variables(lmo)
 
     integer_variables = Vector{Int}()
     num_int = 0
     num_bin = 0
-    for c_idx in get_integer_variables(blmo)
+    for c_idx in get_integer_variables(lmo)
         push!(integer_variables, c_idx)
         num_int += 1
     end
@@ -93,7 +117,7 @@ function solve(
         println("\t Number of integer variables: $(num_int)\n")
     end
 
-    global_bounds = build_global_bounds(blmo, integer_variables)
+    global_bounds = build_global_bounds(lmo, integer_variables)
 
     if typeof(options[:domain_oracle]) != typeof(_trivial_domain) &&
        typeof(options[:find_domain_point]) == typeof(_trivial_domain_point)
@@ -101,12 +125,12 @@ function solve(
     end
 
     time_ref = Dates.now()
-    time_lmo = TimeTrackingLMO(blmo, integer_variables, time_ref, Float64(options[:time_limit]))
+    time_lmo = TimeTrackingLMO(lmo, integer_variables, time_ref, Float64(options[:time_limit]))
 
     v = []
     if options[:active_set] === nothing
         direction = collect(1.0:n)
-        v = compute_extreme_point(blmo, direction)
+        v = compute_extreme_point(lmo, direction)
         v[integer_variables] = round.(v[integer_variables])
         @assert isfinite(f(v))
         options[:active_set] = FrankWolfe.ActiveSet([(1.0, v)])
@@ -114,7 +138,7 @@ function solve(
     else
         @assert FrankWolfe.active_set_validate(options[:active_set])
         for a in options[:active_set].atoms
-            @assert is_linear_feasible(blmo, a)
+            @assert is_linear_feasible(lmo, a)
         end
         x = FrankWolfe.compute_active_set_iterate!(options[:active_set])
         v = x
@@ -132,11 +156,10 @@ function solve(
 
     m = SimpleOptimizationProblem(f, grad!, n, integer_variables, time_lmo, global_bounds)
     nodeEx = FrankWolfeNode(
-        NodeInfo(1, f(v), f(v)),
+        NodeInfo(1, f(v), f(v), 1),
         options[:active_set],
         vertex_storage,
         IntegerBounds(),
-        1,
         1e-3,
         Millisecond(0),
         0,
@@ -182,7 +205,6 @@ function solve(
             active_set=options[:active_set],
             discarded_vertices=vertex_storage,
             local_bounds=IntegerBounds(),
-            level=1,
             fw_dual_gap_limit=options[:fw_epsilon],
             fw_time=Millisecond(0),
             global_tightenings=0,
@@ -194,6 +216,8 @@ function solve(
             branched_on=-1,
             branched_right=false,
             distance_to_int=0.0,
+            active_set_size=0,
+            discarded_set_size=0,
         ),
     )
 
@@ -204,7 +228,7 @@ function solve(
             )
         end
         # Sanity check that the provided solution is in fact feasible.
-        @assert is_linear_feasible(blmo, options[:start_solution]) &&
+        @assert is_linear_feasible(lmo, options[:start_solution]) &&
                 is_integer_feasible(tree, options[:start_solution])
         node = tree.nodes[1]
         add_new_solution!(tree, node, f(options[:start_solution]), options[:start_solution], :start)
@@ -331,7 +355,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
             push!(fix_bounds, (i => round(x[i])), :greaterthan)
         end
 
-        free_model(tree.root.problem.tlmo.blmo)
+        free_model(tree.root.problem.tlmo.lmo)
         build_LMO(
             tree.root.problem.tlmo,
             tree.root.problem.integer_variable_bounds,
@@ -350,16 +374,22 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         v = compute_extreme_point(tree.root.problem.tlmo, direction)
         active_set = FrankWolfe.ActiveSet([(1.0, v)])
         verbose && println("Postprocessing")
-        x, _, primal, dual_gap, _, _ = FrankWolfe.blended_pairwise_conditional_gradient(
+        x, primal, dual_gap, fw_status, _ = solve_frank_wolfe(
+            tree.root.options[:variant],
             tree.root.problem.f,
             tree.root.problem.g,
             tree.root.problem.tlmo,
             active_set,
-            line_search=FrankWolfe.Adaptive(verbose=false),
-            lazy=true,
-            verbose=verbose,
-            max_iteration=max_iteration_post,
+            line_search=tree.root.options[:line_search],
+            lazy=tree.root.options[:lazy_post],
+            verbose=tree.root.options[:verbose_post] && verbose,
+            max_iteration=tree.root.options[:max_iteration_post],
+            epsilon=tree.root.options[:epsilon_post],
+            timeout=tree.root.options[:timeout_post],
         )
+        if verbose
+            @show fw_status
+        end
 
         # update tree
         if primal < tree.incumbent
@@ -390,9 +420,11 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     result[:rel_dual_gap] = relative_gap(primal, tree_lb(tree))
     result[:dual_gap] = tree.incumbent - tree_lb(tree)
     result[:raw_solution] = x
+    result[:solution_source] = tree.incumbent_solution.source
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
-    result[:status] = status_string
+    result[:status] = tree.root.problem.solving_stage
+    result[:status_string] = status_string
     result[:solving_stage] = tree.root.problem.solving_stage
 
     if verbose
@@ -403,6 +435,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t Solution Status: ", status_string)
         println("\t Primal Objective: ", primal)
         println("\t Dual Bound: ", tree_lb(tree))
+        println("\t Absolute Dual Gap: $(primal - tree_lb(tree))")
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)

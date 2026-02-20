@@ -11,6 +11,7 @@ using StableRNGs
 import MathOptInterface
 const MOI = MathOptInterface
 
+println("\nBranching Strategy Tests")
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -61,32 +62,22 @@ end
     f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 60
 
-    x_mi, _, result_mi = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(
-            verbose=verbose,
-            time_limit=time_limit,
-            branching_strategy=Bonobo.MOST_INFEASIBLE(),
-        ),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:time_limit] = time_limit
+    settings.branch_and_bound[:branching_strategy] = Bonobo.MOST_INFEASIBLE()
+    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @testset "Largest Gradient Branching" begin
         branching_strategy = Boscia.LargestGradient()
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -97,16 +88,11 @@ end
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -117,16 +103,11 @@ end
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -137,16 +118,11 @@ end
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -161,16 +137,11 @@ end
     f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 60
 
-    x_mi, _, result_mi = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(
-            verbose=verbose,
-            time_limit=time_limit,
-            branching_strategy=Bonobo.MOST_INFEASIBLE(),
-        ),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:time_limit] = time_limit
+    settings.branch_and_bound[:branching_strategy] = Bonobo.MOST_INFEASIBLE()
+    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @testset "Pseudocost with Most-Infeasible alternative and weighted_sum decision function" begin
         o = SCIP.Optimizer()
@@ -183,16 +154,11 @@ end
             iterations_until_stable=1,
         )
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -209,16 +175,11 @@ end
             iterations_until_stable=1,
         )
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -235,16 +196,11 @@ end
             iterations_until_stable=1,
         )
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -261,16 +217,11 @@ end
             iterations_until_stable=5,
         )
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -334,16 +285,11 @@ end
     f, grad!, lmo = build_examples(o, dimension, seed)
     time_limit = 60
 
-    x_mi, _, result_mi = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(
-            verbose=verbose,
-            time_limit=time_limit,
-            branching_strategy=Bonobo.MOST_INFEASIBLE(),
-        ),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:time_limit] = time_limit
+    settings.branch_and_bound[:branching_strategy] = Bonobo.MOST_INFEASIBLE()
+    x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @testset "Hierarchy with Most-Infeasible pseudocost alternative and weighted_sum decision function" begin
         o = SCIP.Optimizer()
@@ -357,16 +303,11 @@ end
         )
         branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -380,16 +321,11 @@ end
             Boscia.default_hierarchy_strategies("most_infeasible", "largest_gradient", 1, "product")
         branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -407,16 +343,11 @@ end
         )
         branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -432,16 +363,11 @@ end
 
         branching_strategy = Boscia.Hierarchy(lmo; stages)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            lmo,
-            settings_bnb=Boscia.settings_bnb(
-                verbose=verbose,
-                time_limit=time_limit,
-                branching_strategy=branching_strategy,
-            ),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:verbose] = verbose
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -483,14 +409,12 @@ const diff1 = rand(rng, Bool, n) * 0.8 .+ 1.1
 
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
-    MOI.set(branching_strategy.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.lmo.o, MOI.Silent(), true)
 
-    x, _, result_strong_branching = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x, _, result_strong_branching = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end
@@ -528,18 +452,16 @@ end
 
 
     function perform_strong_branch(tree, node)
-        return node.level <= length(tree.root.problem.integer_variables) / 3
+        return node.std.depth <= length(tree.root.problem.integer_variables) / 3
     end
     blmo = Boscia.MathOptBLMO(HiGHS.Optimizer())
     branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
-    MOI.set(branching_strategy.pstrong.bounded_lmo.o, MOI.Silent(), true)
+    MOI.set(branching_strategy.pstrong.lmo.o, MOI.Silent(), true)
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        lmo,
-        settings_bnb=Boscia.settings_bnb(verbose=true, branching_strategy=branching_strategy),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:branching_strategy] = branching_strategy
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test isapprox(x, round.(diff1), atol=1e-5, rtol=1e-5)
 end

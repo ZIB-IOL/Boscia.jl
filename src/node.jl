@@ -19,10 +19,11 @@ mutable struct NodeInfo{T<:Real}
     id::Int
     lb::T
     ub::T
+    depth::Int
 end
 
 function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub))
+    return NodeInfo(std.id, T(std.lb), T(std.ub), std.depth)
 end
 
 """
@@ -35,7 +36,7 @@ abstract type AbstractFrankWolfeNode <: Bonobo.AbstractNode end
 
 A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
 
-`std` stores the id, lower and upper bound of the node.
+`std` stores the id, lower, upper bound and Depth of the node.
 `active_set` store the active set structure.
 `local_bounds` instead of storing the complete LMO, it just stores the bounds specific to THIS node.
     All other integer bounds are stored in the root.
@@ -61,7 +62,6 @@ mutable struct FrankWolfeNode{
     active_set::AT
     discarded_vertices::DVS
     local_bounds::IB
-    level::Int
     fw_dual_gap_limit::Float64
     fw_time::Millisecond
     global_tightenings::Int
@@ -73,6 +73,8 @@ mutable struct FrankWolfeNode{
     branched_on::Int
     branched_right::Bool
     distance_to_int::Float64
+    active_set_size::Int
+    discarded_set_size::Int
 end
 
 
@@ -83,7 +85,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -96,7 +97,6 @@ FrankWolfeNode(
     active_set,
     discarded_vertices,
     local_bounds,
-    level,
     fw_dual_gap_limit,
     fw_time,
     global_tightenings,
@@ -108,6 +108,8 @@ FrankWolfeNode(
     -1,
     false,
     0.0,
+    0,
+    0,
 )
 
 
@@ -119,6 +121,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices.storage)
+
     # get iterate, primal and lower bound
     x = Bonobo.get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -127,6 +133,11 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     left_distance = x[vidx] - floor(x[vidx])
     right_distance = ceil(x[vidx]) - x[vidx]
 
+    user_prune_left, user_prune_right = if tree.root.options[:branch_callback] !== nothing
+        tree.root.options[:branch_callback](tree, node, vidx)
+    else
+        false, false
+    end
 
     # In case of strong convexity, check if a child can be pruned
     prune_left, prune_right = if !tree.root.options[:no_pruning]
@@ -136,7 +147,10 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     end
 
     #different ways to split active set
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if isapprox(floor(x[vidx]), ceil(x[vidx])) && tree.root.options[:branching_strategy] == BRANCH_ALL()
+        active_set_left, active_set_right = node.active_set, node.active_set
+        pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
+    elseif typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -198,8 +212,15 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if haskey(varbounds_right.lower_bounds, vidx)
         delete!(varbounds_right.lower_bounds, vidx)
     end
-    push!(varbounds_left.upper_bounds, (vidx => floor(x[vidx])))
-    push!(varbounds_right.lower_bounds, (vidx => ceil(x[vidx])))
+    new_bound_left, new_bound_right = if isapprox(tree.root.problem.integer_variable_bounds.lower_bounds[vidx], x[vidx])
+        floor(x[vidx]), floor(x[vidx]) + 1
+    elseif isapprox(tree.root.problem.integer_variable_bounds.upper_bounds[vidx], x[vidx])
+        ceil(x[vidx]) - 1, ceil(x[vidx])
+    else
+        floor(x[vidx]), ceil(x[vidx])
+    end
+    push!(varbounds_left.upper_bounds, (vidx => new_bound_left))
+    push!(varbounds_right.lower_bounds, (vidx => new_bound_right))
 
     # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
@@ -225,7 +246,6 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         active_set=active_set_left,
         discarded_vertices=discarded_set_left,
         local_bounds=varbounds_left,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -237,12 +257,13 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=false,
         distance_to_int=left_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
     node_info_right = (
         active_set=active_set_right,
         discarded_vertices=discarded_set_right,
         local_bounds=varbounds_right,
-        level=(node.level + 1),
         fw_dual_gap_limit=fw_dual_gap_limit,
         fw_time=Millisecond(0),
         global_tightenings=0,
@@ -254,25 +275,33 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
         branched_on=vidx,
         branched_right=true,
         distance_to_int=right_distance,
+        active_set_size=0,
+        discarded_set_size=0,
     )
 
     domain_right = !isempty(active_set_right)
     domain_left = !isempty(active_set_left)
 
-    nodes = if !prune_left && !prune_right && domain_right && domain_left
-        [node_info_left, node_info_right]
-    elseif prune_left
-        [node_info_right]
-    elseif prune_right
-        [node_info_left]
-    elseif domain_right # x_right in domain
-        [node_info_right]
-    elseif domain_left # x_left in domain
-        [node_info_left]
-    else
-        @warn "No childern nodes can be created."
-        Vector{typeof(node_info_left)}()
-    end
+    nodes =
+        if !prune_left &&
+           !prune_right &&
+           domain_right &&
+           domain_left &&
+           !user_prune_left &&
+           !user_prune_right
+            [node_info_left, node_info_right]
+        elseif prune_left || user_prune_left
+            [node_info_right]
+        elseif prune_right || user_prune_right
+            [node_info_left]
+        elseif domain_right # x_right in domain
+            [node_info_right]
+        elseif domain_left # x_left in domain
+            [node_info_left]
+        else
+            @warn "No childern nodes can be created."
+            Vector{typeof(node_info_left)}()
+        end
     return nodes
 end
 
@@ -323,12 +352,33 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
         # Check feasibility of the iterate
-        active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-        @assert is_linear_feasible(tree.root.problem.tlmo, x)
-        for (_, v) in node.active_set
+        @debug "initial point x linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, x)) x: $(x)"
+        if is_linear_feasible(tree.root.problem.tlmo, x)
+            @assert is_linear_feasible(tree.root.problem.tlmo, x)
+            for (_, v) in node.active_set
+                @assert is_linear_feasible(tree.root.problem.tlmo, v)
+            end
+        else
+            @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
+            grad = similar(x)
+            v = compute_extreme_point(tree.root.problem.tlmo, grad)
+            @debug "initial point v linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, v)) v: $(v)"
+            @debug "local bounds: $(node.local_bounds)"
+            node.active_set = FrankWolfe.ActiveSet([(1.0, v)])
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
+    end
+
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1))
+        if μ < tree.root.options[:smoothing_min]
+            μ = tree.root.options[:smoothing_min]
+        end
+        @debug "Smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
     end
 
     if tree.root.options[:propagate_bounds] !== nothing
@@ -339,7 +389,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
-    x, primal, dual_gap, atoms_set = solve_frank_wolfe(
+    @debug "active set: $(node.active_set)"
+
+    x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
         tree.root.problem.f,
         tree.root.problem.g,
@@ -358,7 +410,49 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
+        print_fw_iter=tree.root.options[:print_fw_iter],
     )
+
+    if tree.root.options[:fw_verbose]
+        @show fw_status
+    end
+
+    if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x)
+        @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
+        @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
+        @debug "New smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
+
+        #v = compute_extreme_point(tree.root.problem.tlmo, x)
+        #active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        #@debug "v: $(v)" 
+
+        x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
+            tree.root.options[:variant],
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.tlmo,
+            node.active_set;
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_restart_fw_iter],
+            line_search=tree.root.options[:line_search],
+            lazy=tree.root.options[:lazy],
+            lazy_tolerance=tree.root.options[:lazy_tolerance],
+            add_dropped_vertices=tree.root.options[:use_shadow_set],
+            use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:callback],
+            verbose=tree.root.options[:fw_verbose],
+            timeout=tree.root.options[:fw_timeout],
+            pre_computed_set=node.pre_computed_set,
+            domain_oracle=domain_oracle,
+            print_fw_iter=tree.root.options[:print_fw_iter],
+        )
+        @debug "x: $(x)" 
+    end
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
         # update active set of the node
@@ -374,6 +468,21 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             @debug "x is not a vector, returning NaN, x: $x"
             return NaN, NaN
         end
+    end
+
+    if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
+        sub_grad = []
+        tree.root.options[:sub_grad!](sub_grad, x)
+        min_dual_gap = Inf
+        for i in eachindex(sub_grad)
+            v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad[i])
+            dual_gap_sub = dot(sub_grad[i], x - v_sub)
+            min_dual_gap = min(min_dual_gap, dual_gap_sub)
+        end
+        #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
+       # dual_gap = dot(sub_grad, x - v_sub)
+       dual_gap = min_dual_gap
+       primal = tree.root.options[:original_objective](x)
     end
 
     node.fw_time = Dates.now() - time_ref
