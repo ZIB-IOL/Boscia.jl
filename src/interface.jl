@@ -64,6 +64,10 @@ function solve(
         merge!(options, Dict(:original_objective => f))
         merge!(options, Dict(:sub_grad! => grad!))
         f, grad! = options[:generate_smoothing_objective](options[:smoothing_start])
+        local_opt_x = Float64[]                    # placeholder: empty until set
+        local_active_set = FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}([], [], Float64[]) 
+        merge!(options, Dict(:local_opt_x => local_opt_x))
+        merge!(options, Dict(:local_active_set => local_active_set))
     end
     
     if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
@@ -145,6 +149,12 @@ function solve(
         @assert isfinite(f(x))
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+
+    if options[:mode] == SMOOTHING_MODE
+        options[:local_active_set] = options[:active_set]
+        options[:local_opt_x] = options[:active_set].x  
+        options[:local_opt_primal] = f(options[:local_opt_x])   
+    end
 
     pre_computed_set =
         if typeof(options[:variant]) == DecompositionInvariantConditionalGradient &&

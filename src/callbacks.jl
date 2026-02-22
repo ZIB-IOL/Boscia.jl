@@ -77,6 +77,23 @@ function process_FW_callback_logic(
         @assert sum(active_set.weights .< 0) == 0
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        fx = tree.root.problem.f(state.x)
+        if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
+            tree.root.options[:local_opt_primal] = fx
+            tree.root.options[:local_opt_x] = state.x
+            tree.root.options[:local_active_set] = use_DICG ? pre_computed_set : active_set
+        end
+       # sub_grad= []
+       # tree.root.options[:sub_grad!](sub_grad, state.x)
+       # local_dual_gap = Inf
+       # for i in eachindex(sub_grad)
+       #     v = compute_extreme_point(tree.root.problem.tlmo, sub_grad[i])
+      #      local_dual_gap = min(local_dual_gap, dot(sub_grad[i], state.x - v))
+      #  end
+       # @show tree.root.problem.f(state.x), local_dual_gap
+    end
+
     # TODO deal with vertices becoming infeasible with conflicts
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)

@@ -471,6 +471,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
+        primal = tree.root.options[:original_objective](x)
+        if primal > tree.root.options[:local_opt_primal]
+            x = tree.root.options[:local_opt_x]
+            if tree.root.options[:variant] isa DecompositionInvariantConditionalGradient
+                node.pre_computed_set = tree.root.options[:local_active_set]
+            else
+                node.active_set = tree.root.options[:local_active_set]
+            end
+            primal = tree.root.options[:local_opt_primal]
+        end
         sub_grad = []
         tree.root.options[:sub_grad!](sub_grad, x)
         min_dual_gap = Inf
@@ -482,7 +492,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
        # dual_gap = dot(sub_grad, x - v_sub)
        dual_gap = min_dual_gap
-       primal = tree.root.options[:original_objective](x)
     end
 
     node.fw_time = Dates.now() - time_ref
