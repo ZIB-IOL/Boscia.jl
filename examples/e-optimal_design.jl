@@ -23,7 +23,7 @@ using JuMP
 
 # ============== Parameters ==============
 seed = 5
-m = 100
+m = 30
 n = Int(floor(sqrt(m)))
 corr = false
 N = Int(floor(1.5 * n * log(n)))
@@ -510,7 +510,7 @@ settings.branch_and_bound[:branching_strategy] = branching_strategy
 settings.branch_and_bound[:print_iter] = 10
 settings.branch_and_bound[:bnb_callback] = bnb_callback
 
-settings.tolerances[:rel_dual_gap] = 5e-2
+settings.tolerances[:rel_dual_gap] = 1e-2
 settings.tolerances[:fw_epsilon] = 1e-3
 settings.tolerances[:min_node_fw_epsilon] = 1e-7
 
@@ -518,14 +518,14 @@ settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
 settings.smoothing[:smoothing_start] = m/20
 settings.smoothing[:smoothing_min] = max(exp10(-m/10), 1e-5)
 settings.smoothing[:smoothing_min_valid] = false
-settings.smoothing[:smoothing_decay] = 0.9
+settings.smoothing[:smoothing_decay] = 0.6
 settings.smoothing[:use_sub_grad_info] = true
 
 settings.frank_wolfe[:max_fw_iter] = 1000
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
 settings.frank_wolfe[:fw_verbose] = false
 settings.frank_wolfe[:lazy] = false
-settings.frank_wolfe[:variant] = Boscia.BlendedPairwiseConditionalGradient()#Boscia.DecompositionInvariantConditionalGradient()
+settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
 
 settings.tightening[:dual_tightening] = true
 settings.tightening[:global_dual_tightening] = true
