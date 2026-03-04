@@ -56,7 +56,7 @@ function ManagedLMO(lmo, lb, ub, int_vars::Vector{Int}, n::Int)
         )
     end
     # Check that we have integer bounds
-    for (i, _) in enumerate(int_vars)
+    for i in eachindex(int_vars)
         @assert isapprox(lb[i], round(lb[i]), atol=1e-6, rtol=1e-2)
         @assert isapprox(ub[i], round(ub[i]), atol=1e-6, rtol=1e-2)
     end
