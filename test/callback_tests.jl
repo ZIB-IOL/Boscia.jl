@@ -30,9 +30,15 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @testset "BnB callback" begin
         # Stop once 
         eval_nodes = 0
-        function bnb_callback(tree, node; worse_than_incumbent=false, node_infeasible=false, lb_update=false)
+        function bnb_callback(
+            tree,
+            node;
+            worse_than_incumbent=false,
+            node_infeasible=false,
+            lb_update=false,
+        )
             eval_nodes += 1
-            if eval_nodes > rand(rng, 1:Int(floor(n/2)))
+            if eval_nodes > rand(rng, 1:Int(floor(n / 2)))
                 tree.root.problem.solving_stage = Boscia.USER_STOP
                 return false
             end
@@ -43,7 +49,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         x_bnb, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test result[:status] == Boscia.USER_STOP
-        @test eval_nodes <= Int(floor(n/2))
+        @test eval_nodes <= Int(floor(n / 2))
     end
 
     @testset "Branch callback" begin
@@ -62,7 +68,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @testset "Propagate bounds" begin
         calls = 0
         function propagate_bounds(tree, node)
-            calls += 1
+            return calls += 1
         end
         settings = Boscia.create_default_settings()
         settings.tightening[:propagate_bounds] = propagate_bounds
