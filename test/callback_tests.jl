@@ -1,9 +1,3 @@
-# testing the custom callbacks 
-# bnb callback (b&b dict)
-# branch callback (b&b dict)
-# MAbYE: fw_callback (?) (fw dict
-# propagte bounds (tightening dict)
-
 using Boscia
 using FrankWolfe
 using Test
