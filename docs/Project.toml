@@ -1,7 +1,9 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 SCIP = "82193955-e24f-5292-bf16-6f2c5261a85f"
 
 [compat]
 Documenter = "1.8"
+Literate = "2"
