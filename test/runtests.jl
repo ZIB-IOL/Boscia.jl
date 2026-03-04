@@ -28,6 +28,7 @@ using Aqua
     include("time_limit.jl")
     include("strong_convexity_and_sharpness.jl")
     include("branching_strategy_test.jl")
+    include("traverse_strategy_test.jl")
 
     # Files to exclude from testing (e.g., utilities that require extra dependencies)
     excluded_files = ["plot_utilities.jl"]
