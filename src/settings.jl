@@ -366,7 +366,7 @@ function settings_tightening(; mode::Mode=Boscia.DEFAULT_MODE)
     sharpness_exponent = Inf
     propagate_bounds = nothing
 
-    return Dict(
+    return Dict{Symbol,Union{Bool,Float64,Nothing,Function}}(
         :dual_tightening => dual_tightening,
         :global_dual_tightening => global_dual_tightening,
         :strong_convexity => strong_convexity,
