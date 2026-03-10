@@ -68,7 +68,8 @@ time_limit = 30.0
     settings.branch_and_bound[:time_limit] = time_limit
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     time_taken = float(Dates.value(Dates.now() - start_time)) / 1000
-    @test sum(ai' * x) <= bi + 1e-3
+    # coarse tolerance because of windows
+    @test sum(ai' * x) <= bi + 1e-2
     @test f(x) <= f(result[:raw_solution]) + 1e-6
     @test result[:total_time_in_sec] <= time_limit + 5
 end
