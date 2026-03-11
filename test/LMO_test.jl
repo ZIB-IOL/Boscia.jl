@@ -11,6 +11,9 @@ using Dates
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
+using LinearAlgebra
+
+println("\nLMO Tests")
 
 seed = rand(UInt64)
 @show seed
@@ -39,7 +42,7 @@ rng = StableRNG(seed)
             MOI.add_constraint(o, xi, MOI.LessThan(5.0))
         end
     end
-    lmo = Boscia.MathOptBLMO(o)
+    lmo = FrankWolfe.MathOptLMO(o)
 
     global_bounds = Boscia.IntegerBounds()
     @test isempty(global_bounds)
@@ -79,24 +82,86 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
     # testing for cube inface oracles
-    x_dicg, _, result_dicg = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(
-            variant=Boscia.DecompositionInvariantConditionalGradient(),
-        ),
-    )
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
 
     @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test sum(isapprox.(x_dicg, round.(diffi), atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
+
+@testset "Hypersimplex" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    int_vars = collect(1:(n÷2))
+    @testset "K $K radius $radius" for K in (1, 2, n ÷ 2), radius in (3.0, 5.0)
+        for lmo in
+            (FrankWolfe.UnitHyperSimplexLMO(K, radius), FrankWolfe.HyperSimplexLMO(K, radius))
+            for _ in 1:10
+                direction = randn(n)
+                # compute extreme point with zero-one
+                lbs = zeros(n ÷ 2)
+                ubs = ones(n ÷ 2)
+                v0 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test sum(v0) <= K
+                @test Boscia.is_simple_linear_feasible(lmo, v0)
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v0) == K
+                end
+                @test maximum(v0) <= radius
+                for (i, idx) in enumerate(int_vars)
+                    if v0[idx] > 0
+                        @test lbs[i] <= v0[idx] <= ubs[i]
+                    end
+                end
+                # set some variables bounds
+                lbs = zeros(n ÷ 2)
+                ubs = ones(n ÷ 2)
+                idxmin = 3
+                direction[idxmin] = minimum(direction) - 1
+                i = findfirst(==(idxmin), int_vars)
+                ubs[i] = 0
+                v1 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test Boscia.is_simple_linear_feasible(lmo, v1)
+                # test upper bound respected
+                @test v1[idxmin] == 0
+                idxmax = 4
+                direction[idxmax] = maximum(direction) + 1
+                v2 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test Boscia.is_simple_linear_feasible(lmo, v2)
+                @test v2[idxmax] == 0
+                i = findfirst(==(idxmax), int_vars)
+                lbs[i] = 1
+                v3 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                @test v3[idxmax] == 1
+                @test sum(v3) <= K
+                if lmo isa FrankWolfe.HyperSimplexLMO
+                    @test sum(v3) == max(K, sum(lbs))
+                end
+                @test Boscia.is_simple_linear_feasible(lmo, v3)
+                v_wrong = 1.0 * v3
+                v_wrong[1] = K + 1
+                @test !Boscia.is_simple_linear_feasible(lmo, v_wrong)
+                if lmo isa FrankWolfe.UnitHyperSimplexLMO
+                    direction = rand(n)
+                    @test norm(FrankWolfe.compute_extreme_point(lmo, direction)) <= 1e-6
+                    v4 = Boscia.bounded_compute_extreme_point(lmo, direction, lbs, ubs, int_vars)
+                    @test v4[int_vars] ≈ lbs
+                    @test norm(v4) ≈ norm(lbs)
+                end
+            end
+        end
+    end
+end
+
 
 @testset "BLMO - Strong Branching" begin
     function f(x)
@@ -115,12 +180,9 @@ end
 
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            blmo,
-            settings_bnb=Boscia.settings_bnb(branching_strategy=branching_strategy),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -134,16 +196,13 @@ end
         blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         function perform_strong_branch(tree, node)
-            return node.level <= length(tree.root.problem.integer_variables) / 3
+            return node.std.depth <= length(tree.root.problem.integer_variables) / 3
         end
         branching_strategy = Boscia.HybridStrongBranching(10, 1e-3, blmo, perform_strong_branch)
 
-        x, _, result = Boscia.solve(
-            f,
-            grad!,
-            blmo,
-            settings_bnb=Boscia.settings_bnb(branching_strategy=branching_strategy),
-        )
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:branching_strategy] = branching_strategy
+        x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
         @test x == round.(diffi)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
@@ -169,6 +228,8 @@ diffi = x_sol + 0.3 * dir
     x, _, result = Boscia.solve(f, grad!, sblmo, fill(0.0, n), fill(1.0 * N, n), collect(1:n), n)
 
     # testing for Probability simplex inface oracles
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
     x_dicg, _, result_dicg = Boscia.solve(
         f,
         grad!,
@@ -177,9 +238,7 @@ diffi = x_sol + 0.3 * dir
         fill(1.0 * N, n),
         collect(1:n),
         n,
-        settings_frank_wolfe=Boscia.settings_frank_wolfe(
-            variant=Boscia.DecompositionInvariantConditionalGradient(),
-        ),
+        settings=settings,
     )
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
