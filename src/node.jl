@@ -212,13 +212,17 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     if haskey(varbounds_right.lower_bounds, vidx)
         delete!(varbounds_right.lower_bounds, vidx)
     end
-    new_bound_left, new_bound_right = if isapprox(tree.root.problem.integer_variable_bounds.lower_bounds[vidx], x[vidx])
-        floor(x[vidx]), floor(x[vidx]) + 1
-    elseif isapprox(tree.root.problem.integer_variable_bounds.upper_bounds[vidx], x[vidx])
-        ceil(x[vidx]) - 1, ceil(x[vidx])
-    else
-        floor(x[vidx]), ceil(x[vidx])
-    end
+   #@show x[vidx]
+   # @show tree.root.problem.integer_variable_bounds.upper_bounds[vidx]
+    #new_bound_left, new_bound_right = if isapprox(tree.root.problem.integer_variable_bounds.lower_bounds[vidx], x[vidx])
+    #    floor(x[vidx]), floor(x[vidx]) + 1
+    #elseif isapprox(tree.root.problem.integer_variable_bounds.upper_bounds[vidx], x[vidx])
+    #    ceil(x[vidx]) - 1, ceil(x[vidx])
+    #else
+    #    floor(x[vidx]), ceil(x[vidx])
+    #end
+    new_bound_left = floor(x[vidx])
+    new_bound_right = ceil(x[vidx])
     push!(varbounds_left.upper_bounds, (vidx => new_bound_left))
     push!(varbounds_right.lower_bounds, (vidx => new_bound_right))
 
