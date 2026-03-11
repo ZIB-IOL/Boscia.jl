@@ -505,6 +505,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     global_tightening(tree, node)
 
     lower_bound = primal - dual_gap
+    # tighten the lower bound if the objective is always integral
+    lower_bound = tree.root.options[:integral_objective] ? ceil(lower_bound) : lower_bound
     # improvement of the lower bound using strong convexity
     lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
 

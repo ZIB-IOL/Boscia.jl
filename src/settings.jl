@@ -35,6 +35,7 @@ Available settings:
 
 - `traverse_strategy` encodes how to choose the next node for evaluation. By default the node with the best lower bound is picked.
 - `branching_strategy` fixes the branching strategy. By default, weuse `MOST_INFEASIBLE`, i.e. we branch on the entry which is the farthest away from being an integer.
+- `integral_objective` if `true`, allows the lower bound at each node to be rounded up. Per default, this is `false`.
 - `verbose` if `true`, logs and solution statistics are printed. Per default, this is `false`.
 - `node_limit` maximum number of nodes to be evaluated. In DEFAULT mode, there is no limit. In HEURISTIC mode, the default is set to 1000.
 - `time_limit` algorithm will stop if the time limit is reached. Depending on the problem it is possible that no feasible solution has been found yet. In DEFAULT mode, there is no time limit. In HEURISTIC mode, the default is set to 300 seconds (5 minutes).
@@ -49,6 +50,7 @@ Available settings:
 function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     traverse_strategy = Bonobo.BestFirstSearch()
     branching_strategy = Bonobo.MOST_INFEASIBLE()
+    integral_objective = false
     verbose = false
     print_iter = 100
     bnb_callback = nothing
@@ -79,6 +81,7 @@ function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     return Dict(
         :traverse_strategy => traverse_strategy,
         :branching_strategy => branching_strategy,
+        :integral_objective => integral_objective,
         :verbose => verbose,
         :node_limit => node_limit,
         :time_limit => time_limit,
@@ -369,7 +372,7 @@ function settings_tightening(; mode::Mode=Boscia.DEFAULT_MODE)
     sharpness_exponent = Inf
     propagate_bounds = nothing
 
-    return Dict(
+    return Dict{Symbol,Union{Bool,Float64,Nothing,Function}}(
         :dual_tightening => dual_tightening,
         :global_dual_tightening => global_dual_tightening,
         :strong_convexity => strong_convexity,
