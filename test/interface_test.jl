@@ -754,6 +754,50 @@ end
     @test result_no[:status] == Boscia.USER_STOP
 end
 
+@testset "Integral objective" begin
+    n = 8
+
+    function build_integral_objective_model()
+        o = SCIP.Optimizer()
+        MOI.set(o, MOI.Silent(), true)
+        MOI.empty!(o)
+        x = MOI.add_variables(o, n)
+        for xi in x
+            MOI.add_constraint(o, xi, MOI.GreaterThan(0.0))
+            MOI.add_constraint(o, xi, MOI.LessThan(1.0))
+            MOI.add_constraint(o, xi, MOI.ZeroOne())
+        end
+        return FrankWolfe.MathOptLMO(o)
+    end
+
+    function f(x)
+        return 4.0 * sum((x[i] - 0.5)^2 for i in eachindex(x))
+    end
+
+    function grad!(storage, x)
+        @. storage = 8.0 * (x - 0.5)
+        return storage
+    end
+
+    # baseline solve without integral lower-bound rounding
+    lmo = build_integral_objective_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.branch_and_bound[:integral_objective] = false
+    x_no_int, _, result_no_int = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    # solve with integral_objective enabled
+    lmo = build_integral_objective_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.branch_and_bound[:integral_objective] = true
+    x_int, _, result_int = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    # primal objective should not deteriorate
+    @test isapprox(f(x_int), f(x_no_int); atol=1e-6, rtol=1e-3)
+    @test result_int[:dual_bound] >= result_no_int[:dual_bound] - 1e-6
+end
+
 @testset "Linear feasible" begin
     n = 10
     o = SCIP.Optimizer()

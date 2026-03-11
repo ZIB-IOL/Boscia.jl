@@ -15,6 +15,7 @@ using Aqua
 @testset verbose = true failfast = true "Boscia Test Suite" begin
 
     include("interface_test.jl")
+    include("callback_tests.jl")
     include("LMO_test.jl")
     include("indicator_test.jl")
     include("heuristics.jl")
