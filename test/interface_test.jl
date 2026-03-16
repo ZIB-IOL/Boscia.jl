@@ -332,7 +332,7 @@ Ns = 0.1
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n
             xi = @view(Xs[:, i])
@@ -348,13 +348,13 @@ Ns = 0.1
     settings.branch_and_bound[:verbose] = false
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
     @test f(x) <= f(result[:raw_solution])
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:start_solution] = x
     x2, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test sum(x2[p+1:2p]) <= k
+    @test sum(x2[(p+1):2p]) <= k
     @test f(x2) == f(x)
 end
 

@@ -36,7 +36,7 @@ const M = 2 * var(A)
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i in p+1:2p
+    for i in (p+1):2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
@@ -55,13 +55,13 @@ const M = 2 * var(A)
     end
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[(p+1):2p]), 0.0),
         MOI.LessThan(k),
     )
     lmo = FrankWolfe.MathOptLMO(o)
 
     function f(x)
-        return sum((y - A * x[1:p]) .^ 2) + lambda_0 * sum(x[p+1:2p]) + lambda_2 * norm(x[1:p])^2
+        return sum((y - A * x[1:p]) .^ 2) + lambda_0 * sum(x[(p+1):2p]) + lambda_2 * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
@@ -76,7 +76,7 @@ const M = 2 * var(A)
     settings.branch_and_bound[:time_limit] = 100
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     # println("Solution: $(x[1:p])")
-    @test sum(x[1+p:2p]) <= k
+    @test sum(x[(1+p):2p]) <= k
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
@@ -103,7 +103,7 @@ function build_sparse_lmo_grouped()
     MOI.set(o, MOI.Silent(), true)
     MOI.empty!(o)
     x = MOI.add_variables(o, 2p)
-    for i in p+1:2p
+    for i in (p+1):2p
         MOI.add_constraint(o, x[i], MOI.GreaterThan(0.0))
         MOI.add_constraint(o, x[i], MOI.LessThan(1.0))
         MOI.add_constraint(o, x[i], MOI.ZeroOne()) # or MOI.Integer()
@@ -122,7 +122,7 @@ function build_sparse_lmo_grouped()
     end
     MOI.add_constraint(
         o,
-        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[p+1:2p]), 0.0),
+        MOI.ScalarAffineFunction(MOI.ScalarAffineTerm.(ones(p), x[(p+1):2p]), 0.0),
         MOI.LessThan(k),
     )
     for i in 1:k_int
@@ -139,13 +139,13 @@ end
 @testset "Sparse Regression Group" begin
     function f(x)
         return sum(abs2, y_g - A_g * x[1:p]) +
-               lambda_0_g * norm(x[p+1:2p])^2 +
+               lambda_0_g * norm(x[(p+1):2p])^2 +
                lambda_2_g * norm(x[1:p])^2
     end
     function grad!(storage, x)
         storage .= vcat(
             2 * (transpose(A_g) * A_g * x[1:p] - transpose(A_g) * y_g + lambda_2_g * x[1:p]),
-            2 * lambda_0_g * x[p+1:2p],
+            2 * lambda_0_g * x[(p+1):2p],
         )
         return storage
     end
@@ -156,7 +156,7 @@ end
     settings.tolerances[:fw_epsilon] = 1e-3
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
     for i in 1:k_int
         @test sum(x[groups[i]]) >= 1
     end
@@ -176,7 +176,7 @@ end
     settings.tolerances[:fw_epsilon] = 1e-3
     settings.tightening[:strong_convexity] = μ
     x2, _, result2 = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test sum(x2[p+1:2p]) <= k
+    @test sum(x2[(p+1):2p]) <= k
     for i in 1:k_int
         @test sum(x2[groups[i]]) >= 1
     end

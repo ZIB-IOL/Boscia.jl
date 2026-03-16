@@ -8,6 +8,7 @@ import Bonobo
 using HiGHS
 using Printf
 using Dates
+using LinearAlgebra
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
@@ -287,4 +288,44 @@ diffi = x_sol + 0.3 * rand([-1, 1], n)
 
     @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
     @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+n = 20
+n_int = 10
+sparsity = 0.3
+x_sol = [rand() < sparsity ? 0 : rand(1:floor(Int, n / 4)) for _ in 1:n]
+
+@testset "KSparse LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - x_sol[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - x_sol
+    end
+
+    K = count(!iszero, x_sol)
+    τ = norm(x_sol, Inf)
+
+    sblmo = FrankWolfe.KSparseLMO{Float64}(K, τ)
+
+    x, _, result =
+        Boscia.solve(f, grad!, sblmo, fill(0.0, n_int), fill(100.0, n_int), collect(1:n_int), n)
+
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg = Boscia.solve(
+        f,
+        grad!,
+        sblmo,
+        fill(0.0, n),
+        fill(100.0, n),
+        collect(1:n),
+        n,
+        settings=settings,
+    )
+
+    @test sum(isapprox.(x, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, x_sol, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
 end
