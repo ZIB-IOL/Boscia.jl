@@ -476,7 +476,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
         primal = tree.root.options[:original_objective](x)
-        if primal > tree.root.options[:local_opt_primal]
+        if primal > tree.root.options[:local_opt_primal] && tree.root.options[:best_sol_by_original]
             x = tree.root.options[:local_opt_x]
             if tree.root.options[:variant] isa DecompositionInvariantConditionalGradient
                 node.pre_computed_set = tree.root.options[:local_active_set]
