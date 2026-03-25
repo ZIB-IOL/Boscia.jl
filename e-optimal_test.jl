@@ -125,9 +125,21 @@ lmo = Boscia.ManagedBoundedLMO(simplex_lmo, fill(0.0, m), ub, collect(1:m), m)
 
 f, generate_smoothing_function = build_e_criterion(A)
 
-x, _, result = Boscia.solve(f, nothing, lmo; 
-mode = Boscia.SMOOTHING_MODE,
-settings_bnb = Boscia.settings_bnb(verbose=true, print_iter=10),
-settings_smoothing = Boscia.settings_smoothing(mode=Boscia.SMOOTHING_MODE, generate_smoothing_objective = generate_smoothing_function),## , smoothing_start=5.0, smoothing_min=1.0
-settings_frank_wolfe = Boscia.settings_frank_wolfe(mode=Boscia.SMOOTHING_MODE, max_fw_iter=1000, fw_verbose=false, line_search=FrankWolfe.Adaptive()),
+settings = Boscia.create_default_settings(mode=Boscia.SMOOTHING_MODE)
+settings.branch_and_bound[:verbose] = true
+settings.branch_and_bound[:print_iter] = 10
+settings.branch_and_bound[:time_limit] = 120
+settings.branch_and_bound[:use_shadow_set] = false
+
+settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
+settings.smoothing[:smoothing_start] = 5.0
+settings.smoothing[:smoothing_min] = 1.0
+settings.smoothing[:smoothing_min_valid] = false
+settings.smoothing[:smoothing_decay] = 0.7
+settings.smoothing[:use_sub_grad_info] = true
+settings.smoothing[:best_sol_by_original] = true
+settings.smoothing[:resolve_integer_solution] = true
+
+x, _, result = Boscia.solve(f, nothing, lmo; mode=Boscia.SMOOTHING_MODE,
+settings=settings
 )
