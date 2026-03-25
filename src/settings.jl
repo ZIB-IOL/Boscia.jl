@@ -444,6 +444,8 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     generate_smoothing_objective = nothing
     use_sub_grad_info = false
     max_restart_fw_iter = 1000
+    best_sol_by_original = false
+    resolve_integer_solution = false
 
     return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
         :smoothing_start => smoothing_start,
@@ -453,6 +455,8 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :generate_smoothing_objective => generate_smoothing_objective,
         :use_sub_grad_info => use_sub_grad_info,
         :max_restart_fw_iter => max_restart_fw_iter,
+        :best_sol_by_original => best_sol_by_original,
+        :resolve_integer_solution => resolve_integer_solution,
     )
 end
 

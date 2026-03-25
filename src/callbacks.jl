@@ -77,7 +77,7 @@ function process_FW_callback_logic(
         @assert sum(active_set.weights .< 0) == 0
     end
 
-    if tree.root.options[:mode] == SMOOTHING_MODE
+    if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:best_sol_by_original]
         fx = tree.root.problem.f(state.x)
         if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
             tree.root.options[:local_opt_primal] = fx
