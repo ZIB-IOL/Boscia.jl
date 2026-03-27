@@ -475,6 +475,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
+        @assert primal <= tree.root.options[:original_objective](x) + 1e-10 "primal = $(primal) > tree.root.options[:original_objective](x) + 1e-10 = $(tree.root.options[:original_objective](x) + 1e-10)"
         primal = tree.root.options[:original_objective](x)
         if primal > tree.root.options[:local_opt_primal] && tree.root.options[:best_sol_by_original]
             x = tree.root.options[:local_opt_x]
