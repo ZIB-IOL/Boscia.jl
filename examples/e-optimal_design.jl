@@ -515,13 +515,15 @@ settings.tolerances[:fw_epsilon] = 1e-3
 settings.tolerances[:min_node_fw_epsilon] = 1e-7
 
 settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
-settings.smoothing[:smoothing_start] = m/20
-settings.smoothing[:smoothing_min] = max(exp10(-m/10), 1e-5)
+settings.smoothing[:smoothing_start] = m/10
+settings.smoothing[:smoothing_min] = exp10(-20/m)
 settings.smoothing[:smoothing_min_valid] = false
-settings.smoothing[:smoothing_decay] = 0.6
+settings.smoothing[:smoothing_decay] = 0.9
 settings.smoothing[:use_sub_grad_info] = true
+settings.smoothing[:best_sol_by_original] = false
+settings.smoothing[:resolve_integer_solution] = true
 
-settings.frank_wolfe[:max_fw_iter] = 1000
+settings.frank_wolfe[:max_fw_iter] = 5000
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
 settings.frank_wolfe[:fw_verbose] = false
 settings.frank_wolfe[:lazy] = false
