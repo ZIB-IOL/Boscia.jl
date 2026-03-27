@@ -22,8 +22,8 @@ using JuMP
 #ENV["JULIA_DEBUG"] = "Boscia"
 
 # ============== Parameters ==============
-seed = 5
-m = 30
+seed = 1
+m = 50
 n = Int(floor(sqrt(m)))
 corr = false
 N = Int(floor(1.5 * n * log(n)))
