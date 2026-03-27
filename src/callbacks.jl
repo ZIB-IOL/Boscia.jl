@@ -78,7 +78,7 @@ function process_FW_callback_logic(
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:best_sol_by_original]
-        fx = tree.root.problem.f(state.x)
+        fx = tree.root.options[:original_objective](state.x)
         if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
             tree.root.options[:local_opt_primal] = fx
             tree.root.options[:local_opt_x] = state.x
