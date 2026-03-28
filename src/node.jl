@@ -475,16 +475,16 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
-        @assert primal <= tree.root.options[:original_objective](x) + 1e-10 "primal = $(primal) > tree.root.options[:original_objective](x) + 1e-10 = $(tree.root.options[:original_objective](x) + 1e-10)"
-        primal = tree.root.options[:original_objective](x)
-        if primal > tree.root.options[:local_opt_primal] && tree.root.options[:best_sol_by_original]
+        original_primal = tree.root.options[:original_objective](x)
+         @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
+        if original_primal > tree.root.options[:local_opt_primal] && tree.root.options[:best_sol_by_original]
             x = tree.root.options[:local_opt_x]
             if tree.root.options[:variant] isa DecompositionInvariantConditionalGradient
                 node.pre_computed_set = tree.root.options[:local_active_set]
             else
                 node.active_set = tree.root.options[:local_active_set]
             end
-            primal = tree.root.options[:local_opt_primal]
+            original_primal = tree.root.options[:local_opt_primal]
         end
         sub_grad = []
         tree.root.options[:sub_grad!](sub_grad, x)
@@ -496,7 +496,10 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
         #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
        # dual_gap = dot(sub_grad, x - v_sub)
-       dual_gap = min_dual_gap
+       if original_primal - min_dual_gap > primal - dual_gap
+            dual_gap = min_dual_gap
+            primal = original_primal
+        end
     end
 
     node.fw_time = Dates.now() - time_ref
