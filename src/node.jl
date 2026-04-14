@@ -375,12 +375,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     end
 
     if tree.root.options[:mode] == SMOOTHING_MODE
-        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1))
-        if μ < tree.root.options[:smoothing_min]
-            μ = tree.root.options[:smoothing_min]
-        end
+        μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)), tree.root.options[:smoothing_min])
         @debug "Smoothing parameter: $(μ)"
-        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon])
         tree.root.problem.f = f_μ
         tree.root.problem.g = g_μ
     end
@@ -426,7 +423,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
         μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
         @debug "New smoothing parameter: $(μ)"
-        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ)
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon])
         tree.root.problem.f = f_μ
         tree.root.problem.g = g_μ
 

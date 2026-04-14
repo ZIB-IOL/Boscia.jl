@@ -63,7 +63,7 @@ function solve(
     if options[:mode] == SMOOTHING_MODE
         merge!(options, Dict(:original_objective => f))
         merge!(options, Dict(:sub_grad! => grad!))
-        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start])
+        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start]; epsilon=options[:fw_epsilon])
         local_opt_x = Float64[]                    # placeholder: empty until set
         local_active_set = FrankWolfe.ActiveSet{Vector{Float64}, Float64, Vector{Float64}}([], [], Float64[]) 
         merge!(options, Dict(:local_opt_x => local_opt_x))
