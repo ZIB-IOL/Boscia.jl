@@ -421,7 +421,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) && tree.root.options[:resolve_integer_solution]
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
-        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
+        μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10)), tree.root.options[:smoothing_min])
         @debug "New smoothing parameter: $(μ)"
         f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
         tree.root.problem.f = f_μ
