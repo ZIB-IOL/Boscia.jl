@@ -319,7 +319,7 @@ function rounding_hyperplane_heuristic(
         sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
     if cont_z + sum(tlmo.lmo.upper_bounds[non_zero_int]) < N ||
        cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]) > N
-        @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.lmo.upperbounds[non_zero_int])), minimal possible sum $(cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]))"
+        @debug "No heuristics improvement possible, bounds already reached, N=$(N), maximal possible sum $(cont_z + sum(tlmo.lmo.upper_bounds[non_zero_int])), minimal possible sum $(cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]))"
         return [z], true
     end
 
