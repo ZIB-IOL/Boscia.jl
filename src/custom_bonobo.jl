@@ -80,7 +80,7 @@ function Bonobo.optimize!(
         #tree.lb = prio[1]
         p_lb = tree.lb
         tree.lb = minimum([prio[2][1] for prio in tree.node_queue])
-        @assert p_lb <= tree.lb
+        @assert p_lb <= tree.lb "p_lb: $(p_lb) <= tree.lb: $(tree.lb)"
 
         updated = Bonobo.update_best_solution!(tree, node)
         if updated
