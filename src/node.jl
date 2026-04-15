@@ -340,8 +340,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    x0_dicg = nothing
-
     if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
         active_set = node.active_set
@@ -349,15 +347,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @assert is_linear_feasible(tree.root.problem.tlmo, x)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
-        end
-    else
-        if tree.root.options[:find_domain_point] !== nothing
-            x0_dicg = tree.root.options[:find_domain_point](node.local_bounds)
-            if x0_dicg === nothing &&
-               typeof(tree.root.options[:domain_oracle]) != typeof(_trivial_domain)
-                @debug "Node $(node.id) is infeasible: no domain-feasible starting point found."
-                return NaN, NaN
-            end
         end
     end
 
@@ -367,6 +356,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     # time tracking FW
     time_ref = Dates.now()
+    domain_oracle = tree.root.options[:domain_oracle]
+
     x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
         tree.root.problem.f,
@@ -385,7 +376,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         verbose=tree.root.options[:fw_verbose],
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
-        dicg_starting_point=x0_dicg,
+        domain_oracle=domain_oracle,
     )
 
     if tree.root.options[:fw_verbose]

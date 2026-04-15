@@ -275,7 +275,7 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
-    dicg_starting_point=nothing,
+    domain_oracle=_trivial_domain,
     kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
@@ -288,18 +288,15 @@ function solve_frank_wolfe(
         end
     end
 
-    if dicg_starting_point !== nothing
-        x0 = dicg_starting_point
-    else
-        x0 = dicg_start_point_initialize(
-            lmo,
-            active_set,
-            pre_computed_set,
-            frank_wolfe_variant.build_dicg_start_point;
-        )
-    end
+    x0 = dicg_start_point_initialize(
+        lmo,
+        active_set,
+        pre_computed_set,
+        frank_wolfe_variant.build_dicg_start_point;
+        domain_oracle=domain_oracle,
+    )
 
-    if x0 === nothing
+    if x0 === nothing || !domain_oracle(x0)
         return NaN, Inf, Inf, pre_computed_set
     else
         @assert is_linear_feasible(lmo, x0)
@@ -390,7 +387,7 @@ function solve_frank_wolfe(
     verbose=false,
     workspace=nothing,
     pre_computed_set=nothing,
-    dicg_starting_point=nothing,
+    domain_oracle=_trivial_domain,
     kwargs...,
 )
     # We keep track of computed extreme points by creating logging callback.
@@ -403,18 +400,15 @@ function solve_frank_wolfe(
         end
     end
 
-    if dicg_starting_point !== nothing
-        x0 = dicg_starting_point
-    else
-        x0 = dicg_start_point_initialize(
-            lmo,
-            active_set,
-            pre_computed_set,
-            frank_wolfe_variant.build_bdicg_start_point;
-        )
-    end
+    x0 = dicg_start_point_initialize(
+        lmo,
+        active_set,
+        pre_computed_set,
+        frank_wolfe_variant.build_bdicg_start_point;
+        domain_oracle=domain_oracle,
+    )
 
-    if x0 === nothing
+    if x0 === nothing || !domain_oracle(x0)
         return NaN, Inf, Inf, pre_computed_set
     else
         @assert is_linear_feasible(lmo, x0)
@@ -423,7 +417,7 @@ function solve_frank_wolfe(
     # In case of the postprocessing, no callback is provided.
     BDICG_callback = callback !== nothing ? make_callback(pre_computed_set) : nothing
 
-    x, _, primal, dual_gap, status, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
+    x, _, primal, dual_gap, status, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
         grad!,
         lmo,
@@ -457,7 +451,7 @@ function solve_frank_wolfe(
 end
 
 Base.print(io::IO, ::BlendedDecompositionInvariantConditionalGradient) =
-    print(io, "Blended-Decompostion-Invariant-Frank-Wolfe")
+    print(io, "BlendedDecompostion-Invariant-Frank-Wolfe")
 
 """
 	Vanilla-Frank-Wolfe
