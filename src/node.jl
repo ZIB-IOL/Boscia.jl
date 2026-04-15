@@ -421,7 +421,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) && tree.root.options[:resolve_integer_solution]
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
-        μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10)), tree.root.options[:smoothing_min])
+        #μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10)), tree.root.options[:smoothing_min])
+        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
         @debug "New smoothing parameter: $(μ)"
         f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
         tree.root.problem.f = f_μ
@@ -514,6 +515,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
     lower_bound = tree.root.options[:integral_objective] ? ceil(lower_bound) : lower_bound
     # improvement of the lower bound using strong convexity
     lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
+
+    @assert isfinite(lower_bound) "lower_bound is not finite: $(lower_bound)"
 
     # Call heuristic 
     run_heuristics(tree, x, tree.root.options[:heuristics])
