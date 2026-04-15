@@ -45,7 +45,7 @@ function build_examples(o, n, seed)
 end
 
 
-@testset "DepthFirstSearch Traverse Strategy" begin
+@testset "BiasedDepthFirstSearch Traverse Strategy" begin
     dimension = 20
     seed = 1
     o = SCIP.Optimizer()
@@ -56,27 +56,27 @@ end
     settings.branch_and_bound[:time_limit] = time_limit
     x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @testset "DepthFirstSearch favoring right" begin
+    @testset "BiasedDepthFirstSearch favoring right" begin
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = false
         settings.branch_and_bound[:time_limit] = time_limit
-        settings.branch_and_bound[:traverse_strategy] = Boscia.DepthFirstSearch(true)
+        settings.branch_and_bound[:traverse_strategy] = Boscia.BiasedDepthFirstSearch(true)
         x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
         @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
     end
 
-    @testset "DepthFirstSearch favoring left" begin
+    @testset "BiasedDepthFirstSearch favoring left" begin
         o = SCIP.Optimizer()
         f, grad!, lmo = build_examples(o, dimension, seed)
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:time_limit] = time_limit
-        settings.branch_and_bound[:traverse_strategy] = Boscia.DepthFirstSearch(false)
+        settings.branch_and_bound[:traverse_strategy] = Boscia.BiasedDepthFirstSearch(false)
         x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
