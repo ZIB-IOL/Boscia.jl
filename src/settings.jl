@@ -446,6 +446,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     max_restart_fw_iter = 1000
     best_sol_by_original = false
     resolve_integer_solution = false
+    clip_mu_resolution = false
 
     return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
         :smoothing_start => smoothing_start,
@@ -457,6 +458,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :max_restart_fw_iter => max_restart_fw_iter,
         :best_sol_by_original => best_sol_by_original,
         :resolve_integer_solution => resolve_integer_solution,
+        :clip_mu_resolution => clip_mu_resolution,
     )
 end
 

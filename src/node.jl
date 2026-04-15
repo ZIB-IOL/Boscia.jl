@@ -423,6 +423,9 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
         #μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10)), tree.root.options[:smoothing_min])
         μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
+        if tree.root.options[:clip_mu_resolution]
+            μ = max(μ, tree.root.options[:smoothing_min])
+        end
         @debug "New smoothing parameter: $(μ)"
         f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
         tree.root.problem.f = f_μ
@@ -498,6 +501,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             dual_gap = min_dual_gap
             primal = original_primal
         end
+        @assert isfinite(dual_gap) "dual_gap is not finite: $(dual_gap)"
     end
 
     node.fw_time = Dates.now() - time_ref
