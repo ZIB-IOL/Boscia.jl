@@ -179,13 +179,13 @@ function Bonobo.get_solution(
     return tree.solutions[result].solution
 end
 
-struct DepthFirstSearch <: Bonobo.AbstractTraverseStrategy
+struct BiasedDepthFirstSearch <: Bonobo.AbstractTraverseStrategy
     favor_right::Bool
 end
 
-DepthFirstSearch() = DepthFirstSearch(true)
+BiasedDepthFirstSearch() = BiasedDepthFirstSearch(true)
 
-function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::DepthFirstSearch)
+function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::BiasedDepthFirstSearch)
     node_queue = tree.node_queue
     nodes = tree.nodes
 
