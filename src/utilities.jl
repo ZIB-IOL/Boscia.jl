@@ -156,7 +156,6 @@ function dicg_start_point_initialize(
     active_set::FrankWolfe.ActiveSet{T,R},
     pre_computed_set,
     build_dicg_start_point;
-    domain_oracle=_trivial_domain,
 ) where {T,R}
     if lmo.ncalls == 0
         return FrankWolfe.get_active_set_iterate(active_set)
@@ -168,9 +167,6 @@ function dicg_start_point_initialize(
             # We pick a point by averaging the pre_computed_atoms as warm-start.  
             num_pre_computed_set = length(pre_computed_set)
             x0 = sum(pre_computed_set) / num_pre_computed_set
-            if !domain_oracle(x0)
-                x0 = build_dicg_start_point(lmo.lmo)
-            end
         else
             # We pick a random point.
             x0 = build_dicg_start_point(lmo.lmo)
