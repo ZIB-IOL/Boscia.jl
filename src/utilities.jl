@@ -206,12 +206,7 @@ function initialize_decomposition_invariant_starting_point(
     return x0
 end
 
-function cleanup_precomputed_set_after_solve!(
-    pre_computed_set,
-    lmo,
-    x,
-    use_strong_warm_start::Bool,
-)
+function cleanup_precomputed_set_after_solve!(pre_computed_set, lmo, x, use_strong_warm_start::Bool)
     if pre_computed_set !== nothing && use_strong_warm_start
         indices_to_delete = []
         for idx in eachindex(pre_computed_set)
