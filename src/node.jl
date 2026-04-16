@@ -340,6 +340,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
+    decomposition_invariant_starting_point = nothing
     if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
         active_set = node.active_set
@@ -347,6 +348,17 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         @assert is_linear_feasible(tree.root.problem.tlmo, x)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
+        end
+    else
+        if node.id == 1 && tree.root.options[:start_solution] !== nothing
+            decomposition_invariant_starting_point = tree.root.options[:start_solution]
+        elseif tree.root.options[:find_domain_point] !== _trivial_domain_point
+            decomposition_invariant_starting_point = tree.root.options[:find_domain_point](node.local_bounds)
+            if decomposition_invariant_starting_point === nothing
+                print("Node $(node.id)")
+                @debug "Node $(node.id) is infeasible: no domain-feasible starting point found."
+                return NaN, NaN
+            end
         end
     end
 
@@ -377,6 +389,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
+        decomposition_invariant_starting_point=decomposition_invariant_starting_point,
     )
 
     if tree.root.options[:fw_verbose]
