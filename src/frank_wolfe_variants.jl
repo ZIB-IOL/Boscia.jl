@@ -289,7 +289,8 @@ function solve_frank_wolfe(
     end
 
     # In case of the postprocessing, no callback is provided.
-    DICG_callback = callback !== nothing ? make_precomputed_set_callback(callback, pre_computed_set) : nothing
+    DICG_callback =
+        callback !== nothing ? make_precomputed_set_callback(callback, pre_computed_set) : nothing
 
     x, _, primal, dual_gap, status, _ = FrankWolfe.decomposition_invariant_conditional_gradient(
         f,
@@ -381,25 +382,27 @@ function solve_frank_wolfe(
     end
 
     # In case of the postprocessing, no callback is provided.
-    BDICG_callback = callback !== nothing ? make_precomputed_set_callback(callback, pre_computed_set) : nothing
+    BDICG_callback =
+        callback !== nothing ? make_precomputed_set_callback(callback, pre_computed_set) : nothing
 
-    x, _, primal, dual_gap, status, _ = FrankWolfe.blended_decomposition_invariant_conditional_gradient(
-        f,
-        grad!,
-        lmo,
-        x0;
-        line_search=line_search,
-        epsilon=epsilon,
-        max_iteration=max_iteration,
-        verbose=verbose,
-        timeout=timeout,
-        lazy=lazy,
-        use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
-        linesearch_workspace=workspace,
-        sparsity_control=lazy_tolerance,
-        callback=BDICG_callback,
-        extra_vertex_storage=pre_computed_set,
-    )
+    x, _, primal, dual_gap, status, _ =
+        FrankWolfe.blended_decomposition_invariant_conditional_gradient(
+            f,
+            grad!,
+            lmo,
+            x0;
+            line_search=line_search,
+            epsilon=epsilon,
+            max_iteration=max_iteration,
+            verbose=verbose,
+            timeout=timeout,
+            lazy=lazy,
+            use_strong_lazy=frank_wolfe_variant.use_strong_lazy,
+            linesearch_workspace=workspace,
+            sparsity_control=lazy_tolerance,
+            callback=BDICG_callback,
+            extra_vertex_storage=pre_computed_set,
+        )
     cleanup_precomputed_set_after_solve!(
         pre_computed_set,
         lmo,
