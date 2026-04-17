@@ -356,7 +356,6 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
             decomposition_invariant_starting_point =
                 tree.root.options[:find_domain_point](node.local_bounds)
             if decomposition_invariant_starting_point === nothing
-                print("Node $(node.id)")
                 @debug "Node $(node.id) is infeasible: no domain-feasible starting point found."
                 return NaN, NaN
             end
