@@ -60,14 +60,14 @@ end
     @test f(x) <= f(result[:raw_solution]) + 1e-6
 end
 
-@testset "Low-dimensional function (CubeSimpleBLMO)" begin
+@testset "Low-dimensional function (CubeLMO)" begin
 
     int_vars = collect(1:n)
 
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.CubeLMO(lbs, ubs)
 
     # modified solve call from managed_blmo.jl automatically wraps sblmo into a managed_blmo
     settings = Boscia.create_default_settings()

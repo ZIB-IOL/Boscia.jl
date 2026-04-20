@@ -172,7 +172,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     x_sol = copy(diffi)
     x_sol[int_vars] = round.(x_sol[int_vars])
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.CubeLMO(lbs, ubs)
 
     settings = Boscia.create_default_settings()
     settings.heuristic[:probability_rounding_prob] = 0.6
