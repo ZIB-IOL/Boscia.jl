@@ -13,6 +13,9 @@ export compute_inface_extreme_point
 
 import FrankWolfe: dicg_maximum_step
 export dicg_maximum_step
+
+import FrankWolfe: UnitSimplexLMO
+export UnitSimplexLMO
 using Random
 using LinearAlgebra
 import Bonobo

@@ -1,3 +1,5 @@
+#### CubeLMO ####
+
 const CubeLMO = FrankWolfe.BoxLMO
 
 const CubeSimpleBLMO = CubeLMO
@@ -126,6 +128,7 @@ function bounded_dicg_maximum_step(lmo::FrankWolfe.BoxLMO, direction, x, lb, ub,
     return gamma_max
 end
 
+#### ZeroOneHypercubeLMO ####
 
 """
      bounded_compute_extreme_point(lmo::FrankWolfe.ZeroOneHypercubeLMO, d, lb, ub, int_vars; kwargs...)
@@ -509,24 +512,19 @@ function remove_from_max(x, lb, int_vars)
     return x
 end
 
-"""
-    UnitSimplexLMO(N)
-
-The scaled unit simplex with `∑ x ≤ N`.
-"""
-struct UnitSimplexLMO <: FrankWolfe.LinearMinimizationOracle
-    N::Float64
-end
+#### UnitSimplexLMO ####
 
 const UnitSimplexSimpleBLMO = UnitSimplexLMO
+
+@deprecate UnitSimplexSimpleBLMO UnitSimplexLMO
 
 function is_decomposition_invariant_oracle_simple(lmo::UnitSimplexLMO)
     return true
 end
 
 function is_simple_inface_feasible(lmo::UnitSimplexLMO, a, x, lb, ub, int_vars; kwargs...)
-    if isapprox(sum(x), lmo.N; atol=atol, rtol=rtol) &&
-       !isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
+    if isapprox(sum(x), lmo.right_side; atol=atol, rtol=rtol) &&
+       !isapprox(sum(a), lmo.right_side; atol=atol, rtol=rtol)
         return false
     end
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
@@ -552,9 +550,9 @@ function bounded_compute_extreme_point(lmo::UnitSimplexLMO, d, lb, ub, int_vars;
     for i in idx_neg[perm]
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
-            v[i] += min(ub[idx] - lb[idx], lmo.N - sum(v))
+            v[i] += min(ub[idx] - lb[idx], lmo.right_side - sum(v))
         else
-            v[i] += lmo.N - sum(v)
+            v[i] += lmo.right_side - sum(v)
         end
     end
     return v
@@ -603,7 +601,7 @@ function bounded_compute_inface_extreme_point(
         end
     end
 
-    if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
+    if isapprox(sum(a), lmo.right_side; atol=atol, rtol=rtol)
         return a
     end
 
@@ -613,7 +611,7 @@ function bounded_compute_inface_extreme_point(
     perm = sortperm(d_updated[idx_neg])
     sorted_neg = idx_neg[perm]
     sorted = non_fixed_idx[sorted_neg]
-    rem = lmo.N - sum(a)
+    rem = lmo.right_side - sum(a)
 
 
     for i in sorted
@@ -624,8 +622,8 @@ function bounded_compute_inface_extreme_point(
         else
             a[i] += rem
         end
-        rem = lmo.N - sum(a)
-        if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
+        rem = lmo.right_side - sum(a)
+        if isapprox(sum(a), lmo.right_side; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -663,7 +661,7 @@ function bounded_dicg_maximum_step(
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
             else
-                gamma_max = min(gamma_max, (lmo.N - x[idx]) / -di)
+                gamma_max = min(gamma_max, (lmo.right_side - x[idx]) / -di)
             end
         end
 
@@ -674,7 +672,7 @@ function bounded_dicg_maximum_step(
 
     # the sum of entries should be smaller than N.
     if sum(direction) < 0.0
-        gamma_max = min(gamma_max, (sum(x) - lmo.N) / sum(direction))
+        gamma_max = min(gamma_max, (sum(x) - lmo.right_side) / sum(direction))
     end
 
     return gamma_max
@@ -685,11 +683,11 @@ function is_simple_linear_feasible(lmo::UnitSimplexLMO, v)
         @debug "v has negative entries: $(v)"
         return false
     end
-    return sum(v) ≤ lmo.N + 1e-3
+    return sum(v) ≤ lmo.right_side + 1e-3
 end
 
 function check_feasibility(lmo::UnitSimplexLMO, lb, ub, int_vars, n)
-    if sum(lb) ≤ lmo.N
+    if sum(lb) ≤ lmo.right_side
         return OPTIMAL
     else
         INFEASIBLE
@@ -697,7 +695,7 @@ function check_feasibility(lmo::UnitSimplexLMO, lb, ub, int_vars, n)
 end
 
 """
-    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexLMO}}, x) 
+    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{FrankWolfe.UnitSimplexLMO}}, x) 
     
 Hyperplane-aware rounding for the unit simplex.
 """
@@ -711,20 +709,20 @@ function rounding_hyperplane_heuristic(
         z[idx] = round(x[idx])
     end
 
-    N = tlmo.lmo.lmo.N
+    T = tlmo.lmo.lmo.right_side
 
     non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
     cont_z =
         isempty(setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)) ? 0 :
         sum(z[setdiff(collect(1:tree.root.problem.nvars), tree.branching_indices)])
-    if cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]) > N
-        @debug "No heuristics improvement possible, bounds already reached, N=$(N), minimal possible sum $(cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]))"
+    if cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]) > T
+        @debug "No heuristics improvement possible, bounds already reached, T=$(T), minimal possible sum $(cont_z + sum(tlmo.lmo.lower_bounds[non_zero_int]))"
         return [z], true
     end
 
 
-    if sum(z) > N
-        while sum(z) > N
+    if sum(z) > T
+        while sum(z) > T
             z = remove_from_max(z, tlmo.lmo.lower_bounds, tree.branching_indices)
         end
     end
