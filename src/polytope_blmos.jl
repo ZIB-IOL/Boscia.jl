@@ -1,8 +1,8 @@
 #### CubeLMO ####
 
-const CubeLMO = FrankWolfe.BoxLMO
+const CubeLMO = BoxLMO
 
-const CubeSimpleBLMO = CubeLMO
+const CubeSimpleBLMO = BoxLMO
 
 @deprecate CubeSimpleBLMO CubeLMO 
 
@@ -11,7 +11,7 @@ const CubeSimpleBLMO = CubeLMO
 
 If the entry is positve, choose the lower bound. Else, choose the upper bound.
 """
-function bounded_compute_extreme_point(lmo::FrankWolfe.BoxLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(lmo::BoxLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
@@ -29,7 +29,7 @@ end
 
 Checks if a given point `v` is satisfying the box constraints on the problem.
 """
-function is_simple_linear_feasible(lmo::FrankWolfe.BoxLMO, v)
+function is_simple_linear_feasible(lmo::BoxLMO, v)
     for i in eachindex(v) # This causes a minor breaking change.
         if !(lmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ lmo.upper_bounds[i]))
             @debug(
@@ -46,7 +46,7 @@ end
 
 Checks if a given point `a` is on the same face of the subproblem constraints as `x`.
 """
-function is_simple_inface_feasible(lmo::FrankWolfe.BoxLMO, a, x, lb, ub, int_vars; kwargs...)
+function is_simple_inface_feasible(lmo::BoxLMO, a, x, lb, ub, int_vars; kwargs...)
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
 end
 
@@ -55,7 +55,7 @@ end
 
 The FrankWolfe.BoxLMO/Boscia.CubeLMO is decomposition invariant.
 """
-function is_decomposition_invariant_oracle_simple(lmo::FrankWolfe.BoxLMO)
+function is_decomposition_invariant_oracle_simple(lmo::BoxLMO)
     return true
 end
 
@@ -66,7 +66,7 @@ If the entry in x is at the boundary, choose the corresponding bound.
 Otherwise, if the entry in direction is positive, choose the lower bound. Else, choose the upper bound.
 """
 function bounded_compute_inface_extreme_point(
-    lmo::FrankWolfe.BoxLMO,
+    lmo::BoxLMO,
     d,
     x,
     lb,
@@ -105,7 +105,7 @@ end
 
 Compute the maximum step size for each entry and return the minimum of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(lmo::FrankWolfe.BoxLMO, direction, x, lb, ub, int_vars; kwargs...)
+function bounded_dicg_maximum_step(lmo::BoxLMO, direction, x, lb, ub, int_vars; kwargs...)
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
         di = direction[idx]
@@ -135,7 +135,7 @@ end
 
 If the entry is positve, choose the lower bound. Else, choose the upper bound.
 """
-function bounded_compute_extreme_point(lmo::FrankWolfe.ZeroOneHypercubeLMO, d, lb, ub, int_vars; kwargs...)
+function bounded_compute_extreme_point(lmo::ZeroOneHypercubeLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
@@ -153,7 +153,7 @@ end
 
 Checks if a given point `v` is satisfying the box constraints on the problem.
 """
-function is_simple_linear_feasible(lmo::FrankWolfe.ZeroOneHypercubeLMO, v)
+function is_simple_linear_feasible(lmo::ZeroOneHypercubeLMO, v)
     for i in eachindex(v) # This causes a minor breaking change.
         if !(0 ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ 1))
             @debug(
@@ -170,7 +170,7 @@ end
 
 Checks if a given point `a` is on the same face of the subproblem constraints as `x`.
 """
-function is_simple_inface_feasible(lmo::FrankWolfe.ZeroOneHypercubeLMO, a, x, lb, ub, int_vars; kwargs...)
+function is_simple_inface_feasible(lmo::ZeroOneHypercubeLMO, a, x, lb, ub, int_vars; kwargs...)
     for i in eachindex(x)
         if i in int_vars
             idx = findfirst(x -> x == i, int_vars)
@@ -201,7 +201,7 @@ If the entry in x is at the boundary, choose the corresponding bound.
 Otherwise, if the entry in direction is positive, choose the lower bound. Else, choose the upper bound.
 """
 function bounded_compute_inface_extreme_point(
-    lmo::FrankWolfe.ZeroOneHypercubeLMO,
+    lmo::ZeroOneHypercubeLMO,
     d,
     x,
     lb,
@@ -240,7 +240,7 @@ end
 
 Compute the maximum step size for each entry and return the minimum of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(lmo::FrankWolfe.ZeroOneHypercubeLMO, direction, x, lb, ub, int_vars; kwargs...)
+function bounded_dicg_maximum_step(lmo::ZeroOneHypercubeLMO, direction, x, lb, ub, int_vars; kwargs...)
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
         di = direction[idx]
@@ -263,14 +263,16 @@ function bounded_dicg_maximum_step(lmo::FrankWolfe.ZeroOneHypercubeLMO, directio
     return gamma_max
 end
 
+#### ProbabilitySimplexLMO ####
+
 """
     ProbablitySimplexSimpleLMO(N)
 
 The scaled probability simplex with `∑ x = N`.
 """
-struct ProbabilitySimplexLMO <: FrankWolfe.LinearMinimizationOracle
-    N::Float64
-end
+#struct ProbabilitySimplexLMO <: FrankWolfe.LinearMinimizationOracle
+#    N::Float64
+#end
 
 const ProbabilitySimplexSimpleBLMO = ProbabilitySimplexLMO
 
@@ -297,7 +299,7 @@ function bounded_compute_extreme_point(lmo::ProbabilitySimplexLMO, d, lb, ub, in
 
     # Step 2: distribute remaining N
     for i in indices[perm]
-        rem = lmo.N - sum(v)
+        rem = lmo.right_side - sum(v)
         if rem ≤ 1e-10
             break
         end
@@ -353,7 +355,7 @@ function bounded_compute_inface_extreme_point(
         end
     end
 
-    if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
+    if isapprox(sum(a), lmo.right_side; atol=atol, rtol=rtol)
         return a
     end
 
@@ -361,7 +363,7 @@ function bounded_compute_inface_extreme_point(
     d_updated = d[non_fixed_idx]
     perm = sortperm(d_updated)
     sorted = non_fixed_idx[perm]
-    rem = lmo.N - sum(a)
+    rem = lmo.right_side - sum(a)
 
 
     for i in sorted
@@ -372,8 +374,8 @@ function bounded_compute_inface_extreme_point(
         else
             a[i] += rem
         end
-        rem = lmo.N - sum(a)
-        if isapprox(sum(a), lmo.N; atol=atol, rtol=rtol)
+        rem = lmo.right_side - sum(a)
+        if isapprox(sum(a), lmo.right_side; atol=atol, rtol=rtol)
             return a
         end
     end
@@ -410,7 +412,7 @@ function bounded_dicg_maximum_step(
                 int_idx = findfirst(==(idx), int_vars)
                 gamma_max = min(gamma_max, (ub[int_idx] - x[idx]) / -di)
             else
-                gamma_max = min(gamma_max, (lmo.N - x[idx]) / -di)
+                gamma_max = min(gamma_max, (lmo.right_side - x[idx]) / -di)
             end
         end
 
@@ -426,15 +428,15 @@ function is_simple_linear_feasible(lmo::ProbabilitySimplexLMO, v)
         @debug "v has negative entries: $(v)"
         return false
     end
-    return isapprox(sum(v), lmo.N, atol=1e-4, rtol=1e-2)
+    return isapprox(sum(v), lmo.right_side, atol=1e-4, rtol=1e-2)
 end
 
 function check_feasibility(lmo::ProbabilitySimplexLMO, lb, ub, int_vars, n)
     m = n - length(int_vars)
-    if length(int_vars) == n && !isinteger(lmo.N)
-        error("Invalid problem: all variables are integer but N is non-integer.")
+    if length(int_vars) == n && !isinteger(lmo.right_side)
+        error("Invalid problem: all variables are integer but the right hand side is non-integer.")
     end
-    if sum(lb) ≤ lmo.N ≤ sum(ub) + m * lmo.N
+    if sum(lb) ≤ lmo.right_side ≤ sum(ub) + m * lmo.right_side
         return OPTIMAL
     else
         return INFEASIBLE
@@ -460,7 +462,7 @@ function rounding_hyperplane_heuristic(
         return [z], false
     end
 
-    N = tlmo.lmo.lmo.N
+    N = tlmo.lmo.lmo.right_side
 
     non_zero_int = intersect(findall(!iszero, z), tree.branching_indices)
     cont_z =
@@ -803,7 +805,7 @@ function bounded_compute_extreme_point(lmo::ReverseKnapsackLMO, d, lb, ub, int_v
         if i in int_vars
             v[i] += max(lmo.N - sum(v), lb[i] - ub[i], -v[i])
         else
-            v[i] += max(N - sum(v), -v[i])
+            v[i] += max(lmo.N - sum(v), -v[i])
         end
     end
     return v
@@ -865,6 +867,8 @@ function rounding_hyperplane_heuristic(
     end
     return [z], false
 end
+
+#### UnitHyperSimplex, HyperSimplexLMO ####
 
 function bounded_compute_extreme_point(
     lmo::Union{FrankWolfe.UnitHyperSimplexLMO,FrankWolfe.HyperSimplexLMO},

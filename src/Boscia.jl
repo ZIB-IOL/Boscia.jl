@@ -16,6 +16,15 @@ export dicg_maximum_step
 
 import FrankWolfe: UnitSimplexLMO
 export UnitSimplexLMO
+
+import FrankWolfe: ZeroOneHypercubeLMO
+export ZeroOneHypercubeLMO
+
+import FrankWolfe: ProbabilitySimplexLMO
+export ProbabilitySimplexLMO
+
+import FrankWolfe: BoxLMO
+export BoxLMO
 using Random
 using LinearAlgebra
 import Bonobo
