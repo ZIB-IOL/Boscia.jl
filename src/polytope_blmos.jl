@@ -4,7 +4,7 @@ const CubeLMO = BoxLMO
 
 const CubeSimpleBLMO = BoxLMO
 
-@deprecate CubeSimpleBLMO CubeLMO 
+@deprecate CubeSimpleBLMO CubeLMO
 
 """
      bounded_compute_extreme_point(lmo::FrankWolfe.BoxLMO, d, lb, ub, int_vars; kwargs...)
@@ -156,9 +156,7 @@ Checks if a given point `v` is satisfying the box constraints on the problem.
 function is_simple_linear_feasible(lmo::ZeroOneHypercubeLMO, v)
     for i in eachindex(v) # This causes a minor breaking change.
         if !(0 ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ 1))
-            @debug(
-                "Vertex entry: $(v[i]) Lower bound: 0 Upper bound: 1"
-            )
+            @debug("Vertex entry: $(v[i]) Lower bound: 0 Upper bound: 1")
             return false
         end
     end
@@ -182,8 +180,7 @@ function is_simple_inface_feasible(lmo::ZeroOneHypercubeLMO, a, x, lb, ub, int_v
                 return false
             end
         else
-            if isapprox(x[i], 0; atol=atol, rtol=rtol) &&
-               !isapprox(a[i], 0; atol=atol, rtol=rtol)
+            if isapprox(x[i], 0; atol=atol, rtol=rtol) && !isapprox(a[i], 0; atol=atol, rtol=rtol)
                 return false
             elseif isapprox(x[i], 1; atol=atol, rtol=rtol) &&
                    !isapprox(a[i], 1; atol=atol, rtol=rtol)
@@ -240,7 +237,15 @@ end
 
 Compute the maximum step size for each entry and return the minimum of all the possible step sizes.
 """
-function bounded_dicg_maximum_step(lmo::ZeroOneHypercubeLMO, direction, x, lb, ub, int_vars; kwargs...)
+function bounded_dicg_maximum_step(
+    lmo::ZeroOneHypercubeLMO,
+    direction,
+    x,
+    lb,
+    ub,
+    int_vars;
+    kwargs...,
+)
     gamma_max = one(eltype(direction))
     for idx in eachindex(x)
         di = direction[idx]
