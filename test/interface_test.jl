@@ -242,7 +242,7 @@ end
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeLMO(lbs, ubs)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     direction = rand(n)
     v = Boscia.bounded_compute_extreme_point(sblmo, direction, lbs, ubs, int_vars)
     active_set = FrankWolfe.ActiveSet([(1.0, v)])
