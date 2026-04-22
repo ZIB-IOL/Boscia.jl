@@ -37,14 +37,14 @@ n = 30
 
 
 ################################################################
-# LMO via CubeLMO
+# LMO via BoxLMO
 ################################################################
 int_vars = collect(1:n)
 
 lbs = zeros(n)
 ubs = ones(n)
 
-sblmo = Boscia.CubeLMO(lbs, ubs)
+sblmo = Boscia.BoxLMO(lbs, ubs)
 # wrap the sblmo into a bound manager
 lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 

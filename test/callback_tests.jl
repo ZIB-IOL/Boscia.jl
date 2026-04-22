@@ -24,7 +24,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         @. storage = x - diffi
     end
 
-    cube_lmo = Boscia.CubeLMO(zeros(n), ones(n))
+    cube_lmo = Boscia.CubeLMO(zeros(n), ones(n), collect(1:n))
     lmo = Boscia.ManagedLMO(cube_lmo, zeros(n), ones(n), collect(1:n), n)
 
     @testset "BnB callback" begin

@@ -107,7 +107,7 @@ end
         ubs = ones(n)
 
         # Test depecrated type CubeSimpleBLMO still works
-        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs)
+        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
 
         x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
@@ -119,7 +119,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeLMO(lbs, ubs)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:use_shadow_set] = false
@@ -152,7 +152,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeLMO(lbs, ubs)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
         μ = 1.0
 
         settings = Boscia.create_default_settings()
@@ -177,7 +177,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeLMO(lbs, ubs)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
         θ = 1 / 2
         M = 2.0
 
@@ -204,7 +204,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeLMO(lbs, ubs)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
         μ = 1.0
         θ = 1 / 2
         M = 2.0

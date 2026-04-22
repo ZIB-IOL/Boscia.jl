@@ -1,15 +1,105 @@
 #### CubeLMO ####
+"""
+    CubeSimpleLMO{T}(lower_bounds, upper_bounds, int_vars)
 
-const CubeLMO = BoxLMO
+Hypercube with lower and upper bounds implementing the `SimpleBoundableLMO` interface.
+"""
+struct CubeLMO <: FrankWolfe.LinearMinimizationOracle
+    lower_bounds::Vector{Float64}
+    upper_bounds::Vector{Float64}
+    int_vars::Vector{Int}
+end
 
-const CubeSimpleBLMO = BoxLMO
-
+const CubeSimpleBLMO = CubeLMO
 Base.@deprecate_binding CubeSimpleBLMO CubeLMO
+
+function bounded_compute_extreme_point(lmo::CubeLMO, d, lb, ub, int_vars; kwargs...)
+    v = zeros(length(d))
+    for i in eachindex(d)
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            v[i] = d[i] > 0 ? lb[idx] : ub[idx]
+        else
+            v[i] = d[i] > 0 ? lmo.lower_bounds[i] : lmo.upper_bounds[i]
+        end
+    end
+    return v
+end
+
+function is_simple_linear_feasible(lmo::CubeLMO, v)
+    for i in eachindex(v)
+        if !(lmo.lower_bounds[i] ≤ v[i] + 1e-6 || !(v[i] - 1e-6 ≤ lmo.upper_bounds[i]))
+            return false
+        end
+    end
+    return true
+end
+
+function is_decomposition_invariant_oracle_simple(lmo::CubeLMO)
+    return true
+end
+
+function is_simple_inface_feasible(lmo::CubeLMO, a, x, lb, ub, int_vars; kwargs...)
+    return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
+end
+
+function bounded_compute_inface_extreme_point(lmo::CubeLMO, d, x, lb, ub, int_vars; kwargs...)
+    a = zeros(length(d))
+    for i in eachindex(d)
+        if i in int_vars
+            idx = findfirst(x -> x == i, int_vars)
+            if isapprox(x[i], ub[idx]; atol=atol, rtol=rtol)
+                a[i] = ub[idx]
+            elseif isapprox(x[i], lb[idx]; atol=atol, rtol=rtol)
+                a[i] = lb[idx]
+            else
+                a[i] = d[i] > 0 ? lb[idx] : ub[idx]
+            end
+        else
+            if isapprox(x[i], lmo.upper_bounds[i]; atol=atol, rtol=rtol)
+                a[i] = lmo.upper_bounds[i]
+            elseif isapprox(x[i], lmo.lower_bounds[i]; atol=atol, rtol=rtol)
+                a[i] = lmo.lower_bounds[i]
+            else
+                a[i] = d[i] > 0 ? lmo.lower_bounds[i] : lmo.upper_bounds[i]
+            end
+        end
+    end
+    return a
+end
+
+function bounded_dicg_maximum_step(lmo::CubeLMO, direction, x, lb, ub, int_vars; kwargs...)
+    gamma_max = one(eltype(direction))
+    for idx in eachindex(x)
+        di = direction[idx]
+        if idx in int_vars
+            i = findfirst(x -> x == idx, int_vars)
+            if di < 0
+                gamma_max = min(gamma_max, (ub[i] - x[idx]) / -di)
+            elseif di > 0
+                gamma_max = min(gamma_max, (x[idx] - lb[i]) / di)
+            end
+        else
+            if di < 0
+                gamma_max = min(gamma_max, (lmo.upper_bounds[idx] - x[idx]) / -di)
+            elseif di > 0
+                gamma_max = min(gamma_max, (x[idx] - lmo.lower_bounds[idx]) / di)
+            end
+        end
+
+    end
+    return gamma_max
+end
+
+
+#### BoxLMO ####
+
+Base.@deprecate CubeLMO BoxLMO 
 
 """
      bounded_compute_extreme_point(lmo::FrankWolfe.BoxLMO, d, lb, ub, int_vars; kwargs...)
 
-If the entry is positve, choose the lower bound. Else, choose the upper bound.
+If the entry is positive, choose the lower bound. Else, choose the upper bound.
 """
 function bounded_compute_extreme_point(lmo::BoxLMO, d, lb, ub, int_vars; kwargs...)
     v = zeros(length(d))
