@@ -4,7 +4,7 @@ const CubeLMO = BoxLMO
 
 const CubeSimpleBLMO = BoxLMO
 
-@deprecate CubeSimpleBLMO CubeLMO
+Base.@deprecate_binding CubeSimpleBLMO CubeLMO
 
 """
      bounded_compute_extreme_point(lmo::FrankWolfe.BoxLMO, d, lb, ub, int_vars; kwargs...)
@@ -270,16 +270,9 @@ end
 
 #### ProbabilitySimplexLMO ####
 
-"""
-    ProbablitySimplexSimpleLMO(N)
+const ProbabilitySimplexSimpleBLMO = ProbabilitySimplexLMO#
 
-The scaled probability simplex with `∑ x = N`.
-"""
-#struct ProbabilitySimplexLMO <: FrankWolfe.LinearMinimizationOracle
-#    N::Float64
-#end
-
-const ProbabilitySimplexSimpleBLMO = ProbabilitySimplexLMO
+Base.@deprecate_binding ProbabilitySimplexSimpleBLMO ProbabilitySimplexLMO
 
 function is_decomposition_invariant_oracle_simple(lmo::ProbabilitySimplexLMO)
     return true
@@ -523,7 +516,7 @@ end
 
 const UnitSimplexSimpleBLMO = UnitSimplexLMO
 
-@deprecate UnitSimplexSimpleBLMO UnitSimplexLMO
+Base.@deprecate_binding UnitSimplexSimpleBLMO UnitSimplexLMO
 
 function is_decomposition_invariant_oracle_simple(lmo::UnitSimplexLMO)
     return true
