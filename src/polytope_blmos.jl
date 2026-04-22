@@ -94,7 +94,7 @@ end
 
 #### BoxLMO ####
 
-Base.@deprecate CubeLMO BoxLMO 
+Base.@deprecate CubeLMO BoxLMO
 
 """
      bounded_compute_extreme_point(lmo::FrankWolfe.BoxLMO, d, lb, ub, int_vars; kwargs...)
