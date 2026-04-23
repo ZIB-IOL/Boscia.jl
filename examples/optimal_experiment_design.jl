@@ -110,6 +110,41 @@ verbose = true
     @test result_s[:dual_bound] <= g(x) + 1e-3
     @test result[:dual_bound] <= g(x_s) + 1e-3
     @test isapprox(g(x), g(x_s), atol=1e-3)
+
+    # Run explicitly with DICG and BDICG
+    x0, active_set = build_start_point(Ex_mat, N, ub)
+    z = greedy_incumbent(Ex_mat, N, ub)
+    line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
+    x_dicg, _, result_dicg = Boscia.solve(g, grad!, blmo, settings=settings)
+
+    x0, active_set = build_start_point(Ex_mat, N, ub)
+    z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
+    x_bdicg, _, result_bdicg = Boscia.solve(g, grad!, blmo, settings=settings)
+
+    @test result_dicg[:dual_bound] <= g(x_dicg) + 1e-3
+    @test result_bdicg[:dual_bound] <= g(x_bdicg) + 1e-3
+    @test isapprox(g(x_dicg), g(x_s), atol=1e-3)
+    @test isapprox(g(x_bdicg), g(x_s), atol=1e-3)
 end
 
 ## D-Optimal Design Problem
@@ -169,4 +204,39 @@ end
     @test result_s[:dual_bound] <= g(x)
     @test result[:dual_bound] <= g(x_s)
     @test isapprox(g(x), g(x_s), rtol=1e-2)
+
+    # Run explicitly with DICG and BDICG
+    x0, active_set = build_start_point(Ex_mat, N, ub)
+    z = greedy_incumbent(Ex_mat, N, ub)
+    line_search = FrankWolfe.Secant(domain_oracle=domain_oracle)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
+    x_dicg, _, result_dicg = Boscia.solve(g, grad!, blmo, settings=settings)
+
+    x0, active_set = build_start_point(Ex_mat, N, ub)
+    z = greedy_incumbent(Ex_mat, N, ub)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = verbose
+    settings.branch_and_bound[:start_solution] = z
+    settings.heuristic[:custom_heuristics] = [heu]
+    settings.frank_wolfe[:line_search] = line_search
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    settings.domain[:active_set] = active_set
+    settings.domain[:domain_oracle] = domain_oracle
+    settings.domain[:find_domain_point] = domain_point
+    x_bdicg, _, result_bdicg = Boscia.solve(g, grad!, blmo, settings=settings)
+
+    @test result_dicg[:dual_bound] <= g(x_dicg)
+    @test result_bdicg[:dual_bound] <= g(x_bdicg)
+    @test isapprox(g(x_dicg), g(x_s), rtol=1e-2)
+    @test isapprox(g(x_bdicg), g(x_s), rtol=1e-2)
 end
