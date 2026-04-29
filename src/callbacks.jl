@@ -250,7 +250,8 @@ function build_bnb_callback(
             if lb_update == true
                 _, prio = peek(tree.node_queue)
                 @assert tree.lb <= prio[1]
-                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent, node.lb)
+                tree.lb =
+                    min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent, node.lb)
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
