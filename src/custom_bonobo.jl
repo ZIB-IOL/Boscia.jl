@@ -200,11 +200,6 @@ function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::BiasedDepthFirstSe
 
     for id in keys(node_queue)
 
-        # temporary fix: skip stale IDs
-        if !haskey(nodes, id)
-            continue
-        end
-
         node = nodes[id]
 
         if node.branched_right == strategy.favor_right
