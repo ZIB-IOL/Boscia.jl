@@ -332,7 +332,7 @@ Ns = 0.1
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n
             xi = @view(Xs[:, i])
@@ -348,13 +348,13 @@ Ns = 0.1
     settings.branch_and_bound[:verbose] = false
     x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
     @test f(x) <= f(result[:raw_solution])
 
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:start_solution] = x
     x2, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
-    @test sum(x2[p+1:2p]) <= k
+    @test sum(x2[(p+1):2p]) <= k
     @test f(x2) == f(x)
 end
 
@@ -418,6 +418,13 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    settings.frank_wolfe[:fw_verbose] = false
+    x_bdicg, _, result_bdicg = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.StandardFrankWolfe()
     x_vfw, _, result_vfw = Boscia.solve(f, grad!, lmo, settings=settings)
 
@@ -426,6 +433,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @test isapprox(f(x_pcg), f(result_pcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_bpcg), f(result_bpcg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_dicg), f(result_dicg[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test isapprox(f(x_bdicg), f(result_bdicg[:raw_solution]), atol=1e-6, rtol=1e-3)
     @test isapprox(f(x_vfw), f(result_vfw[:raw_solution]), atol=1e-6, rtol=1e-3)
 
     @test sum(isapprox.(x_afw, x_blended, atol=1e-6, rtol=1e-3)) == n
@@ -433,6 +441,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @test sum(isapprox.(x_bpcg, x_pcg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_pcg, x_vfw, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_bpcg, x_dicg, atol=1e-6, rtol=1e-3)) == n
+    @test sum(isapprox.(x_bpcg, x_bdicg, atol=1e-6, rtol=1e-3)) == n
     @test sum(isapprox.(x_vfw, x_afw, atol=1e-6, rtol=1e-3)) == n
 end
 
@@ -562,7 +571,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     @test sum(isapprox.(x_lazy, x_mid, atol=1e-6, rtol=1e-2)) == n
 end
 
-@testset "DICG - Lazification" begin
+@testset "DICG/BDICG - Lazification" begin
 
     function build_model()
         o = SCIP.Optimizer()
@@ -590,14 +599,27 @@ end
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_lazy, _, result_dicg_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    x_bdicg_lazy, _, result_bdicg_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:lazy] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_no, _, result_dicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    x_bdicg_no, _, result_bdicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
@@ -605,13 +627,36 @@ end
     settings.frank_wolfe[:lazy] = true
     settings.frank_wolfe[:lazy_tolerance] = 1.5
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_warm_start, _, result_dicg_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_warm_start), f(result_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
-    @test sum(isapprox.(x_lazy, x_warm_start, atol=1e-6, rtol=1e-2)) == n
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:lazy] = true
+    settings.frank_wolfe[:lazy_tolerance] = 1.5
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    x_bdicg_warm_start, _, result_bdicg_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    @test isapprox(f(x_dicg_lazy), f(result_dicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_bdicg_lazy), f(result_bdicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_dicg_no), f(result_dicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_bdicg_no), f(result_bdicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(
+        f(x_dicg_warm_start),
+        f(result_dicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_bdicg_warm_start),
+        f(result_bdicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test sum(isapprox.(x_dicg_lazy, x_dicg_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_bdicg_lazy, x_bdicg_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_dicg_lazy, x_dicg_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_bdicg_lazy, x_bdicg_warm_start, atol=1e-6, rtol=1e-2)) == n
 
     # testing for strong lazification
     lmo = build_model()
@@ -619,7 +664,14 @@ end
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] =
         Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true)
-    x_lazy, _, result_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_lazy, _, result_dicg_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] =
+        Boscia.BlendedDecompositionInvariantConditionalGradient(use_strong_lazy=true)
+    x_bdicg_lazy, _, result_bdicg_lazy = Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
@@ -627,7 +679,15 @@ end
     settings.frank_wolfe[:lazy] = false
     settings.frank_wolfe[:variant] =
         Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true)
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_no, _, result_dicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:lazy] = false
+    settings.frank_wolfe[:variant] =
+        Boscia.BlendedDecompositionInvariantConditionalGradient(use_strong_lazy=true)
+    x_bdicg_no, _, result_bdicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
 
     lmo = build_model()
     settings = Boscia.create_default_settings()
@@ -636,16 +696,40 @@ end
     settings.frank_wolfe[:lazy_tolerance] = 1.5
     settings.frank_wolfe[:variant] =
         Boscia.DecompositionInvariantConditionalGradient(use_strong_lazy=true)
-    x_warm_start, _, result_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_warm_start, _, result_dicg_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test isapprox(f(x_lazy), f(result_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test isapprox(f(x_warm_start), f(result_warm_start[:raw_solution]), atol=1e-6, rtol=1e-2)
-    @test sum(isapprox.(x_lazy, x_no, atol=1e-6, rtol=1e-2)) == n
-    @test sum(isapprox.(x_lazy, x_warm_start, atol=1e-6, rtol=1e-2)) == n
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:lazy] = true
+    settings.frank_wolfe[:lazy_tolerance] = 1.5
+    settings.frank_wolfe[:variant] =
+        Boscia.BlendedDecompositionInvariantConditionalGradient(use_strong_lazy=true)
+    x_bdicg_warm_start, _, result_bdicg_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    @test isapprox(f(x_dicg_lazy), f(result_dicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_bdicg_lazy), f(result_bdicg_lazy[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_dicg_no), f(result_dicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_bdicg_no), f(result_bdicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(
+        f(x_dicg_warm_start),
+        f(result_dicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_bdicg_warm_start),
+        f(result_bdicg_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test sum(isapprox.(x_dicg_lazy, x_dicg_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_bdicg_lazy, x_bdicg_no, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_dicg_lazy, x_dicg_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_bdicg_lazy, x_bdicg_warm_start, atol=1e-6, rtol=1e-2)) == n
 end
 
-@testset "DICG - warm_start" begin
+@testset "DICG/BDICG - warm_start" begin
 
     function build_model()
         o = SCIP.Optimizer()
@@ -673,41 +757,80 @@ end
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
-    x_no, _, result_no = Boscia.solve(f, grad!, lmo, settings=settings)
+    x_dicg_no, _, result_dicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient()
+    x_bdicg_no, _, result_bdicg_no = Boscia.solve(f, grad!, lmo, settings=settings)
 
     # testing for weak warm-start
     lmo = build_model()
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] =
-        Boscia.DecompositionInvariantConditionalGradient(use_DICG_warm_start=true)
-    x_weak_warm_start, _, result_weak_warm_start = Boscia.solve(f, grad!, lmo, settings=settings)
+        Boscia.DecompositionInvariantConditionalGradient(use_warm_start=true)
+    x_dicg_weak_warm_start, _, result_dicg_weak_warm_start =
+        Boscia.solve(f, grad!, lmo, settings=settings)
+
+    lmo = build_model()
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] =
+        Boscia.BlendedDecompositionInvariantConditionalGradient(use_warm_start=true)
+    x_bdicg_weak_warm_start, _, result_bdicg_weak_warm_start =
+        Boscia.solve(f, grad!, lmo, settings=settings)
 
     # testing for strong warm_start
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = false
     settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient(
-        use_DICG_warm_start=true,
+        use_warm_start=true,
         use_strong_warm_start=true,
     )
-    x_strong_warm_start, _, result_strong_warm_start =
+    x_dicg_strong_warm_start, _, result_dicg_strong_warm_start =
         Boscia.solve(f, grad!, lmo, settings=settings)
 
-    @test isapprox(f(x_no), f(result_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.frank_wolfe[:variant] = Boscia.BlendedDecompositionInvariantConditionalGradient(
+        use_warm_start=true,
+        use_strong_warm_start=true,
+    )
+    x_bdicg_strong_warm_start, _, result_bdicg_strong_warm_start =
+        Boscia.solve(f, grad!, lmo, settings=settings)
+
+    @test isapprox(f(x_dicg_no), f(result_dicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
+    @test isapprox(f(x_bdicg_no), f(result_bdicg_no[:raw_solution]), atol=1e-6, rtol=1e-2)
     @test isapprox(
-        f(x_weak_warm_start),
-        f(result_weak_warm_start[:raw_solution]),
+        f(x_dicg_weak_warm_start),
+        f(result_dicg_weak_warm_start[:raw_solution]),
         atol=1e-6,
         rtol=1e-2,
     )
     @test isapprox(
-        f(x_strong_warm_start),
-        f(result_strong_warm_start[:raw_solution]),
+        f(x_dicg_strong_warm_start),
+        f(result_dicg_strong_warm_start[:raw_solution]),
         atol=1e-6,
         rtol=1e-2,
     )
-    @test sum(isapprox.(x_no, x_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
-    @test sum(isapprox.(x_no, x_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_dicg_no, x_dicg_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_dicg_no, x_dicg_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(
+        f(x_bdicg_weak_warm_start),
+        f(result_bdicg_weak_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test isapprox(
+        f(x_bdicg_strong_warm_start),
+        f(result_bdicg_strong_warm_start[:raw_solution]),
+        atol=1e-6,
+        rtol=1e-2,
+    )
+    @test sum(isapprox.(x_bdicg_no, x_bdicg_weak_warm_start, atol=1e-6, rtol=1e-2)) == n
+    @test sum(isapprox.(x_bdicg_no, x_bdicg_strong_warm_start, atol=1e-6, rtol=1e-2)) == n
 end
 
 @testset "User stop" begin
