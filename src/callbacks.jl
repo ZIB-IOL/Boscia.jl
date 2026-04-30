@@ -247,9 +247,11 @@ function build_bnb_callback(
         end
         if !node_infeasible
             #update lower bound
-            if lb_update == true && !isempty(tree.nodes)
-                _, prio = peek(tree.node_queue)
-                @assert tree.lb <= prio[1]
+            if lb_update == true
+                if !isempty(tree.nodes)
+                    _, prio = peek(tree.node_queue)
+                    @assert tree.lb <= prio[1]
+                end
                 tree.lb =
                     min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent, node.lb)
             end
