@@ -13,7 +13,7 @@ end
 Holds the necessary information of every node.
 This needs to be added by every `AbstractNode` as `std::NodeInfo`
 
-This variant is more flexibel than Bonobo.BnBNodeInfo.
+This variant is more flexible than Bonobo.BnBNodeInfo.
 """
 mutable struct NodeInfo{T<:Real}
     id::Int
