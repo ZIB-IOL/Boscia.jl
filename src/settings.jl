@@ -447,6 +447,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     best_sol_by_original = false
     resolve_integer_solution = false
     clip_mu_resolution = false
+    node_callback = nothing
 
     return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
         :smoothing_start => smoothing_start,
@@ -459,6 +460,7 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :best_sol_by_original => best_sol_by_original,
         :resolve_integer_solution => resolve_integer_solution,
         :clip_mu_resolution => clip_mu_resolution,
+        :node_callback => node_callback,
     )
 end
 
