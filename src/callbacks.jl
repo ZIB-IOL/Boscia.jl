@@ -77,6 +77,11 @@ function process_FW_callback_logic(
         @assert sum(active_set.weights .< 0) == 0
     end
 
+    if state.t > 1
+        @assert isfinite(state.primal) "state.primal = $(state.primal) is not finite"
+        @assert isfinite(state.dual_gap) "state.dual_gap = $(state.dual_gap) is not finite"
+    end
+
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:best_sol_by_original]
         fx = tree.root.options[:original_objective](state.x)
         if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
