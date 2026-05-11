@@ -30,7 +30,7 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, time_ref, time_limit) = TimeTrack
     0,
     Int[],
     time_ref,
-    lmo isa Union{MathOptBLMO, FrankWolfe.MathOptLMO},
+    lmo isa Union{MathOptBLMO,FrankWolfe.MathOptLMO},
     time_limit,
 )
 
@@ -47,7 +47,7 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) =
     0,
     int_vars,
     time_ref,
-    lmo isa Union{MathOptBLMO, FrankWolfe.MathOptLMO},
+    lmo isa Union{MathOptBLMO,FrankWolfe.MathOptLMO},
     time_limit,
 )
 
