@@ -216,6 +216,7 @@ function solve(
     list_time_cb = Float64[]
     list_num_nodes_cb = Int[]
     list_lmo_calls_cb = Int[]
+    list_lmo_times_acc = Float64[]
     list_active_set_size_cb = Int[]
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
@@ -235,6 +236,7 @@ function solve(
         list_time_cb,
         list_num_nodes_cb,
         list_lmo_calls_cb,
+        list_lmo_times_acc,
         options[:verbose],
         fw_iterations,
         list_active_set_size_cb,
