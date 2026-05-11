@@ -308,15 +308,15 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
-    if isempty(tree.nodes)
-        status_string = "Optimal (tree empty)"
-        tree.root.problem.solving_stage = OPT_TREE_EMPTY
-    elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+    if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
         status_string = "Time limit reached"
     elseif tree.root.problem.solving_stage == NODE_LIMIT_REACHED
         status_string = "Node limit reached"
     elseif tree.root.problem.solving_stage == USER_STOP
         status_string = "User defined stop"
+    elseif isempty(tree.nodes)
+        status_string = "Optimal (tree empty)"
+        tree.root.problem.solving_stage = OPT_TREE_EMPTY
     else
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
