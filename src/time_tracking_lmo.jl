@@ -30,7 +30,7 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, time_ref, time_limit) = TimeTrack
     0,
     Int[],
     time_ref,
-    isa(lmo, MathOptBLMO),
+    lmo isa Union{MathOptBLMO, FrankWolfe.MathOptLMO},
     time_limit,
 )
 
@@ -47,7 +47,7 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) =
     0,
     int_vars,
     time_ref,
-    isa(lmo, MathOptBLMO),
+    lmo isa Union{MathOptBLMO, FrankWolfe.MathOptLMO},
     time_limit,
 )
 
@@ -63,10 +63,11 @@ function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=
     free_model(tlmo.lmo)
 
     # keep track of the solving data, since the in-face problem is solved using a new solver
-    MOI_attribute = Dict()
-    MOI_attribute[MOI.SolveTimeSec()] = 0.0
-    MOI_attribute[MOI.NodeCount()] = 0
-    MOI_attribute[MOI.SimplexIterations()] = 0
+    MOI_attribute = if tlmo.type_moi
+        Dict(MOI.SolveTimeSec() => 0.0, MOI.NodeCount() => 0, MOI.SimplexIterations() => 0)
+    else
+        Dict()
+    end
 
     a = compute_inface_extreme_point(tlmo.lmo, direction, x; solve_data=MOI_attribute)
 
@@ -75,9 +76,16 @@ function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=
         @assert is_linear_feasible(tlmo, a)
     end
 
-    push!(tlmo.optimizing_times, MOI_attribute[MOI.SolveTimeSec()])
-    push!(tlmo.optimizing_nodes, MOI_attribute[MOI.NodeCount()])
-    push!(tlmo.simplex_iterations, MOI_attribute[MOI.SimplexIterations()])
+    if tlmo.type_moi
+        push!(tlmo.optimizing_times, MOI_attribute[MOI.SolveTimeSec()])
+        push!(tlmo.optimizing_nodes, MOI_attribute[MOI.NodeCount()])
+        push!(tlmo.simplex_iterations, MOI_attribute[MOI.SimplexIterations()])
+    else
+        opt_times, numberofnodes, simplex_iterations = get_LMO_solve_data(tlmo.lmo)
+        push!(tlmo.optimizing_times, opt_times)
+        push!(tlmo.optimizing_nodes, numberofnodes)
+        push!(tlmo.simplex_iterations, simplex_iterations)
+    end
 
     free_model(tlmo.lmo)
 

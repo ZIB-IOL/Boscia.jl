@@ -65,7 +65,7 @@ end
 
 # Overload FrankWolfe.compute_extreme_point
 function compute_extreme_point(managed_lmo::ManagedLMO, d; kwargs...)
-    time_ref = Dates.now()
+    t0_ns = time_ns()
     v = bounded_compute_extreme_point(
         managed_lmo.lmo,
         d,
@@ -73,7 +73,7 @@ function compute_extreme_point(managed_lmo::ManagedLMO, d; kwargs...)
         managed_lmo.upper_bounds,
         managed_lmo.int_vars,
     )
-    managed_lmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    managed_lmo.solving_time = (time_ns() - t0_ns) / 1.0e9
     return v
 end
 
@@ -83,7 +83,7 @@ end
 
 # Provide FrankWolfe.compute_inface_extreme_point
 function compute_inface_extreme_point(managed_lmo::ManagedLMO, direction, x; kwargs...)
-    time_ref = Dates.now()
+    t0_ns = time_ns()
     a = bounded_compute_inface_extreme_point(
         managed_lmo.lmo,
         direction,
@@ -93,7 +93,7 @@ function compute_inface_extreme_point(managed_lmo::ManagedLMO, direction, x; kwa
         managed_lmo.int_vars,
     )
 
-    managed_lmo.solving_time = float(Dates.value(Dates.now() - time_ref))
+    managed_lmo.solving_time = (time_ns() - t0_ns) / 1.0e9
     return a
 end
 
