@@ -306,6 +306,7 @@ Prints solution statistics if verbose is set to `true`.
 function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     x = Bonobo.get_solution(tree)
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
+    solution_source = tree.incumbent_solution.source
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
     if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
@@ -375,6 +376,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
                 tree.root.problem.solving_stage == OPT_TREE_EMPTY ? primal - dual_gap : tree.lb
             tree.incumbent_solution.objective = tree.solutions[1].objective = primal
             tree.incumbent_solution.solution = tree.solutions[1].solution = x
+            solution_source = :postsolve
         else
             if primal < tree.incumbent && tree.lb > primal - dual_gap
                 @info "tree.lb > primal - dual_gap"
@@ -396,6 +398,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     result[:rel_dual_gap] = relative_gap(primal, tree_lb(tree))
     result[:dual_gap] = tree.incumbent - tree_lb(tree)
     result[:raw_solution] = x
+    result[:source] = solution_source
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
     result[:status] = tree.root.problem.solving_stage
@@ -408,6 +411,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("Solution Statistics.")
 
         println("\t Solution Status: ", status_string)
+        println("\t Solution source: ", result[:source])
         println("\t Primal Objective: ", primal)
         println("\t Dual Bound: ", tree_lb(tree))
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
