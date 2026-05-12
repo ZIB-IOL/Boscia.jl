@@ -408,6 +408,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("Solution Statistics.")
 
         println("\t Solution Status: ", status_string)
+        println("\t Solution Source: ", tree.incumbent_solution.source)
         println("\t Primal Objective: ", primal)
         println("\t Dual Bound: ", tree_lb(tree))
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
