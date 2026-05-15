@@ -500,8 +500,8 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
         end
         #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
        # dual_gap = dot(sub_grad, x - v_sub)
-       @show original_primal, min_dual_gap, primal, dual_gap
-       if original_primal - min_dual_gap > primal - dual_gap || isinf(dual_gap)
+       @debug "original_primal: $(original_primal) min_dual_gap: $(min_dual_gap) primal: $(primal) dual_gap: $(dual_gap)"
+       if original_primal - min_dual_gap > primal - dual_gap || !isfinite(dual_gap)
             dual_gap = min_dual_gap
             primal = original_primal
         end
