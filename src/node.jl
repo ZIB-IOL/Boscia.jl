@@ -477,7 +477,7 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
         if tree.root.options[:node_callback] !== nothing
-            tree.root.options[:node_callback](tree, node, x, primal, dual_gap, fw_status, atoms_set)
+            tree.root.options[:node_callback](tree, node, μ, x, primal, dual_gap, fw_status, atoms_set)
         end
         original_primal = tree.root.options[:original_objective](x)
          @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
