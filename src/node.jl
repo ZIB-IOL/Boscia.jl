@@ -1,5 +1,11 @@
 """
     AbtractFrankWolfeNode <: AbstractNode 
+    NodeInfo
+
+Holds the necessary information of every node.
+This needs to be added by every `AbstractNode` as `std::NodeInfo`
+
+This variant is more flexible than Bonobo.BnBNodeInfo.
 """
 abstract type AbstractFrankWolfeNode <: AbstractNode end
 
@@ -119,7 +125,7 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     end
 
     #different ways to split active set
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -142,7 +148,7 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     discarded_set_left, discarded_set_right =
         split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Sanity check
         @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
         @assert sum(active_set_left.weights .< 0) == 0
@@ -188,7 +194,7 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
     fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
         x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
         x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)

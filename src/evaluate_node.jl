@@ -481,7 +481,10 @@ which are set in the following ways:
 1. If the node is infeasible the kwarg `node_infeasible` is set to `true`.
 2. If the node has a higher lower bound than the incumbent the kwarg `worse_than_incumbent` is set to `true`.
 """
-function optimize!(tree::BnBTree{<:FrankWolfeNode}; callback=(args...; kwargs...) -> ())
+function optimize!(
+    tree::BnBTree{<:FrankWolfeNode};
+    callback=(args...; kwargs...) -> (),
+)
 
     while !terminated(tree)
         node = get_next_node(tree, tree.options.traverse_strategy)
@@ -571,7 +574,10 @@ function optimize!(tree::BnBTree{<:FrankWolfeNode}; callback=(args...; kwargs...
     return sort_solutions!(tree.solutions)
 end
 
-function update_best_solution!(tree::BnBTree{<:FrankWolfeNode}, node::AbstractNode)
+function update_best_solution!(
+    tree::BnBTree{<:FrankWolfeNode},
+    node::AbstractNode,
+)
     isinf(node.ub) && return false
 
     if !tree.root.options[:add_all_solutions]
@@ -614,7 +620,10 @@ function add_new_solution!(
     end
 end
 
-function get_solution(tree::BnBTree{N,R,V,S}; result=1) where {N,R,V,S<:FrankWolfeSolution{N,V}}
+function get_solution(
+    tree::BnBTree{N,R,V,S};
+    result=1,
+) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     if isempty(tree.solutions)
         @warn "There is no solution in the tree. This behaviour can happen if you have supplied 
         \na custom domain oracle. In that case, try to increase the time or node limit. If you have not specified a 
@@ -623,6 +632,52 @@ function get_solution(tree::BnBTree{N,R,V,S}; result=1) where {N,R,V,S<:FrankWol
         return nothing
     end
     return tree.solutions[result].solution
+end
+
+struct BiasedDepthFirstSearch <: AbstractTraverseStrategy
+    favor_right::Bool
+end
+
+BiasedDepthFirstSearch() = BiasedDepthFirstSearch(true)
+
+function get_next_node(tree::BnBTree, strategy::BiasedDepthFirstSearch)
+    node_queue = tree.node_queue
+    nodes = tree.nodes
+
+    # For favored branch side (e.g. right if strategy.favor_right == true)
+    favored_id = -1
+    favored_depth = -1
+    favored_lb = Inf  # we maximize depth, then minimize lb
+
+    # For unfavored side
+    unfavored_id = -1
+    unfavored_lb = Inf          # we minimize lb
+
+    for id in keys(node_queue)
+
+        node = nodes[id]
+
+        if node.branched_right == strategy.favor_right
+            # Favored: maximize depth, tie-break by smaller lb
+            if node.depth > favored_depth || (node.depth == favored_depth && node.lb < favored_lb)
+                favored_depth = node.depth
+                favored_lb = node.lb
+                favored_id = id
+            end
+        else
+            # Unfavored: choose smallest lb
+            if node.lb < unfavored_lb
+                unfavored_lb = node.lb
+                unfavored_id = id
+            end
+        end
+    end
+
+    if favored_id !== -1
+        return nodes[favored_id]
+    end
+
+    return nodes[unfavored_id]
 end
 
 export BnBTree, BnBNodeInfo, AbstractNode, AbstractSolution

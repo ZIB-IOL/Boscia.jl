@@ -75,7 +75,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        sblmo = FrankWolfe.ZeroOneHypercubeLMO()
         blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         settings = Boscia.create_default_settings()
@@ -147,7 +147,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        sblmo = FrankWolfe.BoxLMO(lbs, ubs)
         blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         settings = Boscia.create_default_settings()

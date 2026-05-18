@@ -58,7 +58,7 @@ n = 10
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     # wrap the sblmo into a bound manager
     lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
