@@ -43,13 +43,25 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         return NaN, NaN
     end
 
-    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+    decomposition_invariant_starting_point = nothing
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
         active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
         @assert is_linear_feasible(tree.root.problem.tlmo, x)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
+        end
+    else
+        if node.id == 1 && tree.root.options[:start_solution] !== nothing
+            decomposition_invariant_starting_point = tree.root.options[:start_solution]
+        elseif tree.root.options[:find_domain_point] !== _trivial_domain_point
+            decomposition_invariant_starting_point =
+                tree.root.options[:find_domain_point](node.local_bounds)
+            if decomposition_invariant_starting_point === nothing
+                @debug "Node $(node.id) is infeasible: no domain-feasible starting point found."
+                return NaN, NaN
+            end
         end
     end
 
@@ -80,6 +92,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
+        decomposition_invariant_starting_point=decomposition_invariant_starting_point,
     )
 
     if tree.root.options[:fw_verbose]
@@ -481,10 +494,7 @@ which are set in the following ways:
 1. If the node is infeasible the kwarg `node_infeasible` is set to `true`.
 2. If the node has a higher lower bound than the incumbent the kwarg `worse_than_incumbent` is set to `true`.
 """
-function optimize!(
-    tree::BnBTree{<:FrankWolfeNode};
-    callback=(args...; kwargs...) -> (),
-)
+function optimize!(tree::BnBTree{<:FrankWolfeNode}; callback=(args...; kwargs...) -> ())
 
     while !terminated(tree)
         node = get_next_node(tree, tree.options.traverse_strategy)
@@ -574,10 +584,7 @@ function optimize!(
     return sort_solutions!(tree.solutions)
 end
 
-function update_best_solution!(
-    tree::BnBTree{<:FrankWolfeNode},
-    node::AbstractNode,
-)
+function update_best_solution!(tree::BnBTree{<:FrankWolfeNode}, node::AbstractNode)
     isinf(node.ub) && return false
 
     if !tree.root.options[:add_all_solutions]
@@ -620,10 +627,7 @@ function add_new_solution!(
     end
 end
 
-function get_solution(
-    tree::BnBTree{N,R,V,S};
-    result=1,
-) where {N,R,V,S<:FrankWolfeSolution{N,V}}
+function get_solution(tree::BnBTree{N,R,V,S}; result=1) where {N,R,V,S<:FrankWolfeSolution{N,V}}
     if isempty(tree.solutions)
         @warn "There is no solution in the tree. This behaviour can happen if you have supplied 
         \na custom domain oracle. In that case, try to increase the time or node limit. If you have not specified a 
