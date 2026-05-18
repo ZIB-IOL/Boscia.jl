@@ -538,7 +538,7 @@ Hyperplane-aware rounding for the probability simplex.
 """
 function rounding_hyperplane_heuristic(
     tree::BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexLMO}},
+    tlmo::TimeTrackingLMO{<:ManagedBoundedLMO{<:ProbabilitySimplexLMO}},
     x,
 )
     z = copy(x)
@@ -791,7 +791,7 @@ Hyperplane-aware rounding for the unit simplex.
 """
 function rounding_hyperplane_heuristic(
     tree::BnBTree,
-    tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexLMO}},
+    tlmo::TimeTrackingLMO{<:ManagedBoundedLMO{<:UnitSimplexLMO}},
     x,
 )
     z = copy(x)
