@@ -78,7 +78,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     ubs = ones(n)
     int_vars = collect(1:n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
@@ -176,7 +176,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
         blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         branching_strategy = Boscia.PartialStrongBranching(10, 1e-3, blmo)
@@ -193,7 +193,7 @@ end
         lbs = zeros(n)
         ubs = ones(n)
 
-        sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+        sblmo = Boscia.BoxLMO(lbs, ubs)
         blmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
         function perform_strong_branch(tree, node)

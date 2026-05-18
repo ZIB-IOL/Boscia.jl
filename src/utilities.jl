@@ -142,41 +142,88 @@ function split_pre_computed_set!(
 end
 
 """
-Default starting point function which generates a random vertex
+Default first iterate for decomposition-invariant vairants: extreme point for linear objective `ones(n)`.
 """
-function trivial_build_dicg_start_point(lmo::LinearMinimizationOracle)
+function trivial_build_decomposition_invariant_start_iterate(lmo::LinearMinimizationOracle)
     n, _ = get_list_of_variables(lmo)
     d = ones(n)
     x0 = FrankWolfe.compute_extreme_point(lmo, d)
     return x0
 end
 
-function dicg_start_point_initialize(
+function compute_decomposition_invariant_start_iterate(
     lmo::TimeTrackingLMO,
     active_set::FrankWolfe.ActiveSet{T,R},
     pre_computed_set,
-    build_dicg_start_point;
+    build_start_iterate;
     domain_oracle=_trivial_domain,
 ) where {T,R}
     if lmo.ncalls == 0
         return FrankWolfe.get_active_set_iterate(active_set)
     end
     if pre_computed_set === nothing
-        x0 = build_dicg_start_point(lmo.lmo)
+        x0 = build_start_iterate(lmo.lmo)
     else
         if !isempty(pre_computed_set)
             # We pick a point by averaging the pre_computed_atoms as warm-start.  
             num_pre_computed_set = length(pre_computed_set)
             x0 = sum(pre_computed_set) / num_pre_computed_set
             if !domain_oracle(x0)
-                x0 = build_dicg_start_point(lmo.lmo)
+                x0 = build_start_iterate(lmo.lmo)
             end
         else
             # We pick a random point.
-            x0 = build_dicg_start_point(lmo.lmo)
+            x0 = build_start_iterate(lmo.lmo)
         end
     end
     return x0
+end
+
+function initialize_decomposition_invariant_starting_point(
+    lmo,
+    active_set,
+    pre_computed_set,
+    build_start_point::Function;
+    starting_point=nothing,
+    domain_oracle=_trivial_domain,
+)
+    if starting_point !== nothing
+        x0 = starting_point
+    else
+        x0 = compute_decomposition_invariant_start_iterate(
+            lmo,
+            active_set,
+            pre_computed_set,
+            build_start_point;
+            domain_oracle=domain_oracle,
+        )
+    end
+
+    if x0 === nothing || !domain_oracle(x0)
+        return nothing
+    end
+    @assert is_linear_feasible(lmo, x0)
+    return x0
+end
+
+function cleanup_precomputed_set_after_solve!(pre_computed_set, lmo, x, use_strong_warm_start::Bool)
+    if pre_computed_set !== nothing && use_strong_warm_start
+        indices_to_delete = []
+        for idx in eachindex(pre_computed_set)
+            atom = pre_computed_set[idx]
+            if !is_inface_feasible(lmo, atom, x)
+                push!(indices_to_delete, idx)
+            end
+        end
+        deleteat!(pre_computed_set, indices_to_delete)
+    end
+    return nothing
+end
+
+function make_precomputed_set_callback(callback, pre_computed_set)
+    return function wrapped_callback(state, kwargs...)
+        return callback(state, pre_computed_set)
+    end
 end
 
 """
@@ -440,3 +487,4 @@ _value_to_print(::LargestGradient) = "Largest Gradient"
 _value_to_print(::LargestMostInfeasibleGradient) = "Largest most infeasible gradient"
 _value_to_print(::LargestIndex) = "Largest Index"
 _value_to_print(::RandomBranching) = "Uniform Random Choice"
+_value_to_print(::BiasedDepthFirstSearch) = "BiasedDepthFirstSearch"

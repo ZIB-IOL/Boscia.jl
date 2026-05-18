@@ -13,6 +13,10 @@ const MOIU = MOI.Utilities
 
 println("\nIndicator Tests")
 
+seed = rand(UInt64)
+@show seed
+rng = StableRNG(seed)
+
 @testset "Indicators" begin
     n = 5
     o = SCIP.Optimizer()
