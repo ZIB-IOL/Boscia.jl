@@ -1,0 +1,268 @@
+"""
+    AbtractFrankWolfeNode <: AbstractNode 
+"""
+abstract type AbstractFrankWolfeNode <: AbstractNode end
+
+"""
+    FrankWolfeNode <: AbstractFrankWolfeNode
+
+A node in the branch-and-bound tree storing information for a Frank-Wolfe subproblem.
+
+`std` stores the id, lower, upper bound and Depth of the node.
+`active_set` store the active set structure.
+`local_bounds` instead of storing the complete LMO, it just stores the bounds specific to THIS node.
+    All other integer bounds are stored in the root.
+'level' stores the level in the tree
+'fw_dual_gap_limit' set the tolerance for the dual gap in the FW algorithms
+'pre_computed_set' stores specifically the extreme points computed in DICG for warm-start.
+'parent_lower_bound_base' contains lower bound value of the parent node.  Needed
+    for updating pseudocosts.
+'branched_on' contains the index of the parent. Required for updating pseudocosts.
+'branched_right' Boolean value specifying if node resulted from a left or right branch. Needed
+    for updating pseudocosts.
+'distance_to_int' Stores information on the rounding amount at branching. Required
+    for correct scaling of pseudocosts.
+
+"""
+mutable struct FrankWolfeNode{
+    AT<:FrankWolfe.ActiveSet,
+    DVS<:FrankWolfe.DeletedVertexStorage,
+    IB<:IntegerBounds,
+    NI<:NodeInfo,
+} <: AbstractFrankWolfeNode
+    std::NI
+    active_set::AT
+    discarded_vertices::DVS
+    local_bounds::IB
+    fw_dual_gap_limit::Float64
+    fw_time::Millisecond
+    global_tightenings::Int
+    local_tightenings::Int
+    local_potential_tightenings::Int
+    dual_gap::Float64
+    pre_computed_set::Any
+    parent_lower_bound_base::Float64
+    branched_on::Int
+    branched_right::Bool
+    distance_to_int::Float64
+    active_set_size::Int
+    discarded_set_size::Int
+end
+
+
+# For i.e. pseudocost branching we require additional information to be stored in FrankWolfeNode
+# this information can be set to a default value if not needed.
+FrankWolfeNode(
+    std,
+    active_set,
+    discarded_vertices,
+    local_bounds,
+    fw_dual_gap_limit,
+    fw_time,
+    global_tightenings,
+    local_tightenings,
+    local_potential_tightenings,
+    dual_gap,
+    pre_computed_set,
+) = FrankWolfeNode(
+    std,
+    active_set,
+    discarded_vertices,
+    local_bounds,
+    fw_dual_gap_limit,
+    fw_time,
+    global_tightenings,
+    local_tightenings,
+    local_potential_tightenings,
+    dual_gap,
+    pre_computed_set,
+    Inf,
+    -1,
+    false,
+    0.0,
+    0,
+    0,
+)
+
+
+"""
+Create the information of the new branching nodes 
+based on their parent and the index of the branching variable
+"""
+function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int)
+    if !is_valid_split(tree, vidx)
+        error("Splitting on the same index as parent! Abort!")
+    end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices.storage)
+
+    # get iterate, primal and lower bound
+    x = get_relaxed_values(tree, node)
+    primal = tree.root.problem.f(x)
+    lower_bound_base = primal - node.dual_gap
+    @assert isfinite(lower_bound_base)
+    left_distance = x[vidx] - floor(x[vidx])
+    right_distance = ceil(x[vidx]) - x[vidx]
+
+    user_prune_left, user_prune_right = false, false
+
+    if tree.root.options[:branch_callback] !== nothing
+        user_prune_left, user_prune_right = tree.root.options[:branch_callback](tree, node, vidx)
+    end
+
+    # In case of strong convexity, check if a child can be pruned
+    prune_left, prune_right = if !tree.root.options[:no_pruning]
+        prune_children(tree, node, lower_bound_base, x, vidx)
+    else
+        false, false
+    end
+
+    #different ways to split active set
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+
+        # Keep the same pre_computed_set
+        pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
+
+        # Split active set
+        active_set_left, active_set_right =
+            split_vertices_set!(node.active_set, tree, vidx, node.local_bounds)
+    else
+        if node.pre_computed_set !== nothing
+            # Split pre_computed_set
+            pre_computed_set_left, pre_computed_set_right =
+                split_pre_computed_set!(x, node.pre_computed_set, tree, vidx, node.local_bounds)
+        else
+            pre_computed_set_left, pre_computed_set_right =
+                node.pre_computed_set, node.pre_computed_set
+        end
+        active_set_left, active_set_right = node.active_set, node.active_set
+    end
+
+    discarded_set_left, discarded_set_right =
+        split_vertices_set!(node.discarded_vertices, tree, vidx, x, node.local_bounds)
+
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+        # Sanity check
+        @assert isapprox(sum(active_set_left.weights), 1.0) "sum weights left: $(sum(active_set_left.weights))"
+        @assert sum(active_set_left.weights .< 0) == 0
+        for v in active_set_left.atoms
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("active_set_left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+        @assert isapprox(sum(active_set_right.weights), 1.0) "sum weights right: $(sum(active_set_right.weights))"
+        @assert sum(active_set_right.weights .< 0) == 0
+        for v in active_set_right.atoms
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("active_set_right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+        for v in discarded_set_left.storage
+            if !(v[vidx] <= floor(x[vidx]) + tree.options.atol)
+                error("storage left\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+        for v in discarded_set_right.storage
+            if !(v[vidx] >= ceil(x[vidx]) - tree.options.atol)
+                error("storage right\n$(v)\n$vidx, $(x[vidx]), $(v[vidx])")
+            end
+        end
+    end
+
+    # add new bounds to the feasible region left and right
+    # copy bounds from parent
+    varbounds_left = copy(node.local_bounds)
+    varbounds_right = copy(node.local_bounds)
+
+    if haskey(varbounds_left.upper_bounds, vidx)
+        delete!(varbounds_left.upper_bounds, vidx)
+    end
+    if haskey(varbounds_right.lower_bounds, vidx)
+        delete!(varbounds_right.lower_bounds, vidx)
+    end
+    push!(varbounds_left.upper_bounds, (vidx => floor(x[vidx])))
+    push!(varbounds_right.lower_bounds, (vidx => ceil(x[vidx])))
+
+    # compute new dual gap limit
+    fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
+    fw_dual_gap_limit = max(fw_dual_gap_limit, tree.root.options[:min_node_fw_epsilon])
+
+    if typeof(tree.root.options[:variant]) != DecompositionInvariantConditionalGradient
+        # in case of non trivial domain oracle: Only split if the iterate is still domain feasible
+        x_left = FrankWolfe.compute_active_set_iterate!(active_set_left)
+        x_right = FrankWolfe.compute_active_set_iterate!(active_set_right)
+
+        if !tree.root.options[:domain_oracle](x_left)
+            active_set_left =
+                build_active_set_by_domain_oracle(active_set_left, tree, varbounds_left, node)
+        end
+        if !tree.root.options[:domain_oracle](x_right)
+            active_set_right =
+                build_active_set_by_domain_oracle(active_set_right, tree, varbounds_right, node)
+        end
+    end
+
+    # update the LMO
+    node_info_left = (
+        active_set=active_set_left,
+        discarded_vertices=discarded_set_left,
+        local_bounds=varbounds_left,
+        fw_dual_gap_limit=fw_dual_gap_limit,
+        fw_time=Millisecond(0),
+        global_tightenings=0,
+        local_tightenings=0,
+        local_potential_tightenings=0,
+        dual_gap=NaN,
+        pre_computed_set=pre_computed_set_left,
+        parent_lower_bound_base=lower_bound_base,
+        branched_on=vidx,
+        branched_right=false,
+        distance_to_int=left_distance,
+        active_set_size=0,
+        discarded_set_size=0,
+    )
+    node_info_right = (
+        active_set=active_set_right,
+        discarded_vertices=discarded_set_right,
+        local_bounds=varbounds_right,
+        fw_dual_gap_limit=fw_dual_gap_limit,
+        fw_time=Millisecond(0),
+        global_tightenings=0,
+        local_tightenings=0,
+        local_potential_tightenings=0,
+        dual_gap=NaN,
+        pre_computed_set=pre_computed_set_right,
+        parent_lower_bound_base=lower_bound_base,
+        branched_on=vidx,
+        branched_right=true,
+        distance_to_int=right_distance,
+        active_set_size=0,
+        discarded_set_size=0,
+    )
+
+    domain_right = !isempty(active_set_right)
+    domain_left = !isempty(active_set_left)
+
+    nodes =
+        if !prune_left &&
+           !prune_right &&
+           domain_right &&
+           domain_left &&
+           !user_prune_left &&
+           !user_prune_right
+            [node_info_left, node_info_right]
+        elseif prune_left || user_prune_left
+            [node_info_right]
+        elseif prune_right || user_prune_right
+            [node_info_left]
+        elseif domain_right # x_right in domain
+            [node_info_right]
+        elseif domain_left # x_left in domain
+            [node_info_left]
+        else
+            @warn "No childern nodes can be created."
+            Vector{typeof(node_info_left)}()
+        end
+    return nodes
+end
