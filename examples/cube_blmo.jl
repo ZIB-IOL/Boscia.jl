@@ -182,7 +182,7 @@ function Boscia.check_feasibility(blmo::CubeBLMO)
     return Boscia.OPTIMAL
 end
 
-function Boscia.is_valid_split(tree::BnBTree, blmo::CubeBLMO, vidx::Int)
+function Boscia.is_valid_split(tree::Boscia.BnBTree, blmo::CubeBLMO, vidx::Int)
     return blmo.bounds[vidx, :lessthan] != blmo.bounds[vidx, :greaterthan]
 end
 

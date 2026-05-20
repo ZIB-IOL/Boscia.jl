@@ -158,7 +158,7 @@ function build_tree_callback()
             tree.root.problem.solving_stage = Boscia.USER_STOP
             println("Optimal solution found.")
         end
-        if Boscia.tree_lb(tree::BnBTree) > 0.0 + eps()
+        if Boscia.tree_lb(tree::Boscia.BnBTree) > 0.0 + eps()
             tree.root.problem.solving_stage = Boscia.USER_STOP
             println("Tree lower bound already positive. No solution possible.")
         end
@@ -174,7 +174,7 @@ end
 #
 # We generate k = ⌊√n⌋ neighbor candidates during each invocation of the heuristic.
 function random_k_neighbor_matrix(
-    tree::BnBTree,
+    tree::Boscia.BnBTree,
     blmo::Boscia.TimeTrackingLMO,
     x,
     k::Int,
