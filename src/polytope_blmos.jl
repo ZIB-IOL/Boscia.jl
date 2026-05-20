@@ -1089,9 +1089,15 @@ function bounded_compute_extreme_point(
     return v
 end
 
-#This function computes an extreme point of a K-sparse LMO using a greedy strategy:  
-#integer variables are fixed first, then the remaining entries are filled greedily according to the largest absolute values in `direction`, respecting the K-sparse and bounds constraints.
-#This routine is similar to `compute_bounded_extreme_point`, but here we additionally fix the variable entries to the current minimal face of the iterate.
+"""
+    bounded_compute_inface_extreme_point(lmo::KSparseLMO, direction, x, lb, ub, int_vars)
+
+    KSparse: C = B_1(τK) ∩ B_∞(τ)
+
+This function computes an extreme point of a K-sparse LMO using a greedy strategy:  
+integer variables are fixed first, then the remaining entries are filled greedily according to the largest absolute values in `direction`, respecting the K-sparse and bounds constraints.
+This routine is similar to `compute_bounded_extreme_point`, but here we additionally fix the variable entries to the current minimal face of the iterate.
+"""
 function bounded_compute_inface_extreme_point(
     sblmo::FrankWolfe.KSparseLMO{T},
     direction,
