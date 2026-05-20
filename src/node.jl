@@ -272,3 +272,160 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
         end
     return nodes
 end
+
+"""
+Computes the relaxation at that node
+"""
+function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
+    # check that local bounds and global tightening don't conflict
+    for (j, ub) in tree.root.global_tightenings.upper_bounds
+        if !haskey(node.local_bounds.lower_bounds, j)
+            continue
+        end
+        lb = node.local_bounds.lower_bounds[j]
+        if ub < lb
+            @debug "local lb $(lb) conflicting with global tightening $(ub)"
+            return NaN, NaN
+        end
+    end
+    for (j, lb) in tree.root.global_tightenings.lower_bounds
+        if !haskey(node.local_bounds.upper_bounds, j)
+            continue
+        end
+        ub = node.local_bounds.upper_bounds[j]
+        if ub < lb
+            @debug "local ub $(ub) conflicting with global tightening $(lb)"
+            return NaN, NaN
+        end
+    end
+
+    # build up node LMO
+    build_LMO(
+        tree.root.problem.tlmo,
+        tree.root.problem.integer_variable_bounds,
+        node.local_bounds,
+        tree.root.problem.integer_variables,
+    )
+
+    # check for feasibility and boundedness
+    status = check_feasibility(tree.root.problem.tlmo)
+    if status == INFEASIBLE
+        @debug "Problem at node $(node.id) infeasible"
+        return NaN, NaN
+    end
+    if status == UNBOUNDED
+        error("Feasible region unbounded! Please check your constraints!")
+        return NaN, NaN
+    end
+
+    decomposition_invariant_starting_point = nothing
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
+        # Check feasibility of the iterate
+        active_set = node.active_set
+        x = FrankWolfe.compute_active_set_iterate!(node.active_set)
+        @assert is_linear_feasible(tree.root.problem.tlmo, x)
+        for (_, v) in node.active_set
+            @assert is_linear_feasible(tree.root.problem.tlmo, v)
+        end
+    else
+        if node.id == 1 && tree.root.options[:start_solution] !== nothing
+            decomposition_invariant_starting_point = tree.root.options[:start_solution]
+        elseif tree.root.options[:find_domain_point] !== _trivial_domain_point
+            decomposition_invariant_starting_point =
+                tree.root.options[:find_domain_point](node.local_bounds)
+            if decomposition_invariant_starting_point === nothing
+                @debug "Node $(node.id) is infeasible: no domain-feasible starting point found."
+                return NaN, NaN
+            end
+        end
+    end
+
+    if tree.root.options[:propagate_bounds] !== nothing
+        tree.root.options[:propagate_bounds](tree, node)
+    end
+
+    # time tracking FW
+    time_ref = Dates.now()
+    domain_oracle = tree.root.options[:domain_oracle]
+
+    x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
+        tree.root.options[:variant],
+        tree.root.problem.f,
+        tree.root.problem.g,
+        tree.root.problem.tlmo,
+        node.active_set;
+        epsilon=node.fw_dual_gap_limit,
+        max_iteration=tree.root.options[:max_fw_iter],
+        line_search=tree.root.options[:line_search],
+        lazy=tree.root.options[:lazy],
+        lazy_tolerance=tree.root.options[:lazy_tolerance],
+        add_dropped_vertices=tree.root.options[:use_shadow_set],
+        use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+        extra_vertex_storage=node.discarded_vertices,
+        callback=tree.root.options[:callback],
+        verbose=tree.root.options[:fw_verbose],
+        timeout=tree.root.options[:fw_timeout],
+        pre_computed_set=node.pre_computed_set,
+        domain_oracle=domain_oracle,
+        decomposition_invariant_starting_point=decomposition_invariant_starting_point,
+    )
+
+    if tree.root.options[:fw_verbose]
+        @show fw_status
+    end
+
+    if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
+        # update active set of the node
+        node.active_set = atoms_set
+    else
+        node.pre_computed_set = atoms_set
+        node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+        # update set of computed atoms and active set
+        if isa(x, AbstractVector)
+            node.pre_computed_set = atoms_set
+            node.active_set = FrankWolfe.ActiveSet([(1.0, x)])
+        else
+            @debug "x is not a vector, returning NaN, x: $x"
+            return NaN, NaN
+        end
+    end
+
+    node.fw_time = Dates.now() - time_ref
+    node.dual_gap = dual_gap
+
+    # tightening bounds at node level
+    dual_tightening(tree, node, x, dual_gap)
+
+    # tightening the global bounds
+    store_data_global_tightening(tree, node, x, dual_gap)
+    global_tightening(tree, node)
+
+    lower_bound = primal - dual_gap
+    # tighten the lower bound if the objective is always integral
+    lower_bound = tree.root.options[:integral_objective] ? ceil(lower_bound) : lower_bound
+    # improvement of the lower bound using strong convexity
+    lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
+
+    # Call heuristic 
+    run_heuristics(tree, x, tree.root.options[:heuristics])
+
+    # Found an upper bound
+    if is_integer_feasible(tree, x)
+        node.ub = primal
+        @debug "Node $(node.id) has an integer solution."
+        return lower_bound, primal
+        # Sanity check: If the incumbent is better than the lower bound of the root node
+        # and the root node is not integer feasible, something is off!
+    elseif node.id == 1 && !tree.root.options[:ignore_lower_bound]
+        @debug "Lower bound of root node: $(lower_bound)"
+        @debug "Current incumbent: $(tree.incumbent)"
+        @assert lower_bound <= tree.incumbent + dual_gap "lower_bound <= tree.incumbent + dual_gap : $(lower_bound) <= $(tree.incumbent + dual_gap)"
+    end
+
+
+    if tree.root.options[:ignore_lower_bound]
+        return -Inf, NaN
+    end
+
+    return lower_bound, NaN
+end
