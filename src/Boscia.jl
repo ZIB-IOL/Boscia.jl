@@ -39,16 +39,16 @@ const MOIU = MOI.Utilities
 import MathOptSetDistances as MOD
 
 include("integer_bounds.jl")
-include("bnb_tree_defs.jl")
+include("defs.jl")
 include("node.jl")
 include("bnb_tree_operate.jl")
+include("bnb_tree.jl")
 include("blmo_interface.jl")
 include("time_tracking_lmo.jl")
 include("frank_wolfe_variants.jl")
 include("build_lmo.jl")
 include("tightenings.jl")
 include("callbacks.jl")
-include("defs.jl")
 include("problem.jl")
 include("heuristics.jl")
 include("strong_branching.jl")
