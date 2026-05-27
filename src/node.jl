@@ -596,4 +596,3 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
 
     return lower_bound, NaN
 end
-
