@@ -2,6 +2,8 @@ using Aqua
 using Test
 using Boscia
 
+println("\nAqua Tests")
+
 @testset "Aqua.jl" begin
     Aqua.test_all(
         Boscia;

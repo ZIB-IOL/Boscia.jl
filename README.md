@@ -23,6 +23,10 @@ The paper presenting the package with mathematical explanations and numerous exa
 
 > Convex mixed-integer optimization with Frank-Wolfe methods: [2208.11010](https://arxiv.org/abs/2208.11010)
 
+A review and tutorial paper presenting the intuition behind the framework and showcasing its use on three examples can be found here:
+
+> Boscia.jl: A review and tutorial: [2511.01479](https://arxiv.org/abs/2511.01479)
+
 `Boscia.jl` uses [`FrankWolfe.jl`](https://github.com/ZIB-IOL/FrankWolfe.jl) for solving the convex subproblems, [`Bonobo.jl`](https://github.com/Wikunia/Bonobo.jl) for managing the search tree, and oracles optimizing linear functions over the feasible set, for instance calling [SCIP](https://scipopt.org) or any MOI-compatible solver to solve MIP subproblems.
 
 ## Installation
@@ -83,7 +87,9 @@ function grad!(storage, x)
     @. storage = x-diffw
 end
 
-x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose = true))
+settings = Boscia.create_default_settings()
+settings.branch_and_bound[:verbose] = true
+x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
 Boscia Algorithm.
 

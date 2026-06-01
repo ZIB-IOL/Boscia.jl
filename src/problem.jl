@@ -79,7 +79,7 @@ end
 
 function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
     indicator_feasible =
-        indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.blmo.o, x) : true
+        indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.lmo.o, x) : true
     return is_integer_feasible(
         tree.root.problem.integer_variables,
         x;
@@ -91,10 +91,10 @@ end
 """
 Checks if x is valid for all linear and variable bound constraints 
 """
-is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.blmo, v)
+is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible(lmo.lmo, v)
 
 """
 Are indicator constraints present
 """
-indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.blmo)
-indicator_present(tree::Bonobo.BnBTree) = indicator_present(tree.root.problem.tlmo.blmo)
+indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.lmo)
+indicator_present(tree::Bonobo.BnBTree) = indicator_present(tree.root.problem.tlmo.lmo)

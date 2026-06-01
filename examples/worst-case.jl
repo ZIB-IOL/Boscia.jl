@@ -9,6 +9,8 @@ import MathOptInterface
 const MOI = MathOptInterface
 using StableRNGs
 
+println("\nWorst-case Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -56,7 +58,7 @@ n = 10
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     # wrap the sblmo into a bound manager
     lmo = Boscia.ManagedBoundedLMO(sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
@@ -68,7 +70,9 @@ n = 10
         @. storage = x - diff_point
     end
 
-    x, _, result = Boscia.solve(f, grad!, lmo, settings_bnb=Boscia.settings_bnb(verbose=true))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
     # build optimal solution
     xopt = zeros(n)
@@ -88,14 +92,16 @@ n = 10
     println()
 
     # test if number of nodes is still correct when stopping FW early
-    x, _, result = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=false),
-        settings_tolerances=Boscia.settings_tolerances(min_number_lower=5))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = false
+    settings.tolerances[:min_number_lower] = 5
+    x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
     @test result[:number_nodes] == 2^(n + 1) - 1
 
-    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, 
-        settings_bnb=Boscia.settings_bnb(verbose=true),
-        settings_tightening=Boscia.settings_tightening(strong_convexity=1.0))
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.tightening[:strong_convexity] = 1.0
+    x_strong, _, result_strong = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @test f(x_strong) == f(x)
 end

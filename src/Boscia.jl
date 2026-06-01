@@ -3,6 +3,8 @@ module Boscia
 using FrankWolfe
 import FrankWolfe: compute_extreme_point
 export compute_extreme_point
+import FrankWolfe: LinearMinimizationOracle
+export LinearMinimizationOracle
 import FrankWolfe: is_decomposition_invariant_oracle
 export is_decomposition_invariant_oracle
 
@@ -11,6 +13,18 @@ export compute_inface_extreme_point
 
 import FrankWolfe: dicg_maximum_step
 export dicg_maximum_step
+
+import FrankWolfe: UnitSimplexLMO
+export UnitSimplexLMO
+
+import FrankWolfe: ZeroOneHypercubeLMO
+export ZeroOneHypercubeLMO
+
+import FrankWolfe: ProbabilitySimplexLMO
+export ProbabilitySimplexLMO
+
+import FrankWolfe: BoxLMO
+export BoxLMO
 using Random
 using LinearAlgebra
 import Bonobo
@@ -18,7 +32,6 @@ using Printf
 using Dates
 using MathOptInterface
 using SparseArrays
-using Hungarian
 import Statistics: mean
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities

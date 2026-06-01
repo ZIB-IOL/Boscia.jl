@@ -30,6 +30,7 @@ function Bonobo.optimize!(
     tree::Bonobo.BnBTree{<:FrankWolfeNode};
     callback=(args...; kwargs...) -> (),
 )
+
     while !Bonobo.terminated(tree)
         node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
         lb, ub = Bonobo.evaluate_node!(tree, node)
@@ -44,6 +45,25 @@ function Bonobo.optimize!(
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if !tree.root.options[:no_pruning] && node.lb >= tree.incumbent
+             # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
+             if isa(tree.options.branch_strategy, Boscia.Hierarchy) ||
+                isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
+                 if !isinf(node.parent_lower_bound_base)
+                     idx = node.branched_on
+                     update = lb - node.parent_lower_bound_base
+                     update = update / node.distance_to_int
+                     if isinf(update)
+                         @debug "update is $(Inf)"
+                     end
+                     r_idx = node.branched_right ? 1 : 2
+                     tree.options.branch_strategy.pseudos[idx, r_idx] = update_avg(
+                         update,
+                         tree.options.branch_strategy.pseudos[idx, r_idx],
+                         tree.options.branch_strategy.branch_tracker[idx, r_idx],
+                     )
+                     tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
+                 end
+             end
             Bonobo.close_node!(tree, node)
             callback(
                 tree,
@@ -54,35 +74,13 @@ function Bonobo.optimize!(
             continue
         end
 
-        if node.lb >= tree.incumbent
-            # In pseudocost branching we need to perform the update now for nodes which will never be seen by get_branching_variable
-            if isa(tree.options.branch_strategy, Boscia.Hierarchy) ||
-               isa(tree.options.branch_strategy, Boscia.PseudocostBranching)
-                if !isinf(node.parent_lower_bound_base)
-                    idx = node.branched_on
-                    update = lb - node.parent_lower_bound_base
-                    update = update / node.distance_to_int
-                    if isinf(update)
-                        @debug "update is $(Inf)"
-                    end
-                    r_idx = node.branched_right ? 1 : 2
-                    tree.options.branch_strategy.pseudos[idx, r_idx] = update_avg(
-                        update,
-                        tree.options.branch_strategy.pseudos[idx, r_idx],
-                        tree.options.branch_strategy.branch_tracker[idx, r_idx],
-                    )
-                    tree.options.branch_strategy.branch_tracker[idx, r_idx] += 1
-                end
-            end
-        end
-
         tree.node_queue[node.id] = (node.lb, node.id)
         #_ , prio = peek(tree.node_queue)
         #@assert tree.lb <= prio[1]
         #tree.lb = prio[1]
         p_lb = tree.lb
         tree.lb = minimum([prio[2][1] for prio in tree.node_queue])
-        @assert p_lb <= tree.lb
+        @assert p_lb <= tree.lb "p_lb: $(p_lb) <= tree.lb: $(tree.lb)"
 
         updated = Bonobo.update_best_solution!(tree, node)
         if updated
@@ -101,11 +99,10 @@ function Bonobo.optimize!(
         y = Bonobo.get_solution(tree)
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(y)[], 1)
         dummy_node = FrankWolfeNode(
-            NodeInfo(-1, Inf, Inf),
+            NodeInfo(-1, Inf, Inf, 0),
             FrankWolfe.ActiveSet([(1.0, y)]),
             vertex_storage,
             IntegerBounds(),
-            1,
             1e-3,
             Millisecond(0),
             0,
@@ -116,7 +113,7 @@ function Bonobo.optimize!(
         )
         callback(tree, dummy_node, node_infeasible=true)
     end
-    return Bonobo.sort_solutions!(tree.solutions, tree.sense)
+    return Bonobo.sort_solutions!(tree.solutions)
 end
 
 function Bonobo.update_best_solution!(
@@ -153,6 +150,10 @@ function add_new_solution!(
             tree.root.options[:post_heuristics_callback](tree, node, solution)
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        objective = tree.root.options[:original_objective](solution)
+    end
+
     sol = FrankWolfeSolution(objective, solution, node, origin, time)
     sol.solution = solution
     sol.objective = objective
@@ -177,4 +178,88 @@ function Bonobo.get_solution(
         return nothing
     end
     return tree.solutions[result].solution
+end
+
+# ============== New branching strategy ==============#
+struct BRANCH_ALL <: Bonobo.AbstractBranchStrategy end
+
+function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, ::BRANCH_ALL, node::Bonobo.AbstractNode)
+    gb = tree.root.problem.integer_variable_bounds
+    most_infeas_idx = Bonobo.get_branching_variable(tree, Bonobo.MOST_INFEASIBLE(), node)
+
+    # Helper: is variable idx fixed in this node? (effective lb == effective ub)
+    function is_fixed(idx)
+        lb = get(gb.lower_bounds, idx, -Inf)
+        ub = get(gb.upper_bounds, idx, Inf)
+        if haskey(node.local_bounds.lower_bounds, idx) || haskey(node.local_bounds.upper_bounds, idx)
+            lb = get(node.local_bounds.lower_bounds, idx, lb)
+            ub = get(node.local_bounds.upper_bounds, idx, ub)
+        end
+        return lb == ub
+    end
+
+    # If most-infeasible returned a variable, use it only if it is not fixed in this node
+    if most_infeas_idx != -1 && is_fixed(most_infeas_idx)
+        most_infeas_idx = -1
+    end
+
+    if most_infeas_idx != -1
+        return most_infeas_idx
+    end
+
+    # Fallback: first integer variable that is not fixed in this node
+    for idx in tree.root.problem.integer_variables
+        is_fixed(idx) && continue
+        return idx
+    end
+
+    # All variables are fixed; no branching variable
+    return -1
+end
+
+# ============== New traverse strategy ==============#
+struct BiasedDepthFirstSearch <: Bonobo.AbstractTraverseStrategy
+    favor_right::Bool
+end
+
+BiasedDepthFirstSearch() = BiasedDepthFirstSearch(true)
+
+function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::BiasedDepthFirstSearch)
+    node_queue = tree.node_queue
+    nodes = tree.nodes
+
+    # For favored branch side (e.g. right if strategy.favor_right == true)
+    favored_id = -1
+    favored_depth = -1
+    favored_lb = Inf  # we maximize depth, then minimize lb
+
+    # For unfavored side
+    unfavored_id = -1
+    unfavored_lb = Inf          # we minimize lb
+
+    for id in keys(node_queue)
+
+        node = nodes[id]
+
+        if node.branched_right == strategy.favor_right
+            # Favored: maximize depth, tie-break by smaller lb
+            if node.depth > favored_depth || (node.depth == favored_depth && node.lb < favored_lb)
+                favored_depth = node.depth
+                favored_lb = node.lb
+                favored_id = id
+            end
+        else
+            # Unfavored: choose smallest lb
+            if node.lb < unfavored_lb
+                unfavored_lb = node.lb
+                unfavored_id = id
+            end
+        end
+    end
+
+    if favored_id !== -1
+        return nodes[favored_id]
+    end
+
+    return nodes[unfavored_id]
 end
