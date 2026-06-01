@@ -27,7 +27,7 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     custom_heuristics = [
         Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
@@ -60,7 +60,7 @@ end
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     custom_heuristics = [
         Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),

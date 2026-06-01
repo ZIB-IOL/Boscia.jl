@@ -218,6 +218,7 @@ function build_bnb_callback(
     list_time_cb,
     list_num_nodes_cb,
     list_lmo_calls_cb,
+    list_lmo_times_acc,
     verbose,
     fw_iterations,
     list_active_set_size_cb,
@@ -278,10 +279,13 @@ function build_bnb_callback(
         if !node_infeasible
             #update lower bound
             if lb_update == true
-                tree.node_queue[node.id] = (node.lb, node.id)
-                _, prio = peek(tree.node_queue)
-                @assert tree.lb <= prio[1]
-                tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
+                node_queue_lb = Inf
+                if !isempty(tree.node_queue)
+                    _, prio = first(tree.node_queue)
+                    @assert tree.lb <= prio[1]
+                    node_queue_lb = minimum([prio[2][1] for prio in tree.node_queue])
+                end
+                tree.lb = min(node_queue_lb, tree.incumbent, node.lb)
             end
             push!(list_ub_cb, tree.incumbent)
             push!(list_num_nodes_cb, tree.num_nodes)
@@ -319,7 +323,7 @@ function build_bnb_callback(
             end
             LMO_calls_c = tree.root.problem.tlmo.ncalls
             push!(list_lmo_calls_cb, copy(LMO_calls_c))
-
+            push!(list_lmo_times_acc, float(LMO_time))
             if !isempty(tree.node_queue)
                 p_lb = tree.lb
                 tree.lb = min(minimum([prio[2][1] for prio in tree.node_queue]), tree.incumbent)
@@ -436,6 +440,7 @@ function build_bnb_callback(
             result[:heu_lmo_calls] = tree.root.options[:heu_ncalls]
             result[:list_num_nodes] = list_num_nodes_cb
             result[:list_lmo_calls_acc] = list_lmo_calls_cb
+            result[:list_lmo_times_acc] = list_lmo_times_acc
             result[:list_active_set_size] = list_active_set_size_cb
             result[:list_discarded_set_size] = list_discarded_set_size_cb
             result[:list_lb] = list_lb_cb

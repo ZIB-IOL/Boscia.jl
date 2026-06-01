@@ -70,9 +70,9 @@ function solve(
         merge!(options, Dict(:local_active_set => local_active_set))
     end
     
-    if typeof(options[:variant]) == DecompositionInvariantConditionalGradient
+    if typeof(options[:variant]) <: DecompositionInvariant
         if !is_decomposition_invariant_oracle(lmo)
-            error("DICG within Boscia is not implemented for $(typeof(lmo)).")
+            error("DICG/BDICG within Boscia is not implemented for $(typeof(lmo)).")
         end
     end
     if options[:verbose]
@@ -157,8 +157,7 @@ function solve(
     end
 
     pre_computed_set =
-        if typeof(options[:variant]) == DecompositionInvariantConditionalGradient &&
-           options[:variant].use_DICG_warm_start
+        if typeof(options[:variant]) <: DecompositionInvariant && options[:variant].use_warm_start
             [v]
         else
             nothing
@@ -250,6 +249,7 @@ function solve(
     list_time_cb = Float64[]
     list_num_nodes_cb = Int[]
     list_lmo_calls_cb = Int[]
+    list_lmo_times_acc = Float64[]
     list_active_set_size_cb = Int[]
     list_discarded_set_size_cb = Int[]
     fw_iterations = Int[]
@@ -269,6 +269,7 @@ function solve(
         list_time_cb,
         list_num_nodes_cb,
         list_lmo_calls_cb,
+        list_lmo_times_acc,
         options[:verbose],
         fw_iterations,
         list_active_set_size_cb,
@@ -294,7 +295,7 @@ function solve(
         options[:min_fw_iterations],
         time_ref,
         options[:time_limit],
-        use_DICG=typeof(options[:variant]) == DecompositionInvariantConditionalGradient,
+        use_DICG=typeof(options[:variant]) <: DecompositionInvariant,
     )
 
     tree.root.options[:callback] = fw_callback
@@ -342,15 +343,15 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"
-    if isempty(tree.nodes)
-        status_string = "Optimal (tree empty)"
-        tree.root.problem.solving_stage = OPT_TREE_EMPTY
-    elseif tree.root.problem.solving_stage == TIME_LIMIT_REACHED
+    if tree.root.problem.solving_stage == TIME_LIMIT_REACHED
         status_string = "Time limit reached"
     elseif tree.root.problem.solving_stage == NODE_LIMIT_REACHED
         status_string = "Node limit reached"
     elseif tree.root.problem.solving_stage == USER_STOP
         status_string = "User defined stop"
+    elseif isempty(tree.nodes)
+        status_string = "Optimal (tree empty)"
+        tree.root.problem.solving_stage = OPT_TREE_EMPTY
     else
         status_string = "Optimal (tolerance reached)"
         tree.root.problem.solving_stage = OPT_GAP_REACHED
@@ -443,6 +444,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("Solution Statistics.")
 
         println("\t Solution Status: ", status_string)
+        println("\t Solution Source: ", tree.incumbent_solution.source)
         println("\t Primal Objective: ", primal)
         println("\t Dual Bound: ", tree_lb(tree))
         println("\t Absolute Dual Gap: $(primal - tree_lb(tree))")

@@ -216,3 +216,50 @@ function Bonobo.get_branching_variable(tree::Bonobo.BnBTree, ::BRANCH_ALL, node:
     # All variables are fixed; no branching variable
     return -1
 end
+
+# ============== New traverse strategy ==============#
+struct BiasedDepthFirstSearch <: Bonobo.AbstractTraverseStrategy
+    favor_right::Bool
+end
+
+BiasedDepthFirstSearch() = BiasedDepthFirstSearch(true)
+
+function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::BiasedDepthFirstSearch)
+    node_queue = tree.node_queue
+    nodes = tree.nodes
+
+    # For favored branch side (e.g. right if strategy.favor_right == true)
+    favored_id = -1
+    favored_depth = -1
+    favored_lb = Inf  # we maximize depth, then minimize lb
+
+    # For unfavored side
+    unfavored_id = -1
+    unfavored_lb = Inf          # we minimize lb
+
+    for id in keys(node_queue)
+
+        node = nodes[id]
+
+        if node.branched_right == strategy.favor_right
+            # Favored: maximize depth, tie-break by smaller lb
+            if node.depth > favored_depth || (node.depth == favored_depth && node.lb < favored_lb)
+                favored_depth = node.depth
+                favored_lb = node.lb
+                favored_id = id
+            end
+        else
+            # Unfavored: choose smallest lb
+            if node.lb < unfavored_lb
+                unfavored_lb = node.lb
+                unfavored_id = id
+            end
+        end
+    end
+
+    if favored_id !== -1
+        return nodes[favored_id]
+    end
+
+    return nodes[unfavored_id]
+end
