@@ -64,7 +64,7 @@ end
     settings = Boscia.create_default_settings()
     settings.branch_and_bound[:verbose] = verbose
     settings.branch_and_bound[:time_limit] = time_limit
-    settings.branch_and_bound[:branching_strategy] = MOST_INFEASIBLE()
+    settings.branch_and_bound[:branching_strategy] = Boscia.MOST_INFEASIBLE()
     x_mi, _, result_mi = Boscia.solve(f, grad!, lmo, settings=settings)
 
     @testset "Largest Gradient Branching" begin
