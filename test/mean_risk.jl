@@ -7,7 +7,6 @@ import SCIP
 import MathOptInterface
 const MOI = MathOptInterface
 import Boscia
-import Bonobo
 using FrankWolfe
 using Dates
 using Test

@@ -3,8 +3,6 @@ using LinearAlgebra
 import MathOptInterface
 using Random
 using Boscia
-using Bonobo
-import Bonobo
 using Printf
 using Dates
 using StableRNGs

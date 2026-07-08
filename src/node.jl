@@ -1,13 +1,5 @@
-mutable struct FrankWolfeSolution{Node<:Bonobo.AbstractNode,Value,T<:Real} <:
-               Bonobo.AbstractSolution{Node,Value}
-    objective::T
-    solution::Value
-    node::Node
-    source::Symbol
-    time::Float64
-end
-
 """
+    AbtractFrankWolfeNode <: AbstractNode 
     NodeInfo
 
 Holds the necessary information of every node.
@@ -15,21 +7,174 @@ This needs to be added by every `AbstractNode` as `std::NodeInfo`
 
 This variant is more flexible than Bonobo.BnBNodeInfo.
 """
-mutable struct NodeInfo{T<:Real}
-    id::Int
-    lb::T
-    ub::T
-    depth::Int
-end
+abstract type AbstractFrankWolfeNode <: AbstractNode end
 
-function Base.convert(::Type{NodeInfo{T}}, std::Bonobo.BnBNodeInfo) where {T<:Real}
-    return NodeInfo(std.id, T(std.lb), T(std.ub), std.depth)
+"""
+    set_node_bound!(objective_sense::Symbol, node::AbstractNode, lb, ub)
+
+Set the bounds of the `node` object to the lower and upper bound given. 
+Internally everything is stored as a minimization problem. Therefore the objective_sense `:Min`/`:Max` is needed.
+"""
+function set_node_bound!(objective_sense::Symbol, node::AbstractNode, lb, ub)
+    if isnan(ub)
+        ub = Inf
+    end
+    if objective_sense == :Min
+        node.lb = max(lb, node.lb)
+        node.ub = ub
+    else
+        node.lb = max(-lb, node.lb)
+        node.ub = -ub
+    end
 end
 
 """
-    AbtractFrankWolfeNode <: Bonobo.AbstractNode 
+    bound!(tree::BnBTree, current_node_id::Int)
+
+Close all nodes which have a lower bound higher or equal to the incumbent
 """
-abstract type AbstractFrankWolfeNode <: Bonobo.AbstractNode end
+function bound!(tree::BnBTree, current_node_id::Int)
+    for (_, node) in tree.nodes
+        if node.id != current_node_id && node.lb >= tree.incumbent
+            close_node!(tree, node)
+        end
+    end
+end
+
+"""
+    close_node!(tree::BnBTree, node::AbstractNode)
+
+Delete the node from the nodes dictionary and the priority queue.
+"""
+function close_node!(tree::BnBTree, node::AbstractNode)
+    delete!(tree.nodes, node.id)
+    return delete!(tree.node_queue, node.id)
+end
+
+"""
+    branch!(tree, node)
+
+Get the branching variable with [`get_branching_variable`](@ref) and then calls [`get_branching_nodes_info`](@ref) and [`add_node!`](@ref).
+"""
+function branch!(tree, node)
+    variable_idx = get_branching_variable(tree, tree.options.branch_strategy, node)
+    # no branching variable selected => return
+    variable_idx == -1 && return
+    nodes_info = get_branching_nodes_info(tree, node, variable_idx)
+    for node_info in nodes_info
+        add_node!(tree, node, node_info)
+    end
+end
+
+"""
+    get_branching_variable(tree::BnBTree, ::MOST_INFEASIBLE, node::AbstractNode)
+
+Return the branching variable which is furthest away from being feasible based on [`get_distance_to_feasible`](@ref)
+or `-1` if all integer constraints are respected.
+"""
+function get_branching_variable(tree::BnBTree, ::MOST_INFEASIBLE, node::AbstractNode)
+    values = get_relaxed_values(tree, node)
+    best_idx = -1
+    max_distance_to_feasible = 0.0
+    for i in tree.branching_indices
+        value = values[i]
+        if !is_approx_feasible(tree, value)
+            distance_to_feasible = get_distance_to_feasible(tree, value)
+            if distance_to_feasible > max_distance_to_feasible
+                best_idx = i
+                max_distance_to_feasible = distance_to_feasible
+            end
+        end
+    end
+    return best_idx
+end
+
+"""
+    set_root!(tree::BnBTree, node_info::NamedTuple)
+
+Set the root node information based on the `node_info` which needs to include the same fields as the `Node` struct given 
+to the [`initialize`](@ref) method. (Besides the `std` field which is set by Bonobo automatically)
+
+# Example
+If your node structure is the following:
+```julia
+mutable struct MIPNode <: AbstractNode
+    std :: BnBNodeInfo
+    lbs :: Vector{Float64}
+    ubs :: Vector{Float64}
+    status :: MOI.TerminationStatusCode
+end
+```
+
+then you can call the function with this syntax:
+
+```julia
+set_root!(tree, (
+    lbs = fill(-Inf, length(x)),
+    ubs = fill(Inf, length(x)),
+    status = MOI.OPTIMIZE_NOT_CALLED
+))
+```
+"""
+function set_root!(tree::BnBTree, node_info::NamedTuple)
+    return add_node!(tree, nothing, node_info)
+end
+
+"""
+    add_node!(tree::BnBTree{Node}, parent::Union{AbstractNode, Nothing}, node_info::NamedTuple)
+
+Add a new node to the tree using the `node_info`. For information on that see [`set_root!`](@ref).
+"""
+function add_node!(
+    tree::BnBTree{Node},
+    parent::Union{AbstractNode,Nothing},
+    node_info::NamedTuple,
+) where {Node<:AbstractNode}
+    node_id = tree.num_nodes + 1
+    node = create_node(Node, node_id, parent, node_info)
+    # only add the node if it's better than the current best solution
+    if node.lb < tree.incumbent
+        tree.nodes[node_id] = node
+        tree.node_queue[node_id] = (node.lb, node_id)
+        tree.num_nodes += 1
+    end
+end
+
+"""
+    create_node(Node, node_id::Int, parent::Union{AbstractNode, Nothing}, node_info::NamedTuple)
+
+Creates a node of type `Node` with id `node_id` and the named tuple `node_info`. 
+For information on that see [`set_root!`](@ref).
+"""
+function create_node(Node, node_id::Int, parent::Union{AbstractNode,Nothing}, node_info::NamedTuple)
+    lb = -Inf
+    depth = 1
+    if !isnothing(parent)
+        lb = parent.lb
+        depth = parent.depth + 1
+    end
+    bnb_node = structfromnt(BnBNodeInfo, (id=node_id, lb=lb, ub=Inf, depth=depth))
+    bnb_nt = (std=bnb_node,)
+    node_nt = merge(bnb_nt, node_info)
+    return structfromnt(Node, node_nt)
+end
+
+"""
+    get_next_node(tree::BnBTree, ::BestFirstSearch)
+
+Get the next node of the tree which shall be evaluted next by [`evaluate_node!`](@ref).
+If you want to implement your own traversing strategy check out [`AbstractTraverseStrategy`](@ref).
+"""
+function get_next_node(tree::BnBTree, ::BestFirstSearch)
+    node_id, _ = first(tree.node_queue)
+    return tree.nodes[node_id]
+end
+
+function get_next_node(tree::BnBTree, ::DepthFirstSearch)
+    node_id = argmax(k -> tree.nodes[k].depth, keys(tree.nodes))
+    return tree.nodes[node_id]
+end
+
 
 """
     FrankWolfeNode <: AbstractFrankWolfeNode
@@ -117,7 +262,7 @@ FrankWolfeNode(
 Create the information of the new branching nodes 
 based on their parent and the index of the branching variable
 """
-function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeNode, vidx::Int)
+function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int)
     if !is_valid_split(tree, vidx)
         error("Splitting on the same index as parent! Abort!")
     end
@@ -126,7 +271,7 @@ function Bonobo.get_branching_nodes_info(tree::Bonobo.BnBTree, node::FrankWolfeN
     node.discarded_set_size = length(node.discarded_vertices.storage)
 
     # get iterate, primal and lower bound
-    x = Bonobo.get_relaxed_values(tree, node)
+    x = get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
     lower_bound_base = primal - node.dual_gap
     @assert isfinite(lower_bound_base)
@@ -298,7 +443,7 @@ end
 """
 Computes the relaxation at that node
 """
-function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
+function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     # check that local bounds and global tightening don't conflict
     for (j, ub) in tree.root.global_tightenings.upper_bounds
         if !haskey(node.local_bounds.lower_bounds, j)
@@ -451,12 +596,3 @@ function Bonobo.evaluate_node!(tree::Bonobo.BnBTree, node::FrankWolfeNode)
 
     return lower_bound, NaN
 end
-
-"""
-Returns the solution vector of the relaxed problem at the node
-"""
-function Bonobo.get_relaxed_values(tree::Bonobo.BnBTree, node::FrankWolfeNode)
-    return copy(FrankWolfe.get_active_set_iterate(node.active_set))
-end
-
-tree_lb(tree::Bonobo.BnBTree) = min(tree.lb, tree.incumbent)

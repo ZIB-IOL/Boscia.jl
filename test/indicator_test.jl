@@ -4,7 +4,6 @@ using FrankWolfe
 using Random
 using SCIP
 import MathOptInterface
-import Bonobo
 using HiGHS
 using Printf
 using Dates
@@ -57,7 +56,7 @@ rng = StableRNG(seed)
     @test Boscia.indicator_present(blmo) == true
 
     function ind_rounding(x)
-        round.(x[n+1:2n])
+        round.(x[(n+1):2n])
         for i in 1:n
             if isapprox(x[n+i], 1.0)
                 x[i] = 0.0

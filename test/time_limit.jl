@@ -6,7 +6,6 @@ using SCIP
 import MathOptInterface
 using LinearAlgebra
 using Distributions
-import Bonobo
 using Printf
 using Dates
 const MOI = MathOptInterface

@@ -1,5 +1,5 @@
 
-struct PartialStrongBranching{LMO<:LinearMinimizationOracle} <: Bonobo.AbstractBranchStrategy
+struct PartialStrongBranching{LMO<:LinearMinimizationOracle} <: AbstractBranchStrategy
     max_iteration::Int
     solving_epsilon::Float64
     lmo::LMO
@@ -9,19 +9,19 @@ end
 Get branching variable using strong branching.
 Create all possible subproblems, solve them and pick the one with the most progress.
 """
-function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree,
+function get_branching_variable(
+    tree::BnBTree,
     branching::PartialStrongBranching{LMO},
-    node::Bonobo.AbstractNode,
+    node::AbstractNode,
 ) where {LMO<:LinearMinimizationOracle}
-    xrel = Bonobo.get_relaxed_values(tree, node)
+    xrel = get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
     @assert !isempty(node.active_set)
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
-    for idx in Bonobo.get_branching_indices(tree.root)
+    for idx in get_branching_indices(tree.root)
         if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
 
             # left node: x_i <=  floor(̂x_i)
@@ -36,7 +36,7 @@ function Bonobo.get_branching_variable(
                 branching.lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsLeft,
-                Bonobo.get_branching_indices(tree.root),
+                get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.lmo)
             if status == OPTIMAL
@@ -84,7 +84,7 @@ function Bonobo.get_branching_variable(
                 branching.lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsRight,
-                Bonobo.get_branching_indices(tree.root),
+                get_branching_indices(tree.root),
             )
             status = check_feasibility(branching.lmo)
             if status == OPTIMAL
@@ -147,7 +147,7 @@ function Bonobo.get_branching_variable(
         branching.lmo,
         tree.root.problem.integer_variable_bounds,
         node.local_bounds,
-        Bonobo.get_branching_indices(tree.root),
+        get_branching_indices(tree.root),
     )
     return max_idx
 end
@@ -156,11 +156,8 @@ end
 Hybrid between partial strong branching and another strategy.
 `perform_strong_branch(tree, node) -> Bool` decides whether to perform strong branching or not.
 """
-struct HybridStrongBranching{
-    LMO<:LinearMinimizationOracle,
-    F<:Function,
-    B<:Bonobo.AbstractBranchStrategy,
-} <: Bonobo.AbstractBranchStrategy
+struct HybridStrongBranching{LMO<:LinearMinimizationOracle,F<:Function,B<:AbstractBranchStrategy} <:
+       AbstractBranchStrategy
     pstrong::PartialStrongBranching{LMO}
     perform_strong_branch::F
     alternative_branching::B
@@ -171,7 +168,7 @@ function HybridStrongBranching(
     solving_epsilon::Float64,
     lmo::LinearMinimizationOracle,
     perform_strong_branch::Function,
-    alternative=Bonobo.MOST_INFEASIBLE(),
+    alternative=MOST_INFEASIBLE(),
 )
     return HybridStrongBranching(
         PartialStrongBranching(max_iteration, solving_epsilon, lmo),
@@ -180,16 +177,12 @@ function HybridStrongBranching(
     )
 end
 
-function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree,
-    branching::HybridStrongBranching,
-    node::Bonobo.AbstractNode,
-)
+function get_branching_variable(tree::BnBTree, branching::HybridStrongBranching, node::AbstractNode)
     do_strong_branch = branching.perform_strong_branch(tree, node)
     return if do_strong_branch
-        Bonobo.get_branching_variable(tree, branching.pstrong, node)
+        get_branching_variable(tree, branching.pstrong, node)
     else
-        Bonobo.get_branching_variable(tree, branching.alternative_branching, node)
+        get_branching_variable(tree, branching.alternative_branching, node)
     end
 end
 
@@ -201,7 +194,7 @@ function strong_up_to_depth(
     solving_epsilon::Float64,
     lmo::LinearMinimizationOracle,
     max_depth::Int,
-    alternative=Bonobo.MOST_INFEASIBLE(),
+    alternative=MOST_INFEASIBLE(),
 )
     perform_strong_while_depth(_, node) = node.std.depth <= max_depth
     return HybridStrongBranching(

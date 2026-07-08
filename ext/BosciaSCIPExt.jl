@@ -1,7 +1,6 @@
 module BosciaSCIPExt
 
 using Boscia
-using Bonobo
 using MathOptInterface
 using SCIP
 const MOI = MathOptInterface
@@ -14,7 +13,7 @@ Finds the best solution in the SCIP solution storage, based on the objective fun
 Returns the solution vector and the corresponding best value.
 """
 function Boscia.find_best_solution(
-    tree::Bonobo.BnBTree,
+    tree::Boscia.BnBTree,
     f::Function,
     o::SCIP.Optimizer,
     vars::Vector{MOI.VariableIndex},

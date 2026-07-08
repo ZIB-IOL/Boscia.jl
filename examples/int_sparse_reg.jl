@@ -2,7 +2,6 @@ using Boscia
 using FrankWolfe
 using Random
 using SCIP
-import Bonobo
 using Test
 import MathOptInterface
 const MOI = MathOptInterface

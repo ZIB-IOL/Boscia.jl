@@ -23,9 +23,9 @@ SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds) =
     SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds, SOLVING)
 
 """
-Returns the indices of the discrete variables for the branching in `Bonobo.BnBTree`
+Returns the indices of the discrete variables for the branching in `BnBTree`
 """
-function Bonobo.get_branching_indices(
+function get_branching_indices(
     problem::SimpleOptimizationProblem{<:Any,<:Any,<:TimeTrackingLMO,<:IntegerBounds},
 )
     return problem.integer_variables
@@ -56,8 +56,8 @@ const BosciaRoot = NamedTuple{
 }
 
 # Method for our specific root NamedTuple type
-function Bonobo.get_branching_indices(root::BosciaRoot)
-    return Bonobo.get_branching_indices(root.problem)
+function get_branching_indices(root::BosciaRoot)
+    return get_branching_indices(root.problem)
 end
 
 """
@@ -77,7 +77,7 @@ function is_integer_feasible(
     return true
 end
 
-function is_integer_feasible(tree::Bonobo.BnBTree, x::AbstractVector)
+function is_integer_feasible(tree::BnBTree, x::AbstractVector)
     indicator_feasible =
         indicator_present(tree) ? is_indicator_feasible(tree.root.problem.tlmo.lmo.o, x) : true
     return is_integer_feasible(
@@ -97,4 +97,4 @@ is_linear_feasible(lmo::TimeTrackingLMO, v::AbstractVector) = is_linear_feasible
 Are indicator constraints present
 """
 indicator_present(time_lmo::TimeTrackingLMO) = indicator_present(time_lmo.lmo)
-indicator_present(tree::Bonobo.BnBTree) = indicator_present(tree.root.problem.tlmo.lmo)
+indicator_present(tree::BnBTree) = indicator_present(tree.root.problem.tlmo.lmo)

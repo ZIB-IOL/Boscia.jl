@@ -47,8 +47,8 @@ Available settings:
 - `use_shadow_set` the shadow set is the set of discarded vertices which is inherited by the children nodes. It is used to avoid recomputing of vertices in case the LMO is expensive. In case of a cheap LMO, performance might improve by disabling this option. Per default, this is `true`.
 """
 function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
-    traverse_strategy = Bonobo.BestFirstSearch()
-    branching_strategy = Bonobo.MOST_INFEASIBLE()
+    traverse_strategy = BestFirstSearch()
+    branching_strategy = MOST_INFEASIBLE()
     integral_objective = false
     verbose = false
     print_iter = 100

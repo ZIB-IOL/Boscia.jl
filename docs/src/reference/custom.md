@@ -11,13 +11,22 @@ Modules = [Boscia]
 Pages = ["problem.jl"]
 ```
 
-## Customized Bonobo structures and functions 
+## bnb structures
 
-Our adaptations to the functions in `Bonobo.jl`. 
+Our structures of the branch and bound tree.
 
 ```@autodocs
 Modules = [Boscia]
-Pages = ["custom_bonobo.jl"]
+Pages = ["bnb_tree_defs.jl"]
+```
+
+## bnb functions
+
+Our functions operate the branch and bound tree.
+
+```@autodocs
+Modules = [Boscia]
+Pages = ["bnb_tree_operate.jl"]
 ```
 
 ## Node Evaluation

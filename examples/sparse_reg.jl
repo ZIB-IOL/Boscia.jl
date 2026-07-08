@@ -3,7 +3,6 @@ using FrankWolfe
 using Random
 using LinearAlgebra
 using SCIP
-import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
 using Dates

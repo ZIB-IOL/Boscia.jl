@@ -104,7 +104,7 @@ function process_FW_callback_logic(
             if best_val < tree.incumbent && !tree.root.options[:add_all_solutions]
                 node = tree.nodes[tree.root.current_node_id[]]
                 add_new_solution!(tree, node, best_val, best_v, :Solver)
-                Bonobo.bound!(tree, node.id)
+                bound!(tree, node.id)
             end
         end
     end
@@ -121,7 +121,7 @@ function process_FW_callback_logic(
             #TODO: update solution without adding node
             node = tree.nodes[tree.root.current_node_id[]]
             add_new_solution!(tree, node, val, copy(state.v), :vertex)
-            Bonobo.bound!(tree, node.id)
+            bound!(tree, node.id)
         end
     end
 
@@ -316,7 +316,7 @@ function build_bnb_callback(
             if verbose && (
                 mod(iteration, print_iter) == 0 ||
                 iteration == 1 ||
-                Bonobo.terminated(tree) ||
+                terminated(tree) ||
                 tree.root.updated_incumbent[]
             )
                 if (mod(iteration, print_iter * 40) == 0)
@@ -370,14 +370,13 @@ function build_bnb_callback(
             @assert node.global_tightenings <= num_bin + num_int
         end
         # update current_node_id
-        if !Bonobo.terminated(tree)
-            tree.root.current_node_id[] =
-                Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+        if !terminated(tree)
+            tree.root.current_node_id[] = get_next_node(tree, tree.options.traverse_strategy).id
         end
 
-        if Bonobo.terminated(tree)
-            Bonobo.sort_solutions!(tree.solutions)
-            x = Bonobo.get_solution(tree)
+        if terminated(tree)
+            sort_solutions!(tree.solutions)
+            x = get_solution(tree)
             # x can be nothing if the user supplied a custom domain oracle and the time limit is reached
             if x === nothing
                 @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED

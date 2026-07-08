@@ -26,26 +26,23 @@ which are set in the following ways:
 1. If the node is infeasible the kwarg `node_infeasible` is set to `true`.
 2. If the node has a higher lower bound than the incumbent the kwarg `worse_than_incumbent` is set to `true`.
 """
-function Bonobo.optimize!(
-    tree::Bonobo.BnBTree{<:FrankWolfeNode};
-    callback=(args...; kwargs...) -> (),
-)
+function optimize!(tree::BnBTree{<:FrankWolfeNode}; callback=(args...; kwargs...) -> ())
 
-    while !Bonobo.terminated(tree)
-        node = Bonobo.get_next_node(tree, tree.options.traverse_strategy)
-        lb, ub = Bonobo.evaluate_node!(tree, node)
+    while !terminated(tree)
+        node = get_next_node(tree, tree.options.traverse_strategy)
+        lb, ub = evaluate_node!(tree, node)
         # if the problem was infeasible we simply close the node and continue
         if isnan(lb) && isnan(ub)
-            Bonobo.close_node!(tree, node)
+            close_node!(tree, node)
             callback(tree, node; node_infeasible=true)
             continue
         end
 
-        Bonobo.set_node_bound!(tree.sense, node, lb, ub)
+        set_node_bound!(tree.sense, node, lb, ub)
 
         # if the evaluated lower bound is worse than the best incumbent -> close and continue
         if !tree.root.options[:no_pruning] && node.lb >= tree.incumbent
-            Bonobo.close_node!(tree, node)
+            close_node!(tree, node)
             callback(
                 tree,
                 node;
@@ -85,21 +82,21 @@ function Bonobo.optimize!(
         tree.lb = minimum([prio[2][1] for prio in tree.node_queue])
         @assert p_lb <= tree.lb
 
-        updated = Bonobo.update_best_solution!(tree, node)
+        updated = update_best_solution!(tree, node)
         if updated
-            Bonobo.bound!(tree, node.id)
+            bound!(tree, node.id)
             if isapprox(tree.incumbent, tree.lb; atol=tree.options.atol, rtol=tree.options.rtol)
                 break
             end
         end
 
-        Bonobo.close_node!(tree, node)
-        Bonobo.branch!(tree, node)
+        close_node!(tree, node)
+        branch!(tree, node)
         callback(tree, node)
     end
     # To make sure that we collect the statistics in case the time limit is reached.
     if !haskey(tree.root.result, :global_tightenings)
-        y = Bonobo.get_solution(tree)
+        y = get_solution(tree)
         vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(y)[], 1)
         dummy_node = FrankWolfeNode(
             NodeInfo(-1, Inf, Inf, 0),
@@ -116,111 +113,5 @@ function Bonobo.optimize!(
         )
         callback(tree, dummy_node, node_infeasible=true)
     end
-    return Bonobo.sort_solutions!(tree.solutions)
-end
-
-function Bonobo.update_best_solution!(
-    tree::Bonobo.BnBTree{<:FrankWolfeNode},
-    node::Bonobo.AbstractNode,
-)
-    isinf(node.ub) && return false
-
-    if !tree.root.options[:add_all_solutions]
-        node.ub >= tree.incumbent && return false
-    end
-
-    Bonobo.add_new_solution!(tree, node)
-    return true
-end
-
-function Bonobo.add_new_solution!(
-    tree::Bonobo.BnBTree{N,R,V,S},
-    node::Bonobo.AbstractNode,
-) where {N,R,V,S<:FrankWolfeSolution{N,V}}
-    return add_new_solution!(tree, node, node.ub, Bonobo.get_relaxed_values(tree, node), :iterate)
-end
-
-function add_new_solution!(
-    tree::Bonobo.BnBTree{N,R,V,S},
-    node::Bonobo.AbstractNode,
-    objective::T,
-    solution::V,
-    origin::Symbol,
-) where {N,R,V,S<:FrankWolfeSolution{N,V},T<:Real}
-    time = Inf
-    if tree.root.options[:post_heuristics_callback] !== nothing
-        add_solution, time, objective, solution =
-            tree.root.options[:post_heuristics_callback](tree, node, solution)
-    end
-
-    sol = FrankWolfeSolution(objective, solution, node, origin, time)
-    sol.solution = solution
-    sol.objective = objective
-
-    push!(tree.solutions, sol)
-    if tree.incumbent_solution === nothing || sol.objective < tree.incumbent_solution.objective
-        tree.root.updated_incumbent[] = true
-        tree.incumbent_solution = sol
-        tree.incumbent = sol.objective
-    end
-end
-
-function Bonobo.get_solution(
-    tree::Bonobo.BnBTree{N,R,V,S};
-    result=1,
-) where {N,R,V,S<:FrankWolfeSolution{N,V}}
-    if isempty(tree.solutions)
-        @warn "There is no solution in the tree. This behaviour can happen if you have supplied 
-        \na custom domain oracle. In that case, try to increase the time or node limit. If you have not specified a 
-        \ndomain oracle, please report!"
-        @assert tree.root.problem.solving_stage in (TIME_LIMIT_REACHED, NODE_LIMIT_REACHED)
-        return nothing
-    end
-    return tree.solutions[result].solution
-end
-
-struct BiasedDepthFirstSearch <: Bonobo.AbstractTraverseStrategy
-    favor_right::Bool
-end
-
-BiasedDepthFirstSearch() = BiasedDepthFirstSearch(true)
-
-function Bonobo.get_next_node(tree::Bonobo.BnBTree, strategy::BiasedDepthFirstSearch)
-    node_queue = tree.node_queue
-    nodes = tree.nodes
-
-    # For favored branch side (e.g. right if strategy.favor_right == true)
-    favored_id = -1
-    favored_depth = -1
-    favored_lb = Inf  # we maximize depth, then minimize lb
-
-    # For unfavored side
-    unfavored_id = -1
-    unfavored_lb = Inf          # we minimize lb
-
-    for id in keys(node_queue)
-
-        node = nodes[id]
-
-        if node.branched_right == strategy.favor_right
-            # Favored: maximize depth, tie-break by smaller lb
-            if node.depth > favored_depth || (node.depth == favored_depth && node.lb < favored_lb)
-                favored_depth = node.depth
-                favored_lb = node.lb
-                favored_id = id
-            end
-        else
-            # Unfavored: choose smallest lb
-            if node.lb < unfavored_lb
-                unfavored_lb = node.lb
-                unfavored_id = id
-            end
-        end
-    end
-
-    if favored_id !== -1
-        return nodes[favored_id]
-    end
-
-    return nodes[unfavored_id]
+    return sort_solutions!(tree.solutions)
 end

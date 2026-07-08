@@ -134,11 +134,11 @@ function check_feasibility(lmo::LinearMinimizationOracle)
 end
 
 """
-    is_valid_split(tree::Bonobo.BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
+    is_valid_split(tree::BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
 
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
-function is_valid_split(tree::Bonobo.BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
+function is_valid_split(tree::BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
     return true
 end
 
@@ -193,7 +193,7 @@ end
 Find best solution from the solving process.
 """
 function find_best_solution(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     f::Function,
     lmo::LinearMinimizationOracle,
     vars,
