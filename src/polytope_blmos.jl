@@ -43,7 +43,17 @@ function is_simple_inface_feasible(lmo::CubeLMO, a, x, lb, ub, int_vars; kwargs.
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
 end
 
-function bounded_compute_inface_extreme_point(lmo::CubeLMO, d, x, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(
+    lmo::CubeLMO,
+    d,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+)
     a = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars

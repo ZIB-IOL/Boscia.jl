@@ -64,7 +64,7 @@ end
 n = 20
 diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
 
-@testset "Cube LMO" begin
+@testset "Box LMO" begin
     function f(x)
         return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
     end
@@ -77,6 +77,34 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     int_vars = collect(1:n)
 
     sblmo = Boscia.BoxLMO(lbs, ubs)
+
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
+
+    # testing for cube inface oracles
+    settings = Boscia.create_default_settings()
+    settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
+    x_dicg, _, result_dicg =
+        Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n, settings=settings)
+
+    @test sum(isapprox.(x, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    @test sum(isapprox.(x_dicg, round.(diffi), atol=1e-6, rtol=1e-2)) == n
+    @test isapprox(f(x_dicg), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+end
+
+@testset "Cube LMO" begin
+    function f(x)
+        return 0.5 * sum((x[i] - diffi[i])^2 for i in eachindex(x))
+    end
+    function grad!(storage, x)
+        @. storage = x - diffi
+    end
+
+    lbs = zeros(n)
+    ubs = ones(n)
+    int_vars = collect(1:n)
+
+    sblmo = Boscia.CubeLMO(lbs, ubs, int_vars)
 
     x, _, result = Boscia.solve(f, grad!, sblmo, lbs[int_vars], ubs[int_vars], int_vars, n)
 
