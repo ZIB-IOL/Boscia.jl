@@ -56,10 +56,10 @@ end
 function grad!(storage, x)
     storage .= 0
     for j in 1:k
-        Sk = reshape(@view(storage[(j-1)*n^2+1:j*n^2]), n, n)
+        Sk = reshape(@view(storage[((j-1)*n^2+1):(j*n^2)]), n, n)
         @. Sk = -Xstar
         for m in 1:k
-            Yk = reshape(@view(x[(m-1)*n^2+1:m*n^2]), n, n)
+            Yk = reshape(@view(x[((m-1)*n^2+1):(m*n^2)]), n, n)
             @. Sk += Yk
         end
     end

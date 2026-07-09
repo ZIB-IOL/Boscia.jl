@@ -350,4 +350,3 @@ function build_domain_oracle2(A, n)
         return minimum(eigvals(X)) > sqrt(eps())
     end
 end
-

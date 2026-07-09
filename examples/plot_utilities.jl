@@ -57,19 +57,19 @@ plot_bounds_progress(result, "output.png",
 function plot_bounds_progress(
     result::Dict,
     filename::String;
-    title_prefix::String = "",
-    font_family::String = "serif",
-    font_size::Int = 11,
-    use_latex::Bool = true,
-    latex_preamble::String = "\\usepackage{charter}\\usepackage[charter]{mathdesign}",
-    lower_color::String = "C0",
-    upper_color::String = "C1",
-    linewidth::Real = 2,
-    figsize::Tuple{Real,Real} = (12, 4),
-    dpi::Int = 300,
-    show_grid::Bool = true,
-    grid_alpha::Real = 0.3,
-    legend_loc::String = "best",
+    title_prefix::String="",
+    font_family::String="serif",
+    font_size::Int=11,
+    use_latex::Bool=true,
+    latex_preamble::String="\\usepackage{charter}\\usepackage[charter]{mathdesign}",
+    lower_color::String="C0",
+    upper_color::String="C1",
+    linewidth::Real=2,
+    figsize::Tuple{Real,Real}=(12, 4),
+    dpi::Int=300,
+    show_grid::Bool=true,
+    grid_alpha::Real=0.3,
+    legend_loc::String="best",
 )
     # Set up fonts
     PyPlot.rc("text", usetex=use_latex)
@@ -145,17 +145,19 @@ setup_plot_font(use_latex=false, font_family="sans-serif", font_size=12)
 ```
 """
 function setup_plot_font(;
-    font_family::String = "serif",
-    font_size::Int = 11,
-    use_latex::Bool = true,
-    latex_preamble::String = "\\usepackage{charter}\\usepackage[charter]{mathdesign}",
+    font_family::String="serif",
+    font_size::Int=11,
+    use_latex::Bool=true,
+    latex_preamble::String="\\usepackage{charter}\\usepackage[charter]{mathdesign}",
 )
     PyPlot.rc("text", usetex=use_latex)
     if use_latex
         PyPlot.rc("text.latex", preamble=latex_preamble)
     end
     PyPlot.rc("font", family=font_family, size=font_size)
-    println("Configured plotting with font_family=$font_family, font_size=$font_size, use_latex=$use_latex")
+    return println(
+        "Configured plotting with font_family=$font_family, font_size=$font_size, use_latex=$use_latex",
+    )
 end
 
 """
@@ -185,4 +187,3 @@ function find_fonts(pattern::String)
     fonts = list_available_fonts()
     return filter(f -> occursin(Regex(pattern, "i"), f), fonts)
 end
-
