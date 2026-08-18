@@ -442,7 +442,7 @@ function build_pipage_rounding_heuristic(A, N; threshold=0.8, epsilon=1)
             line_search=tree.root.options[:line_search],
             lazy=tree.root.options[:lazy],
             lazy_tolerance=tree.root.options[:lazy_tolerance],
-            callback=tree.root.options[:callback],
+            callback=tree.root.options[:boscia_fw_callback],
             verbose=tree.root.options[:fw_verbose],
         )
         for (idx, x_i) in enumerate(x_pipage)

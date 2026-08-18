@@ -298,7 +298,7 @@ function solve(
         use_DICG=typeof(options[:variant]) <: DecompositionInvariant,
     )
 
-    tree.root.options[:callback] = fw_callback
+    tree.root.options[:boscia_fw_callback] = fw_callback
     tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
 
     Bonobo.optimize!(tree; callback=bnb_callback)
