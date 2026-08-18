@@ -72,6 +72,13 @@ function process_FW_callback_logic(
     kwargs...,
 )
 
+    if tree.root.options[:fw_callback] !== nothing
+        if use_DICG
+            return tree.root.options[:fw_callback](state, pre_computed_set, kwargs...)
+        else
+            return tree.root.options[:fw_callback](state, active_set, kwargs...)
+        end
+    end
     if !use_DICG
         @assert isapprox(sum(active_set.weights), 1.0, atol=1e-10) "sum(active_set.weights) = $(sum(active_set.weights))"
         @assert sum(active_set.weights .< 0) == 0
