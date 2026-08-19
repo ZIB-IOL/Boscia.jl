@@ -74,9 +74,9 @@ function process_FW_callback_logic(
 
     if tree.root.options[:fw_callback] !== nothing
         if use_DICG
-            return tree.root.options[:fw_callback](state, pre_computed_set, kwargs...)
+            tree.root.options[:fw_callback](state, pre_computed_set, kwargs...)
         else
-            return tree.root.options[:fw_callback](state, active_set, kwargs...)
+            tree.root.options[:fw_callback](state, active_set, kwargs...)
         end
     end
     if !use_DICG
