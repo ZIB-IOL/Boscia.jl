@@ -648,8 +648,12 @@ mutable struct Hierarchy <: Bonobo.AbstractBranchStrategy
     pseudos::SparseMatrixCSC{Float64,Int64}
     branch_tracker::SparseMatrixCSC{Int64,Int64}
     stages::Vector{Stage}
-    function Hierarchy(bounded_lmo; stages=[])
-        int_vars = Boscia.get_integer_variables(bounded_lmo)
+    function Hierarchy(lmo; stages=[])
+        # as long as MathOptBLMO is supported, we need to convert the lmo to a FrankWolfe.MathOptLMO
+        if lmo isa MathOptBLMO
+            lmo = convert(FrankWolfe.MathOptLMO, lmo)
+        end
+        int_vars = Boscia.get_integer_variables(lmo)
         int_var_number = length(int_vars)
         # create sparse array for pseudocosts
         pseudos = sparse(
@@ -777,13 +781,17 @@ end
 
 """
 function create_binary_stage(
-    bounded_lmo
+    lmo
 )
    Creates a Stage for Hierarchy Branching where non binary variables are 
    filtered out when binary variables exist.
 """
-function create_binary_stage(bounded_lmo)
-    binary_vars = Set{Int64}(getproperty.(get_binary_variables(bounded_lmo), :value))
+function create_binary_stage(lmo)
+    # As long as MathOptBLMO is supported, we need to convert the lmo to a FrankWolfe.MathOptLMO
+    if lmo isa MathOptBLMO
+        lmo = convert(FrankWolfe.MathOptLMO, lmo)
+    end
+    binary_vars = Set{Int64}(getproperty.(get_binary_variables(lmo), :value))
     function select_binary_vars(
         tree::Bonobo.BnBTree,
         branching::Bonobo.AbstractBranchStrategy,
@@ -932,12 +940,16 @@ mutable struct PseudocostBranching <: Bonobo.AbstractBranchStrategy
     alt_decision_number::Int64# Contains information on how often the alternative strategy decided
     stable_decision_number::Int64# How many pseudocost branching decisions were made
     function PseudocostBranching(
-        bounded_lmo;
+        lmo;
         alt_f=most_infeasible_decision,
         stable_f=PseudocostStableSelectionGenerator("product", 1e-6),
         iterations_until_stable=1,
     )
-        int_vars = Boscia.get_integer_variables(bounded_lmo)
+        # As long as MathOptBLMO is supported, we need to convert the lmo to a FrankWolfe.MathOptLMO
+        if lmo isa MathOptBLMO
+            lmo = convert(FrankWolfe.MathOptLMO, lmo)
+        end
+        int_vars = Boscia.get_integer_variables(lmo)
         int_var_number = length(int_vars)
         # create sparse array for pseudocosts
         pseudos = sparse(

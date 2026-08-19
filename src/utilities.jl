@@ -27,7 +27,7 @@ end
 Check feasibility and boundedness
 """
 function check_feasibility(tlmo::TimeTrackingLMO)
-    return check_feasibility(tlmo.blmo)
+    return check_feasibility(tlmo.lmo)
 end
 
 
@@ -35,7 +35,7 @@ end
 Check if at a given index we have an integer constraint respectivily.
 """
 function has_integer_constraint(tree::Bonobo.BnBTree, idx::Int)
-    return has_integer_constraint(tree.root.problem.tlmo.blmo, idx)
+    return has_integer_constraint(tree.root.problem.tlmo.lmo, idx)
 end
 
 
@@ -43,7 +43,7 @@ end
 Check wether a split is valid. 
 """
 function is_valid_split(tree::Bonobo.BnBTree, vidx::Int)
-    return is_valid_split(tree, tree.root.problem.tlmo.blmo, vidx)
+    return is_valid_split(tree, tree.root.problem.tlmo.lmo, vidx)
 end
 
 
@@ -84,6 +84,7 @@ function split_vertices_set!(
         (λ, a) = tup
         if !is_bound_feasible(local_bounds, a)
             @info "removed"
+            @debug "removed: index $var value $(a[var]) local bounds: $local_bounds"
             push!(left_del_indices, idx)
             continue
         end
@@ -101,8 +102,8 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    @assert !isempty(active_set)
-    @assert !isempty(right_as)
+    @assert !isempty(active_set) "Left active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
+    @assert !isempty(right_as) "Right active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
@@ -142,45 +143,96 @@ function split_pre_computed_set!(
 end
 
 """
-Default starting point function which generates a random vertex
+Default first iterate for decomposition-invariant vairants: extreme point for linear objective `ones(n)`.
 """
-function trivial_build_dicg_start_point(blmo::BoundedLinearMinimizationOracle)
-    n, _ = get_list_of_variables(blmo)
+function trivial_build_decomposition_invariant_start_iterate(lmo::LinearMinimizationOracle)
+    n, _ = get_list_of_variables(lmo)
     d = ones(n)
-    x0 = FrankWolfe.compute_extreme_point(blmo, d)
+    x0 = FrankWolfe.compute_extreme_point(lmo, d)
     return x0
 end
 
-function dicg_start_point_initialize(
+function compute_decomposition_invariant_start_iterate(
     lmo::TimeTrackingLMO,
     active_set::FrankWolfe.ActiveSet{T,R},
     pre_computed_set,
-    build_dicg_start_point;
+    build_start_iterate;
     domain_oracle=_trivial_domain,
 ) where {T,R}
     if lmo.ncalls == 0
         return FrankWolfe.get_active_set_iterate(active_set)
     end
     if pre_computed_set === nothing
-        x0 = build_dicg_start_point(lmo.blmo)
+        x0 = build_start_iterate(lmo.lmo)
     else
         if !isempty(pre_computed_set)
             # We pick a point by averaging the pre_computed_atoms as warm-start.  
             num_pre_computed_set = length(pre_computed_set)
             x0 = sum(pre_computed_set) / num_pre_computed_set
             if !domain_oracle(x0)
-                x0 = build_dicg_start_point(lmo.blmo)
+                x0 = build_start_iterate(lmo.lmo)
             end
         else
             # We pick a random point.
-            x0 = build_dicg_start_point(lmo.blmo)
+            x0 = build_start_iterate(lmo.lmo)
         end
     end
     return x0
 end
 
+function initialize_decomposition_invariant_starting_point(
+    lmo,
+    active_set,
+    pre_computed_set,
+    build_start_point::Function;
+    starting_point=nothing,
+    domain_oracle=_trivial_domain,
+)
+    if starting_point !== nothing
+        x0 = starting_point
+    else
+        x0 = compute_decomposition_invariant_start_iterate(
+            lmo,
+            active_set,
+            pre_computed_set,
+            build_start_point;
+            domain_oracle=domain_oracle,
+        )
+    end
+
+    if x0 === nothing || !domain_oracle(x0)
+        return nothing
+    end
+    @assert is_linear_feasible(lmo, x0)
+    return x0
+end
+
+function cleanup_precomputed_set_after_solve!(pre_computed_set, lmo, x, use_strong_warm_start::Bool)
+    if pre_computed_set !== nothing && use_strong_warm_start
+        indices_to_delete = []
+        for idx in eachindex(pre_computed_set)
+            atom = pre_computed_set[idx]
+            if !is_inface_feasible(lmo, atom, x)
+                push!(indices_to_delete, idx)
+            end
+        end
+        deleteat!(pre_computed_set, indices_to_delete)
+    end
+    return nothing
+end
+
+function make_precomputed_set_callback(callback, pre_computed_set)
+    return function wrapped_callback(state, kwargs...)
+        return callback(state, pre_computed_set)
+    end
+end
+
 """
 Split a discarded vertices set between left and right children.
+Uses the same left/right bound convention as get_branching_nodes_info:
+- Left child: var ≤ new_bound_left
+- Right child: var ≥ new_bound_right
+Works for both fractional and integer x[var] (e.g. BRANCH_ALL when solution is already integer).
 """
 function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
@@ -191,23 +243,45 @@ function split_vertices_set!(
     atol=1e-5,
     rtol=1e-5,
 ) where {T}
+    gb = tree.root.problem.integer_variable_bounds
+    lb_global = get(gb.lower_bounds, var, -Inf)
+    ub_global = get(gb.upper_bounds, var, Inf)
+    x_var = x[var]
+
+    # Same convention as in node.jl get_branching_nodes_info: three cases
+    # (1) x at global lower bound → left var ≤ lb, right var ≥ lb+1
+    # (2) x at global upper bound → left var ≤ ub-1, right var ≥ ub
+    # (3) else: x fractional or integer in (lb, ub) → left var ≤ floor(x), right var ≥ ceil(x)
+    #    When x is integer in the middle, floor(x) == ceil(x) == k, so left var ≤ k, right var ≥ k
+    new_bound_left, new_bound_right = if isapprox(lb_global, x_var, atol=atol, rtol=rtol)
+        floor(x_var), floor(x_var) + 1
+    elseif isapprox(ub_global, x_var, atol=atol, rtol=rtol)
+        ceil(x_var) - 1, ceil(x_var)
+    else
+        # Covers both fractional x and integer x strictly between lb and ub
+        floor(x_var), ceil(x_var)
+    end
+
     right_as = FrankWolfe.DeletedVertexStorage{T}(T[], discarded_set.return_kth)
-    # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
         if !is_bound_feasible(local_bounds, vertex)
             push!(left_del_indices, idx)
             continue
         end
-        if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
+        v_var = vertex[var]
+        # Left child: var ≤ new_bound_left. Right child: var ≥ new_bound_right.
+        # When new_bound_left == new_bound_right (integer x in the middle), vertex[var]==k is
+        # feasible for both; we assign it to the left only (first branch below).
+        if v_var < new_bound_left || isapprox(v_var, new_bound_left, atol=atol, rtol=rtol)
+            # Feasible for left (and only left when new_bound_left < new_bound_right)
+            continue
+        elseif v_var > new_bound_right || isapprox(v_var, new_bound_right, atol=atol, rtol=rtol)
+            # Feasible for right only
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
-        elseif vertex[var] <= floor(x[var]) ||
-               isapprox(vertex[var], floor(x[var]), atol=atol, rtol=rtol)
-            # keep in left, don't add to right
-        else #floor(x[var]) < vertex[var] < ceil(x[var])
-            # if you are in middle, delete from the left and do not add to the right!
-            @warn "Attention! Vertex in the middle."
+        else
+            # new_bound_left < v_var < new_bound_right: feasible for neither (e.g. fractional vertex)
             push!(left_del_indices, idx)
         end
     end
@@ -285,7 +359,7 @@ function build_active_set_by_domain_oracle(
                     # Once we find a domain feasible point, we count the iteration
                     # and stop if we have not found a feasible point after 5 iterations..
                     if tree.root.options[:domain_oracle](state.x)
-                        if domain_counter > 5
+                        if domain_counter > tree.root.options[:depth_domain]
                             return false
                         end
                         domain_counter += 1
@@ -294,7 +368,8 @@ function build_active_set_by_domain_oracle(
             end
             inner_callback = build_inner_callback(tree)
 
-            x, _, _, _, _, active_set = FrankWolfe.blended_pairwise_conditional_gradient(
+            x, _, _, _, atoms_set = solve_frank_wolfe(
+                tree.root.options[:variant],
                 inner_f,
                 inner_grad!,
                 tree.root.problem.tlmo,
@@ -439,3 +514,5 @@ _value_to_print(::LargestGradient) = "Largest Gradient"
 _value_to_print(::LargestMostInfeasibleGradient) = "Largest most infeasible gradient"
 _value_to_print(::LargestIndex) = "Largest Index"
 _value_to_print(::RandomBranching) = "Uniform Random Choice"
+_value_to_print(::BRANCH_ALL) = "Branch on all variables"
+_value_to_print(::BiasedDepthFirstSearch) = "BiasedDepthFirstSearch"

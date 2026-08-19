@@ -3,6 +3,8 @@ using Test
 using DoubleFloats
 using StableRNGs
 
+println("\nBig Float Example")
+
 seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
@@ -25,23 +27,17 @@ diffi = rand(rng, Bool, n) * 0.6 .+ 0.3
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     custom_heuristics = [
         Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)
@@ -64,23 +60,17 @@ end
     lbs = zeros(n)
     ubs = ones(n)
 
-    sblmo = Boscia.CubeSimpleBLMO(lbs, ubs, int_vars)
+    sblmo = Boscia.BoxLMO(lbs, ubs)
     custom_heuristics = [
         Boscia.Heuristic(Boscia.rounding_lmo_01_heuristic, 0.7, :rounding_lmo_01_heuristic),
         Boscia.Heuristic(Boscia.probability_rounding, 0.7, :probability_rounding),
     ]
 
-    x, _, result = Boscia.solve(
-        f,
-        grad!,
-        sblmo,
-        lbs[int_vars],
-        ubs[int_vars],
-        int_vars,
-        n,
-        settings_bnb=Boscia.settings_bnb(verbose=true, time_limit=60),
-        settings_heuristic=Boscia.settings_heuristic(custom_heuristics=custom_heuristics),
-    )
+    settings = Boscia.create_default_settings()
+    settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:time_limit] = 60
+    settings.heuristic[:custom_heuristics] = custom_heuristics
+    x, _, result = Boscia.solve(f, grad!, sblmo, lbs, ubs, int_vars, n, settings=settings)
 
     if result[:total_time_in_sec] < 125
         @test x == round.(diffi)

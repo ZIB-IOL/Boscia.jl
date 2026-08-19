@@ -1,15 +1,17 @@
 """
     BLMO
 
-Supertype for the Bounded Linear Minimization Oracles
+Supertype for the Bounded Linear Minimization Oracles,
+
+WILL BE DEPRECATED in favor of simply extending the `FrankWolfe.LinearMinimizationOracle` type.
 """
 abstract type BoundedLinearMinimizationOracle <: FrankWolfe.LinearMinimizationOracle end
 
 """
-Enum encoding the status of the Bounded Linear Minimization Oracle.
+Enum encoding the status of the Linear Minimization Oracle.
 Currently available: `OPTIMAL`, `INFEASIBLE` and `UNBOUNDED`.
 """
-@enum BLMOStatus begin
+@enum LMOStatus begin
     OPTIMAL = 0
     INFEASIBLE = 1
     UNBOUNDED = 2
@@ -24,7 +26,7 @@ Given a direction d solves the problem
     `min_x d^T x`
 where x has to be an integer feasible point
 """
-function compute_extreme_point end
+#compute_extreme_point(lmo,d; kwargs...)
 
 """
 Read global bounds from the problem.
@@ -113,87 +115,87 @@ function has_integer_constraint end
 
 ## Safety Functions
 """
-    build_LMO_correct(blmo::BoundedLinearMinimizationOracle, node_bounds)
+    build_LMO_correct(lmo::LinearMinimizationOracle, node_bounds)
 
 Check if the bounds were set correctly in build_LMO.
 Safety check only.
 """
-function build_LMO_correct(blmo::BoundedLinearMinimizationOracle, node_bounds)
+function build_LMO_correct(lmo::LinearMinimizationOracle, node_bounds)
     return true
 end
 
 """
-    check_feasibility(blmo::BoundedLinearMinimizationOracle)
+    check_feasibility(lmo::LinearMinimizationOracle)
 
 Check if problem is bounded and feasible, i.e. no contradicting constraints.
 """
-function check_feasibility(blmo::BoundedLinearMinimizationOracle)
+function check_feasibility(lmo::LinearMinimizationOracle)
     return OPTIMAL
 end
 
 """
-    is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, vidx::Int)
+    is_valid_split(tree::Bonobo.BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
 
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
-function is_valid_split(tree::Bonobo.BnBTree, blmo::BoundedLinearMinimizationOracle, vidx::Int)
+function is_valid_split(tree::Bonobo.BnBTree, lmo::LinearMinimizationOracle, vidx::Int)
     return true
 end
 
 """
-    is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
+    is_indicator_feasible(lmo::LinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
 
 Is a given point v indicator feasible, i.e. meets the indicator constraints? If applicable.
 """
-function is_indicator_feasible(blmo::BoundedLinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
+function is_indicator_feasible(lmo::LinearMinimizationOracle, v; atol=1e-6, rtol=1e-6)
     return true
 end
 
 """
-    indicator_present(blmo::BoundedLinearMinimizationOracle)
+    indicator_present(lmo::LinearMinimizationOracle)
 
 Are indicator constraints present?
 """
-function indicator_present(blmo::BoundedLinearMinimizationOracle)
+function indicator_present(lmo::LinearMinimizationOracle)
     return false
 end
 
 """
-    check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree)
+    check_infeasible_vertex(lmo::LinearMinimizationOracle, tree)
 
 Deal with infeasible vertex if necessary, e.g. check what caused it etc.
 """
-function check_infeasible_vertex(blmo::BoundedLinearMinimizationOracle, tree) end
+function check_infeasible_vertex(lmo::LinearMinimizationOracle, tree) end
 
 
 ## Utility
 """
-    free_model(blmo::BoundedLinearMinimizationOracle)
+    free_model(lmo::LinearMinimizationOracle)
 
 Free model data from previous solve (if necessary).
 """
-function free_model(blmo::BoundedLinearMinimizationOracle)
+function free_model(lmo::LinearMinimizationOracle)
     return true
 end
 
 """
-    get_tol(blmo::BoundedLinearMinimizationOracle)
+    get_tol(lmo::LinearMinimizationOracle)
 
-Get solving tolerance for the BLMO.
+Get solving tolerance for the LMO.
 """
-function get_tol(blmo::BoundedLinearMinimizationOracle)
+function get_tol(lmo::LinearMinimizationOracle)
     return 1e-6
 end
 
 """
-    find_best_solution(f::Function, blmo::BoundedLinearMinimizationOracle, vars, domain_oracle)
+    find_best_solution(f::Function, lmo::LinearMinimizationOracle, vars, domain_oracle)
 
 Find best solution from the solving process.
 """
 function find_best_solution(
     tree::Bonobo.BnBTree,
     f::Function,
-    blmo::BoundedLinearMinimizationOracle,
+    lmo::LinearMinimizationOracle,
     vars,
     domain_oracle,
 )
@@ -201,12 +203,12 @@ function find_best_solution(
 end
 
 """
-    get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
+    get_variables_pointers(lmo::LinearMinimizationOracle, tree)
 
 List of all variable pointers. Depends on how you save your variables internally. In the easy case, this is simply `collect(1:N)`.
 Is used in `find_best_solution`.
 """
-function get_variables_pointers(blmo::BoundedLinearMinimizationOracle, tree)
+function get_variables_pointers(lmo::LinearMinimizationOracle, tree)
     N = tree.root.problem.nvars
     return collect(1:N)
 end
@@ -214,53 +216,63 @@ end
 
 ## Logs
 """
-    get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)
+    get_LMO_solve_data(lmo::LinearMinimizationOracle)
 
 Get solve time, number of nodes and number of iterations, if applicable.
 """
-function get_BLMO_solve_data(blmo::BoundedLinearMinimizationOracle)
+function get_LMO_solve_data(lmo::LinearMinimizationOracle)
     return 0.0, 0.0, 0.0
 end
 
+#=
 ## These DICG-specific functions are essential for Boscia to run with DICG.
 """
+    is_decomposition_invariant_oracle(lmo::LinearMinimizationOracle)
+
 Implement `FrankWolfe.is_decomposition_invariant_oracle`
 
 Check if necessary DICG-specific orcales are implemented.
 """
-function is_decomposition_invariant_oracle(blmo::BoundedLinearMinimizationOracle)
+function is_decomposition_invariant_oracle(lmo::LinearMinimizationOracle)
     return false
 end
 
 """
+    is_inface_feasible(lmo::LinearMinimizationOracle, a, x)
+
 Is a given point a on the minimal face containing the given x?
 """
-function is_inface_feasible(blmo::BoundedLinearMinimizationOracle, a, x)
+function is_inface_feasible(lmo::LinearMinimizationOracle, a, x)
     return false
 end
 
 """
+    compute_inface_extreme_point(lmo::LinearMinimizationOracle, d, x)
+
 Implement `FrankWolfe.compute_inface_extreme_point`
 
 Given a direction d and feasible point x solves the problem
     min_a d^T a
 where a has to be an integer feasible point and on the minimal face containing x
 """
-function compute_inface_extreme_point(blmo::BoundedLinearMinimizationOracle, d, x)
+function compute_inface_extreme_point(lmo::LinearMinimizationOracle, d, x)
     return error(
-        "To use DICG within Boscia, this function has to be implemented for $(typeof(blmo)).",
+        "To use DICG within Boscia, this function has to be implemented for $(typeof(lmo)).",
     )
 end
 
 """
+    dicg_maximum_step(lmo::LinearMinimizationOracle, d, x)
+
 Implement `FrankWolfe.dicg_maximum_step`
 
 Given a direction d and feasible point x solves the problem
     argmax_γ (x - γ * d) ∈ P
 where P is feasible set
 """
-function dicg_maximum_step(blmo::BoundedLinearMinimizationOracle, d, x)
+function dicg_maximum_step(lmo::LinearMinimizationOracle, d, x)
     return error(
-        "To use DICG within Boscia, this function has to be implemented for $(typeof(blmo)).",
+        "To use DICG within Boscia, this function has to be implemented for $(typeof(lmo)).",
     )
 end
+=#

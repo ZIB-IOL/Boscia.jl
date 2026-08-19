@@ -259,8 +259,8 @@ If no such point can be constructed, return nothing.
 """
 function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, initial_ub)
     return function domain_point(local_bounds)
-        lb = initial_lb
-        ub = initial_ub
+        lb = copy(initial_lb)
+        ub = copy(initial_ub)
         for idx in int_vars
             if haskey(local_bounds.lower_bounds, idx)
                 lb[idx] = max(initial_lb[idx], local_bounds.lower_bounds[idx])
@@ -277,7 +277,7 @@ function build_domain_point_function(domain_oracle, A, N, int_vars, initial_lb, 
         if !domain_oracle(ub)
             return nothing
         end
-        x = lb
+        x = copy(lb)
 
         S = linearly_independent_rows(A, u=(.!(iszero.(ub))))
         while sum(x) <= N
@@ -333,22 +333,21 @@ end
 
 """
 Check if given point is in the domain of f, i.e. X = transpose(A) * diagm(x) * A 
-positive definite.
-
-(a) Check the rank of A restricted to the rows activated by x.
-(b) Check if the resulting information matrix A' * diagm(x) * A is psd.
-
-(b) is a bit faster for smaller dimensions (< 100). For larger (> 200) (a) is faster.
+positive definite using LinearAlgebra.isposdef.
 """
 function build_domain_oracle(A, n)
     return function domain_oracle(x)
-        S = findall(x -> !iszero(x), x)
-        return length(S) >= n && rank(A[S, :]) == n
+        X = transpose(A) * diagm(x) * A
+        X = Symmetric(X)
+        return LinearAlgebra.isposdef(X)
     end
 end
 
-function build_domain_oracle2(A)
-    return function domain_oracle2(x)
-        return isposdef(Symmetric(A' * diagm(x) * A))
+function build_domain_oracle2(A, n)
+    return function domain_oracle(x)
+        X = transpose(A) * diagm(x) * A
+        X = Symmetric(X)
+        return minimum(eigvals(X)) > sqrt(eps())
     end
 end
+
