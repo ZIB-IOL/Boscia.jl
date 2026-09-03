@@ -267,9 +267,6 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
         error("Splitting on the same index as parent! Abort!")
     end
 
-    node.active_set_size = length(node.active_set)
-    node.discarded_set_size = length(node.discarded_vertices.storage)
-
     # get iterate, primal and lower bound
     x = get_relaxed_values(tree, node)
     primal = tree.root.problem.f(x)
@@ -593,6 +590,9 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     if tree.root.options[:ignore_lower_bound]
         return -Inf, NaN
     end
+
+    node.active_set_size = length(node.active_set)
+    node.discarded_set_size = length(node.discarded_vertices)
 
     return lower_bound, NaN
 end
