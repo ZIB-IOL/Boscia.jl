@@ -38,7 +38,7 @@ const A_g = rand(rng, Float64, n, p)
 k_int = convert(Int64, k)
 
 for i in 1:k_int
-    for _ in 1:group_size-1
+    for _ in 1:(group_size-1)
         β_sol[rand(rng, ((i-1)*group_size+1):(i*group_size))] = 0
     end
 end
@@ -113,7 +113,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
 
     function f(x)
         return sum((y_g - A_g * x[1:p]) .^ 2) +
-               lambda_0_g * sum(x[p+1:2p]) +
+               lambda_0_g * sum(x[(p+1):2p]) +
                lambda_2_g * FrankWolfe.norm(x[1:p])^2
     end
     function grad!(storage, x)
@@ -131,7 +131,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
     x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)
 
     # println("Solution: $(x[1:p])")
-    z = x[p+1:2p]
+    z = x[(p+1):2p]
     @test sum(z) <= k
     for i in 1:k_int
         @test sum(z[groups[i]]) >= 1

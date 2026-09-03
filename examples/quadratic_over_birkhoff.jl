@@ -70,9 +70,9 @@ end
     f, grad! = build_objective(n)
 
     x = zeros(n, n)
-    int_vars = collect(1:n^2)
+    int_vars = collect(1:(n^2))
     @testset "Birkhoff BLMO (BPCG)" begin
-        lmo = CLO.BirkhoffLMO(n, collect(1:n^2))
+        lmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true
@@ -83,7 +83,7 @@ end
 
     x_dicg = zeros(n, n)
     @testset "Birkhoff BLMO (DICG)" begin
-        lmo = CLO.BirkhoffLMO(n, collect(1:n^2))
+        lmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))
 
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:verbose] = true

@@ -54,7 +54,7 @@ function f_a(x)
     X = Symmetric(X)
     U = cholesky(X)
     X_inv = U \ I
-    return LinearAlgebra.tr(X_inv) 
+    return LinearAlgebra.tr(X_inv)
 end
 
 function grad_a!(storage, x)
@@ -62,7 +62,7 @@ function grad_a!(storage, x)
     X = Symmetric(X * X)
     F = cholesky(X)
     for i in 1:length(x)
-        storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :])) 
+        storage[i] = LinearAlgebra.tr(-(F \ A[i, :]) * transpose(A[i, :]))
     end
     return storage
 end
@@ -123,31 +123,31 @@ end
 # If $x$ does not yet satisfy the knapsack constraint, we increase the values of $X$, first by sampling 
 # from the linearly independent rows and then by adding 1 to the smallest value of $x$ while respecting the upper bounds $u$.
 function linearly_independent_rows(A; u=fill(1, size(A, 1)))
-S = []
-m, n = size(A)
-for i in 1:m
-    if iszero(u[i])
-        continue
+    S = []
+    m, n = size(A)
+    for i in 1:m
+        if iszero(u[i])
+            continue
+        end
+        S_i = vcat(S, i)
+        if rank(A[S_i, :]) == length(S_i)
+            S = S_i
+        end
+        if length(S) == n # we only n linearly independent points
+            return S
+        end
     end
-    S_i = vcat(S, i)
-    if rank(A[S_i, :]) == length(S_i)
-        S = S_i
-    end
-    if length(S) == n # we only n linearly independent points
-        return S
-    end
-end
-return S # then x= zeros(m) and x[S] = 1
+    return S # then x= zeros(m) and x[S] = 1
 end
 function add_to_min(x, u)
-perm = sortperm(x)
-for i in perm
-    if x[i] < u[i]
-        x[i] += 1
-        break
+    perm = sortperm(x)
+    for i in perm
+        if x[i] < u[i]
+            x[i] += 1
+            break
+        end
     end
-end
-return x
+    return x
 end
 function domain_point(local_bounds)
     lb = fill(0.0, m)
