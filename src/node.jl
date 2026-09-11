@@ -505,6 +505,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         end
     end
 
+    # generate current smoothed objective and gradient
     if tree.root.options[:mode] == SMOOTHING_MODE
         μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)), tree.root.options[:smoothing_min])
         @debug "Smoothing parameter: $(μ)"
