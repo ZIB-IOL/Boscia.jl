@@ -551,6 +551,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         @show fw_status
     end
 
+    # verify integer feasible solution by solving the smoothed problem with a tighter smoothing parameter
     if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) && tree.root.options[:resolve_integer_solution]
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
