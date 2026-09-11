@@ -17,9 +17,7 @@ Returns
 
 Optional settings
 
-- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
-If a different mode is supplied, default settings will be set according to the chosen mode. 
-If you want to change the default parameter settings, please provide the mode to the settings constructor!
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used. Beware that different modes have different default settings.
 - `settings_bnb` dictionary of settings for the branch-and-bound algorithm. Created via `settings_bnb()`.
 - `settings_frank_wolfe` dictionary of settings for the Frank-Wolfe algorithm. Created via `settings_frank_wolfe()`.
 - `settings_tolerances` dictionary of settings for the tolerances. Created via `settings_tolerances()`.
@@ -60,6 +58,7 @@ function solve(
         settings.smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
+    # The convention is that the provided f and grad! are the original objective and sub-gradients.
     if options[:mode] == SMOOTHING_MODE
         merge!(options, Dict(:original_objective => f))
         merge!(options, Dict(:sub_grad! => grad!))
