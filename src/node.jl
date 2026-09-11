@@ -351,15 +351,6 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     if haskey(varbounds_right.lower_bounds, vidx)
         delete!(varbounds_right.lower_bounds, vidx)
     end
-   #@show x[vidx]
-   # @show tree.root.problem.integer_variable_bounds.upper_bounds[vidx]
-    #new_bound_left, new_bound_right = if isapprox(tree.root.problem.integer_variable_bounds.lower_bounds[vidx], x[vidx])
-    #    floor(x[vidx]), floor(x[vidx]) + 1
-    #elseif isapprox(tree.root.problem.integer_variable_bounds.upper_bounds[vidx], x[vidx])
-    #    ceil(x[vidx]) - 1, ceil(x[vidx])
-    #else
-    #    floor(x[vidx]), ceil(x[vidx])
-    #end
     new_bound_left = floor(x[vidx])
     new_bound_right = ceil(x[vidx])
     push!(varbounds_left.upper_bounds, (vidx => new_bound_left))
@@ -501,7 +492,6 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
-
     else
         if node.id == 1 && tree.root.options[:start_solution] !== nothing
             decomposition_invariant_starting_point = tree.root.options[:start_solution]
@@ -563,7 +553,6 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) && tree.root.options[:resolve_integer_solution]
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
-        #μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10)), tree.root.options[:smoothing_min])
         μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
         if tree.root.options[:clip_mu_resolution]
             μ = max(μ, tree.root.options[:smoothing_min])
@@ -572,10 +561,6 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
         tree.root.problem.f = f_μ
         tree.root.problem.g = g_μ
-
-        #v = compute_extreme_point(tree.root.problem.tlmo, x)
-        #active_set = FrankWolfe.ActiveSet([(1.0, v)])
-        #@debug "v: $(v)" 
 
         x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
             tree.root.options[:variant],
@@ -640,8 +625,6 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
             dual_gap_sub = dot(sub_grad[i], x - v_sub)
             min_dual_gap = min(min_dual_gap, dual_gap_sub)
         end
-        #v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad)
-       # dual_gap = dot(sub_grad, x - v_sub)
        @debug "original_primal: $(original_primal) min_dual_gap: $(min_dual_gap) primal: $(primal) dual_gap: $(dual_gap)"
        if original_primal - min_dual_gap > primal - dual_gap || !isfinite(dual_gap)
             dual_gap = min_dual_gap

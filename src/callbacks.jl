@@ -84,19 +84,7 @@ function process_FW_callback_logic(
         @assert sum(active_set.weights .< 0) == 0
     end
 
-    #=if state.t > 1
-        if !isfinite(state.primal) || !isfinite(state.dual_gap)
-            @show state.t, state.primal, state.dual_gap
-            @show state.x 
-            @show state.v 
-            @show state.d 
-            @show state.gamma
-            @show state.gradient
-        end
-        @assert isfinite(state.primal) "state.primal = $(state.primal) is not finite"
-        @assert isfinite(state.dual_gap) "state.dual_gap = $(state.dual_gap) is not finite"
-    end =#
-
+    # keep track of the best solution with respect to the original objective
     if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:best_sol_by_original]
         fx = tree.root.options[:original_objective](state.x)
         if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
@@ -104,14 +92,6 @@ function process_FW_callback_logic(
             tree.root.options[:local_opt_x] = state.x
             tree.root.options[:local_active_set] = use_DICG ? pre_computed_set : active_set
         end
-       # sub_grad= []
-       # tree.root.options[:sub_grad!](sub_grad, state.x)
-       # local_dual_gap = Inf
-       # for i in eachindex(sub_grad)
-       #     v = compute_extreme_point(tree.root.problem.tlmo, sub_grad[i])
-      #      local_dual_gap = min(local_dual_gap, dot(sub_grad[i], state.x - v))
-      #  end
-       # @show tree.root.problem.f(state.x), local_dual_gap
     end
 
     # TODO deal with vertices becoming infeasible with conflicts
