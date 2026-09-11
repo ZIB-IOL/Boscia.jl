@@ -289,10 +289,7 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     end
 
     #different ways to split active set
-    if isapprox(floor(x[vidx]), ceil(x[vidx])) && tree.root.options[:branching_strategy] == BRANCH_ALL()
-        active_set_left, active_set_right = node.active_set, node.active_set
-        pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
-    elseif !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
+    if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
 
         # Keep the same pre_computed_set
         pre_computed_set_left, pre_computed_set_right = node.pre_computed_set, node.pre_computed_set
@@ -500,21 +497,11 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-        @debug "initial point x linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, x)) x: $(x)"
-        if is_linear_feasible(tree.root.problem.tlmo, x)
-            @assert is_linear_feasible(tree.root.problem.tlmo, x)
-            for (_, v) in node.active_set
-                @assert is_linear_feasible(tree.root.problem.tlmo, v)
-            end
-        else
-            @assert tree.root.options[:branching_strategy] == BRANCH_ALL()
-            grad = similar(x)
-            v = compute_extreme_point(tree.root.problem.tlmo, grad)
-            @debug "initial point v linear feasible: $(is_linear_feasible(tree.root.problem.tlmo, v)) v: $(v)"
-            @debug "local bounds: $(node.local_bounds)"
-            node.active_set = FrankWolfe.ActiveSet([(1.0, v)])
+        @assert is_linear_feasible(tree.root.problem.tlmo, x) "x is not linear feasible: $(x), node bounds: $(node.local_bounds)"
+        for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
+
     else
         if node.id == 1 && tree.root.options[:start_solution] !== nothing
             decomposition_invariant_starting_point = tree.root.options[:start_solution]

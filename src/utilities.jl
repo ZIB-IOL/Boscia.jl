@@ -232,7 +232,6 @@ Split a discarded vertices set between left and right children.
 Uses the same left/right bound convention as get_branching_nodes_info:
 - Left child: var ≤ new_bound_left
 - Right child: var ≥ new_bound_right
-Works for both fractional and integer x[var] (e.g. BRANCH_ALL when solution is already integer).
 """
 function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
@@ -251,8 +250,7 @@ function split_vertices_set!(
     # Same convention as in node.jl get_branching_nodes_info: three cases
     # (1) x at global lower bound → left var ≤ lb, right var ≥ lb+1
     # (2) x at global upper bound → left var ≤ ub-1, right var ≥ ub
-    # (3) else: x fractional or integer in (lb, ub) → left var ≤ floor(x), right var ≥ ceil(x)
-    #    When x is integer in the middle, floor(x) == ceil(x) == k, so left var ≤ k, right var ≥ k
+    # (3) else: x fractional in (lb, ub) → left var ≤ floor(x), right var ≥ ceil(x)
     new_bound_left, new_bound_right = if isapprox(lb_global, x_var, atol=atol, rtol=rtol)
         floor(x_var), floor(x_var) + 1
     elseif isapprox(ub_global, x_var, atol=atol, rtol=rtol)
@@ -282,6 +280,7 @@ function split_vertices_set!(
             push!(left_del_indices, idx)
         else
             # new_bound_left < v_var < new_bound_right: feasible for neither (e.g. fractional vertex)
+            @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
         end
     end
@@ -556,5 +555,4 @@ _value_to_print(::LargestGradient) = "Largest Gradient"
 _value_to_print(::LargestMostInfeasibleGradient) = "Largest most infeasible gradient"
 _value_to_print(::LargestIndex) = "Largest Index"
 _value_to_print(::RandomBranching) = "Uniform Random Choice"
-_value_to_print(::BRANCH_ALL) = "Branch on all variables"
 _value_to_print(::BiasedDepthFirstSearch) = "BiasedDepthFirstSearch"

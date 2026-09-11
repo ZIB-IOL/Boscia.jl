@@ -501,7 +501,6 @@ push!(custom_heu, Boscia.Heuristic(build_greedy_fedorov_heuristic(A, N, 10), 0.4
 
 # ============== Settings ==============
 branching_strategy = Bonobo.MOST_INFEASIBLE()
-#branching_strategy = Boscia.BRANCH_ALL()
 settings = Boscia.create_default_settings(mode=Boscia.SMOOTHING_MODE)
 settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:time_limit] = time_limit
