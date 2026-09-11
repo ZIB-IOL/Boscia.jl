@@ -4,7 +4,6 @@ using FrankWolfe
 using Random
 using SCIP
 import MathOptInterface
-import Bonobo
 using HiGHS
 using Printf
 using Dates

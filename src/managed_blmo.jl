@@ -283,7 +283,7 @@ function check_feasibility(lmo::FrankWolfe.LinearMinimizationOracle, lb, ub, int
 end
 
 # Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
-function is_valid_split(tree::Bonobo.BnBTree, managed_lmo::ManagedLMO, vidx::Int)
+function is_valid_split(tree::BnBTree, managed_lmo::ManagedLMO, vidx::Int)
     idx = findfirst(x -> x == vidx, managed_lmo.int_vars)
     return managed_lmo.lower_bounds[idx] != managed_lmo.upper_bounds[idx]
 end

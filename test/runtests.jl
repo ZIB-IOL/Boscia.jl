@@ -5,7 +5,6 @@ using Random
 using StableRNGs
 using SCIP
 using Statistics
-import Bonobo
 import MathOptInterface
 const MOI = MathOptInterface
 import HiGHS

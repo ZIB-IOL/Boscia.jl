@@ -22,7 +22,6 @@ using Boscia
 using Random
 using SparseArrays
 using FrankWolfe
-using Bonobo
 using CSV
 using StableRNGs
 using CombinatorialLinearOracles
@@ -137,7 +136,7 @@ blmo = CLO.BirkhoffLMO(n, collect(1:(n^2)))
 # On such nodes, we do not need to branch further..
 function build_branch_callback()
     return function (tree, node, vidx::Int)
-        x = Bonobo.get_relaxed_values(tree, node)
+        x = Boscia.get_relaxed_values(tree, node)
         primal = tree.root.problem.f(x)
         lower_bound = primal - node.dual_gap
         if lower_bound > 0.0 + eps()
@@ -159,7 +158,7 @@ function build_tree_callback()
             tree.root.problem.solving_stage = Boscia.USER_STOP
             println("Optimal solution found.")
         end
-        if Boscia.tree_lb(tree::Bonobo.BnBTree) > 0.0 + eps()
+        if Boscia.tree_lb(tree::Boscia.BnBTree) > 0.0 + eps()
             tree.root.problem.solving_stage = Boscia.USER_STOP
             println("Tree lower bound already positive. No solution possible.")
         end
@@ -175,7 +174,7 @@ end
 #
 # We generate k = ⌊√n⌋ neighbor candidates during each invocation of the heuristic.
 function random_k_neighbor_matrix(
-    tree::Bonobo.BnBTree,
+    tree::Boscia.BnBTree,
     blmo::Boscia.TimeTrackingLMO,
     x,
     k::Int,

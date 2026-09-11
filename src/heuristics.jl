@@ -33,7 +33,7 @@ function add_heuristic_solution(tree, x, val, heuristic_name::Symbol)
     node = tree.nodes[tree.root.current_node_id[]]
     add_new_solution!(tree, node, val, x, heuristic_name)
     if !tree.root.options[:no_pruning]
-        Bonobo.bound!(tree, node.id)
+        bound!(tree, node.id)
     end
 end
 
@@ -100,7 +100,7 @@ end
 """
 Simple rounding heuristic.
 """
-function rounding_heuristic(tree::Bonobo.BnBTree, lmo::Boscia.TimeTrackingLMO, x)
+function rounding_heuristic(tree::BnBTree, lmo::Boscia.TimeTrackingLMO, x)
     x_rounded = copy(x)
     for idx in tree.branching_indices
         x_rounded[idx] = round(x[idx])
@@ -113,7 +113,7 @@ end
     follow-the-gradient
 Follow the gradient for a fixed number of steps and collect solutions on the way
 """
-function follow_gradient_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x, k)
+function follow_gradient_heuristic(tree::BnBTree, tlmo::Boscia.TimeTrackingLMO, x, k)
     nabla = similar(x)
     x_new = copy(x)
     sols = []
@@ -141,7 +141,7 @@ end
 """
 Advanced lmo-aware rounding for binary vars. Rounding respecting the hidden feasible region structure.
 """
-function rounding_lmo_01_heuristic(tree::Bonobo.BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
+function rounding_lmo_01_heuristic(tree::BnBTree, tlmo::Boscia.TimeTrackingLMO, x)
     nabla = zeros(length(x))
     for idx in tree.branching_indices
         nabla[idx] = 1 - 2 * round(x[idx]) # (0.7, 0.3) -> (1, 0) -> (-1, 1) -> min -> (1,0)
@@ -155,12 +155,7 @@ Probability rounding for 0/1 problems.
 It decides based on the fractional value whether to ceil or floor the variable value. 
 Afterward, one call to Frank-Wolfe is performed to optimize the continuous variables.    
 """
-function probability_rounding(
-    tree::Bonobo.BnBTree,
-    tlmo::Boscia.TimeTrackingLMO,
-    x;
-    rng=Random.GLOBAL_RNG,
-)
+function probability_rounding(tree::BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rng=Random.GLOBAL_RNG)
     # save original bounds
     node = tree.nodes[tree.root.current_node_id[]]
     original_bounds = copy(node.local_bounds)

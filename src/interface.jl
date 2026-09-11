@@ -186,7 +186,7 @@ function solve(
 
     Node = typeof(nodeEx)
     Value = typeof(options[:active_set].atoms[1])
-    tree = Bonobo.initialize(;
+    tree = initialize(;
         traverse_strategy=options[:traverse_strategy],
         Node=Node,
         Value=Value,
@@ -208,7 +208,7 @@ function solve(
         dual_gap_limit=options[:rel_dual_gap],
         abs_gap_limit=options[:dual_gap],
     )
-    Bonobo.set_root!(
+    set_root!(
         tree,
         (
             active_set=options[:active_set],
@@ -299,9 +299,9 @@ function solve(
     )
 
     tree.root.options[:boscia_fw_callback] = fw_callback
-    tree.root.current_node_id[] = Bonobo.get_next_node(tree, tree.options.traverse_strategy).id
+    tree.root.current_node_id[] = get_next_node(tree, tree.options.traverse_strategy).id
 
-    Bonobo.optimize!(tree; callback=bnb_callback)
+    optimize!(tree; callback=bnb_callback)
 
     x = postsolve(tree, tree.root.result, time_ref, options[:verbose], options[:max_iteration_post])
 
@@ -339,7 +339,7 @@ Is called if `use_post_solve` is enabled in the `solve` function.
 Prints solution statistics if verbose is set to `true`.        
 """
 function postsolve(tree, result, time_ref, verbose, max_iteration_post)
-    x = Bonobo.get_solution(tree)
+    x = get_solution(tree)
     primal = x !== nothing ? tree.incumbent_solution.objective : Inf
 
     status_string = "FIX ME" # should report "feasible", "optimal", "infeasible", "gap tolerance met"

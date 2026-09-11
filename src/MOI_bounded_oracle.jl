@@ -481,7 +481,7 @@ end
 
 Check whether a split is valid, i.e. the upper and lower on variable vidx are not the same. 
 """
-function is_valid_split(tree::Bonobo.BnBTree, lmo::FrankWolfe.MathOptLMO, vidx::Int)
+function is_valid_split(tree::BnBTree, lmo::FrankWolfe.MathOptLMO, vidx::Int)
     bin_var, _ = has_binary_constraint(lmo, vidx)
     int_var, _ = has_integer_constraint(lmo, vidx)
     if int_var || bin_var
@@ -582,7 +582,7 @@ end
 Find best solution from the solving process.
 """
 function find_best_solution(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     f::Function,
     lmo::FrankWolfe.MathOptLMO,
     vars,
@@ -598,7 +598,7 @@ Finds the best solution in the Optimizer's solution storage, based on the object
 Returns the solution vector and the corresponding best value.
 """
 function find_best_solution(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     f::Function,
     o::MOI.AbstractOptimizer,
     vars::Vector{MOI.VariableIndex},
@@ -658,17 +658,17 @@ function check_infeasible_vertex(lmo::FrankWolfe.MathOptLMO, tree)
 end
 
 """
-    Bonobo.get_branching_variable(tree::Bonobo.BnBTree, branching::PartialStrongBranching{MathOptBLMO{OT}}, node::Bonobo.AbstractNode,) where {OT<:MOI.AbstractOptimizer}
+    get_branching_variable(tree::Bonobo.BnBTree, branching::PartialStrongBranching{MathOptBLMO{OT}}, node::Bonobo.AbstractNode,) where {OT<:MOI.AbstractOptimizer}
 
 Behavior for strong branching. 
 Note that in constrast to the `ManagedBLMO` type, we filter out the integer and binary constraints as solving general MIP in strong branching would be very expensive.
 """
-function Bonobo.get_branching_variable(
-    tree::Bonobo.BnBTree,
+function get_branching_variable(
+    tree::BnBTree,
     branching::PartialStrongBranching{FrankWolfe.MathOptLMO{OT}},
-    node::Bonobo.AbstractNode,
+    node::AbstractNode,
 ) where {OT<:MOI.AbstractOptimizer}
-    xrel = Bonobo.get_relaxed_values(tree, node)
+    xrel = get_relaxed_values(tree, node)
     max_lowerbound = -Inf
     max_idx = -1
     # copy problem and remove integer constraints
@@ -693,7 +693,7 @@ function Bonobo.get_branching_variable(
     active_set = copy(node.active_set)
     empty!(active_set)
     num_frac = 0
-    for idx in Bonobo.get_branching_indices(tree.root)
+    for idx in get_branching_indices(tree.root)
         if !isapprox(xrel[idx], round(xrel[idx]), atol=tree.options.atol, rtol=tree.options.rtol)
             # left node: x_i <=  floor(̂x_i)
             fxi = floor(xrel[idx])
@@ -707,7 +707,7 @@ function Bonobo.get_branching_variable(
                 relaxed_lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsLeft,
-                Bonobo.get_branching_indices(tree.root),
+                get_branching_indices(tree.root),
             )
             MOI.optimize!(relaxed_lmo.o)
             #MOI.set(relaxed_lmo.o, MOI.Silent(), false)
@@ -746,7 +746,7 @@ function Bonobo.get_branching_variable(
                 relaxed_lmo,
                 tree.root.problem.integer_variable_bounds,
                 boundsRight,
-                Bonobo.get_branching_indices(tree.root),
+                get_branching_indices(tree.root),
             )
             MOI.optimize!(relaxed_lmo.o)
             if MOI.get(relaxed_lmo.o, MOI.TerminationStatus()) == MOI.OPTIMAL

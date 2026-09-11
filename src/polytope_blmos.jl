@@ -43,7 +43,17 @@ function is_simple_inface_feasible(lmo::CubeLMO, a, x, lb, ub, int_vars; kwargs.
     return is_simple_inface_feasible_subroutine(lmo, a, x, lb, ub, int_vars; kwargs)
 end
 
-function bounded_compute_inface_extreme_point(lmo::CubeLMO, d, x, lb, ub, int_vars; kwargs...)
+function bounded_compute_inface_extreme_point(
+    lmo::CubeLMO,
+    d,
+    x,
+    lb,
+    ub,
+    int_vars;
+    atol=1e-6,
+    rtol=1e-4,
+    kwargs...,
+)
     a = zeros(length(d))
     for i in eachindex(d)
         if i in int_vars
@@ -532,12 +542,12 @@ function check_feasibility(lmo::ProbabilitySimplexLMO, lb, ub, int_vars, n)
 end
 
 """
-     rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{<:ProbabilitySimplexLMO}}, x) 
+    rounding_hyperplane_heuristic(tree::BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{ProbabilitySimplexLMO}}, x) 
 
 Hyperplane-aware rounding for the probability simplex.
 """
 function rounding_hyperplane_heuristic(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     tlmo::TimeTrackingLMO{<:ManagedBoundedLMO{<:ProbabilitySimplexLMO}},
     x,
 )
@@ -785,12 +795,12 @@ function check_feasibility(lmo::UnitSimplexLMO, lb, ub, int_vars, n)
 end
 
 """
-    rounding_hyperplane_heuristic(tree::Bonobo.BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{FrankWolfe.UnitSimplexLMO}}, x) 
+    rounding_hyperplane_heuristic(tree::BnBTree, tlmo::TimeTrackingLMO{ManagedBoundedLMO{UnitSimplexLMO}}, x) 
     
 Hyperplane-aware rounding for the unit simplex.
 """
 function rounding_hyperplane_heuristic(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     tlmo::TimeTrackingLMO{<:ManagedBoundedLMO{<:UnitSimplexLMO}},
     x,
 )
@@ -928,7 +938,7 @@ end
 Hyperplane-aware rounding for the reverse knapsack constraint.
 """
 function rounding_hyperplane_heuristic(
-    tree::Bonobo.BnBTree,
+    tree::BnBTree,
     tlmo::TimeTrackingLMO{<:ManagedBoundedLMO{<:ReverseKnapsackLMO}},
     x,
 )
