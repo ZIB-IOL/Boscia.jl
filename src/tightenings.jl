@@ -6,7 +6,7 @@ function dual_tightening(tree, node, x, dual_gap)
         grad = similar(x)
         tree.root.problem.g(grad, x)
         gradients = [grad]
-        if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info] 
+        if tree.root.options[:mode] == SMOOTHING_MODE
             sub_grad = []
             tree.root.options[:sub_grad!](sub_grad, x)
             gradients = vcat(gradients, sub_grad)

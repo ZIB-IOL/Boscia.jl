@@ -83,17 +83,7 @@ function process_FW_callback_logic(
         @assert isapprox(sum(active_set.weights), 1.0, atol=1e-10) "sum(active_set.weights) = $(sum(active_set.weights))"
         @assert sum(active_set.weights .< 0) == 0
     end
-
-    # keep track of the best solution with respect to the original objective
-    if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:best_sol_by_original]
-        fx = tree.root.options[:original_objective](state.x)
-        if fx < tree.root.options[:local_opt_primal] || state.t in [0, 1]
-            tree.root.options[:local_opt_primal] = fx
-            tree.root.options[:local_opt_x] = state.x
-            tree.root.options[:local_active_set] = use_DICG ? pre_computed_set : active_set
-        end
-    end
-
+    
     # TODO deal with vertices becoming infeasible with conflicts
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)

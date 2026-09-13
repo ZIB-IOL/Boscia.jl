@@ -552,7 +552,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     end
 
     # verify integer feasible solution by solving the smoothed problem with a tighter smoothing parameter
-    if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) && tree.root.options[:resolve_integer_solution]
+    if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) #&& tree.root.options[:resolve_integer_solution]
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
         μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
@@ -604,21 +604,12 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         end
     end
 
-    if tree.root.options[:mode] == SMOOTHING_MODE && tree.root.options[:use_sub_grad_info]
+    if tree.root.options[:mode] == SMOOTHING_MODE 
         if tree.root.options[:node_callback] !== nothing
             tree.root.options[:node_callback](tree, node, μ, x, primal, dual_gap, fw_status, atoms_set)
         end
         original_primal = tree.root.options[:original_objective](x)
          @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
-        if original_primal > tree.root.options[:local_opt_primal] && tree.root.options[:best_sol_by_original]
-            x = tree.root.options[:local_opt_x]
-            if tree.root.options[:variant] isa DecompositionInvariantConditionalGradient
-                node.pre_computed_set = tree.root.options[:local_active_set]
-            else
-                node.active_set = tree.root.options[:local_active_set]
-            end
-            original_primal = tree.root.options[:local_opt_primal]
-        end
         sub_grad = []
         tree.root.options[:sub_grad!](sub_grad, x)
         min_dual_gap = Inf

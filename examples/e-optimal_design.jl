@@ -394,9 +394,6 @@ settings.smoothing[:smoothing_start] = smoothing_start
 settings.smoothing[:smoothing_min] = smoothing_min
 settings.smoothing[:smoothing_min_valid] = false
 settings.smoothing[:smoothing_decay] = 0.8
-settings.smoothing[:use_sub_grad_info] = true
-settings.smoothing[:best_sol_by_original] = false
-settings.smoothing[:resolve_integer_solution] = true
 settings.smoothing[:max_restart_fw_iter] = 100
 settings.smoothing[:node_callback] = node_callback
 
