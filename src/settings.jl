@@ -128,7 +128,7 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
     fw_verbose = false
     lazy = true
     lazy_tolerance = 2
-    print_fw_iter=1000
+    print_fw_iter = 1000
     fw_callback = nothing
 
     return Dict(
@@ -462,4 +462,3 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :node_callback => node_callback,
     )
 end
-

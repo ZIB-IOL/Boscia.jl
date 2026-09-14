@@ -13,12 +13,12 @@ seed = rand(UInt64)
 rng = StableRNG(seed)
 
 m = 15
-k = Int(floor(m/2))
+k = Int(floor(m / 2))
 A = randn(rng, m, k)
 
 @testset "Smoothing mode" begin
 
-    f(x) = maximum([dot(A[:,i], x) for i in 1:k])
+    f(x) = maximum([dot(A[:, i], x) for i in 1:k])
     function grad!(storage, x)
         fx = f(x)
         empty!(storage)
@@ -56,40 +56,71 @@ A = randn(rng, m, k)
     end
 
     slmo = FrankWolfe.ZeroOneHypercubeLMO()
-    lmo = Boscia.ManagedLMO(slmo, fill(0.0,m), fill(1.0,m), collect(1:m), m)
+    lmo = Boscia.ManagedLMO(slmo, fill(0.0, m), fill(1.0, m), collect(1:m), m)
 
     # Test set up
-    settings = Boscia.create_default_settings(;mode=Boscia.SMOOTHING_MODE)
+    settings = Boscia.create_default_settings(; mode=Boscia.SMOOTHING_MODE)
 
     err = nothing
     try
         Boscia.solve(f, grad!, lmo, settings=settings)
-    catch err 
-       # @show err
-       # showerror(stdout, err, catch_backtrace())
+    catch err
+        # @show err
+        # showerror(stdout, err, catch_backtrace())
     end
-    @test err isa ErrorException && err.msg == "generate_smoothing_objective function is required in SMOOTHING_MODE!"
+    @test err isa ErrorException &&
+          err.msg == "generate_smoothing_objective function is required in SMOOTHING_MODE!"
 
     settings = Boscia.create_default_settings()
     f_test, g_test = generate_smoothing_function(1.0)
     settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
     settings.branch_and_bound[:time_limit] = 10.0
-    @test_logs (:warn,"generate_smoothing_objective function will only be used in SMOOTHING_MODE!") Boscia.solve(f_test, g_test, lmo, settings=settings)  
+    @test_logs (:warn, "generate_smoothing_objective function will only be used in SMOOTHING_MODE!") Boscia.solve(
+        f_test,
+        g_test,
+        lmo,
+        settings=settings,
+    )
 
 
     # Test full run
-    function node_callback(tree, node, μ, x; primal=Inf, dual_gap=Inf, fw_status=nothing, atoms_set=nothing, resolve_integer_solution=false)
+    function node_callback(
+        tree,
+        node,
+        μ,
+        x;
+        primal=Inf,
+        dual_gap=Inf,
+        fw_status=nothing,
+        atoms_set=nothing,
+        resolve_integer_solution=false,
+    )
         if tree.root.options[:clip_mu_resolution]
             @test μ ≥ tree.root.options[:smoothing_min]
         else
-            @test isapprox(μ, tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)); atol=1e-6, rtol=1e-6)
+            @test isapprox(
+                μ,
+                tree.root.options[:smoothing_start] *
+                (tree.root.options[:smoothing_decay]^(node.std.depth - 1));
+                atol=1e-6,
+                rtol=1e-6,
+            )
         end
-        f_μ, _ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
+        f_μ, _ = tree.root.options[:generate_smoothing_objective](
+            μ;
+            epsilon=tree.root.options[:fw_epsilon],
+            node_level=node.std.depth,
+        )
         @test f_μ(node.active_set.x) <= f(node.active_set.x)
-        @test isapprox(f_μ(node.active_set.x), tree.root.problem.f(node.active_set.x); atol=1e-6, rtol=1e-6)
+        @test isapprox(
+            f_μ(node.active_set.x),
+            tree.root.problem.f(node.active_set.x);
+            atol=1e-6,
+            rtol=1e-6,
+        )
         #@show f_μ(node.active_set.x), f(node.active_set.x)
     end
-    settings = Boscia.create_default_settings(;mode=Boscia.SMOOTHING_MODE)
+    settings = Boscia.create_default_settings(; mode=Boscia.SMOOTHING_MODE)
     settings.branch_and_bound[:verbose] = true
     settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
     settings.smoothing[:max_restart_fw_iter] = 100
@@ -97,7 +128,7 @@ A = randn(rng, m, k)
     settings.smoothing[:node_callback] = node_callback
     σ = maximum(norm(view(A, :, i)) for i in 1:k)  # ≈ √m
     settings.smoothing[:smoothing_start] = 0.2 * σ   # ~1 for m=20
-    settings.smoothing[:smoothing_min]   = 1e-3 * σ  # ~4e-3
+    settings.smoothing[:smoothing_min] = 1e-3 * σ  # ~4e-3
     settings.smoothing[:smoothing_decay] = 0.85
 
     x, tlmo, result = Boscia.solve(f, grad!, lmo, settings=settings)

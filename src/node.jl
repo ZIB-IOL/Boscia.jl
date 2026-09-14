@@ -507,9 +507,17 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
 
     # generate current smoothed objective and gradient
     if tree.root.options[:mode] == SMOOTHING_MODE
-        μ = max(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)), tree.root.options[:smoothing_min])
+        μ = max(
+            tree.root.options[:smoothing_start] *
+            (tree.root.options[:smoothing_decay]^(node.std.depth - 1)),
+            tree.root.options[:smoothing_min],
+        )
         @debug "Smoothing parameter: $(μ)"
-        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](
+            μ;
+            epsilon=tree.root.options[:fw_epsilon],
+            node_level=node.std.depth,
+        )
         tree.root.problem.f = f_μ
         tree.root.problem.g = g_μ
     end
@@ -557,12 +565,18 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         resolve_integer_solution = true
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
-        μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
+        μ =
+            tree.root.options[:smoothing_start] *
+            (tree.root.options[:smoothing_decay]^(node.std.depth + 10))
         if tree.root.options[:clip_mu_resolution]
             μ = max(μ, tree.root.options[:smoothing_min])
         end
         @debug "New smoothing parameter: $(μ)"
-        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](μ; epsilon=tree.root.options[:fw_epsilon], node_level=node.std.depth)
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](
+            μ;
+            epsilon=tree.root.options[:fw_epsilon],
+            node_level=node.std.depth,
+        )
         tree.root.problem.f = f_μ
         tree.root.problem.g = g_μ
 
@@ -587,7 +601,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
             domain_oracle=domain_oracle,
             print_fw_iter=tree.root.options[:print_fw_iter],
         )
-        @debug "x: $(x)" 
+        @debug "x: $(x)"
     end
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
@@ -606,12 +620,22 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         end
     end
 
-    if tree.root.options[:mode] == SMOOTHING_MODE 
+    if tree.root.options[:mode] == SMOOTHING_MODE
         if tree.root.options[:node_callback] !== nothing
-            tree.root.options[:node_callback](tree, node, μ, x; primal=primal, dual_gap=dual_gap, fw_status=fw_status, atoms_set=atoms_set, resolve_integer_solution=resolve_integer_solution)
+            tree.root.options[:node_callback](
+                tree,
+                node,
+                μ,
+                x;
+                primal=primal,
+                dual_gap=dual_gap,
+                fw_status=fw_status,
+                atoms_set=atoms_set,
+                resolve_integer_solution=resolve_integer_solution,
+            )
         end
         original_primal = tree.root.options[:original_objective](x)
-         @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
+        @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
         sub_grad = []
         tree.root.options[:sub_grad!](sub_grad, x)
         min_dual_gap = Inf
@@ -620,8 +644,8 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
             dual_gap_sub = dot(sub_grad[i], x - v_sub)
             min_dual_gap = min(min_dual_gap, dual_gap_sub)
         end
-       @debug "original_primal: $(original_primal) min_dual_gap: $(min_dual_gap) primal: $(primal) dual_gap: $(dual_gap)"
-       if original_primal - min_dual_gap > primal - dual_gap || !isfinite(dual_gap)
+        @debug "original_primal: $(original_primal) min_dual_gap: $(min_dual_gap) primal: $(primal) dual_gap: $(dual_gap)"
+        if original_primal - min_dual_gap > primal - dual_gap || !isfinite(dual_gap)
             dual_gap = min_dual_gap
             primal = original_primal
         end

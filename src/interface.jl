@@ -38,10 +38,12 @@ function solve(
         println("Convert MathOptBLMO to MathOptLMO")
         lmo = convert(MathOptLMO, lmo)
     end
-    if settings.mode[:mode] == SMOOTHING_MODE && settings.smoothing[:generate_smoothing_objective] === nothing
+    if settings.mode[:mode] == SMOOTHING_MODE &&
+       settings.smoothing[:generate_smoothing_objective] === nothing
         error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
     end
-    if settings.smoothing[:generate_smoothing_objective] !== nothing && settings.mode[:mode] != SMOOTHING_MODE
+    if settings.smoothing[:generate_smoothing_objective] !== nothing &&
+       settings.mode[:mode] != SMOOTHING_MODE
         @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
     end
 
@@ -62,9 +64,13 @@ function solve(
     if options[:mode] == SMOOTHING_MODE
         merge!(options, Dict(:original_objective => f))
         merge!(options, Dict(:sub_grad! => grad!))
-        f, grad! = options[:generate_smoothing_objective](options[:smoothing_start]; epsilon=options[:fw_epsilon], node_level=0)
+        f, grad! = options[:generate_smoothing_objective](
+            options[:smoothing_start];
+            epsilon=options[:fw_epsilon],
+            node_level=0,
+        )
     end
-    
+
     if typeof(options[:variant]) <: DecompositionInvariant
         if !is_decomposition_invariant_oracle(lmo)
             error("DICG/BDICG within Boscia is not implemented for $(typeof(lmo)).")
@@ -147,8 +153,8 @@ function solve(
 
     if options[:mode] == SMOOTHING_MODE
         options[:local_active_set] = options[:active_set]
-        options[:local_opt_x] = options[:active_set].x  
-        options[:local_opt_primal] = f(options[:local_opt_x])   
+        options[:local_opt_x] = options[:active_set].x
+        options[:local_opt_primal] = f(options[:local_opt_x])
     end
 
     pre_computed_set =

@@ -83,7 +83,7 @@ function process_FW_callback_logic(
         @assert isapprox(sum(active_set.weights), 1.0, atol=1e-10) "sum(active_set.weights) = $(sum(active_set.weights))"
         @assert sum(active_set.weights .< 0) == 0
     end
-    
+
     # TODO deal with vertices becoming infeasible with conflicts
     @debug begin
         if !is_linear_feasible(tree.root.problem.tlmo, state.v)
