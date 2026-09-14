@@ -3,7 +3,6 @@
 using Random
 using SparseArrays
 using FrankWolfe
-using CSV
 using StableRNGs
 using CombinatorialLinearOracles
 const CLO = CombinatorialLinearOracles
@@ -26,13 +25,32 @@ end</code></pre><pre class="documenter-example-output"><code class="nohighlight 
     B[i, j] = 1 - B[i, j]
     B[j, i] = B[i, j]
     return B
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">randomNonIsomorphic (generic function with 1 method)</code></pre><p>For this example, we work with the Petersen graph, provided as a CSV file containing its adjacency matrix. After loading A, we generate an isomorphic graph B using the routine above.</p><pre><code class="language- hljs">path = joinpath(@__DIR__, &quot;Petersen.csv&quot;)
-rows = [collect(Int, r) for r in CSV.File(path; header=false, types=Int)]
-const A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">randomNonIsomorphic (generic function with 1 method)</code></pre><p>For this example, we work with the Petersen graph via its adjacency matrix. After defining A, we generate an isomorphic graph B using the routine above.</p><pre><code class="language-julia hljs">const A = sparse([
+    0 1 0 0 1 1 0 0 0 0
+    1 0 1 0 0 0 1 0 0 0
+    0 1 0 1 0 0 0 1 0 0
+    0 0 1 0 1 0 0 0 1 0
+    1 0 0 1 0 0 0 0 0 1
+    1 0 0 0 0 0 0 1 1 0
+    0 1 0 0 0 0 0 0 1 1
+    0 0 1 0 0 1 0 0 0 1
+    0 0 0 1 0 1 1 0 0 0
+    0 0 0 0 1 0 1 1 0 0
+])
 n = size(A, 1)
 
 B, P = randomIsomorphic(Matrix(A))
-B = sparse(B)</code></pre><h2 id="Objective-and-gradient"><a class="docs-heading-anchor" href="#Objective-and-gradient">Objective and gradient</a><a id="Objective-and-gradient-1"></a><a class="docs-heading-anchor-permalink" href="#Objective-and-gradient" title="Permalink"></a></h2><p>To measure how well a matrix X satisfies the relation X A = B X, we minimize the Frobenius norm of the mismatch:</p><p class="math-container">\[f(X) = \lVert X A - B X \rVert_F^{2}.\]</p><p>The gradient has the form</p><p class="math-container">\[\nabla f(X)
+B = sparse(B)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10×10 SparseMatrixCSC{Float64, Int64} with 30 stored entries:
+  ⋅    ⋅   1.0  1.0  1.0   ⋅    ⋅    ⋅    ⋅    ⋅ 
+  ⋅    ⋅    ⋅   1.0   ⋅    ⋅    ⋅    ⋅   1.0  1.0
+ 1.0   ⋅    ⋅    ⋅    ⋅   1.0   ⋅    ⋅    ⋅   1.0
+ 1.0  1.0   ⋅    ⋅    ⋅    ⋅    ⋅   1.0   ⋅    ⋅ 
+ 1.0   ⋅    ⋅    ⋅    ⋅    ⋅   1.0   ⋅   1.0   ⋅ 
+  ⋅    ⋅   1.0   ⋅    ⋅    ⋅    ⋅   1.0  1.0   ⋅ 
+  ⋅    ⋅    ⋅    ⋅   1.0   ⋅    ⋅   1.0   ⋅   1.0
+  ⋅    ⋅    ⋅   1.0   ⋅   1.0  1.0   ⋅    ⋅    ⋅ 
+  ⋅   1.0   ⋅    ⋅   1.0  1.0   ⋅    ⋅    ⋅    ⋅ 
+  ⋅   1.0  1.0   ⋅    ⋅    ⋅   1.0   ⋅    ⋅    ⋅ </code></pre><h2 id="Objective-and-gradient"><a class="docs-heading-anchor" href="#Objective-and-gradient">Objective and gradient</a><a id="Objective-and-gradient-1"></a><a class="docs-heading-anchor-permalink" href="#Objective-and-gradient" title="Permalink"></a></h2><p>To measure how well a matrix X satisfies the relation X A = B X, we minimize the Frobenius norm of the mismatch:</p><p class="math-container">\[f(X) = \lVert X A - B X \rVert_F^{2}.\]</p><p>The gradient has the form</p><p class="math-container">\[\nabla f(X)
   = 2\,(X A - B X)\,A^{\top}
     - 2\,B^{\top}(X A - B X).\]</p><p>In the implementation, X is stored in vectorized form for compatibility with the solver.</p><pre><code class="language-julia hljs">function f(x)
     X = reshape(x, n, n)
@@ -66,7 +84,7 @@ end</code></pre><pre class="documenter-example-output"><code class="nohighlight 
             println(&quot;Tree lower bound already positive. No solution possible.&quot;)
         end
     end
-end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">build_tree_callback (generic function with 1 method)</code></pre><h2 id="Neighborhood-heuristic-over-the-Birkhoff-polytope"><a class="docs-heading-anchor" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope">Neighborhood heuristic over the Birkhoff polytope</a><a id="Neighborhood-heuristic-over-the-Birkhoff-polytope-1"></a><a class="docs-heading-anchor-permalink" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope" title="Permalink"></a></h2><p>We include a simple neighborhood heuristic that generates a few alternative permutations around the current incumbent. This provides additional candidates that the solver may consider during the search.</p><p>We generate k = ⌊√n⌋ neighbor candidates during each invocation of the heuristic.</p><pre><code class="language- hljs">function random_k_neighbor_matrix(
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">build_tree_callback (generic function with 1 method)</code></pre><h2 id="Neighborhood-heuristic-over-the-Birkhoff-polytope"><a class="docs-heading-anchor" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope">Neighborhood heuristic over the Birkhoff polytope</a><a id="Neighborhood-heuristic-over-the-Birkhoff-polytope-1"></a><a class="docs-heading-anchor-permalink" href="#Neighborhood-heuristic-over-the-Birkhoff-polytope" title="Permalink"></a></h2><p>We include a simple neighborhood heuristic that generates a few alternative permutations around the current incumbent. This provides additional candidates that the solver may consider during the search.</p><p>We generate k = ⌊√n⌋ neighbor candidates during each invocation of the heuristic.</p><pre><code class="language-julia hljs">function random_k_neighbor_matrix(
     tree::Boscia.BnBTree,
     blmo::Boscia.TimeTrackingLMO,
     x,
@@ -101,7 +119,7 @@ swap_heu = Boscia.Heuristic(
     (tree, blmo, x) -&gt; random_k_neighbor_matrix(tree, blmo, x, k, false),
     1.0,
     :swap,
-)</code></pre><h2 id="Solver-configuration-and-solve-call"><a class="docs-heading-anchor" href="#Solver-configuration-and-solve-call">Solver configuration and solve call</a><a id="Solver-configuration-and-solve-call-1"></a><a class="docs-heading-anchor-permalink" href="#Solver-configuration-and-solve-call" title="Permalink"></a></h2><p>We configure Boscia with the problem-specific callbacks, the swap-based neighborhood heuristic, and a decomposition-invariant Frank-Wolfe method using a secant line search.</p><pre><code class="language- hljs">settings = Boscia.create_default_settings()
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Boscia.Heuristic{Main.var&quot;Main&quot;.var&quot;#11#12&quot;}(Main.var&quot;Main&quot;.var&quot;#11#12&quot;(), 1.0, :swap)</code></pre><h2 id="Solver-configuration-and-solve-call"><a class="docs-heading-anchor" href="#Solver-configuration-and-solve-call">Solver configuration and solve call</a><a id="Solver-configuration-and-solve-call-1"></a><a class="docs-heading-anchor-permalink" href="#Solver-configuration-and-solve-call" title="Permalink"></a></h2><p>We configure Boscia with the problem-specific callbacks, the swap-based neighborhood heuristic, and a decomposition-invariant Frank-Wolfe method using a secant line search.</p><pre><code class="language-julia hljs">settings = Boscia.create_default_settings()
 settings.branch_and_bound[:verbose] = true
 settings.branch_and_bound[:print_iter] = 10
 settings.branch_and_bound[:bnb_callback] = build_tree_callback()
@@ -110,9 +128,9 @@ settings.heuristic[:custom_heuristics] = [swap_heu]
 settings.frank_wolfe[:variant] = Boscia.DecompositionInvariantConditionalGradient()
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
 settings.frank_wolfe[:lazy] = true
-settings.frank_wolfe[:max_fw_iter] = 1000</code></pre><p>We now call <code>Boscia.solve</code> with the objective, gradient, and Birkhoff LMO. If A and B are isomorphic, the solver should identify a permutation matrix X with objective value f(X) = 0.</p><pre><code class="language- hljs">x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)</code></pre><p>A successful solve provides a permutation matrix X such that:</p><p class="math-container">\[A \approx X^{\top} B X .\]</p><p>This equality certifies that the two graphs are isomorphic.</p><pre><code class="language- hljs">X = reshape(x, n, n)
+settings.frank_wolfe[:max_fw_iter] = 1000</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1000</code></pre><p>We now call <code>Boscia.solve</code> with the objective, gradient, and Birkhoff LMO. If A and B are isomorphic, the solver should identify a permutation matrix X with objective value f(X) = 0.</p><pre><code class="language- hljs">x, _, result = Boscia.solve(f, grad!, blmo, settings=settings)</code></pre><p>A successful solve provides a permutation matrix X such that:</p><p class="math-container">\[A \approx X^{\top} B X .\]</p><p>This equality certifies that the two graphs are isomorphic.</p><pre><code class="language- hljs">X = reshape(x, n, n)
 @assert A ≈ X&#39; * B * X
 println(&quot;Certificate verified: graphs are isomorphic (A ≈ X&#39; * B * X)&quot;)</code></pre><h2 id="Complement:-Non-isomorphic-case"><a class="docs-heading-anchor" href="#Complement:-Non-isomorphic-case">Complement: Non-isomorphic case</a><a id="Complement:-Non-isomorphic-case-1"></a><a class="docs-heading-anchor-permalink" href="#Complement:-Non-isomorphic-case" title="Permalink"></a></h2><p>To certify non-isomorphism, we can replace B by a perturbed version (e.g., by toggling an edge). In that case, no permutation satisfies X A = B X, and the optimization yields a strictly positive lower bound:</p><p class="math-container">\[\text{dual bound} \;&gt;\; 0 .\]</p><pre><code class="language- hljs">B = randomNonIsomorphic(A)
 x, _, result = Boscia.solve(f, grad!, blmo, settings = settings)
 @assert result[:dual_bound] &gt; 0.0
-println(&quot;Graphs are not isomorphic (lower bound &gt; 0)&quot;)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-01-network-design/">« Network Design Problem</a><a class="docs-footer-nextpage" href="../docs-03-optimal-design/">Optimal Design of Experiments »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Sunday 13 September 2026 12:39">Sunday 13 September 2026</span>. Using Julia version 1.10.12.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+println(&quot;Graphs are not isomorphic (lower bound &gt; 0)&quot;)</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../docs-01-network-design/">« Network Design Problem</a><a class="docs-footer-nextpage" href="../docs-03-optimal-design/">Optimal Design of Experiments »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Monday 14 September 2026 08:40">Monday 14 September 2026</span>. Using Julia version 1.10.12.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
