@@ -436,7 +436,7 @@ Available settings:
 - `μ_min` the minimum value for the smoothing parameter. Per default, this is set to `1e-3`.
 - `μ_decay` the decay factor for the smoothing parameter. Per default, this is set to `0.9`.
 - `μ_min_valid` per default `false`. Should only be `true` if `f_μ_min` has the same set of minimizers as `f`.
-- `generate_smoothing_objective` function that generates the smoothed objective nd its gradient depending on the `μ` provided.
+- `generate_smoothing_objective` function that generates the smoothed objective nd its gradient depending on the `μ` provided. It also receives as keywords the target frank-wolfe epsilon and the node level.
 - `max_restart_fw_iter` maximum number of iterations for the Frank-Wolfe algorithm called for resolving the integer solution. Per default, this is set to `1000`.
 - `clip_mu_resolution` if `true`, the smoothing parameter is clipped to the minimum value in the resolve integer solution step. Per default, this is `false`.
 - `node_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
