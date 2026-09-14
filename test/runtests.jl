@@ -18,6 +18,7 @@ using Aqua
     include("LMO_test.jl")
     include("indicator_test.jl")
     include("heuristics.jl")
+    include("smoothing_mode.jl")
 
     # Takes pretty long, only include if you want to test this specifically
     #include("infeasible_pairwise.jl")
