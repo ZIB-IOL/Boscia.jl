@@ -237,7 +237,7 @@ Returns:
 Available settings:
 
 - `custom_heuristics` list of custom heuristics from the user. Heuristics can be created via the `Boscia.Heuristic` constructor. It requires a function, a probability and an identifier (symbol). Note that the heuristics defined in Boscia themselves don't have to be added here and can be set via the probability parameters below.
-- `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. 
+- `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. It receives `(tree, node, solution)` and must return `(add_solution, time, objective, solution)`. In `SMOOTHING_MODE`, `solution` has already been scored with the original objective before the callback runs. 
 - `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
 - `follow_gradient_prob` the probability for calling the follow-the-gradient heuristic. Per default, this is `0.0`.
 - `follow_gradient_steps` the number of steps for the follow-the-gradient heuristic. Per default, this is `10`.
