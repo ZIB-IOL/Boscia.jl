@@ -91,6 +91,10 @@ function add_new_solution!(
     origin::Symbol,
 ) where {N,R,V,S<:FrankWolfeSolution{N,V},T<:Real}
     time = Inf
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        objective = tree.root.options[:original_objective](solution)
+    end
+
     if tree.root.options[:post_heuristics_callback] !== nothing
         add_solution, time, objective, solution =
             tree.root.options[:post_heuristics_callback](tree, node, solution)
