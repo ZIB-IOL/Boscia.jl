@@ -27,7 +27,6 @@ BosciaSCIPExt = "SCIP"
 [compat]
 Aqua = "0.8"
 Bonobo = "0.1.5"
-CSV = "0.10"
 CombinatorialLinearOracles = "0.1.2"
 DataStructures = "0.19.4"
 Dates = "1.6"
@@ -53,7 +52,6 @@ julia = "1.6"
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Bonobo = "f7b14807-3d4d-461a-888a-05dd4bca8bc3"
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CombinatorialLinearOracles = "0002e35e-4a6a-41c8-a2f5-6940c7e5949f"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DoubleFloats = "497a8b3b-efae-58df-a0af-a86822472b78"
@@ -65,4 +63,4 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats", "StableRNGs", "Aqua", "Suppressor", "Graphs", "Bonobo", "CSV", "CombinatorialLinearOracles"]
+test = ["Test", "HiGHS", "Distributions", "SCIP", "DoubleFloats", "StableRNGs", "Aqua", "Suppressor", "Graphs", "Bonobo", "CombinatorialLinearOracles"]
