@@ -14,17 +14,17 @@ rng = StableRNG(seed)
 
 m = 15
 k = Int(floor(m / 2))
-A = randn(rng, m, k)
+A_s = randn(rng, m, k)
 
 @testset "Smoothing mode" begin
 
-    f(x) = maximum([dot(A[:, i], x) for i in 1:k])
+    f(x) = maximum([dot(A_s[:, i], x) for i in 1:k])
     function grad!(storage, x)
         fx = f(x)
         empty!(storage)
         for i in 1:k
-            if isapprox(dot(A[:, i], x), fx; atol=1e-10, rtol=1e-10)
-                push!(storage, A[:, i])
+            if isapprox(dot(A_s[:, i], x), fx; atol=1e-10, rtol=1e-10)
+                push!(storage, A_s[:, i])
             end
         end
         return storage
@@ -37,17 +37,17 @@ A = randn(rng, m, k)
         #   f_μ(x) = μ logsumexp_i(⟨a_i, x⟩ / μ) - μ log(k)
         #   ∇f_μ(x) = Σ_i w_i a_i,  w = softmax(⟨a_i, x⟩ / μ)
         function f_μ(x)
-            t = [dot(A[:, i], x) for i in 1:k]
+            t = [dot(A_s[:, i], x) for i in 1:k]
             return μ * logsumexp(t ./ μ) - μ * log(k)
         end
 
         function grad_f_μ!(storage, x)
-            t = [dot(A[:, i], x) for i in 1:k]
+            t = [dot(A_s[:, i], x) for i in 1:k]
             log_z = logsumexp(t ./ μ)
             fill!(storage, 0)
             @inbounds for i in 1:k
                 wi = exp(t[i] / μ - log_z)
-                storage .+= wi .* view(A, :, i)
+                storage .+= wi .* view(A_s, :, i)
             end
             return storage
         end
@@ -126,7 +126,7 @@ A = randn(rng, m, k)
     settings.smoothing[:max_restart_fw_iter] = 100
     settings.smoothing[:clip_mu_resolution] = true
     settings.smoothing[:node_callback] = node_callback
-    σ = maximum(norm(view(A, :, i)) for i in 1:k)  # ≈ √m
+    σ = maximum(norm(view(A_s, :, i)) for i in 1:k)  # ≈ √m
     settings.smoothing[:smoothing_start] = 0.2 * σ   # ~1 for m=20
     settings.smoothing[:smoothing_min] = 1e-3 * σ  # ~4e-3
     settings.smoothing[:smoothing_decay] = 0.85
