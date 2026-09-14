@@ -18,7 +18,7 @@ using SparseArrays
 
 println("\nE-optimal design example")
 
-seed = 1 #rand(UInt64)
+seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
 
