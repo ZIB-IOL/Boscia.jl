@@ -552,7 +552,9 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     end
 
     # verify integer feasible solution by solving the smoothed problem with a tighter smoothing parameter
+    resolve_integer_solution = false
     if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) #&& tree.root.options[:resolve_integer_solution]
+        resolve_integer_solution = true
         @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
         @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
         μ = tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth + 10))
@@ -606,7 +608,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
 
     if tree.root.options[:mode] == SMOOTHING_MODE 
         if tree.root.options[:node_callback] !== nothing
-            tree.root.options[:node_callback](tree, node, μ, x, primal, dual_gap, fw_status, atoms_set)
+            tree.root.options[:node_callback](tree, node, μ, x; primal=primal, dual_gap=dual_gap, fw_status=fw_status, atoms_set=atoms_set, resolve_integer_solution=resolve_integer_solution)
         end
         original_primal = tree.root.options[:original_objective](x)
          @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"

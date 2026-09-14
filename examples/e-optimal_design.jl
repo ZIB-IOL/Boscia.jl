@@ -152,7 +152,7 @@ function build_node_callback(m, n, A, reduced_percentage, reduced_spectrum; L=no
     AA_t = issparse(AA_t) ? Matrix(AA_t) : AA_t
     op_norm = maximum(eigvals(AA_t.^2))
     cut_off = Int(floor(n/reduced_percentage))
-    return function node_callback(tree, node, μ, x, primal, dual_gap, fw_status, atoms_set)
+    return function node_callback(tree, node, μ, x; primal=Inf, dual_gap=Inf, fw_status=nothing, atoms_set=nothing, resolve_integer_solution=false)
         # E-opt: A'DA. AGC/ACST: L + A'DA (same convention as build_e_criterion).
         if reduced_spectrum
             D = Diagonal(x)
