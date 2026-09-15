@@ -13,6 +13,7 @@ function create_default_settings(; mode::Mode=Boscia.DEFAULT_MODE)
         heuristic=settings_heuristic(mode=mode),
         tightening=settings_tightening(mode=mode),
         domain=settings_domain(mode=mode),
+        smoothing=settings_smoothing(mode=mode),
         mode=Dict(:mode => mode),
     )
 end
@@ -127,6 +128,8 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
     fw_verbose = false
     lazy = true
     lazy_tolerance = 2
+    print_fw_iter = 1000
+    fw_callback = nothing
 
     return Dict(
         :variant => variant,
@@ -137,6 +140,8 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
         :fw_verbose => fw_verbose,
         :lazy => lazy,
         :lazy_tolerance => lazy_tolerance,
+        :print_fw_iter => print_fw_iter,
+        :fw_callback => fw_callback,
     )
 end
 
@@ -232,7 +237,7 @@ Returns:
 Available settings:
 
 - `custom_heuristics` list of custom heuristics from the user. Heuristics can be created via the `Boscia.Heuristic` constructor. It requires a function, a probability and an identifier (symbol). Note that the heuristics defined in Boscia themselves don't have to be added here and can be set via the probability parameters below.
-- `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. 
+- `post_heuristics_callback` callback function called whenever a new solution is found and added to the tree. It receives `(tree, node, solution)` and must return `(add_solution, time, objective, solution)`. In `SMOOTHING_MODE`, `solution` has already been scored with the original objective before the callback runs. 
 - `prob_rounding` the probability for calling the simple rounding heuristic. Since the feasibility has to be checked, it might be expensive to do this for every node. Per default, this is activated for every node.
 - `follow_gradient_prob` the probability for calling the follow-the-gradient heuristic. Per default, this is `0.0`.
 - `follow_gradient_steps` the number of steps for the follow-the-gradient heuristic. Per default, this is `10`.
@@ -394,6 +399,7 @@ Returns:
 
 Available settings:
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
 - `domain_oracle` given a point `x`: returns `true` if `x` is in the domain of `f`, else false. Per default, it always returns `true`. In case of the non-trivial domain oracle, the initial point has to be domain feasible for `f` and can be set via the `active_set``. Additionally, the user has to provide a function `domain_point`, see below. Also, depending on the line search method, you might have to provide the domain oracle to it, too. The default line search Secant, for example, requires the domain oracle.
 - `find_domain_point` given the current node bounds return a domain feasible point respecting the bounds. If no such point can be found, return `nothing`. Only necessary for a non-trivial domain oracle.
 - `active_set` can be used to specify a starting point. By default, the direction (1,..,n) where n is the size of the problem is used to find a start vertex. This has to be of the type `FrankWolfe.ActiveSet`. Beware that the active set may only contain actual vertices of the feasible region.
@@ -410,5 +416,49 @@ function settings_domain(; mode::Mode=Boscia.DEFAULT_MODE)
         :find_domain_point => find_domain_point,
         :active_set => active_set,
         :depth_domain => depth_domain,
+    )
+end
+
+"""
+    settings_smoothing()
+
+Set the settings for a smoothed objective. 
+Only important if mode == SMOOTHING_MODE.
+
+Returns:
+
+- `Dict` of settings for the smoothing.
+
+Available settings:
+
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used.
+- `μ_start` the starting value for the smoothing parameter. Per default, this is set to `1.0`.
+- `μ_min` the minimum value for the smoothing parameter. Per default, this is set to `1e-3`.
+- `μ_decay` the decay factor for the smoothing parameter. Per default, this is set to `0.9`.
+- `μ_min_valid` per default `false`. Should only be `true` if `f_μ_min` has the same set of minimizers as `f`.
+- `generate_smoothing_objective` function that generates the smoothed objective nd its gradient depending on the `μ` provided. It also receives as keywords the target frank-wolfe epsilon and the node level.
+- `max_restart_fw_iter` maximum number of iterations for the Frank-Wolfe algorithm called for resolving the integer solution. Per default, this is set to `1000`.
+- `clip_mu_resolution` if `true`, the smoothing parameter is clipped to the minimum value in the resolve integer solution step. Per default, this is `false`.
+- `node_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
+"""
+function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
+    smoothing_start = 1.0
+    smoothing_min = 1e-3
+    smoothing_decay = 0.9
+    smoothing_min_valid = false
+    generate_smoothing_objective = nothing
+    max_restart_fw_iter = 100
+    clip_mu_resolution = false
+    node_callback = nothing
+
+    return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
+        :smoothing_start => smoothing_start,
+        :smoothing_min => smoothing_min,
+        :smoothing_decay => smoothing_decay,
+        :smoothing_min_valid => smoothing_min_valid,
+        :generate_smoothing_objective => generate_smoothing_objective,
+        :max_restart_fw_iter => max_restart_fw_iter,
+        :clip_mu_resolution => clip_mu_resolution,
+        :node_callback => node_callback,
     )
 end

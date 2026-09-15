@@ -275,10 +275,10 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     left_distance = x[vidx] - floor(x[vidx])
     right_distance = ceil(x[vidx]) - x[vidx]
 
-    user_prune_left, user_prune_right = false, false
-
-    if tree.root.options[:branch_callback] !== nothing
-        user_prune_left, user_prune_right = tree.root.options[:branch_callback](tree, node, vidx)
+    user_prune_left, user_prune_right = if tree.root.options[:branch_callback] !== nothing
+        tree.root.options[:branch_callback](tree, node, vidx)
+    else
+        false, false
     end
 
     # In case of strong convexity, check if a child can be pruned
@@ -351,8 +351,10 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     if haskey(varbounds_right.lower_bounds, vidx)
         delete!(varbounds_right.lower_bounds, vidx)
     end
-    push!(varbounds_left.upper_bounds, (vidx => floor(x[vidx])))
-    push!(varbounds_right.lower_bounds, (vidx => ceil(x[vidx])))
+    new_bound_left = floor(x[vidx])
+    new_bound_right = ceil(x[vidx])
+    push!(varbounds_left.upper_bounds, (vidx => new_bound_left))
+    push!(varbounds_right.lower_bounds, (vidx => new_bound_right))
 
     # compute new dual gap limit
     fw_dual_gap_limit = tree.root.options[:dual_gap_decay_factor] * node.fw_dual_gap_limit
@@ -485,9 +487,8 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     decomposition_invariant_starting_point = nothing
     if !(typeof(tree.root.options[:variant]) <: DecompositionInvariant)
         # Check feasibility of the iterate
-        active_set = node.active_set
         x = FrankWolfe.compute_active_set_iterate!(node.active_set)
-        @assert is_linear_feasible(tree.root.problem.tlmo, x)
+        @assert is_linear_feasible(tree.root.problem.tlmo, x) "x is not linear feasible: $(x), node bounds: $(node.local_bounds)"
         for (_, v) in node.active_set
             @assert is_linear_feasible(tree.root.problem.tlmo, v)
         end
@@ -504,6 +505,23 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         end
     end
 
+    # generate current smoothed objective and gradient
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        μ = max(
+            tree.root.options[:smoothing_start] *
+            (tree.root.options[:smoothing_decay]^(node.std.depth - 1)),
+            tree.root.options[:smoothing_min],
+        )
+        @debug "Smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](
+            μ;
+            epsilon=tree.root.options[:fw_epsilon],
+            node_level=node.std.depth,
+        )
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
+    end
+
     if tree.root.options[:propagate_bounds] !== nothing
         tree.root.options[:propagate_bounds](tree, node)
     end
@@ -511,6 +529,8 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     # time tracking FW
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
+
+    @debug "active set: $(node.active_set)"
 
     x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
@@ -526,16 +546,62 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         add_dropped_vertices=tree.root.options[:use_shadow_set],
         use_extra_vertex_storage=tree.root.options[:use_shadow_set],
         extra_vertex_storage=node.discarded_vertices,
-        callback=tree.root.options[:callback],
+        callback=tree.root.options[:boscia_fw_callback],
         verbose=tree.root.options[:fw_verbose],
         timeout=tree.root.options[:fw_timeout],
         pre_computed_set=node.pre_computed_set,
         domain_oracle=domain_oracle,
+        print_fw_iter=tree.root.options[:print_fw_iter],
         decomposition_invariant_starting_point=decomposition_invariant_starting_point,
     )
 
     if tree.root.options[:fw_verbose]
         @show fw_status
+    end
+
+    # verify integer feasible solution by solving the smoothed problem with a tighter smoothing parameter
+    resolve_integer_solution = false
+    if tree.root.options[:mode] == SMOOTHING_MODE && is_integer_feasible(tree, x) #&& tree.root.options[:resolve_integer_solution]
+        resolve_integer_solution = true
+        @debug "Smoothed problem has integer solution. Tightening smoothing parameter to verify."
+        @debug "x: $(x)\n primal: $(primal) dual_gap: $(dual_gap) smoothing parameter: $(tree.root.options[:smoothing_start] * (tree.root.options[:smoothing_decay] ^ (node.std.depth - 1)))"
+        μ =
+            tree.root.options[:smoothing_start] *
+            (tree.root.options[:smoothing_decay]^(node.std.depth + 10))
+        if tree.root.options[:clip_mu_resolution]
+            μ = max(μ, tree.root.options[:smoothing_min])
+        end
+        @debug "New smoothing parameter: $(μ)"
+        f_μ, g_μ = tree.root.options[:generate_smoothing_objective](
+            μ;
+            epsilon=tree.root.options[:fw_epsilon],
+            node_level=node.std.depth,
+        )
+        tree.root.problem.f = f_μ
+        tree.root.problem.g = g_μ
+
+        x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
+            tree.root.options[:variant],
+            tree.root.problem.f,
+            tree.root.problem.g,
+            tree.root.problem.tlmo,
+            node.active_set;
+            epsilon=node.fw_dual_gap_limit,
+            max_iteration=tree.root.options[:max_restart_fw_iter],
+            line_search=tree.root.options[:line_search],
+            lazy=tree.root.options[:lazy],
+            lazy_tolerance=tree.root.options[:lazy_tolerance],
+            add_dropped_vertices=tree.root.options[:use_shadow_set],
+            use_extra_vertex_storage=tree.root.options[:use_shadow_set],
+            extra_vertex_storage=node.discarded_vertices,
+            callback=tree.root.options[:boscia_fw_callback],
+            verbose=tree.root.options[:fw_verbose],
+            timeout=tree.root.options[:fw_timeout],
+            pre_computed_set=node.pre_computed_set,
+            domain_oracle=domain_oracle,
+            print_fw_iter=tree.root.options[:print_fw_iter],
+        )
+        @debug "x: $(x)"
     end
 
     if typeof(atoms_set).name.wrapper == FrankWolfe.ActiveSet
@@ -554,6 +620,38 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         end
     end
 
+    if tree.root.options[:mode] == SMOOTHING_MODE
+        if tree.root.options[:node_callback] !== nothing
+            tree.root.options[:node_callback](
+                tree,
+                node,
+                μ,
+                x;
+                primal=primal,
+                dual_gap=dual_gap,
+                fw_status=fw_status,
+                atoms_set=atoms_set,
+                resolve_integer_solution=resolve_integer_solution,
+            )
+        end
+        original_primal = tree.root.options[:original_objective](x)
+        @assert primal <= original_primal + 1e-10 "primal = $(primal) > original_primal + 1e-10 = $(original_primal + 1e-10)"
+        sub_grad = []
+        tree.root.options[:sub_grad!](sub_grad, x)
+        min_dual_gap = Inf
+        for i in eachindex(sub_grad)
+            v_sub = compute_extreme_point(tree.root.problem.tlmo, sub_grad[i])
+            dual_gap_sub = dot(sub_grad[i], x - v_sub)
+            min_dual_gap = min(min_dual_gap, dual_gap_sub)
+        end
+        @debug "original_primal: $(original_primal) min_dual_gap: $(min_dual_gap) primal: $(primal) dual_gap: $(dual_gap)"
+        if original_primal - min_dual_gap > primal - dual_gap || !isfinite(dual_gap)
+            dual_gap = min_dual_gap
+            primal = original_primal
+        end
+        @assert isfinite(dual_gap) "dual_gap is not finite: $(dual_gap)"
+    end
+
     node.fw_time = Dates.now() - time_ref
     node.dual_gap = dual_gap
 
@@ -569,6 +667,8 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     lower_bound = tree.root.options[:integral_objective] ? ceil(lower_bound) : lower_bound
     # improvement of the lower bound using strong convexity
     lower_bound = tightening_lowerbound(tree, node, x, lower_bound)
+
+    @assert isfinite(lower_bound) "lower_bound is not finite: $(lower_bound)"
 
     # Call heuristic 
     run_heuristics(tree, x, tree.root.options[:heuristics])

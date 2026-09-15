@@ -17,6 +17,7 @@ Returns
 
 Optional settings
 
+- `mode` the mode of the algorithm. See the `Boscia.Mode` enum for the available modes. If no mode is provided, the default mode is used. Beware that different modes have different default settings.
 - `settings_bnb` dictionary of settings for the branch-and-bound algorithm. Created via `settings_bnb()`.
 - `settings_frank_wolfe` dictionary of settings for the Frank-Wolfe algorithm. Created via `settings_frank_wolfe()`.
 - `settings_tolerances` dictionary of settings for the tolerances. Created via `settings_tolerances()`.
@@ -37,6 +38,14 @@ function solve(
         println("Convert MathOptBLMO to MathOptLMO")
         lmo = convert(MathOptLMO, lmo)
     end
+    if settings.mode[:mode] == SMOOTHING_MODE &&
+       settings.smoothing[:generate_smoothing_objective] === nothing
+        error("generate_smoothing_objective function is required in SMOOTHING_MODE!")
+    end
+    if settings.smoothing[:generate_smoothing_objective] !== nothing &&
+       settings.mode[:mode] != SMOOTHING_MODE
+        @warn "generate_smoothing_objective function will only be used in SMOOTHING_MODE!"
+    end
 
     build_heuristics(settings.heuristic)
     options = merge(
@@ -48,8 +57,20 @@ function solve(
         settings.heuristic,
         settings.tightening,
         settings.domain,
+        settings.smoothing,
     )
     merge!(options, Dict(:heu_ncalls => 0))
+    # The convention is that the provided f and grad! are the original objective and sub-gradients.
+    if options[:mode] == SMOOTHING_MODE
+        merge!(options, Dict(:original_objective => f))
+        merge!(options, Dict(:sub_grad! => grad!))
+        f, grad! = options[:generate_smoothing_objective](
+            options[:smoothing_start];
+            epsilon=options[:fw_epsilon],
+            node_level=0,
+        )
+    end
+
     if typeof(options[:variant]) <: DecompositionInvariant
         if !is_decomposition_invariant_oracle(lmo)
             error("DICG/BDICG within Boscia is not implemented for $(typeof(lmo)).")
@@ -72,6 +93,13 @@ function solve(
         @printf("\t Relative dual gap tolerance: %e\n", options[:rel_dual_gap])
         @printf("\t Frank-Wolfe subproblem tolerance: %e\n", options[:fw_epsilon])
         @printf("\t Frank-Wolfe dual gap decay factor: %e\n", options[:dual_gap_decay_factor])
+        if options[:mode] == SMOOTHING_MODE
+            println("\t Smoothing Mode")
+            println("\t\t Start smoothing parameter: $(options[:smoothing_start])")
+            println("\t\t Minimum smoothing parameter: $(options[:smoothing_min])")
+            println("\t\t Smoothing parameter decay factor: $(options[:smoothing_decay])")
+            println("\t\t Minimum smoothing parameter valid: $(options[:smoothing_min_valid])")
+        end
         println("\t Additional kwargs: ", join(keys(kwargs), ","))
     end
 
@@ -122,6 +150,12 @@ function solve(
         @assert isfinite(f(x))
     end
     vertex_storage = FrankWolfe.DeletedVertexStorage(typeof(v)[], 1)
+
+    if options[:mode] == SMOOTHING_MODE
+        options[:local_active_set] = options[:active_set]
+        options[:local_opt_x] = options[:active_set].x
+        options[:local_opt_primal] = f(options[:local_opt_x])
+    end
 
     pre_computed_set =
         if typeof(options[:variant]) <: DecompositionInvariant && options[:variant].use_warm_start
@@ -265,7 +299,7 @@ function solve(
         use_DICG=typeof(options[:variant]) <: DecompositionInvariant,
     )
 
-    tree.root.options[:callback] = fw_callback
+    tree.root.options[:boscia_fw_callback] = fw_callback
     tree.root.current_node_id[] = get_next_node(tree, tree.options.traverse_strategy).id
 
     optimize!(tree; callback=bnb_callback)
@@ -398,6 +432,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
     result[:rel_dual_gap] = relative_gap(primal, tree_lb(tree))
     result[:dual_gap] = tree.incumbent - tree_lb(tree)
     result[:raw_solution] = x
+    result[:solution_source] = tree.incumbent_solution.source
     total_time_in_sec = (Dates.value(Dates.now() - time_ref)) / 1000.0
     result[:total_time_in_sec] = total_time_in_sec
     result[:status] = tree.root.problem.solving_stage
@@ -413,6 +448,7 @@ function postsolve(tree, result, time_ref, verbose, max_iteration_post)
         println("\t Solution Source: ", tree.incumbent_solution.source)
         println("\t Primal Objective: ", primal)
         println("\t Dual Bound: ", tree_lb(tree))
+        println("\t Absolute Dual Gap: $(primal - tree_lb(tree))")
         println("\t Dual Gap (relative): $(relative_gap(primal,tree_lb(tree)))\n")
         println("Search Statistics.")
         println("\t Total number of nodes processed: ", tree.num_nodes)

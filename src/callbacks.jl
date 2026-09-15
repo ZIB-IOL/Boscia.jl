@@ -72,6 +72,13 @@ function process_FW_callback_logic(
     kwargs...,
 )
 
+    if tree.root.options[:fw_callback] !== nothing
+        if use_DICG
+            tree.root.options[:fw_callback](state, pre_computed_set, kwargs...)
+        else
+            tree.root.options[:fw_callback](state, active_set, kwargs...)
+        end
+    end
     if !use_DICG
         @assert isapprox(sum(active_set.weights), 1.0, atol=1e-10) "sum(active_set.weights) = $(sum(active_set.weights))"
         @assert sum(active_set.weights .< 0) == 0
@@ -381,7 +388,13 @@ function build_bnb_callback(
             if x === nothing
                 @assert tree.root.problem.solving_stage == TIME_LIMIT_REACHED
             end
-            primal_value = x !== nothing ? tree.root.problem.f(x) : Inf
+            primal_value = if x === nothing
+                Inf
+            elseif tree.root.options[:mode] == SMOOTHING_MODE
+                tree.root.options[:original_objective](x)
+            else
+                tree.root.problem.f(x)
+            end
             # deactivate postsolve if there is no solution
             tree.root.options[:use_postsolve] =
                 x === nothing ? false : tree.root.options[:use_postsolve]
@@ -390,7 +403,7 @@ function build_bnb_callback(
 
             # If the tree is empty, incumbent and solution should be the same!
             if !tree.root.options[:no_pruning] && isempty(tree.nodes)
-                @assert isapprox(tree.incumbent, primal_value)
+                @assert isapprox(tree.incumbent, primal_value) "tree.incumbent = $(tree.incumbent) and primal_value = $(primal_value)"
             end
 
             result[:number_nodes] = tree.num_nodes
