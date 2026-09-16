@@ -27,7 +27,6 @@ BosciaSCIPExt = "SCIP"
 [compat]
 Aqua = "0.8"
 Bonobo = "0.1.5"
-CSV = "0.10, 1"
 CombinatorialLinearOracles = "0.1.2"
 DataStructures = "0.19.4"
 Dates = "1.6"
