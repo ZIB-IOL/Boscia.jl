@@ -1,11 +1,3 @@
-# Minimal working example for E-optimal design with Boscia.
-# Fully self-contained - no ODWB dependency. Use in Boscia repo for testing.
-#
-# Run: julia --project=. e_optimal_boscia_minimal.jl
-# Or: include("e_optimal_boscia_minimal.jl")
-#
-# Dependencies (Boscia brings these in): Boscia, FrankWolfe, Bonobo, LogExpFunctions
-
 using Boscia
 using FrankWolfe
 using LinearAlgebra
@@ -22,8 +14,6 @@ seed = rand(UInt64)
 @show seed
 rng = StableRNG(seed)
 
-#ENV["JULIA_DEBUG"] = "Boscia"
-
 # ============== Parameters ==============
 m = 50
 n = Int(floor(sqrt(m)))
@@ -35,9 +25,7 @@ reduced_percentage = 0.5
 reduced_spectrum = false
 
 # ============== Build data (from utilities.jl) ==============
-# For corr=true, add: using Distributions  and use MvNormal in the corr branch
 function build_e_optimal_data(seed, m, n, corr)
-    # set up
     Random.seed!(seed)
     if corr 
         B = rand(m,n)
@@ -67,8 +55,6 @@ function build_e_criterion(A; L=nothing, tightened=false, N=Inf, reduced_spectru
     gram = Symmetric(A' * A)
     # `eigvals` on sparse matrices can trigger dense fallback anyway; materialize at most once.
     gram_dense_or_not = issparse(gram.data) ? Matrix(gram) : gram    
-    # For M = -A'A: singular values are |eigvals(M)| = eigvals(A'A), so
-    # sigma_max(M) = lambda_max(A'A) = sigma_max(A)^2.
     sigma_max = eigmax(gram_dense_or_not)
     (!isfinite(sigma_max) || sigma_max <= 0) && return n
     function inf_matrix(x)
@@ -83,7 +69,6 @@ function build_e_criterion(A; L=nothing, tightened=false, N=Inf, reduced_spectru
 
     function f(x)
         X = inf_matrix(x)   
-        #return (-1) * minimum(eigvals(X))  
         return (-1) * LinearAlgebra.eigmin(X)  
     end
 
@@ -94,7 +79,7 @@ function build_e_criterion(A; L=nothing, tightened=false, N=Inf, reduced_spectru
          # Use both relative and absolute tolerance (similar to isapprox)
          tolerance = max(1e-10 * abs(λ_min), 1e-10)
          # Count eigenvalues within tolerance of the minimum
-         mult= count(λ_i -> abs(λ_i - λ_min) <= tolerance, λ)
+         mult = count(λ_i -> abs(λ_i - λ_min) <= tolerance, λ)
          for i in 1:mult 
             push!(storage, -(A * V[:, i]).^2)
          end
@@ -113,16 +98,11 @@ function build_e_criterion(A; L=nothing, tightened=false, N=Inf, reduced_spectru
 
         function grad_mu!(storage, x)
             X = inf_matrix(x)
-           # λ, V = eigen(X)
             if reduced_spectrum
-                # Arpack needs a plain dense/sparse matrix; Symmetric(L+A'DA) from AGC/ACST
-                # may be sparse-backed when L is absent, so materialize once.
-                Y = X isa LinearAlgebra.Symmetric ? Matrix(X.data) : (issparse(X) ? Matrix(X) : X)
-                λ, V = Arpack.eigs(Y, nev=k, which=:SM)
+                λ, V = Arpack.eigs(X, nev=k, which=:SM)
             else
                 k = n
-                Y = X isa LinearAlgebra.Symmetric ? Matrix(X.data) : (issparse(X) ? Matrix(X) : X)
-                λ, V = eigen(Y)
+                λ, V = eigen(X)
             end
             add_on = tightened ? μ/(n - N + 1) * norm.(eachrow(A), 2).^2 : 0.0
 
@@ -146,14 +126,11 @@ f, sub_grad!, generate_smoothing_function = build_e_criterion(A)
 
 # ================= Correct dual gap with a reduced gradient ====================
 function build_node_callback(m, n, A, reduced_percentage, reduced_spectrum; L=nothing)
-    # maximum eigenvalue of (AA') hadamard multiplied with itself
-    # Densify: for AGC/ACST, A is sparse and eigvals! has no SparseMatrixCSC method.
     AA_t = A * A'
     AA_t = issparse(AA_t) ? Matrix(AA_t) : AA_t
     op_norm = maximum(eigvals(AA_t.^2))
     cut_off = Int(floor(n/reduced_percentage))
     return function node_callback(tree, node, x; μ=Inf, primal=Inf, dual_gap=Inf, fw_status=nothing, atoms_set=nothing, resolve_integer_solution=false)
-        # E-opt: A'DA. AGC/ACST: L + A'DA (same convention as build_e_criterion).
         if reduced_spectrum
             D = Diagonal(x)
             X = L === nothing ? A' * D * A : L + A' * D * A
@@ -186,11 +163,6 @@ function build_branch_callback_mem(
     f,
     sub_grad!;
     L=nothing,
-    print_fixings::Bool=false,
-    n_random::Int=10,
-    tighted_to_one=Dict{Int, Int}(),
-    tighted_to_zero=Dict{Int, Int}(),
-    processed_tightening_nodes=0,
     number_pruned_nodes=Dict{Int, Int}(),
     processed_pruning_nodes=0,
     record_eigenvalue=false,
@@ -202,12 +174,6 @@ function build_branch_callback_mem(
     l = zeros(T, m)
     u = ones(T, m)
     fixed_mask = falses(m)
-
-    # Buffers reused across callback invocations (avoid per-node allocations).
-    free_indices = Vector{Int}(undef, m)
-    V_i = zeros(T, n, n)      # A[vdix,:] * A[vdix,:]'
-    G_free = zeros(T, n, n)   # A_free' * A_free
-    tmp = zeros(T, n, n)      # workspace for eigmin calls
 
     return function branch_callback(tree, node, vdix)
         if node.depth > n
