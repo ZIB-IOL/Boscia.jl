@@ -333,7 +333,7 @@ push!(custom_heu, Boscia.Heuristic(build_simple_randomized_rounding_heuristic(A,
 function estimate_design_lambda_scale(A, N; L=nothing, n_samples::Int=50, rng=Random.default_rng(),
     λ_tol::Float64=1e-8)
     m = size(A, 1)
-    N_int = Int(round(N))
+    N_int = round(Int, N)
     @assert 1 <= N_int <= m "N=$N_int out of range for m=$m"
     λs = Float64[]
     sizehint!(λs, n_samples)
