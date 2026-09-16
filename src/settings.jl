@@ -55,7 +55,7 @@ function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     print_iter = 100
     bnb_callback = nothing
     branch_callback = nothing
-    node_callback= nothing
+    node_callback = nothing
     start_solution = nothing
     use_shadow_set = true
     node_limit = if mode == HEURISTIC_MODE

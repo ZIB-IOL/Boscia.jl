@@ -631,7 +631,7 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
                 fw_status=fw_status,
                 atoms_set=atoms_set,
                 resolve_integer_solution=resolve_integer_solution,
-                μ = μ
+                μ=μ,
             )
         end
         original_primal = tree.root.options[:original_objective](x)
