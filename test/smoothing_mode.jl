@@ -88,8 +88,8 @@ A_s = randn(rng, m, k)
     function node_callback(
         tree,
         node,
-        μ,
         x;
+        μ=Inf,
         primal=Inf,
         dual_gap=Inf,
         fw_status=nothing,
@@ -123,10 +123,10 @@ A_s = randn(rng, m, k)
     end
     settings = Boscia.create_default_settings(; mode=Boscia.SMOOTHING_MODE)
     settings.branch_and_bound[:verbose] = true
+    settings.branch_and_bound[:node_callback] = node_callback
     settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
     settings.smoothing[:max_restart_fw_iter] = 100
     settings.smoothing[:clip_mu_resolution] = true
-    settings.smoothing[:node_callback] = node_callback
     σ = maximum(norm(view(A_s, :, i)) for i in 1:k)  # ≈ √m
     settings.smoothing[:smoothing_start] = 0.2 * σ   # ~1 for m=20
     settings.smoothing[:smoothing_min] = 1e-3 * σ  # ~4e-3

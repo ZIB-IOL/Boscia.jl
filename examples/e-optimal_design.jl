@@ -152,7 +152,7 @@ function build_node_callback(m, n, A, reduced_percentage, reduced_spectrum; L=no
     AA_t = issparse(AA_t) ? Matrix(AA_t) : AA_t
     op_norm = maximum(eigvals(AA_t.^2))
     cut_off = Int(floor(n/reduced_percentage))
-    return function node_callback(tree, node, μ, x; primal=Inf, dual_gap=Inf, fw_status=nothing, atoms_set=nothing, resolve_integer_solution=false)
+    return function node_callback(tree, node, x; μ=Inf, primal=Inf, dual_gap=Inf, fw_status=nothing, atoms_set=nothing, resolve_integer_solution=false)
         # E-opt: A'DA. AGC/ACST: L + A'DA (same convention as build_e_criterion).
         if reduced_spectrum
             D = Diagonal(x)
@@ -384,6 +384,7 @@ settings.branch_and_bound[:use_shadow_set] = true
 settings.branch_and_bound[:branching_strategy] = branching_strategy
 settings.branch_and_bound[:print_iter] = 10
 settings.branch_and_bound[:branch_callback] = branch_callback
+settings.branch_and_bound[:node_callback] = node_callback
 
 settings.tolerances[:rel_dual_gap] = 1e-2
 settings.tolerances[:fw_epsilon] = 1e-3
@@ -395,7 +396,6 @@ settings.smoothing[:smoothing_min] = smoothing_min
 settings.smoothing[:smoothing_min_valid] = false
 settings.smoothing[:smoothing_decay] = 0.8
 settings.smoothing[:max_restart_fw_iter] = 100
-settings.smoothing[:node_callback] = node_callback
 
 settings.frank_wolfe[:max_fw_iter] = 5000
 settings.frank_wolfe[:line_search] = FrankWolfe.Secant()
