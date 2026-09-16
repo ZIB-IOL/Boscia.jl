@@ -29,7 +29,7 @@ function build_e_optimal_data(seed, m, n, corr)
     Random.seed!(seed)
     if corr 
         B = rand(m,n)
-        B = B'*B
+        B = B' * B
         @assert isposdef(B)
         D = MvNormal(randn(n),B)
         
