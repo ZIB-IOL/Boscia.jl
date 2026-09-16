@@ -120,9 +120,9 @@ A_s = randn(rng, m, k)
     settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
     settings.smoothing[:max_restart_fw_iter] = 100
     settings.smoothing[:clip_mu_resolution] = true
-    σ = maximum(norm(view(A_s, :, i)) for i in 1:k)  
-    settings.smoothing[:smoothing_start] = 0.2 * σ   
-    settings.smoothing[:smoothing_min] = 1e-3 * σ  
+    σ = maximum(norm(view(A_s, :, i)) for i in 1:k)
+    settings.smoothing[:smoothing_start] = 0.2 * σ
+    settings.smoothing[:smoothing_min] = 1e-3 * σ
     settings.smoothing[:smoothing_decay] = 0.85
 
     x, tlmo, result = Boscia.solve(f, grad!, lmo, settings=settings)
