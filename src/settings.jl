@@ -55,6 +55,7 @@ function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
     print_iter = 100
     bnb_callback = nothing
     branch_callback = nothing
+    node_callback= nothing
     start_solution = nothing
     use_shadow_set = true
     node_limit = if mode == HEURISTIC_MODE
@@ -92,6 +93,7 @@ function settings_bnb(; mode::Mode=Boscia.DEFAULT_MODE)
         :ignore_lower_bound => ignore_lower_bound,
         :start_solution => start_solution,
         :use_shadow_set => use_shadow_set,
+        :node_callback => node_callback,
     )
 end
 
@@ -449,7 +451,6 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     generate_smoothing_objective = nothing
     max_restart_fw_iter = 100
     clip_mu_resolution = false
-    node_callback = nothing
 
     return Dict{Symbol,Union{Nothing,Function,Float64,Bool,Int64}}(
         :smoothing_start => smoothing_start,
@@ -459,6 +460,5 @@ function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
         :generate_smoothing_objective => generate_smoothing_objective,
         :max_restart_fw_iter => max_restart_fw_iter,
         :clip_mu_resolution => clip_mu_resolution,
-        :node_callback => node_callback,
     )
 end
