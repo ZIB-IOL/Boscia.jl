@@ -33,6 +33,7 @@ A_s = randn(rng, m, k)
     sol, x_sol = Boscia.min_via_enum(f, m)
 
     function generate_smoothing_function(μ; epsilon=1e-6, node_level=0)
+        # stable log-sum-exp for the linear pieces:
         function f_μ(x)
             t = [dot(A_s[:, i], x) for i in 1:k]
             return μ * logsumexp(t ./ μ) - μ * log(k)
