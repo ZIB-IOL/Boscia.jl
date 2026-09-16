@@ -9,7 +9,6 @@ using Test
 println("\nSmoothing mode test")
 
 seed = rand(UInt64)
-seed = 0xb0ad0deb8826d62c
 @show seed
 rng = StableRNG(seed)
 
@@ -34,9 +33,6 @@ A_s = randn(rng, m, k)
     sol, x_sol = Boscia.min_via_enum(f, m)
 
     function generate_smoothing_function(μ; epsilon=1e-6, node_level=0)
-        # Stable LSE of the linear pieces:
-        #   f_μ(x) = μ logsumexp_i(⟨a_i, x⟩ / μ) - μ log(k)
-        #   ∇f_μ(x) = Σ_i w_i a_i,  w = softmax(⟨a_i, x⟩ / μ)
         function f_μ(x)
             t = [dot(A_s[:, i], x) for i in 1:k]
             return μ * logsumexp(t ./ μ) - μ * log(k)
@@ -66,8 +62,6 @@ A_s = randn(rng, m, k)
     try
         Boscia.solve(f, grad!, lmo, settings=settings)
     catch err
-        # @show err
-        # showerror(stdout, err, catch_backtrace())
     end
     @test err isa ErrorException &&
           err.msg == "generate_smoothing_objective function is required in SMOOTHING_MODE!"
@@ -82,7 +76,6 @@ A_s = randn(rng, m, k)
         lmo,
         settings=settings,
     )
-
 
     # Test full run
     function node_callback(
@@ -119,7 +112,6 @@ A_s = randn(rng, m, k)
             atol=1e-6,
             rtol=1e-6,
         )
-        #@show f_μ(node.active_set.x), f(node.active_set.x)
     end
     settings = Boscia.create_default_settings(; mode=Boscia.SMOOTHING_MODE)
     settings.branch_and_bound[:verbose] = true
@@ -127,9 +119,9 @@ A_s = randn(rng, m, k)
     settings.smoothing[:generate_smoothing_objective] = generate_smoothing_function
     settings.smoothing[:max_restart_fw_iter] = 100
     settings.smoothing[:clip_mu_resolution] = true
-    σ = maximum(norm(view(A_s, :, i)) for i in 1:k)  # ≈ √m
-    settings.smoothing[:smoothing_start] = 0.2 * σ   # ~1 for m=20
-    settings.smoothing[:smoothing_min] = 1e-3 * σ  # ~4e-3
+    σ = maximum(norm(view(A_s, :, i)) for i in 1:k)  
+    settings.smoothing[:smoothing_start] = 0.2 * σ   
+    settings.smoothing[:smoothing_min] = 1e-3 * σ  
     settings.smoothing[:smoothing_decay] = 0.85
 
     x, tlmo, result = Boscia.solve(f, grad!, lmo, settings=settings)
