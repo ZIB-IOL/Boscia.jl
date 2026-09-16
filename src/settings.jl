@@ -42,6 +42,7 @@ Available settings:
 - `print_iter` encodes after how many processed nodes the current node and solution status is printed. The logs are always printed if a new integral solution has been found. Per default, `print_iter` is set to `100``.
 - `bnb_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
 - `branch_callback` an optional callback called before branching. Receives the tree, the node and the branching variable index as input. Expected output is a pair of boolean values indicating whether the left and right child should be pruned. `false`indicates prune the child, `true` indicates keep the child.
+- `node_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the node solution as well as the following keyword arguments: `μ` (smoothing parameter if SMOOTHING MODE is activated), `primal`, `dual_gap`, `fw_status`, `atoms_set`, `resolve_integer_solution (only relevant in SMOOTHING MODE)`.
 - `no_pruning` if `true`, no pruning of nodes is performed. Per default, nodes are pruned if they have a lower bound which is worse than the best known solution. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `ignore_lower_bound` if `true`, the lower bound obtain by Frank-Wolfe is ignored and in the logs, only Inf will be printed. Per default, this is `true` for the `HEURISTIC` mode and `false` for the `OPTIMAL` mode.
 - `start_solution` an initial solution can be provided if known. It will be used as the initial incumbent.
@@ -441,7 +442,6 @@ Available settings:
 - `generate_smoothing_objective` function that generates the smoothed objective nd its gradient depending on the `μ` provided. It also receives as keywords the target frank-wolfe epsilon and the node level.
 - `max_restart_fw_iter` maximum number of iterations for the Frank-Wolfe algorithm called for resolving the integer solution. Per default, this is set to `1000`.
 - `clip_mu_resolution` if `true`, the smoothing parameter is clipped to the minimum value in the resolve integer solution step. Per default, this is `false`.
-- `node_callback` optional callback function that is called after every node evaluation. It will be called before the Boscia internal callback handling the printing of the logs. It receives the tree, the node and the following keyword arguments: `worse_than_incumbent=false`, `node_infeasible=false`, `lb_update=false`.
 """
 function settings_smoothing(; mode::Mode=Boscia.DEFAULT_MODE)
     smoothing_start = 1.0
