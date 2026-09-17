@@ -426,7 +426,12 @@ end
     settings_smoothing()
 
 Set the settings for a smoothed objective. 
-Only important if mode == SMOOTHING_MODE.
+Only relevant if mode == SMOOTHING_MODE.
+Note that you must supply the original non-smooth objective function to the `solve` function as well as a `grad!`.
+In contrast to the convention, in this settings, `grad!' may return multiple subgradients at the current point, as a list/vector 
+of vectors. It is not necessary to return all subgradients but generally, the more you can provide, the better 
+the bound tightening can work.
+It is advisable to wipe `storage` before populating it with the subgradients.
 
 Returns:
 

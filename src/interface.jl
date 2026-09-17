@@ -6,7 +6,7 @@
 Requires
 
 - `f` oracle of the objective function.
-- `g` oracle of the gradient of the objective
+- `g` oracle of the gradient of the objective. If the SMOOTHING MODE is used, please refer to the documentation of the smoothing settings.
 - `lmo` encodes the feasible region and can handle additional bound constraints. This can either be a MIP solver instance (e.g., SCIP) or be a custom type (see `polytope_blmos.jl`). Has to be of type `FrankWolfe.LinearMinimizationOracle` (see `blmo_interface.jl`).
 
 Returns
