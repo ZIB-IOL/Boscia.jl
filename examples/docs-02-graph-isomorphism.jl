@@ -22,7 +22,6 @@ using Boscia
 using Random
 using SparseArrays
 using FrankWolfe
-using CSV
 using StableRNGs
 using CombinatorialLinearOracles
 const CLO = CombinatorialLinearOracles
@@ -61,12 +60,20 @@ function randomNonIsomorphic(A::AbstractMatrix)
     return B
 end
 
-# For this example, we work with the Petersen graph, provided as a CSV file
-# containing its adjacency matrix.  
-# After loading A, we generate an isomorphic graph B using the routine above.
-path = joinpath(@__DIR__, "Petersen.csv")
-rows = [collect(Int, r) for r in CSV.File(path; header=false, types=Int)]
-const A = sparse(reduce(vcat, (permutedims(r) for r in rows)))
+# For this example, we work with the Petersen graph via its adjacency matrix.
+# After defining A, we generate an isomorphic graph B using the routine above.
+const A = sparse([
+    0 1 0 0 1 1 0 0 0 0
+    1 0 1 0 0 0 1 0 0 0
+    0 1 0 1 0 0 0 1 0 0
+    0 0 1 0 1 0 0 0 1 0
+    1 0 0 1 0 0 0 0 0 1
+    1 0 0 0 0 0 0 1 1 0
+    0 1 0 0 0 0 0 0 1 1
+    0 0 1 0 0 1 0 0 0 1
+    0 0 0 1 0 1 1 0 0 0
+    0 0 0 0 1 0 1 1 0 0
+])
 n = size(A, 1)
 
 B, P = randomIsomorphic(Matrix(A))

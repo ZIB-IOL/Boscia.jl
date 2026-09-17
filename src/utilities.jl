@@ -84,6 +84,7 @@ function split_vertices_set!(
         (λ, a) = tup
         if !is_bound_feasible(local_bounds, a)
             @info "removed"
+            @debug "removed: index $var value $(a[var]) local bounds: $local_bounds"
             push!(left_del_indices, idx)
             continue
         end
@@ -101,8 +102,8 @@ function split_vertices_set!(
         end
     end
     deleteat!(active_set, left_del_indices)
-    @assert !isempty(active_set)
-    @assert !isempty(right_as)
+    @assert !isempty(active_set) "Left active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
+    @assert !isempty(right_as) "Right active set is empty: x[$var]=$(x[var]) left active set: $(active_set.atoms) right active set: $(right_as.atoms)"
     # renormalize active set and recompute new iterates
     if !isempty(active_set)
         FrankWolfe.active_set_renormalize!(active_set)
@@ -228,6 +229,9 @@ end
 
 """
 Split a discarded vertices set between left and right children.
+Uses the same left/right bound convention as get_branching_nodes_info:
+- Left child: var ≤ new_bound_left
+- Right child: var ≥ new_bound_right
 """
 function split_vertices_set!(
     discarded_set::FrankWolfe.DeletedVertexStorage{T},
@@ -238,22 +242,44 @@ function split_vertices_set!(
     atol=1e-5,
     rtol=1e-5,
 ) where {T}
+    gb = tree.root.problem.integer_variable_bounds
+    lb_global = get(gb.lower_bounds, var, -Inf)
+    ub_global = get(gb.upper_bounds, var, Inf)
+    x_var = x[var]
+
+    # Same convention as in node.jl get_branching_nodes_info: three cases
+    # (1) x at global lower bound → left var ≤ lb, right var ≥ lb+1
+    # (2) x at global upper bound → left var ≤ ub-1, right var ≥ ub
+    # (3) else: x fractional in (lb, ub) → left var ≤ floor(x), right var ≥ ceil(x)
+    new_bound_left, new_bound_right = if isapprox(lb_global, x_var, atol=atol, rtol=rtol)
+        floor(x_var), floor(x_var) + 1
+    elseif isapprox(ub_global, x_var, atol=atol, rtol=rtol)
+        ceil(x_var) - 1, ceil(x_var)
+    else
+        # Covers both fractional x and integer x strictly between lb and ub
+        floor(x_var), ceil(x_var)
+    end
+
     right_as = FrankWolfe.DeletedVertexStorage{T}(T[], discarded_set.return_kth)
-    # indices to remove later from the left active set
     left_del_indices = BitSet()
     for (idx, vertex) in enumerate(discarded_set.storage)
         if !is_bound_feasible(local_bounds, vertex)
             push!(left_del_indices, idx)
             continue
         end
-        if vertex[var] >= ceil(x[var]) || isapprox(vertex[var], ceil(x[var]), atol=atol, rtol=rtol)
+        v_var = vertex[var]
+        # Left child: var ≤ new_bound_left. Right child: var ≥ new_bound_right.
+        # When new_bound_left == new_bound_right (integer x in the middle), vertex[var]==k is
+        # feasible for both; we assign it to the left only (first branch below).
+        if v_var < new_bound_left || isapprox(v_var, new_bound_left, atol=atol, rtol=rtol)
+            # Feasible for left (and only left when new_bound_left < new_bound_right)
+            continue
+        elseif v_var > new_bound_right || isapprox(v_var, new_bound_right, atol=atol, rtol=rtol)
+            # Feasible for right only
             push!(right_as.storage, vertex)
             push!(left_del_indices, idx)
-        elseif vertex[var] <= floor(x[var]) ||
-               isapprox(vertex[var], floor(x[var]), atol=atol, rtol=rtol)
-            # keep in left, don't add to right
-        else #floor(x[var]) < vertex[var] < ceil(x[var])
-            # if you are in middle, delete from the left and do not add to the right!
+        else
+            # new_bound_left < v_var < new_bound_right: feasible for neither (e.g. fractional vertex)
             @warn "Attention! Vertex in the middle."
             push!(left_del_indices, idx)
         end
