@@ -7,6 +7,7 @@ import MathOptInterface
 using HiGHS
 using Printf
 using Dates
+using LinearAlgebra
 const MOI = MathOptInterface
 const MOIU = MOI.Utilities
 using StableRNGs
