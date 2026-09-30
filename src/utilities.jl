@@ -530,3 +530,4 @@ _value_to_print(::LargestMostInfeasibleGradient) = "Largest most infeasible grad
 _value_to_print(::LargestIndex) = "Largest Index"
 _value_to_print(::RandomBranching) = "Uniform Random Choice"
 _value_to_print(::BiasedDepthFirstSearch) = "BiasedDepthFirstSearch"
+_value_to_print(::DepthFirstSearch) = "DepthFirstSearch"

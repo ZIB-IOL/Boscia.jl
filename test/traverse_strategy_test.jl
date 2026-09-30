@@ -1,5 +1,4 @@
 using Boscia
-using Bonobo
 using FrankWolfe
 using Test
 using Random
@@ -77,6 +76,20 @@ end
         settings = Boscia.create_default_settings()
         settings.branch_and_bound[:time_limit] = time_limit
         settings.branch_and_bound[:traverse_strategy] = Boscia.BiasedDepthFirstSearch(false)
+        x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
+
+        @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
+        @test isapprox(f(x), f(result[:raw_solution]), atol=1e-6, rtol=1e-3)
+    end
+
+    @testset "DepthFirstSearch (original in bonobo)" begin
+        o = SCIP.Optimizer()
+        f, grad!, lmo = build_examples(o, dimension, seed)
+
+        settings = Boscia.create_default_settings()
+        settings.branch_and_bound[:time_limit] = time_limit
+        settings.branch_and_bound[:traverse_strategy] = Boscia.DepthFirstSearch()
+        settings.branch_and_bound[:verbose] = true
         x, _, result = Boscia.solve(f, grad!, lmo, settings=settings)
 
         @test isapprox(f(x_mi), f(x), atol=1e-6, rtol=1e-3)
