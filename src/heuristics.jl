@@ -176,7 +176,7 @@ function probability_rounding(tree::BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rn
 
     # check for feasibility and boundedness
     status = check_feasibility(tlmo)
-    if status == MOI.INFEASIBLE || status == MOI.DUAL_INFEASIBLE
+    if status == INFEASIBLE || status == UNBOUNDED
         @debug "LMO state in the probability rounding heuristic: $(status)"
         # reset LMO to node state
         build_LMO(
@@ -203,7 +203,7 @@ function probability_rounding(tree::BnBTree, tlmo::Boscia.TimeTrackingLMO, x; rn
         line_search=tree.root.options[:line_search],
         lazy=tree.root.options[:lazy],
         lazy_tolerance=tree.root.options[:lazy_tolerance],
-        callback=tree.root.options[:callback],
+        callback=tree.root.options[:boscia_fw_callback],
         verbose=tree.root.options[:fw_verbose],
     )
 

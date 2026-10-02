@@ -58,6 +58,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    print_fw_iter=1000,
     kwargs...,
 )
     x, _, primal, dual_gap, status, _, active_set = FrankWolfe.away_frank_wolfe(
@@ -76,6 +77,7 @@ function solve_frank_wolfe(
         use_extra_vertex_storage=use_extra_vertex_storage,
         extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
+        print_iter=print_fw_iter,
     )
 
     return x, primal, dual_gap, status, active_set
@@ -107,6 +109,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    print_fw_iter=1000,
     kwargs...,
 )
     x, _, primal, dual_gap, status, _, active_set = blended_conditional_gradient(
@@ -124,6 +127,7 @@ function solve_frank_wolfe(
         timeout=timeout,
         verbose=verbose,
         sparsity_control=lazy_tolerance,
+        print_iter=print_fw_iter,
     )
 
     return x, primal, dual_gap, status, active_set
@@ -155,6 +159,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    print_fw_iter=1000,
     kwargs...,
 )
     x, _, primal, dual_gap, status, _, active_set =
@@ -174,6 +179,7 @@ function solve_frank_wolfe(
             sparsity_control=lazy_tolerance,
             timeout=timeout,
             verbose=verbose,
+            print_iter=print_fw_iter,
         )
     return x, primal, dual_gap, status, active_set
 end
@@ -203,6 +209,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    print_fw_iter=1000,
     kwargs...,
 )
     x, _, primal, dual_gap, status, _, active_set =
@@ -222,6 +229,7 @@ function solve_frank_wolfe(
             sparsity_control=lazy_tolerance,
             timeout=timeout,
             verbose=verbose,
+            print_iter=print_fw_iter,
         )
     return x, primal, dual_gap, status, active_set
 end
@@ -273,6 +281,7 @@ function solve_frank_wolfe(
     workspace=nothing,
     pre_computed_set=nothing,
     domain_oracle=_trivial_domain,
+    print_fw_iter=1000,
     decomposition_invariant_starting_point=nothing,
     kwargs...,
 )
@@ -308,6 +317,7 @@ function solve_frank_wolfe(
         sparsity_control=lazy_tolerance,
         callback=DICG_callback,
         extra_vertex_storage=pre_computed_set,
+        print_iter=print_fw_iter,
     )
     cleanup_precomputed_set_after_solve!(
         pre_computed_set,
@@ -443,6 +453,7 @@ function solve_frank_wolfe(
     timeout=Inf,
     verbose=false,
     workspace=nothing,
+    print_fw_iter=1000,
     kwargs...,
 )
     # If the flag away_steps is set to false, away_frank_wolfe performs Vanilla.
@@ -462,6 +473,7 @@ function solve_frank_wolfe(
         use_extra_vertex_storage=use_extra_vertex_storage,
         extra_vertex_storage=extra_vertex_storage,
         verbose=verbose,
+        print_iter=print_fw_iter,
     )
     return x, primal, dual_gap, status, active_set
 end
