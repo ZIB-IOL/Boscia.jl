@@ -117,6 +117,7 @@ Available settings:
 - `fw_verbose` if `true`, the Frank-Wolfe logs are printed at each node. Mostly meant for debugging. Per default, this is `false`.
 - `lazy` flag specifies whether the lazification of the Frank-Wolfe variant should be used. Per default `true`. Note that it has no effect on standard Frank-Wolfe.
 - `lazy_tolerance` decides how much progress is deemed enough to not have to call the LMO. Only used if the `lazy` flag is activated. Per default, this is set to `2`.
+- 'objective_gradient_builder' if specified allows objective and gradient to be constructed dependent on the node lower and upper bounds for faster evaluation.
 """
 function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
     variant = BlendedPairwiseConditionalGradient()
@@ -137,6 +138,7 @@ function settings_frank_wolfe(; mode::Mode=Boscia.DEFAULT_MODE)
         :fw_verbose => fw_verbose,
         :lazy => lazy,
         :lazy_tolerance => lazy_tolerance,
+        :objective_gradient_builder => nothing,
     )
 end
 

@@ -518,6 +518,29 @@ function get_distance_to_feasible(tree::BnBTree, value::Number)
     return abs(round(value) - value)
 end
 
+"""
+    get_node_objective_gradient(tree::BnBTree, node::FrankWolfeNode)
+
+Helper function for evaluate_node that calls the objective gradient builder specified by the user. This is then used to construct node specific objective function with its gradient
+"""
+function get_node_objective_gradient(tree::BnBTree, node::FrankWolfeNode)
+    options = tree.root.options
+    builder = options[:objective_gradient_builder]
+    #get variable bound information
+    problem = tree.root.problem
+    int_vars = problem.integer_variables
+    lb = zeros(Int, size(int_vars))
+    ub = ones(Int, size(int_vars))
+    for (i, v) in node.local_bounds.lower_bounds
+        lb[i] = Int(round(v))
+    end
+    for (i, v) in node.local_bounds.upper_bounds
+        ub[i] = Int(round(v))
+    end
+
+    return builder(int_vars, lb, ub)
+end
+
 # utility function to print the values of the parameters
 _value_to_print(::BestFirstSearch) = "Move best bound"
 _value_to_print(::PartialStrongBranching) = "Partial strong branching"
