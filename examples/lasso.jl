@@ -95,7 +95,7 @@ push!(groups, ((k_int-1)*group_size+1):p)
             [0.0, 0.0],
         )
         MOI.add_constraint(o, gl, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(M_g)))
-        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(-M_g)))
+        MOI.add_constraint(o, gg, MOI.Indicator{MOI.ACTIVATE_ON_ONE}(MOI.LessThan(M_g)))
     end
     MOI.add_constraint(
         o,
