@@ -7,8 +7,6 @@ import FrankWolfe: LinearMinimizationOracle
 export LinearMinimizationOracle
 import FrankWolfe: is_decomposition_invariant_oracle
 export is_decomposition_invariant_oracle
-import FrankWolfe: is_inface_feasible
-export is_inface_feasible
 
 import FrankWolfe: compute_inface_extreme_point
 export compute_inface_extreme_point

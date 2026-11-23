@@ -54,8 +54,9 @@ TimeTrackingLMO(lmo::LinearMinimizationOracle, int_vars, time_ref, time_limit) =
 is_decomposition_invariant_oracle(tlmo::TimeTrackingLMO) =
     is_decomposition_invariant_oracle(tlmo.lmo)
 
-is_inface_feasible(tlmo::TimeTrackingLMO, a, x) = is_inface_feasible(tlmo.lmo, a, x)
-
+# Boscia's check for MathOptLMO, ManagedLMO and custom LMO;
+# Unimported, so the MathOptLMO method is not type piracy.
+FrankWolfe.is_inface_feasible(tlmo::TimeTrackingLMO, a, x) = is_inface_feasible(tlmo.lmo, a, x)
 
 function compute_inface_extreme_point(tlmo::TimeTrackingLMO, direction, x; lazy=false, kwargs...)
     tlmo.ncalls += 1
