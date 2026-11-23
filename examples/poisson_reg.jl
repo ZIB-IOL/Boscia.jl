@@ -101,7 +101,7 @@ Ns = 0.10
         w = @view(θ[1:p])
         b = θ[end]
         storage[1:p] .= 2α .* w
-        storage[p+1:2p] .= 0
+        storage[(p+1):2p] .= 0
         storage[end] = 0
         for i in 1:n
             xi = @view(Xs[:, i])
@@ -119,5 +119,5 @@ Ns = 0.10
     #@show x
     @show result[:raw_solution]
     @test f(x) <= f(result[:raw_solution]) + 1e-6
-    @test sum(x[p+1:2p]) <= k
+    @test sum(x[(p+1):2p]) <= k
 end

@@ -41,14 +41,14 @@ using SparseArrays
 using LinearAlgebra
 import MathOptInterface
 const MOI = MathOptInterface
-using HiGHS 
+using HiGHS
 
 println("\nDocumentation Example 01: Network Design Problem")
 
 # The graph structure is shown below.
 mutable struct NetworkData
     num_nodes::Int
-    num_edges::Int  
+    num_edges::Int
     init_nodes::Vector{Int}
     term_nodes::Vector{Int}
     free_flow_time::Vector{Float64}
@@ -73,8 +73,18 @@ function load_braess_network()
     b = [0.1, 0.1, 0.1, 0.1, 3.0, 0.1, 0.1, 0.1, 0.1, 0.1, 3.0, 0.1]
     power = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
     travel_demand = [0.0 0.0 1.0; 0.0 0.0 1.0; 0.0 0.0 0.0]
-    return NetworkData(8, length(init_nodes), init_nodes, term_nodes, free_flow_time,
-                      capacity, b, power, travel_demand, 3)
+    return NetworkData(
+        8,
+        length(init_nodes),
+        init_nodes,
+        term_nodes,
+        free_flow_time,
+        capacity,
+        b,
+        power,
+        travel_demand,
+        3,
+    )
 end
 
 # ## Direct modelling via MathOptInterface
@@ -106,15 +116,15 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
     end
     edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) for i in 1:num_edges]
     edge_dict = Dict(edge_list[i] => i for i in eachindex(edge_list))
-    incoming = Dict{Int, Vector{Int}}()
-    outgoing = Dict{Int, Vector{Int}}()
-    
+    incoming = Dict{Int,Vector{Int}}()
+    outgoing = Dict{Int,Vector{Int}}()
+
     for (idx, (src, dst)) in enumerate(edge_list)
         if !haskey(outgoing, src)
             outgoing[src] = Int[]
         end
         push!(outgoing[src], idx)
-        
+
         if !haskey(incoming, dst)
             incoming[dst] = Int[]
         end
@@ -125,12 +135,12 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
             terms = MOI.ScalarAffineTerm{Float64}[]
             if haskey(outgoing, node)
                 for edge_idx in outgoing[node]
-                    push!(terms, MOI.ScalarAffineTerm(1.0, x[(dest-1)*num_edges + edge_idx]))
+                    push!(terms, MOI.ScalarAffineTerm(1.0, x[(dest-1)*num_edges+edge_idx]))
                 end
             end
             if haskey(incoming, node)
                 for edge_idx in incoming[node]
-                    push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges + edge_idx]))
+                    push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges+edge_idx]))
                 end
             end
             if node == dest
@@ -140,19 +150,15 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
             else
                 rhs = 0.0
             end
-            MOI.add_constraint(optimizer, 
-                             MOI.ScalarAffineFunction(terms, 0.0),
-                             MOI.EqualTo(rhs))
+            MOI.add_constraint(optimizer, MOI.ScalarAffineFunction(terms, 0.0), MOI.EqualTo(rhs))
         end
     end
     for edge_idx in 1:num_edges
         terms = [MOI.ScalarAffineTerm(1.0, x_agg[edge_idx])]
         for dest in 1:num_zones
-            push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges + edge_idx]))
+            push!(terms, MOI.ScalarAffineTerm(-1.0, x[(dest-1)*num_edges+edge_idx]))
         end
-        MOI.add_constraint(optimizer,
-                         MOI.ScalarAffineFunction(terms, 0.0),
-                         MOI.EqualTo(0.0))
+        MOI.add_constraint(optimizer, MOI.ScalarAffineFunction(terms, 0.0), MOI.EqualTo(0.0))
     end
     max_flow = 1.5 * sum(net_data.travel_demand)
     for (y_idx, edge) in enumerate(removed_edges)
@@ -162,21 +168,26 @@ function build_moi_model(net_data, removed_edges, use_big_m=true)
             if use_big_m
                 terms = [
                     MOI.ScalarAffineTerm(1.0, x[var_idx]),
-                    MOI.ScalarAffineTerm(-max_flow, y[y_idx])
+                    MOI.ScalarAffineTerm(-max_flow, y[y_idx]),
                 ]
-                MOI.add_constraint(optimizer,
-                                 MOI.ScalarAffineFunction(terms, 0.0),
-                                 MOI.LessThan(0.0))
+                MOI.add_constraint(
+                    optimizer,
+                    MOI.ScalarAffineFunction(terms, 0.0),
+                    MOI.LessThan(0.0),
+                )
             else
                 indicator_func = MOI.VectorAffineFunction(
                     [
                         MOI.VectorAffineTerm(1, MOI.ScalarAffineTerm(1.0, y[y_idx])),
-                        MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x[var_idx]))
+                        MOI.VectorAffineTerm(2, MOI.ScalarAffineTerm(1.0, x[var_idx])),
                     ],
-                    [0.0, 0.0]
+                    [0.0, 0.0],
                 )
-                MOI.add_constraint(optimizer, indicator_func,
-                                 MOI.Indicator{MOI.ACTIVATE_ON_ZERO}(MOI.EqualTo(0.0)))
+                MOI.add_constraint(
+                    optimizer,
+                    indicator_func,
+                    MOI.Indicator{MOI.ACTIVATE_ON_ZERO}(MOI.EqualTo(0.0)),
+                )
             end
         end
     end
@@ -213,7 +224,7 @@ function build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
         end
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
-            total += cost_per_edge[i] * x[design_start + i - 1]
+            total += cost_per_edge[i] * x[design_start+i-1]
         end
         return total
     end
@@ -229,16 +240,16 @@ function build_objective_and_gradient(net_data, removed_edges, cost_per_edge)
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            storage[agg_start + i - 1] = t0 * (1 + b * flow^p / cap^p)
+            storage[agg_start+i-1] = t0 * (1 + b * flow^p / cap^p)
         end
         for dest in 1:num_zones
             for edge in 1:num_edges
-                storage[(dest - 1) * num_edges + edge] = storage[agg_start + edge - 1]
+                storage[(dest-1)*num_edges+edge] = storage[agg_start+edge-1]
             end
         end
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
-            storage[design_start + i - 1] = cost_per_edge[i]
+            storage[design_start+i-1] = cost_per_edge[i]
         end
         return storage
     end
@@ -288,8 +299,8 @@ x_moi, _, result_moi = Boscia.solve(f_moi, grad_moi!, lmo_moi, settings=settings
 struct ShortestPathLMO <: FrankWolfe.LinearMinimizationOracle
     graph::Graphs.SimpleDiGraph{Int}
     net_data::NetworkData
-    link_dic::SparseMatrixCSC{Int, Int}
-    edge_list::Vector{Tuple{Int, Int}}
+    link_dic::SparseMatrixCSC{Int,Int}
+    edge_list::Vector{Tuple{Int,Int}}
 end
 
 # Add demand to flow vector following shortest path
@@ -298,14 +309,14 @@ function add_demand_to_path!(x, demand, state, origin, destination, link_dic, ed
     parent = -1
     edge_count = length(edge_list)
     agg_start = edge_count * num_zones
-    
+
     while parent != origin && origin != destination && current != 0
         parent = state.parents[current]
         if parent != 0
             link_idx = link_dic[parent, current]
             if link_idx != 0
-                x[(destination - 1) * edge_count + link_idx] += demand
-                x[agg_start + link_idx] += demand
+                x[(destination-1)*edge_count+link_idx] += demand
+                x[agg_start+link_idx] += demand
             end
         end
         current = parent
@@ -316,28 +327,40 @@ end
 function all_or_nothing_assignment(travel_time_vector, net_data, graph, link_dic, edge_list)
     num_zones = net_data.num_zones
     edge_count = net_data.num_edges
-    travel_time = travel_time_vector[num_zones * edge_count + 1 : (num_zones + 1) * edge_count]
+    travel_time = travel_time_vector[(num_zones*edge_count+1):((num_zones+1)*edge_count)]
     x = zeros(length(travel_time_vector))
-    
+
     for origin in 1:num_zones
         state = Graphs.dijkstra_shortest_paths(graph, origin)
-        
+
         for destination in 1:num_zones
             demand = net_data.travel_demand[origin, destination]
             if demand > 0
-                add_demand_to_path!(x, demand, state, origin, destination, 
-                                  link_dic, edge_list, num_zones)
+                add_demand_to_path!(
+                    x,
+                    demand,
+                    state,
+                    origin,
+                    destination,
+                    link_dic,
+                    edge_list,
+                    num_zones,
+                )
             end
         end
     end
-    
+
     return x
 end
 
-function Boscia.bounded_compute_extreme_point(lmo::ShortestPathLMO, direction, 
-                                               lower_bounds, upper_bounds, int_vars)
-    x = all_or_nothing_assignment(direction, lmo.net_data, lmo.graph, 
-                                  lmo.link_dic, lmo.edge_list)
+function Boscia.bounded_compute_extreme_point(
+    lmo::ShortestPathLMO,
+    direction,
+    lower_bounds,
+    upper_bounds,
+    int_vars,
+)
+    x = all_or_nothing_assignment(direction, lmo.net_data, lmo.graph, lmo.link_dic, lmo.edge_list)
     for (i, var_idx) in enumerate(int_vars)
         if direction[var_idx] < 0
             x[var_idx] = upper_bounds[i]
@@ -369,14 +392,19 @@ end
 # The gradient function computes derivatives of the objective with respect to:
 # - Aggregate flows: d/d(flow) of BPR function + penalty gradient w.r.t. flows
 # - Design variables: cost_per_edge[i] + penalty gradient w.r.t. design variables
-function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
-                                                    penalty_weight=1e6, penalty_exponent=2.0)
+function build_objective_and_gradient_with_penalty(
+    net_data,
+    removed_edges,
+    cost_per_edge,
+    penalty_weight=1e6,
+    penalty_exponent=2.0,
+)
     num_zones = net_data.num_zones
     num_edges = net_data.num_edges
     num_removed = length(removed_edges)
     edge_list = [(net_data.init_nodes[i], net_data.term_nodes[i]) for i in 1:num_edges]
-    removed_edge_indices = [findfirst(e -> e == removed_edge, edge_list) 
-                            for removed_edge in removed_edges]
+    removed_edge_indices =
+        [findfirst(e -> e == removed_edge, edge_list) for removed_edge in removed_edges]
     max_flow = 1.5 * sum(net_data.travel_demand)
     function f(x)
         x = max.(x, 0.0)
@@ -394,11 +422,11 @@ function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost
         end
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
-            total += cost_per_edge[i] * x[design_start + i - 1]
+            total += cost_per_edge[i] * x[design_start+i-1]
         end
         for (y_idx, edge_idx) in enumerate(removed_edge_indices)
             if edge_idx !== nothing
-                y_val = x[design_start + y_idx - 1]
+                y_val = x[design_start+y_idx-1]
                 for dest in 1:num_zones
                     flow_idx = (dest - 1) * num_edges + edge_idx
                     flow_val = x[flow_idx]
@@ -421,28 +449,29 @@ function build_objective_and_gradient_with_penalty(net_data, removed_edges, cost
             b = net_data.b[i]
             cap = net_data.capacity[i]
             p = net_data.power[i]
-            storage[agg_start + i - 1] = t0 * (1 + b * flow^p / cap^p)
+            storage[agg_start+i-1] = t0 * (1 + b * flow^p / cap^p)
         end
         for dest in 1:num_zones
             for edge in 1:num_edges
-                storage[(dest - 1) * num_edges + edge] = storage[agg_start + edge - 1]
+                storage[(dest-1)*num_edges+edge] = storage[agg_start+edge-1]
             end
         end
         design_start = num_zones * num_edges + num_edges + 1
         for i in 1:num_removed
-            storage[design_start + i - 1] = cost_per_edge[i]
+            storage[design_start+i-1] = cost_per_edge[i]
         end
         for (y_idx, edge_idx) in enumerate(removed_edge_indices)
             if edge_idx !== nothing
-                y_val = x[design_start + y_idx - 1]
+                y_val = x[design_start+y_idx-1]
                 for dest in 1:num_zones
                     flow_idx = (dest - 1) * num_edges + edge_idx
                     flow_val = x[flow_idx]
                     violation = max(0.0, flow_val - max_flow * y_val)
                     if violation > 1e-10
-                        grad_coeff = penalty_weight * penalty_exponent * violation^(penalty_exponent - 1)
+                        grad_coeff =
+                            penalty_weight * penalty_exponent * violation^(penalty_exponent - 1)
                         storage[flow_idx] += grad_coeff
-                        storage[design_start + y_idx - 1] += grad_coeff * (-max_flow)
+                        storage[design_start+y_idx-1] += grad_coeff * (-max_flow)
                     end
                 end
             end
@@ -465,8 +494,7 @@ for i in 1:net_data.num_edges
     push!(edge_list_custom, (net_data.init_nodes[i], net_data.term_nodes[i]))
 end
 
-link_dic = sparse(net_data.init_nodes, net_data.term_nodes, 
-                 collect(1:net_data.num_edges))
+link_dic = sparse(net_data.init_nodes, net_data.term_nodes, collect(1:net_data.num_edges))
 
 custom_lmo = ShortestPathLMO(graph, net_data, link_dic, edge_list_custom)
 
@@ -476,19 +504,25 @@ num_edges = net_data.num_edges
 num_removed = length(removed_edges)
 total_vars = num_zones * num_edges + num_edges + num_removed
 
-int_vars = collect((num_zones * num_edges + num_edges + 1):total_vars) # last num_removed variables
+int_vars = collect((num_zones*num_edges+num_edges+1):total_vars) # last num_removed variables
 lower_bounds = zeros(Float64, num_removed)  # Binary: lower bound = 0
 upper_bounds = ones(Float64, num_removed)   # Binary: upper bound = 1
 
 # To have Boscia handle the bounds, we need to wrap our LMO in an instance of `ManagedLMO`.
 bounded_lmo = Boscia.ManagedLMO(custom_lmo, lower_bounds, upper_bounds, int_vars, total_vars)
 
-f_custom, grad_custom! = build_objective_and_gradient_with_penalty(net_data, removed_edges, cost_per_edge, 
-                                                      penalty_weight, penalty_exponent)
+f_custom, grad_custom! = build_objective_and_gradient_with_penalty(
+    net_data,
+    removed_edges,
+    cost_per_edge,
+    penalty_weight,
+    penalty_exponent,
+)
 
 settings_custom = Boscia.create_default_settings()
 settings_custom.branch_and_bound[:verbose] = true
 
-x_custom, _, result_custom = Boscia.solve(f_custom, grad_custom!, bounded_lmo, settings=settings_custom)
+x_custom, _, result_custom =
+    Boscia.solve(f_custom, grad_custom!, bounded_lmo, settings=settings_custom)
 
 @show x_custom
