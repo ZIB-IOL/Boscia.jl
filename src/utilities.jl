@@ -211,7 +211,7 @@ function cleanup_precomputed_set_after_solve!(pre_computed_set, lmo, x, use_stro
         indices_to_delete = []
         for idx in eachindex(pre_computed_set)
             atom = pre_computed_set[idx]
-            if !is_inface_feasible(lmo, atom, x)
+            if !FrankWolfe.is_inface_feasible(lmo, atom, x)
                 push!(indices_to_delete, idx)
             end
         end
