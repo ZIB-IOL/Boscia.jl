@@ -437,8 +437,6 @@ function get_branching_nodes_info(tree::BnBTree, node::FrankWolfeNode, vidx::Int
     return nodes
 end
 
-
-
 """
 Computes the relaxation at that node
 """
