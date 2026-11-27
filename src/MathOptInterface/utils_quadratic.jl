@@ -78,6 +78,9 @@ function build_objective_oracles(optimizer::Optimizer)
 
     elseif typ == MOI.ScalarNonlinearFunction
         nlp = MOI.Nonlinear.Model()
+        for (name, arity, args) in optimizer.user_defined_functions
+            MOI.Nonlinear.register_operator(nlp, name, arity, args...)
+        end
         MOI.Nonlinear.set_objective(nlp, obj)
         vars = MOI.get(optimizer, MOI.ListOfVariableIndices())
         evaluator = MOI.Nonlinear.Evaluator(nlp, MOI.Nonlinear.SparseReverseMode(), vars)
@@ -91,7 +94,6 @@ function build_objective_oracles(optimizer::Optimizer)
         end
 
         return f, grad!
-
 
     else
         error("Unsupported objective type: $typ")
