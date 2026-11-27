@@ -9,6 +9,7 @@ mutable struct Optimizer{B<:AbstractLMOBackend} <: MOI.AbstractOptimizer
     primal_status::MOI.ResultStatusCode
     objective_value::Union{Nothing,Float64}
     variable_primal::Vector{Float64}
+    user_defined_functions::Vector{Tuple{Symbol,Int,Tuple}}
 end
 
 function Optimizer(backend::MathOptLMOBackend)
@@ -22,6 +23,7 @@ function Optimizer(backend::MathOptLMOBackend)
         MOI.NO_SOLUTION,
         nothing,
         Float64[],
+        Tuple{Symbol,Int,Tuple}[],
     )
 end
 
@@ -33,7 +35,7 @@ end
 """
     MOI.empty!(optimizer::Optimizer)
 
-Remove all variables, constraints and objective information from `optimizer`,
+Remove all variables, constraints, objective information and user-defined functions from `optimizer`,
 and discard the results of any previous call to `MOI.optimize!`.
 """
 function MOI.empty!(optimizer::Optimizer)
@@ -46,6 +48,7 @@ function MOI.empty!(optimizer::Optimizer)
     optimizer.primal_status = MOI.NO_SOLUTION
     optimizer.objective_value = nothing
     optimizer.variable_primal = Float64[]
+    optimizer.user_defined_functions = Tuple{Symbol,Int,Tuple}[]
 
     return
 end
@@ -55,12 +58,6 @@ end
 
 Return `true` if `optimizer` is in the same state as directly after
 `MOI.empty!`, and `false` otherwise.
-
-The optimizer is considered empty if both of the following hold:
-
-1. The cached model contains no variables, constraints or objective.
-2. No results from a previous call to `MOI.optimize!` are stored, i.e. all
-   result fields have their initial values.
 """
 function MOI.is_empty(optimizer::Optimizer)
     return MOI.is_empty(optimizer.model) &&
@@ -68,7 +65,8 @@ function MOI.is_empty(optimizer::Optimizer)
            optimizer.raw_status_string == "" &&
            optimizer.primal_status == MOI.NO_SOLUTION &&
            optimizer.objective_value == nothing &&
-           optimizer.variable_primal == Float64[]
+           optimizer.variable_primal == Float64[] &&
+           isempty(optimizer.user_defined_functions)
 end
 
 MOI.supports_incremental_interface(::Optimizer) = true
