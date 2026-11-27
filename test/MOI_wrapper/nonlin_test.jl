@@ -9,7 +9,7 @@ using StableRNGs
 # The objective is written as a user-defined operator op_f.
 # The optimal solution is round.(d).
 
-@testset "User-defined operator" begin
+@testset "User-defined operator without gradient" begin
     d = [0.3, 0.9, 0.3]
     f(x...) = sum((x[i] - d[i])^2 for i in 1:3)
 
@@ -18,11 +18,8 @@ using StableRNGs
     @variable(model, 0 <= x[1:3] <= 1, Int)
     @operator(model, op_f, 3, f)
     @objective(model, Min, op_f(x...))
-    optimize!(model)
 
-    @test termination_status(model) == MOI.OPTIMAL
-    @test value.(x) ≈ round.(d) atol = 1e-8
-    @test objective_value(model) ≈ f(round.(d)...) atol = 1e-8
+    @test_throws "gradient" optimize!(model)
 end
 
 @testset "User-defined operator with gradient" begin
@@ -64,11 +61,18 @@ end
         return s
     end
 
+    function grad!(storage, x)
+        a = A * x
+        s = exp.(a) ./ sum(exp.(a))
+        storage .= A' * s .+ 2 .* (x .- c) .+ x ./ sqrt.(1 .+ x .^ 2)
+        return storage
+    end
+
     model = Model(() -> Boscia.Optimizer(SCIP.Optimizer))
     set_silent(model)
 
     @variable(model, 0 <= x[1:n] <= 2, Int)
-    @operator(model, op_f, n, (x...) -> f(collect(x)))
+    @operator(model, op_f, n, (x...) -> f(collect(x)), (g, x...) -> grad!(g, collect(x)))
     @objective(model, Min, op_f(x...))
     optimize!(model)
 
@@ -92,5 +96,4 @@ end
 
     @test objective_value(model) ≈ objective_value(model2) atol = 1e-8
     @test value.(x) ≈ value.(x2) atol = 1e-8
-
 end
