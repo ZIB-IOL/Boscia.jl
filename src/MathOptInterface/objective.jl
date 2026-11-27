@@ -89,6 +89,21 @@ function MOI.supports(::Optimizer, ::MOI.ObjectiveFunction{MOI.ScalarNonlinearFu
     return true
 end
 
+
+# ---------------------------------------------------------------------------
+# UserDefinedFunction
+# ---------------------------------------------------------------------------
+function MOI.set(optimizer::Optimizer, attr::MOI.UserDefinedFunction, args)
+    push!(optimizer.user_defined_functions, (attr.name, attr.arity, args))
+    return
+end
+
+function MOI.supports(::Optimizer, ::MOI.UserDefinedFunction)
+    return true
+end
+
+
+
 # ---------------------------------------------------------------------------
 # ObjectiveSense
 # ---------------------------------------------------------------------------
