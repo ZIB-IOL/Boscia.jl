@@ -17,10 +17,12 @@ mutable struct SimpleOptimizationProblem{F,G,TLMO<:TimeTrackingLMO,IB<:IntegerBo
     tlmo::TLMO
     integer_variable_bounds::IB
     solving_stage::Solve_Stage
+    node_specific_f
+    node_specific_g
 end
 
 SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds) =
-    SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds, SOLVING)
+    SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds, SOLVING, f, g)
 
 """
 Returns the indices of the discrete variables for the branching in `BnBTree`
