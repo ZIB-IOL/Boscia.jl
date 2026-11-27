@@ -94,6 +94,10 @@ end
 # UserDefinedFunction
 # ---------------------------------------------------------------------------
 function MOI.set(optimizer::Optimizer, attr::MOI.UserDefinedFunction, args)
+    if length(args) < 2
+        error("There is no gradient of $(attr.name)!")
+    end
+
     push!(optimizer.user_defined_functions, (attr.name, attr.arity, args))
     return
 end
