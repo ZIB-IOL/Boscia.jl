@@ -512,17 +512,17 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
     time_ref = Dates.now()
     domain_oracle = tree.root.options[:domain_oracle]
 
-    #construct the objective function and its gradient for the frank-wolfe iterations
-    node_objective, node_gradient = tree.root.problem.f, tree.root.problem.g
+    # construct the objective function and its gradient for the frank-wolfe iterations
     # If an objective and gradient builder is specified by the user, use them to build node specific objective function instead of global problem objective and derivative
+    # If no such builder is specified, the node specific objective and gradient stays the same as original problem objective and gradient
     if !(tree.root.options[:objective_gradient_builder] === nothing)
-        node_objective, node_gradient = get_node_objective_gradient(tree, node)
+        tree.root.problem.node_specific_f , tree.root.problem.node_specific_g = get_node_objective_gradient(tree, node)
     end
 
     x, primal, dual_gap, fw_status, atoms_set = solve_frank_wolfe(
         tree.root.options[:variant],
-        node_objective,
-        node_gradient,
+        tree.root.problem.node_specific_f,
+        tree.root.problem.node_specific_g,
         tree.root.problem.tlmo,
         node.active_set;
         epsilon=node.fw_dual_gap_limit,
@@ -540,6 +540,10 @@ function evaluate_node!(tree::BnBTree, node::FrankWolfeNode)
         domain_oracle=domain_oracle,
         decomposition_invariant_starting_point=decomposition_invariant_starting_point,
     )
+    
+    if !(tree.root.options[:objective_gradient_builder] === nothing)
+        tree.root.problem.node_specific_f , tree.root.problem.node_specific_g = tree.root.problem.f, tree.root.problem.g
+    end
 
     if tree.root.options[:fw_verbose]
         @show fw_status

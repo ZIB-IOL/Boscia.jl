@@ -96,7 +96,7 @@ function process_FW_callback_logic(
             ncalls = state.lmo.ncalls
             (best_v, best_val) = find_best_solution(
                 tree,
-                tree.root.problem.f,
+                tree.root.problem.node_specific_f, #allows speed up if the user has provided a faster node specific objective function
                 tree.root.problem.tlmo.lmo,
                 vars,
                 tree.root.options[:domain_oracle],
