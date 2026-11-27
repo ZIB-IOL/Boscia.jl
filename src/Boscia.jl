@@ -60,6 +60,19 @@ include("managed_blmo.jl")
 include("MOI_bounded_oracle.jl")
 include("polytope_blmos.jl")
 
+# MOI
+include("MathOptInterface/sets.jl")
+include("MathOptInterface/lmo_backend.jl")
+include("MathOptInterface/Optimizer.jl")
+include("MathOptInterface/attributes.jl")
+include("MathOptInterface/variables.jl")
+include("MathOptInterface/constraints.jl")
+include("MathOptInterface/objective.jl")
+include("MathOptInterface/utils_quadratic.jl")
+include("MathOptInterface/optimize.jl")
+include("MathOptInterface/results.jl")
+
+
 # For extensions
 if !isdefined(Base, :get_extension)
     include("../ext/BosciaSCIPExt.jl")
