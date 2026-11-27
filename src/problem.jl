@@ -17,8 +17,8 @@ mutable struct SimpleOptimizationProblem{F,G,TLMO<:TimeTrackingLMO,IB<:IntegerBo
     tlmo::TLMO
     integer_variable_bounds::IB
     solving_stage::Solve_Stage
-    node_specific_f::F
-    node_specific_g::G
+    node_specific_f
+    node_specific_g
 end
 
 SimpleOptimizationProblem(f, g, n, int_vars, tlmo, int_bounds) =
